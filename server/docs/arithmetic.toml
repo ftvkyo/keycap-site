@@ -1,0 +1,126 @@
+# fidget's arithmetic on trees, as of fidget a386417.
+
+kind = "math"
+
+["+"]
+signatures = ["a + b: Tree", "a + b: Vec2 | Vec3"]
+doc = """
+The sum of two numbers, trees or vectors.
+
+- `a`, `b`: numbers or trees, or a vector and a vector or number
+
+With a tree on either side, the sum is a tree.
+Two numbers add as Rhai adds them.
+Vectors add component by component, and a number adds to every component.
+
+Adding a number to a shape's field shrinks the shape by that much, and subtracting one grows it.
+
+Notes:
+- Field: a distance stays a distance when a number is added.
+
+See also: `-`, `offset`.
+
+Example: a square shrunk by 2 on every side, the number added to its field.
+```
+rect(20) + 2
+```
+"""
+
+["-"]
+signatures = ["a - b: Tree", "-a: Tree", "a - b: Vec2 | Vec3", "-a: Vec2 | Vec3"]
+doc = """
+The difference of two numbers, trees or vectors, or the negation of one.
+
+- `a`, `b`: numbers or trees, or a vector and a vector or number
+
+With a tree on either side, the result is a tree.
+Vectors subtract component by component.
+
+Negating a shape's field swaps its inside and outside.
+So `max(a, -b)` is `a` with `b` cut away.
+
+Notes:
+- Field: a negated distance is a distance.
+
+See also: `+`, `inverse`, `difference`.
+
+Example: a square plate with a round hole, the hole's field negated.
+```
+max(rect(30), -circle(8))
+```
+"""
+
+["*"]
+signatures = ["a * b: Tree", "a * b: Vec2 | Vec3"]
+doc = """
+The product of two numbers, trees or vectors.
+
+- `a`, `b`: numbers or trees, or a vector and a vector or number
+
+With a tree on either side, the product is a tree.
+Vectors multiply component by component, and a number scales every component.
+
+A shape's field times a positive number has the same surface.
+
+Notes:
+- Field: `k` times the shape's, so steep `k` for a factor `k` above 1, and a bound below 1.
+
+See also: `scale_exact`, `remap`.
+
+Example: an ellipse, from a circle whose X is multiplied by 2.
+```
+circle(10).remap(x * 2, y, z)
+```
+"""
+
+["/"]
+signatures = ["a / b: Tree", "a / b: Vec2 | Vec3"]
+doc = """
+The quotient of two numbers, trees or vectors.
+
+- `a`, `b`: numbers or trees, or a vector and a vector or number
+
+With a tree on either side, the quotient is a tree.
+Vectors divide component by component.
+
+Between two integers it is Rhai's integer division, which drops the fraction.
+Write one of them with a decimal point when the fraction matters.
+
+Example: two integers divided, the fraction dropped.
+```
+7 / 2
+```
+Example: the same with a decimal point.
+```
+7.0 / 2
+```
+"""
+
+["%"]
+signatures = ["a % b: Tree"]
+doc = """
+The remainder of `a` divided by `b`.
+
+- `a`, `b`: numbers or trees
+
+With a tree on either side, it is the Euclidean remainder: from 0 up to `b`, for a negative `a` too.
+Between two numbers, it is Rhai's remainder, which has the sign of `a`.
+
+A remainder of a coordinate repeats space: every cell `b` wide maps onto the first one.
+A shape evaluated at such a coordinate repeats without end.
+
+Notes:
+- Field: the shape's, as long as the shape stays inside its cell with some margin.
+
+See also: `repeat_x`, `repeat`, `repeat_grid`.
+
+References:
+- [Euclidean division, Wikipedia](https://en.wikipedia.org/wiki/Euclidean_division)
+- Inigo Quilez, [Domain repetition](https://iquilezles.org/articles/sdfrepetition/)
+
+Example: a row of spheres 10 apart, its X folded into cells from -5 to 5, cut to a length.
+```
+let cells = sphere(3).remap((x + 5) % 10 - 5, y, z);
+max(cells, abs(x) - 30)
+```
+"""

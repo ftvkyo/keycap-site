@@ -1,0 +1,63 @@
+# fidget's shapes from 2D to 3D, as of fidget a386417.
+
+kind = "extrude"
+
+[extrude_z]
+doc = """
+A 2D shape extruded along Z, from z = `lower` up to `upper`.
+
+- `shape`: the 2D shape; its slice at z = 0 is the one extruded
+- `lower`, `upper`: the heights of the bottom and the top
+
+By position, all three come, in this order.
+
+Notes:
+- Field: exact inside and beside the walls, a bound beyond the rims.
+
+See also: `extrude`, which is exact at the rims and rounds or chamfers them.
+
+Example: a hexagonal plate 5 thick.
+```
+hexagon_af(20).extrude_z(0, 5)
+```
+"""
+prefer = "extrude(shape, [lower, upper])"
+why = "exact rims, so offsets round them, with options to round or chamfer them"
+
+[loft_z]
+doc = """
+A solid that turns from one 2D shape into another as it rises.
+
+- `a`: the 2D shape at the bottom
+- `b`: the 2D shape at the top
+- `lower`, `upper`: the heights of the bottom and the top
+
+Between the two heights, the field is interpolated linearly from `a`'s to `b`'s.
+By position, all four come, in this order.
+
+Notes:
+- Field: not a distance, though close to one for similar shapes.
+
+See also: `loft`, which keeps a distance where the walls lean and eases between the shapes.
+
+Example: a circle that becomes a square as it rises.
+```
+loft_z(circle(10), rect(16), 0, 20)
+```
+"""
+prefer = "loft([#{z: lower, shape: a}, #{z: upper, shape: b}])"
+why = "a distance to first order where the walls lean, and easings between the profiles"
+
+[revolve_y]
+doc = """
+Meant to revolve a 2D shape about the Y axis; as of fidget a386417 it does not.
+
+- `shape`: the 2D shape
+- `offset`: the X of the axis
+
+It evaluates the shape at (√(x² + y²), y, z), which is no solid of revolution.
+
+See also: `revolve`, which revolves a 2D shape about Z.
+"""
+prefer = "revolve(shape)"
+why = "a solid of revolution, around Z; revolve_y is not one as of fidget a386417"

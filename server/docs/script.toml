@@ -1,0 +1,140 @@
+# keycap's script API, which keycap-server registers: what a script draws,
+# and where.  fidget's CLI and viewer have `draw` and `draw_rgb` too.
+
+kind = "script"
+
+[draw]
+signatures = ["draw(shape: Shape | Shape[])", "draw(shape: Shape | Shape[], opts: #{ role?: string })"]
+doc = """
+Draws `shape`, for the preview to show and an export to write.
+
+- `shape`: a shape, or an array of shapes, drawn as their union
+- `opts`, in a `.keycap` script only:
+  - `role`: what a laser does along the outline in a 2D export: `"cut"`, the default, `"score"` or `"engrave"`
+
+A script may draw any number of shapes.
+
+See also: `draw_rgb`, `bounds`.
+
+Example: a plate with a label engraved on it, for a laser cutter.
+```
+let label = text("A1", #{
+    size: 5,
+    halign: "center",
+    valign: "center",
+});
+draw(rect([30, 12]));
+draw(label, #{role: "engrave"})
+```
+"""
+
+[draw_rgb]
+signatures = ["draw_rgb(shape: Shape | Shape[], r: number, g: number, b: number)"]
+doc = """
+Draws `shape` in a colour, given by its red, green and blue.
+
+- `shape`: a shape, or an array of shapes, drawn as their union
+- `r`, `g`, `b`: the colour's red, green and blue, each from 0 to 1; values outside are clamped
+
+See also: `draw`.
+
+Example: a grey plate with an orange peg.
+```
+let plate = cuboid([30, 30, 4], #{anchor: "top"});
+let boss = cylinder(4, [0, 10]);
+draw_rgb(plate, 0.6, 0.6, 0.6);
+draw_rgb(boss, 1.0, 0.5, 0.0)
+```
+"""
+
+[bounds]
+signatures = ["bounds(lower: Vec3, upper: Vec3)"]
+doc = """
+Sets the region the preview shows and an export writes.
+
+- `lower`, `upper`: `[x, y, z]`, the region's lowest and highest corners
+
+Without it, the region is fitted to the drawn shapes.
+A script sets it at most once.
+A shape whose region cannot be fitted, such as one repeated without end, needs it.
+
+See also: `draw`, `resolution`.
+
+Example: a plane of spheres repeated without end, cut to a region to look at.
+```
+bounds([-20, -20, -5], [20, 20, 5]);
+sphere(3).remap((x + 5) % 10 - 5, (y + 5) % 10 - 5, z)
+```
+"""
+
+[resolution]
+signatures = ["resolution(cells: number)"]
+doc = """
+Sets the resolution of an export, in mesh cells per unit.
+
+- `cells`: the cells per unit, above 0
+
+See also: `bounds`.
+"""
+
+[text]
+signatures = [
+    "text(string: string): Shape",
+    "text(string: string, opts: #{ size?: number, font?: string, halign?: string, valign?: string, spacing?: number }): Shape",
+]
+doc = """
+The outline of `string` in the XY plane.
+
+- `string`: the text
+- `opts`:
+  - `size`: about the height of a capital letter above the baseline; 10 by default
+  - `font`: a font file, relative to the script, or an installed font by its name and style, `"JetBrains Mono:style=Bold"`; Liberation Sans by default; `"libfive"` is libfive's own font, quicker to render but no exact field
+  - `halign`: the horizontal alignment, `"left"` (the default), `"center"` or `"right"`
+  - `valign`: the vertical alignment, `"baseline"` (the default), `"top"`, `"center"` or `"bottom"`
+  - `spacing`: a factor on the advance from one letter to the next; 1 by default
+
+Notes:
+- Field: exact, its curves within a thousandth of `size`; with `"libfive"`, a bound.
+
+See also: `svg`, `engrave`.
+
+From OpenSCAD: `text()` takes the same options, and sizes, spacing and alignment match OpenSCAD 2021.01's.
+
+Example: a label raised 0.6 from a plate.
+```
+let label = text("M3", #{
+    size: 6,
+    halign: "center",
+    valign: "center",
+});
+let plate = cuboid([30, 12, 2], #{anchor: "top"});
+union(plate, label.extrude([0, 0.6]))
+```
+"""
+
+[svg]
+signatures = ["svg(path: string): Shape", "svg(path: string, opts: #{ center?: bool, id?: string }): Shape"]
+doc = """
+The shapes of an SVG (Scalable Vector Graphics) file, in the XY plane.
+
+- `path`: the file, relative to the script
+- `opts`:
+  - `center`: put the centre of the shapes' bounding box at the origin; false by default
+  - `id`: import only the element with this `id`, such as an Inkscape layer
+
+The document's bottom left corner goes to the origin.
+Its units become millimetres, at 96 pixels to the inch.
+Every closed subpath is filled, whatever its paint, by its path's `fill-rule`, even-odd for a path without a fill.
+An open subpath imports as its stroke.
+The preview reloads when the file changes.
+
+Notes:
+- Field: exact, of the shapes' union; curves within 0.01 mm.
+
+See also: `text`, `extrude`.
+
+References:
+- [The `fill-rule` property, SVG 2](https://www.w3.org/TR/SVG2/painting.html#FillRuleProperty)
+
+From OpenSCAD: `import("file.svg")` reads the file the same way.
+"""

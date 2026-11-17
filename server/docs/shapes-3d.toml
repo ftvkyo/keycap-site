@@ -1,0 +1,81 @@
+# fidget's 3D shapes, as of fidget a386417.
+
+kind = "3d"
+
+[sphere]
+doc = """
+A sphere.
+
+- `center`: its centre, `[x, y, z]`
+- `radius`: its radius
+
+The two have different types, so they may come in either order, and either may be left out.
+
+Notes:
+- Field: exact.
+
+See also: `ellipsoid`, `circle`.
+
+Example: a ball on a post.
+```
+union(
+    sphere([0, 0, 20], 6),
+    cylinder(2, [0, 20])
+)
+```
+"""
+
+[box]
+doc = """
+A box from one corner to the opposite one.
+
+- `lower`: the corner of the lowest X, Y and Z, `[x, y, z]`
+- `upper`: the corner of the highest X, Y and Z, `[x, y, z]`
+
+Both corners are needed, in this order.
+
+Notes:
+- Field: exact inside and off the faces, a bound beyond the edges and corners.
+
+See also: `cuboid`, which is exact everywhere and rounds or chamfers its edges.
+
+Example: a box 40 by 20 by 5, standing on z = 0.
+```
+box([-20, -10, 0], [20, 10, 5])
+```
+"""
+prefer = "cuboid(size, #{anchor: [-1, -1, -1]})"
+why = "an exact distance field, so offsets and rounded combinations stay round at its edges and corners"
+
+[plane]
+signatures = [
+    "plane(#{ axis: Axis, offset: number }): Shape",
+    "plane(p: string | Axis): Plane",
+    "plane(p: string | Axis, offset: number): Plane",
+]
+doc = """
+The half-space behind a plane, as a shape; or a plane, as a value for `reflect`.
+
+- `axis`: the plane's normal, as `axis` takes it
+- `offset`: the plane's distance from the origin along `axis`
+- `p`: `"xy"`, `"yz"` or `"zx"`, or an axis, the plane's normal
+
+The shape is everything where the distance along `axis` is below `offset`.
+Only the map, with both keys, builds the shape.
+Called with a name or an axis, and a float offset or none, `plane` builds a Plane value instead.
+Called with an integer offset, it builds the shape.
+
+Notes:
+- Field: exact.
+- The value `plane("xy")`'s normal is Y, not Z, as of fidget a386417.
+
+See also: `half_space`, `slab`, `reflect`.
+
+Example: a sphere cut by the plane z = 2.
+```
+intersection(
+    sphere(10),
+    plane(#{axis: "z", offset: 2})
+)
+```
+"""

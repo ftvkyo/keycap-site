@@ -1,0 +1,148 @@
+# Comparison, and fidget's choices without it, as of fidget a386417.
+
+kind = "math"
+
+[min]
+signatures = ["min(a: Tree, b: Tree): Tree", "min(a: Vec2, b: Vec2): Vec2", "min(a: Vec3, b: Vec3): Vec3"]
+doc = """
+The smaller of two values at every point: for shapes, their union.
+
+- `a`, `b`: numbers or trees, or vectors
+
+Of two numbers, it is Rhai's own `min`, a number.
+Of two vectors, it is taken component by component; a number with a vector stands for a vector of that number.
+It takes exactly two values; `union` takes more.
+
+Notes:
+- Field: exact outside both shapes, a bound inside where they overlap.
+- NaN (not a number) on either side gives NaN.
+
+See also: `max`, `union`, `union_round`.
+
+Example: two circles joined.
+```
+min(circle(10), circle([12, 0], 6))
+```
+"""
+
+[max]
+signatures = ["max(a: Tree, b: Tree): Tree", "max(a: Vec2, b: Vec2): Vec2", "max(a: Vec3, b: Vec3): Vec3"]
+doc = """
+The larger of two values at every point: for shapes, their intersection.
+
+- `a`, `b`: numbers or trees, or vectors
+
+Of two numbers, it is Rhai's own `max`, a number.
+Of two vectors, it is taken component by component; a number with a vector stands for a vector of that number.
+It takes exactly two values; `intersection` takes more.
+
+`max(a, -b)` is `a` with `b` cut away.
+`max(s, z - h)` is the part of `s` below the plane z = `h`.
+
+Notes:
+- Field: exact inside, a bound outside near the edges where the two surfaces meet.
+- NaN (not a number) on either side gives NaN.
+
+See also: `min`, `intersection`, `difference`, `intersection_round`.
+
+Example: a lens, where two circles overlap.
+```
+max(
+    circle([-6, 0], 10),
+    circle([6, 0], 10)
+)
+```
+"""
+
+[compare]
+signatures = ["compare(a: Tree, b: Tree): Tree"]
+doc = """
+The sign of `a - b` at every point: -1 where `a` is smaller, 0 where they are equal, 1 where `a` is larger.
+
+- `a`, `b`: trees, or a tree and a number
+
+It stands in for `<` and its kin, which cannot compare trees.
+Arithmetic on its result chooses between values, such as a height that depends on the side of a plane.
+
+At least one of `a` and `b` must be a tree: of two numbers it is an error, `Function not found`.
+
+Notes:
+- NaN (not a number) on either side gives NaN.
+- Its gradient is 0 everywhere, so it adds nothing to a shape's normals.
+
+See also: `and`, `or`, `not`, `<`.
+
+Example: a block 4 high left of x = 0 and 8 high right of it.
+```
+let block = cuboid([40, 20, 12], #{anchor: "bottom"});
+max(block, z - (6 + 2 * compare(x, 0)))
+```
+"""
+
+[and]
+signatures = ["and(a: Tree, b: Tree): Tree"]
+doc = """
+Logical and on 0 and non-zero: `b` where `a` is non-zero, 0 where `a` is 0.
+
+- `a`, `b`: trees, or a tree and a number
+
+The result is `b` itself, not 1, so it carries a value where a condition holds.
+Where both are 0 or 1, it is their product.
+
+At least one of `a` and `b` must be a tree: of two numbers it is an error, `Function not found`.
+
+See also: `or`, `not`, `compare`.
+
+Example: a block 3 high, raised by 5 right of x = 0.
+```
+let block = cuboid([40, 20, 12], #{anchor: "bottom"});
+max(block, z - (3 + and(compare(x, 0) + 1, 5)))
+```
+"""
+
+[or]
+signatures = ["or(a: Tree, b: Tree): Tree"]
+doc = """
+Logical or on 0 and non-zero: `a` where it is non-zero, `b` where `a` is 0.
+
+- `a`, `b`: trees, or a tree and a number
+
+The result is a value, not 1: `b` fills in where `a` is 0.
+
+At least one of `a` and `b` must be a tree: of two numbers it is an error, `Function not found`.
+
+See also: `and`, `not`, `compare`.
+"""
+
+[not]
+signatures = ["not(a: Tree): Tree"]
+doc = """
+Logical not: 1 where `a` is 0, and 0 elsewhere, NaN (not a number) included.
+
+- `a`: a tree or a number
+
+It is a tree even of a number.
+On a Rhai boolean, `!` is the logical not.
+
+With `compare`, it tests an order: `not(compare(a, b) + 1)` is 1 where `a` is smaller than `b`, and 0 elsewhere.
+
+See also: `and`, `or`, `compare`.
+"""
+
+["<"]
+signatures = ["a < b: bool", "a <= b: bool", "a > b: bool", "a >= b: bool", "a == b: bool", "a != b: bool"]
+aliases = ["<=", ">", ">=", "==", "!="]
+doc = """
+Comparisons of numbers, which fail on trees.
+
+- `a`, `b`: numbers
+
+On a tree, each raises "cannot compare Tree types during function tracing".
+
+A script runs once and builds a tree, and the tree is evaluated later, at every point.
+So a script cannot branch on a tree's value with `if`: while it runs, the tree has no value yet.
+`min`, `max`, `compare`, `and`, `or` and `not` build the choice into the tree instead.
+`max(a, b)` stands for `if a > b { a } else { b }`.
+
+See also: `min`, `max`, `compare`.
+"""

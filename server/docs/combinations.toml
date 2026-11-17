@@ -1,0 +1,120 @@
+# fidget's combinations of shapes, as of fidget a386417.
+
+kind = "csg"
+
+[union]
+doc = """
+The union of shapes: everything inside any of them.
+
+- `input`: the shapes, up to eight as arguments, or an array of any length
+
+It is `min` over the shapes.
+An empty array is empty space.
+A single shape is an error, `missing argument of type Vec<Tree>`; a single array is fine.
+
+Notes:
+- Field: exact outside, a bound inside where the shapes overlap.
+
+See also: `min`, `union_round`, `intersection`.
+
+Example: three bars crossing at the origin.
+```
+union(
+    cuboid([24, 4, 4]),
+    cuboid([4, 24, 4]),
+    cuboid([4, 4, 24])
+)
+```
+"""
+
+[intersection]
+doc = """
+The intersection of shapes: only what is inside all of them.
+
+- `input`: the shapes, up to eight as arguments, or an array of any length
+
+It is `max` over the shapes.
+An empty array is all of space.
+
+Notes:
+- Field: exact inside, a bound outside near the edges where the surfaces meet.
+
+See also: `max`, `intersection_round`, `union`.
+
+Example: a cube with its corners rounded off by a sphere.
+```
+intersection(sphere(12), cuboid(18))
+```
+"""
+
+[difference]
+doc = """
+`shape` with `cutout` cut away.
+
+- `shape`: the shape to cut
+- `cutout`: what to cut away; an array of shapes cuts their union
+
+It is `max(shape, -cutout)`.
+It takes exactly two arguments.
+
+Notes:
+- Field: exact inside, a bound outside near the cut's edges.
+
+See also: `difference_round`, `inverse`.
+
+Example: a plate with two holes.
+```
+let plate = cuboid([40, 20, 4]);
+let holes = [
+    cylinder(3, 10).move([-10, 0, 0]),
+    cylinder(3, 10).move([10, 0, 0]),
+];
+difference(plate, holes)
+```
+"""
+
+[inverse]
+doc = """
+The shape with its inside and outside swapped.
+
+- `shape`: the shape
+
+It is `-shape`.
+
+Notes:
+- Field: the shape's, negated, so an exact field stays exact.
+
+See also: `difference`, `-`.
+
+Example: a square with a round hole, a circle's inverse cut to the square.
+```
+let outside = inverse(circle(10));
+intersection(outside, rect(30))
+```
+"""
+
+[blend]
+doc = """
+A smooth union of two shapes, blended over a distance.
+
+- `a`, `b`: the shapes
+- `radius`: how far from where they meet the blend reaches
+
+The blend is Inigo Quilez's quadratic smooth minimum.
+It swells the shapes a little where they meet, and has no fixed radius.
+By position, all three come, in this order.
+
+Notes:
+- Field: a bound.
+
+See also: `union_round`, which makes a circular fillet, and `smooth_union`.
+
+References:
+- Inigo Quilez, [Smooth minimum](https://iquilezles.org/articles/smin/)
+
+Example: a post blended into a plate.
+```
+let base = cuboid([40, 40, 4]);
+blend(base, cylinder(5, 30), 3)
+```
+"""

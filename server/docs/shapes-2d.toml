@@ -1,0 +1,45 @@
+# fidget's 2D shapes, as of fidget a386417.
+
+kind = "2d"
+
+[circle]
+doc = """
+A circle in the XY plane.
+
+- `center`: its centre, `[x, y]`
+- `radius`: its radius
+
+The two have different types, so they may come in either order, and either may be left out.
+
+Notes:
+- Field: exact.
+
+See also: `ellipse`, `annulus`, `sphere`.
+
+Example: a plate with a hole of radius 3, its centre at x = 10.
+```
+max(rect([30, 16]), -circle([10, 0], 3))
+```
+"""
+
+[rectangle]
+doc = """
+A rectangle from one corner to the opposite one.
+
+- `lower`: the corner of the lowest X and Y, `[x, y]`
+- `upper`: the corner of the highest X and Y, `[x, y]`
+
+Both corners are needed, in this order.
+
+Notes:
+- Field: exact inside and beside the edges, a bound beyond the corners.
+
+See also: `rect`, which is exact everywhere and rounds or chamfers its corners.
+
+Example: a rectangle 40 by 20, from the origin up.
+```
+rectangle([0, 0], [40, 20])
+```
+"""
+prefer = "rect(size, #{anchor: [-1, -1]})"
+why = "an exact distance field, so offsets and rounded combinations stay round at its corners"

@@ -1,0 +1,273 @@
+# fidget's transforms, as of fidget a386417.
+
+kind = "transform"
+
+[move]
+doc = """
+The shape moved.
+
+- `shape`: the shape
+- `offset`: the move, `[x, y, z]`; `[x, y]` moves in the XY plane
+
+Notes:
+- Field: the shape's, moved.
+
+See also: `remap`.
+
+From OpenSCAD: `translate(v)` is `.move(v)`.
+
+Example: a sphere moved up onto a cube.
+```
+union(
+    cuboid(10),
+    sphere(4).move([0, 0, 7])
+)
+```
+"""
+
+[rotate]
+doc = """
+The shape turned about an axis through a centre.
+
+- `shape`: the shape
+- `axis`: the axis, `"x"`, `"y"` or `"z"`, an `axis` value, or a vector
+- `angle`: the turn, in degrees, anticlockwise looking down the axis towards the centre
+- `center`: a point on the axis, `[x, y, z]`
+
+By position, `axis`, `angle` and `center` may come in any order, and any of them may be left out.
+An array by position is taken for `center`, so a vector axis goes through `axis` or the map.
+
+Notes:
+- Field: the shape's, turned.
+
+See also: `rotate_x`, `rotate_xyz`.
+
+Example: a bar turned 30 degrees about Y.
+```
+cuboid([30, 4, 4]).rotate("y", 30)
+```
+"""
+
+[rotate_x]
+doc = """
+The shape turned about an axis parallel to X.
+
+- `shape`: the shape
+- `angle`: the turn, in degrees, anticlockwise looking from +X
+- `center`: a point on the axis, `[x, y, z]`
+
+Notes:
+- Field: the shape's, turned.
+
+See also: `rotate`, `rotate_xyz`.
+
+Example: a rod tilted 45 degrees about X.
+```
+cylinder(2, 20).rotate_x(45)
+```
+"""
+
+[rotate_y]
+doc = """
+The shape turned about an axis parallel to Y.
+
+- `shape`: the shape
+- `angle`: the turn, in degrees, anticlockwise looking from +Y
+- `center`: a point on the axis, `[x, y, z]`
+
+Notes:
+- Field: the shape's, turned.
+
+See also: `rotate`, `rotate_xyz`.
+
+Example: a rod tilted 45 degrees about Y.
+```
+cylinder(2, 20).rotate_y(45)
+```
+"""
+
+[rotate_z]
+doc = """
+The shape turned about an axis parallel to Z.
+
+- `shape`: the shape
+- `angle`: the turn, in degrees, anticlockwise looking down from +Z
+- `center`: a point on the axis, `[x, y, z]`
+
+Notes:
+- Field: the shape's, turned.
+
+See also: `rotate`, `rotate_xyz`.
+
+Example: a bar turned 45 degrees about Z.
+```
+cuboid([20, 4, 4]).rotate_z(45)
+```
+"""
+
+[scale]
+doc = """
+The shape stretched by a factor along each axis, about the origin.
+
+- `shape`: the shape
+- `scale`: the factors, `[x, y, z]`; `[x, y]` leaves Z as it is
+
+Notes:
+- Field: a bound where every factor is at least 1; along an axis with a factor `s` below 1, steep `1 / s`.
+
+See also: `scale_bound`, `scale_exact`.
+
+Example: a sphere stretched into an ellipsoid.
+```
+sphere(10).scale([2, 1, 0.5])
+```
+"""
+
+[scale_uniform]
+doc = """
+The shape grown by one factor along every axis, about the origin.
+
+- `shape`: the shape
+- `scale`: the factor, a number
+
+Notes:
+- Field: the shape's, not rescaled, so `scale` times too small: a bound for a factor above 1, steep `1 / scale` below 1.
+
+See also: `scale_exact`, which keeps the field a distance.
+
+Example: a sphere with a copy half its size on top.
+```
+let ball = sphere(6);
+let small = ball.scale_uniform(0.5).move([0, 0, 8]);
+union(ball, small)
+```
+"""
+prefer = "scale_exact(shape, k)"
+why = "the field stays a distance, where scale_uniform's is k times off"
+
+[reflect]
+doc = """
+The shape mirrored across a plane.
+
+- `shape`: the shape
+- `plane`: the plane, a `plane` value, or a name
+
+A name gives a plane through the origin: `"yz"` or `"x"` mirrors across X, `"zx"` or `"y"` across Y, `"z"` across Z.
+A `plane` value with an offset gives a plane off the origin.
+
+Notes:
+- Field: the shape's, mirrored.
+- As of fidget a386417, `"xy"` mirrors across Y, not Z; `"z"` and `reflect_z` mirror across Z.
+
+See also: `reflect_x`, `symmetric_x`.
+
+Example: a tilted rod and its mirror image across Y.
+```
+let s = cylinder(2, 20).rotate_x(30).move([0, 6, 0]);
+union(s, s.reflect("zx"))
+```
+"""
+
+[reflect_x]
+doc = """
+The shape mirrored across the plane x = `offset`.
+
+- `shape`: the shape
+- `offset`: the X of the plane
+
+Notes:
+- Field: the shape's, mirrored.
+
+See also: `reflect`, `symmetric_x`.
+
+From OpenSCAD: `mirror([1, 0, 0])` is `.reflect_x()`.
+
+Example: a tilted rod and its mirror image across X.
+```
+let s = cylinder(2, 20).rotate_y(30).move([6, 0, 0]);
+union(s, s.reflect_x())
+```
+"""
+
+[reflect_y]
+doc = """
+The shape mirrored across the plane y = `offset`.
+
+- `shape`: the shape
+- `offset`: the Y of the plane
+
+Notes:
+- Field: the shape's, mirrored.
+
+See also: `reflect`, `symmetric_y`.
+
+Example: a tilted cone and its mirror image across Y.
+```
+let s = cone([4, 0], 12).rotate_x(-60).move([0, 8, 0]);
+union(s, s.reflect_y())
+```
+"""
+
+[reflect_z]
+doc = """
+The shape mirrored across the plane z = `offset`.
+
+- `shape`: the shape
+- `offset`: the Z of the plane
+
+Notes:
+- Field: the shape's, mirrored.
+
+See also: `reflect`, `symmetric_z`.
+
+Example: a cone and its mirror image across Z.
+```
+let s = cone([6, 0], 10).move([0, 0, 5]);
+union(s, s.reflect_z())
+```
+"""
+
+[reflect_xy]
+doc = """
+The shape mirrored across the plane x = y, so that X and Y swap.
+
+- `shape`: the shape
+- `offset`: how far the plane is moved along its normal
+
+Notes:
+- Field: the shape's, mirrored.
+
+See also: `reflect`.
+
+Example: a bar along X and its mirror image along Y.
+```
+let s = cuboid([20, 4, 4]).move([12, 0, 0]);
+union(s, s.reflect_xy())
+```
+"""
+
+[repeat_x]
+doc = """
+The shape repeated without end along X.
+
+- `shape`: the shape
+- `radius`: half the length of a cell; copies are `2 * radius` apart
+- `offset`: the X of the cell's centre
+
+The part of the shape within `radius` of `offset` is copied into every cell.
+By position, all three come, in this order; only the map with `shape` leaves `radius` or `offset` out.
+
+Notes:
+- Field: the shape's, as long as the shape stays inside its cell with some margin; the field jumps at the cells' edges where the shape's differs there.
+
+See also: `repeat`, `repeat_grid`, `%`.
+
+References:
+- Inigo Quilez, [Domain repetition](https://iquilezles.org/articles/sdfrepetition/)
+
+Example: a row of spheres 10 apart, cut to a length.
+```
+let balls = sphere(3).repeat_x(5, 0);
+intersection(balls, cuboid([50, 10, 10]))
+```
+"""

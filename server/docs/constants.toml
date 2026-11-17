@@ -1,0 +1,146 @@
+# fidget's coordinates and constants, as of fidget a386417.
+
+kind = "math"
+
+[x]
+signatures = ["x: Tree"]
+doc = """
+The X coordinate, as a tree: what every shape is built from.
+
+Arithmetic and functions on `x`, `y` and `z` build a tree instead of computing a number.
+The tree is evaluated later, at every point the preview or the export asks about.
+A shape is such a tree, below 0 inside and above 0 outside.
+
+`x`, `y` and `z` are defined everywhere, inside functions too.
+A variable of the same name hides one.
+
+See also: `y`, `z`, `axes`, `remap`.
+
+Example: a circle of radius 10, written as its distance from the origin minus 10.
+```
+sqrt(x * x + y * y) - 10
+```
+"""
+
+[y]
+signatures = ["y: Tree"]
+doc = """
+The Y coordinate, as a tree.
+
+See also: `x`, `z`.
+"""
+
+[z]
+signatures = ["z: Tree"]
+doc = """
+The Z coordinate, as a tree.
+
+A shape whose tree has no `z` is the same at every height.
+The preview shows such a shape as 2D, in the XY plane.
+
+See also: `x`, `y`.
+
+Example: a sphere cut flat at z = 4, its field the larger of the sphere's and the height above the cut.
+```
+max(sphere(10), z - 4)
+```
+"""
+
+[axes]
+signatures = ["axes(): #{ x: Tree, y: Tree, z: Tree }"]
+doc = """
+The three coordinates in a map.
+
+The map's `x`, `y` and `z` are the same trees as the variables `x`, `y` and `z`.
+They stay at hand in a script that uses those names for numbers.
+
+See also: `x`.
+
+Example: a sphere of radius `x`, cut at half its height, where `x` is a number.
+```
+let x = 12;
+let p = axes();
+max(sphere(x), p.z - x / 2)
+```
+"""
+
+[PI]
+signatures = [
+    "PI: number",
+    "TAU: number",
+    "E: number",
+    "PHI: number",
+    "GOLDEN_RATIO: number",
+    "SQRT_2: number",
+    "FRAC_1_SQRT_2: number",
+    "FRAC_PI_2: number",
+    "FRAC_PI_3: number",
+    "FRAC_PI_4: number",
+    "FRAC_PI_6: number",
+    "FRAC_PI_8: number",
+    "FRAC_1_PI: number",
+    "FRAC_2_PI: number",
+    "FRAC_2_SQRT_PI: number",
+    "LN_2: number",
+    "LN_10: number",
+    "LOG2_E: number",
+    "LOG10_E: number",
+]
+aliases = [
+    "TAU",
+    "E",
+    "PHI",
+    "GOLDEN_RATIO",
+    "SQRT_2",
+    "FRAC_1_SQRT_2",
+    "FRAC_PI_2",
+    "FRAC_PI_3",
+    "FRAC_PI_4",
+    "FRAC_PI_6",
+    "FRAC_PI_8",
+    "FRAC_1_PI",
+    "FRAC_2_PI",
+    "FRAC_2_SQRT_PI",
+    "LN_2",
+    "LN_10",
+    "LOG2_E",
+    "LOG10_E",
+]
+doc = """
+fidget's mathematical constants.
+
+- `PI`: π, 3.14159..., half a turn in radians
+- `TAU`: τ = 2π, 6.28318..., a full turn in radians
+- `E`: Euler's number e, 2.71828...
+- `PHI`, `GOLDEN_RATIO`: the golden ratio φ, 1.61803...
+- `SQRT_2`: √2, 1.41421...
+- `FRAC_1_SQRT_2`: 1/√2, 0.70710...
+- `FRAC_PI_2`, `FRAC_PI_3`, `FRAC_PI_4`, `FRAC_PI_6`, `FRAC_PI_8`: π/2, π/3, π/4, π/6 and π/8; 90, 60, 45, 30 and 22.5 degrees in radians
+- `FRAC_1_PI`: 1/π, 0.31830...
+- `FRAC_2_PI`: 2/π, 0.63661...
+- `FRAC_2_SQRT_PI`: 2/√π, 1.12837...
+- `LN_2`: the natural logarithm of 2, 0.69314...
+- `LN_10`: the natural logarithm of 10, 2.30258...
+- `LOG2_E`: the logarithm of e to base 2, 1.44269...
+- `LOG10_E`: the logarithm of e to base 10, 0.43429...
+
+In the names, `SQRT` is a square root, `FRAC_a_b` the fraction a/b, `LN` a natural logarithm, and `LOG2` and `LOG10` logarithms to base 2 and 10.
+They are Rust's 64-bit constants of the same names.
+
+fidget's transforms take angles in degrees, but its trigonometric functions take radians.
+A variable of the same name hides a constant.
+
+Notes:
+- There is no `SQRT_3`, although fidget's own documentation lists it.
+  `sqrt(3.0)` is the same number.
+
+See also: `sin`, `atan2`, `sind`.
+
+References:
+- [Constants in `std::f64::consts`, the Rust standard library](https://doc.rust-lang.org/std/f64/consts/index.html)
+
+Example: the sine of 30 degrees, the angle turned into radians first.
+```
+sin(30.0 * PI / 180.0)
+```
+"""

@@ -1,0 +1,37 @@
+# fidget's remap, the transform behind all transforms, as of fidget a386417.
+
+kind = "math"
+
+[remap]
+signatures = [
+    "remap(shape: Shape, x: Tree, y: Tree, z: Tree): Shape",
+    "remap(shape: Shape, x: Tree, y: Tree): Shape",
+    "shape.remap(x: Tree, y: Tree, z: Tree): Shape",
+    "shape.remap(x: Tree, y: Tree): Shape",
+]
+doc = """
+The shape evaluated at other coordinates: `x`, `y` and `z` in its tree replaced by the given trees.
+
+- `shape`: the shape to transform
+- `x`, `y`, `z`: the new coordinates, trees of the old ones; without `z`, Z stays as it is
+
+Every transform is a remap.
+The shape moves the opposite way to its coordinates: `s.remap(x - 5, y, z)` is `s` moved 5 along +X.
+
+Each coordinate must be a tree: a number is an error, `Function not found`.
+A constant coordinate is written as a tree, such as `0.0 * x`.
+
+Notes:
+- Field: a distance stays a distance under a rigid motion, a move, turn or mirror; a scale or a bend changes the field's slope.
+
+See also: `move`, `rotate`, `scale`, `%`.
+
+Example: a bar twisted by a quarter turn over its height.
+```
+bounds([-10, -10, -21], [10, 10, 21]);
+let a = z * PI / 80;
+let u = x * cos(a) + y * sin(a);
+let v = y * cos(a) - x * sin(a);
+cuboid([10, 10, 40]).remap(u, v, z)
+```
+"""

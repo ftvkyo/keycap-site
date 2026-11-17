@@ -1,0 +1,48 @@
+# fidget's random numbers, as of fidget a386417.
+
+kind = "math"
+
+[rand]
+signatures = ["rand(seed: Tree): Tree"]
+doc = """
+A random number from 0 up to 1, made from `seed`.
+
+- `seed`: a number or a tree
+
+The number is a hash of the bits of `seed`, so the same seed always gives the same number.
+Seeds that differ by a little give unrelated numbers.
+A seed that is the same across a cell, such as the `floor` of a coordinate, gives each cell its own number.
+`mix` makes one seed of two values.
+
+It is a tree even of a number.
+
+See also: `mix`, `floor`.
+
+Example: a 20 mm tile with about half of its 2 mm squares, picked at random.
+```
+let noise = rand(mix(floor(x / 2), floor(y / 2)));
+max(rect(20), noise - 0.5)
+```
+"""
+
+[mix]
+signatures = ["mix(a: Tree, b: Tree): Tree"]
+doc = """
+One seed for `rand`, made by hashing the bits of `a` and `b` together.
+
+- `a`, `b`: trees, or a tree and a number
+
+The result is raw bits, any number or NaN (not a number), only good as a seed.
+It does not blend `a` and `b` as the OpenGL Shading Language's `mix` does; the prelude's `lerp` does that.
+
+At least one of `a` and `b` must be a tree: of two numbers it is an error, `Function not found`.
+
+See also: `rand`, `lerp`.
+
+Example: a block of 10 mm pillars, each of a random height, seeded by its cell in X and Y.
+```
+let plate = cuboid([40, 40, 20], #{anchor: "bottom"});
+let noise = 10 * rand(mix(floor(x / 10), floor(y / 10)));
+max(plate, z - 5 - noise)
+```
+"""

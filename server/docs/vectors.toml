@@ -1,0 +1,94 @@
+# fidget's vectors and axes, as of fidget a386417.
+
+kind = "math"
+
+[vec2]
+signatures = ["vec2(x: number, y: number): Vec2", "vec2(a: number[]): Vec2", "vec2(v: Vec2): Vec2"]
+doc = """
+A 2D vector, of two 32-bit floats.
+
+- `x`, `y`: its components
+- `a`: an array of exactly two numbers
+- `v`: a vector, returned as it is
+
+fidget's shapes take `[x, y]` arrays for their 2D fields, so a script seldom needs `vec2`.
+Its components are its properties `.x` and `.y`, numbers.
+A component is set to a float: setting it to an integer is an error.
+
+`+`, `-`, `*` and `/` work component by component, with another vector or with a number for every component.
+`min`, `max`, `abs`, `sqrt` and `-` on one vector work component by component too.
+
+Notes:
+- fidget has no dot product, length or normalisation; the prelude's `dot`, `norm` and `normalize` take vectors as well as arrays.
+
+See also: `vec3`, `dot`, `norm`.
+
+Example: the length of a vector, from the prelude's `norm`.
+```
+norm(vec2(3, 4))
+```
+"""
+
+[vec3]
+signatures = ["vec3(x: number, y: number, z: number): Vec3", "vec3(a: number[]): Vec3", "vec3(v: Vec3): Vec3"]
+doc = """
+A 3D vector, of three 32-bit floats.
+
+- `x`, `y`, `z`: its components
+- `a`: an array of two or three numbers; without a third, Z is 0
+- `v`: a vector, returned as it is
+
+fidget's shapes take `[x, y, z]` arrays for their 3D fields, so a script seldom needs `vec3`.
+A 3D field given two numbers takes the third from its default, 0 for a position and 1 for a scale.
+Its components are its properties `.x`, `.y` and `.z`, numbers, set as `vec2`'s are.
+Operators and functions work as they do on `vec2`.
+
+See also: `vec2`, `cross`.
+
+Example: a vector's components halved, the result a vector.
+```
+(vec3(4, 6, 10) / 2).to_string()
+```
+"""
+
+[axis]
+signatures = ["axis(a: string | Tree | Vec3): Axis"]
+doc = """
+A direction, of length 1.
+
+- `a`: `"x"`, `"y"` or `"z"`, or the tree `x`, `y` or `z`, or a vector, which is scaled to length 1
+
+A field of type `Axis`, such as `rotate`'s `axis`, takes the same values directly.
+
+Notes:
+- A vector of length 0, NaN (not a number) or one too long to scale is an error.
+
+See also: `rotate`, `plane`.
+
+Example: a rod turned 45 degrees about the diagonal of the XY plane.
+```
+cylinder(2, 20)
+    .rotate(axis([1, 1, 0]), 45)
+```
+"""
+
+[to_string]
+signatures = [
+    "to_string(t: Tree): string",
+    "to_string(v: Vec2 | Vec3 | Axis | Plane): string",
+    "t.to_string(): string",
+    "v.to_string(): string",
+]
+doc = """
+A short text for a tree, a vector, an axis or a plane.
+
+- `t`: a tree, written `x`, `y` or `z` for a coordinate and `Tree(..)` for any other
+- `v`: a vector, written as an array, or an axis or plane, written as the call that makes it
+
+`print` uses it, so printing a tree tells only that it is one.
+
+Example: a vector, as text.
+```
+vec3(1, 2, 3).to_string()
+```
+"""

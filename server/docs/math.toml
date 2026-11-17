@@ -1,0 +1,290 @@
+# fidget's math functions on trees, as of fidget a386417.
+
+kind = "math"
+
+[abs]
+signatures = ["abs(a: Tree): Tree", "abs(a: Vec2): Vec2", "abs(a: Vec3): Vec3"]
+doc = """
+The absolute value.
+
+- `a`: a number, a tree or a vector
+
+Of a number, it is Rhai's own `abs`, a number.
+Of a vector, it is taken component by component.
+
+On a coordinate, it mirrors: a shape evaluated at `abs(x)` has its +X half copied onto -X.
+On a shape's field, it gives a shell of no thickness around the surface, which a number subtracted makes thick.
+
+Notes:
+- Field: `abs` of a distance is a distance.
+
+See also: `symmetric_x`, `shell`.
+
+Example: a ring 1 wide, the shell of a circle.
+```
+abs(circle(10)) - 0.5
+```
+"""
+
+[sqrt]
+signatures = ["sqrt(a: Tree): Tree", "sqrt(a: Vec2): Vec2", "sqrt(a: Vec3): Vec3"]
+doc = """
+The square root.
+
+- `a`: a number, a tree or a vector
+
+Of a float, it is Rhai's own `sqrt`, a number.
+Of an integer, it is a tree, which fidget's shapes do not take for a number.
+Of a vector, it is taken component by component.
+
+Notes:
+- NaN (not a number) below 0.
+
+See also: `square`, `hypot`.
+
+Example: a sphere of radius 10, written as its distance from the origin minus 10.
+```
+sqrt(x * x + y * y + z * z) - 10
+```
+"""
+
+[square]
+signatures = ["square(a: Tree): Tree"]
+doc = """
+`a` times itself.
+
+- `a`: a number or a tree
+
+It is a tree even of a number; `a * a` gives a number.
+
+See also: `sqrt`.
+
+Example: an ellipse 40 by 20, from its implicit equation.
+```
+square(x / 20) + square(y / 10) - 1
+```
+"""
+
+[sin]
+signatures = ["sin(a: Tree): Tree"]
+doc = """
+The sine of an angle in radians.
+
+- `a`: the angle, a number or a tree
+
+Of a float, it is Rhai's own `sin`, a number.
+Of an integer, it is a tree, which fidget's shapes do not take for a number.
+
+See also: `cos`, `tan`, `asin`, `sind`, `PI`.
+
+Example: a plate with a wavy edge.
+```
+let wave = y - 6 - 2 * sin(x / 3);
+max(rect([60, 20]), wave)
+```
+"""
+
+[cos]
+signatures = ["cos(a: Tree): Tree"]
+doc = """
+The cosine of an angle in radians.
+
+- `a`: the angle, a number or a tree
+
+Of a float, it is Rhai's own `cos`, a number.
+Of an integer, it is a tree, which fidget's shapes do not take for a number.
+
+See also: `sin`, `tan`, `acos`, `cosd`, `PI`.
+"""
+
+[tan]
+signatures = ["tan(a: Tree): Tree"]
+doc = """
+The tangent of an angle in radians.
+
+- `a`: the angle, a number or a tree
+
+Of a float, it is Rhai's own `tan`, a number.
+Of an integer, it is a tree, which fidget's shapes do not take for a number.
+
+See also: `sin`, `cos`, `atan`, `tand`, `PI`.
+"""
+
+[asin]
+signatures = ["asin(a: Tree): Tree"]
+doc = """
+The arcsine: the angle whose sine is `a`, in radians from -π/2 to π/2.
+
+- `a`: a number or a tree, from -1 to 1
+
+Of a float, it is Rhai's own `asin`, a number.
+Of an integer, it is a tree, which fidget's shapes do not take for a number.
+
+Notes:
+- NaN (not a number) outside -1 to 1.
+
+See also: `sin`, `acos`, `atan`, `asind`.
+"""
+
+[acos]
+signatures = ["acos(a: Tree): Tree"]
+doc = """
+The arccosine: the angle whose cosine is `a`, in radians from 0 to π.
+
+- `a`: a number or a tree, from -1 to 1
+
+Of a float, it is Rhai's own `acos`, a number.
+Of an integer, it is a tree, which fidget's shapes do not take for a number.
+
+Notes:
+- NaN (not a number) outside -1 to 1.
+
+See also: `cos`, `asin`, `atan`, `acosd`.
+"""
+
+[atan]
+signatures = ["atan(a: Tree): Tree"]
+doc = """
+The arctangent: the angle whose tangent is `a`, in radians from -π/2 to π/2.
+
+- `a`: a number or a tree
+
+Of a float, it is Rhai's own `atan`, a number.
+Of an integer, it is a tree, which fidget's shapes do not take for a number.
+
+For the angle of a point, all the way round, `atan2` takes both coordinates.
+
+See also: `tan`, `atan2`, `atand`.
+"""
+
+[atan2]
+signatures = ["atan2(y: Tree, x: Tree): Tree"]
+doc = """
+The two-argument arctangent: the angle of the point (`x`, `y`) from +X, in radians from -π to π.
+
+- `y`, `x`: the point's coordinates, `y` first
+
+At least one of `y` and `x` must be a tree: of two numbers it is an error, `Function not found`.
+For two numbers, Rhai's `atan(y, x)` gives the same angle, as a number.
+
+The angle jumps from π to -π across -X.
+
+See also: `atan`, `atan2d`, `repeat_polar`.
+
+References:
+- [atan2, Wikipedia](https://en.wikipedia.org/wiki/Atan2)
+
+Example: a round ramp that climbs from 0 to 10 high once around Z, with a step on -X.
+```
+let disc = max(circle(20), -z);
+max(disc, z - (5 + 5 * atan2(y, x) / PI))
+```
+"""
+
+[exp]
+signatures = ["exp(a: Tree): Tree"]
+doc = """
+The exponential function: e, Euler's number, to the power `a`.
+
+- `a`: a number or a tree
+
+Of a float, it is Rhai's own `exp`, a number.
+Of an integer, it is a tree, which fidget's shapes do not take for a number.
+
+See also: `ln`, `E`.
+"""
+
+[ln]
+signatures = ["ln(a: Tree): Tree"]
+doc = """
+The natural logarithm, to base e.
+
+- `a`: a number or a tree, above 0
+
+Of a float, it is Rhai's own `ln`, a number.
+Of an integer, it is a tree, which fidget's shapes do not take for a number.
+
+Notes:
+- NaN (not a number) below 0, and minus infinity at 0.
+
+See also: `exp`, `LN_2`.
+"""
+
+[floor]
+signatures = ["floor(a: Tree): Tree"]
+doc = """
+The largest integer not above `a`.
+
+- `a`: a number or a tree
+
+Of a float, it is Rhai's own `floor`, a number.
+Of an integer, it is a tree.
+
+A floor of a coordinate numbers the cells of a grid, for a pattern that changes from cell to cell.
+
+Notes:
+- Field: a step at every integer, so a field with `floor` in it is no distance across the steps.
+
+See also: `ceil`, `round`, `rand`.
+
+References:
+- [Floor and ceiling functions, Wikipedia](https://en.wikipedia.org/wiki/Floor_and_ceiling_functions)
+
+Example: a staircase, a block whose height steps up by 5 every 8 along X.
+```
+let wall = cuboid([40, 10, 40], #{anchor: "bottom"});
+max(wall, z - 5 * (floor(x / 8) + 4))
+```
+"""
+
+[ceil]
+signatures = ["ceil(a: Tree): Tree"]
+doc = """
+The ceiling: the smallest integer not below `a`.
+
+- `a`: a number or a tree
+
+It is a tree even of a float, unlike `floor` and `round`, as Rhai has no float `ceil`.
+Rhai's own `ceiling` gives a number.
+
+Notes:
+- Field: a step at every integer, as for `floor`.
+
+See also: `floor`, `round`.
+
+References:
+- [Floor and ceiling functions, Wikipedia](https://en.wikipedia.org/wiki/Floor_and_ceiling_functions)
+
+Example: a number of 8 mm cells that covers 30 mm, from Rhai's `ceiling`, as `ceil` would give a tree.
+```
+ceiling(30.0 / 8.0)
+```
+"""
+
+[round]
+signatures = ["round(a: Tree): Tree"]
+doc = """
+The nearest integer to `a`, halves away from 0.
+
+- `a`: a number or a tree
+
+Of a float, it is Rhai's own `round`, a number.
+Of an integer, it is a tree.
+
+`x - s * round(x / s)` folds X into cells `s` wide, centred on the multiples of `s`, for a shape repeated along X.
+
+Notes:
+- Field: a step halfway between integers, as for `floor`.
+
+See also: `floor`, `ceil`, `repeat`.
+
+References:
+- Inigo Quilez, [Domain repetition](https://iquilezles.org/articles/sdfrepetition/)
+
+Example: a plate with a row of holes 10 apart.
+```
+let strip = rect([70, 12]);
+let dot = circle(3).remap(x - 10 * round(x / 10), y, z);
+max(strip, -dot)
+```
+"""
