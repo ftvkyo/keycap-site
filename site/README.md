@@ -126,8 +126,9 @@ The repository lives on knot (tangled), and the site at `keycap.rei.gay`.
    git push -u origin main
    ```
 
-2. Create an empty GitHub repository, copy `tools/github/pages.yml` into it as `.github/workflows/pages.yml`, and in its settings set Pages' source to "GitHub Actions" and its custom domain to `keycap.rei.gay`.
-   The workflow clones this repository from tangled over HTTPS, builds it and deploys it every three hours, or at once when run by hand; GitHub never needs push access, and the infra holds no GitHub key.
+2. Create an empty GitHub repository, and in its settings set Pages' source to "GitHub Actions" and its custom domain to `keycap.rei.gay`.
+   The knot pushes this repository to it after every push, and `.github/workflows/pages.yml` builds and deploys the site on each push to `main`, or at once when run by hand.
+   The mirror deletes whatever exists only on GitHub, so the workflow lives here, and the push token needs the Workflows permission besides Contents.
 3. At the DNS host of `rei.gay`, point `keycap` at GitHub with a `CNAME` to `<owner>.github.io`, and verify `rei.gay` in the GitHub account's Pages settings (a `TXT` record), so no other account can claim the name.
    Then tick "Enforce HTTPS".
 
