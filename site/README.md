@@ -117,7 +117,14 @@ The build fails on any diagnostic in the tutorial's code that a block doesn't `:
 
 ## Publishing
 
-The repository lives on knot (tangled), and the site at `keycap.rei.gay`.
+The repository lives on knot (tangled), and the site at `keycap.rei.gay`, served by GitHub Pages from the `gh-pages` branch of a GitHub mirror.
+Both are pushed by tangled CI, on the spindle at `spindle.rei.gay`; GitHub runs nothing.
+
+- `.tangled/workflows/mirror.yml` pushes `main` and the tags to GitHub after every push to them.
+- `.tangled/workflows/pages.yml` builds the site on each push to `main`, or when run by hand, and replaces `gh-pages` with one commit of `result/`, a `CNAME` and `.nojekyll`.
+  The build is reproducible and that commit's names and dates come from the source commit, so an unchanged site is not pushed at all, and a changed one uploads only the changed files.
+
+To set it up:
 
 1. Create the repository on tangled.org on the `knot.rei.gay` knot, then push to the SSH address its page shows:
 
@@ -126,10 +133,10 @@ The repository lives on knot (tangled), and the site at `keycap.rei.gay`.
    git push -u origin main
    ```
 
-2. Create an empty GitHub repository, and in its settings set Pages' source to "GitHub Actions" and its custom domain to `keycap.rei.gay`.
-   The knot pushes this repository to it after every push, and `.github/workflows/pages.yml` builds and deploys the site on each push to `main`, or at once when run by hand.
-   The mirror deletes whatever exists only on GitHub, so the workflow lives here, and the push token needs the Workflows permission besides Contents.
-3. At the DNS host of `rei.gay`, point `keycap` at GitHub with a `CNAME` to `<owner>.github.io`, and verify `rei.gay` in the GitHub account's Pages settings (a `TXT` record), so no other account can claim the name.
+2. In the repository's Settings > Pipelines, select the `spindle.rei.gay` spindle, and add the secret `GITHUB_MIRROR_TOKEN`: a fine-grained GitHub token for the mirror with Contents read and write.
+   The first push also needs Workflows read and write, since its history adds and removes a GitHub workflow; it can be dropped afterwards.
+3. Create an empty GitHub repository, push to the knot so both workflows run, then in the GitHub repository's settings set Pages' source to "Deploy from a branch", `gh-pages`, `/ (root)`, and its custom domain to `keycap.rei.gay`.
+4. At the DNS host of `rei.gay`, point `keycap` at GitHub with a `CNAME` to `<owner>.github.io`, and verify `rei.gay` in the GitHub account's Pages settings (a `TXT` record), so no other account can claim the name.
    Then tick "Enforce HTTPS".
 
 Any repository can publish Pages under its own custom domain, so the GitHub repository can belong to the personal account: with a custom domain set, it is served at `keycap.rei.gay`, not under `ftvkyo.me`.

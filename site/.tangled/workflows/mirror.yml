@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# Mirror every branch and tag to GitHub, where .github/workflows/pages.yml
-# publishes the site.
+# Mirror main and every tag to GitHub. Other branches stay on the knot, and
+# --prune only reaches tags, so pages.yml's gh-pages is left alone.
 #
 # Runs on the spindle at spindle.rei.gay. GITHUB_MIRROR_TOKEN is a repository
 # secret (Settings > Pipelines > Secrets): a fine-grained token for
-# ftvkyo/keycap-site with Contents and Workflows read and write.
+# ftvkyo/keycap-site with Contents read and write.
 when:
   - event: push
-    branch: ["**"]
+    branch: main
     tag: ["**"]
   - event: manual
 
@@ -30,4 +30,4 @@ steps:
       cd repo.git
       git -c credential.helper='!f() { if test "$1" = get; then printf "username=x-access-token\npassword=%s\n" "$GITHUB_MIRROR_TOKEN"; fi; }; f' \
         push --prune "https://github.com/$GITHUB_REPO.git" \
-        '+refs/heads/*:refs/heads/*' '+refs/tags/*:refs/tags/*'
+        '+refs/heads/main:refs/heads/main' '+refs/tags/*:refs/tags/*'
