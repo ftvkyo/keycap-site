@@ -1,0 +1,109 @@
+#+title: Shapes from formulas
+#+description: A vase that changes its outline as it rises, and a gear from four numbers.
+
+Some shapes are easiest to describe with a formula, like a profile that turns as it rises, or a gear tooth's involute flank.
+In keycap, the formula goes into the script as it is.
+
+* An outline that changes with height
+
+A new script, =vase.keycap=:
+
+#+begin_src keycap :model vase :slice "z 0" :alt A hexagon in the distance view, the slice at z = 0
+// A vase that turns from a hexagon into a six-pointed star and back.
+
+const R = 30.0;             // circumradius at the foot
+
+// A hexagon is a six-pointed star whose inner corners sit on its edges.
+let depth = keyframes(z, [
+    [0.0, 0.866],
+    [25.0, 0.577, "in_out_cubic"],
+    [50.0, 0.866, "in_out_cubic"],
+]);
+let outline = star(6, [1.0, depth]);
+draw(star(6, [R, depth * R]));
+#+end_src
+
+=keyframes(z, ...)= is a number that depends on the height: 0.866 at the foot, easing to 0.577 at 25, and back by 50.
+=star(6, [1.0, depth])= is a six-pointed star whose inner corners are at =depth=.
+At 0.866, they lie on the edges of a hexagon, so the star is a hexagon; at 0.577, it is a hexagram.
+So the outline is a different shape at every height, and the 2D view shows one slice of it.
+=outline= is a unit star that =loft= will scale later; to look at it now, the =draw= makes it full size with =star(6, [R, depth * R])=.
+Press =]= a few times, or hold Shift and turn the wheel, to move the slice up and see the hexagon turn into a star.
+Holding Shift and dragging up scrubs through the whole height at once.
+
+#+begin_src keycap :model vase :slice "z 25" :alt The same outline sliced higher up, now a six-pointed star
+#+end_src
+
+* The vase
+
+#+begin_src keycap :model vase :alt The vase, shaded: a solid that sways and widens as it rises, its outline turning from hexagon to star and back
+// The outline lofted: scaled and swayed as it rises.
+const HEIGHT = 75.0;
+const TWIST = 30.0;         // degrees the outline sways
+
+let vase = loft([
+    #{z: 0.0, shape: outline, scale: R},
+    #{z: HEIGHT / 3.0, angle: TWIST, ease: "in_out_sine"},
+    #{z: HEIGHT, angle: 0.0, scale: R * 1.6, ease: "in_out_sine"},
+]);
+let body = max(vase, hypot(x, y) - R * 1.7);
+draw(body);
+#+end_src
+
+=loft= takes key slices from the bottom up (a scale, a turn, a move) and eases each one into the next.
+The outline already changes with height by itself; =loft= only scales and turns it.
+
+=max(vase, hypot(x, y) - R * 1.7)= doesn't change anything visible, because the cylinder contains the whole vase.
+It tells the renderer where the vase ends.
+The renderer can't work that out by itself here, because the turning outline hides it from the arithmetic that finds bounds.
+
+* A wall
+
+#+begin_src keycap :model vase :slice y :alt A section through the shelled vase: a wall of even thickness following every turn
+// A wall, and the top cut open.
+const WALL = 1.2;
+
+bounds([-55, -55, -1], [55, 55, HEIGHT + 1]);
+draw(body.shell(WALL).intersection(z - (HEIGHT - WALL)));
+#+end_src
+
+=shell(WALL)= keeps a 1.2 mm skin inside the surface, and cutting the top off with =intersection= opens it.
+The wall is 1.2 mm thick measured square to the surface, however much it leans and twists; =loft= corrects the field for its slope to make that hold.
+A vase stacked from flat layers would have walls 1.2 mm thick across each layer, and thinner wherever they lean.
+
+* A gear
+
+#+begin_src keycap :model gear :alt A twelve-tooth involute gear profile in the distance view
+// An involute spur gear: module 2, twelve teeth.
+
+const M = 2.0;
+const TEETH = 12;
+
+let options = #{pressure_angle: 20.0, fillet: 0.38 * M};
+let profile = involute_gear(TEETH, M, options).difference(circle(2.5));
+draw(profile);
+#+end_src
+
+The distance to the flank of an involute tooth has a formula: the radius of the base circle times an angle.
+=involute_gear= draws every tooth that way, exactly, with a fillet at the roots, from the number of teeth and the module.
+=gear_radii= gives the pitch, base, tip and root circles.
+
+#+begin_src keycap :model gear :alt A herringbone gear, shaded: the teeth turn one way up to half its thickness and back
+// A herringbone: the profile turned up to half way and back.
+const THICKNESS = 8.0;
+const TURN = 10.0;          // degrees the teeth turn by half way up
+
+let radii = gear_radii(TEETH, M, options);
+let gear = loft([
+    #{z: 0.0, shape: profile},
+    #{z: THICKNESS / 2.0, angle: TURN},
+    #{z: THICKNESS, angle: 0.0},
+]);
+draw(max(gear, hypot(x, y) - radii.tip));
+#+end_src
+
+Turning the profile one way up to half the thickness and then back makes a herringbone gear; this is =loft= again.
+
+The gallery has more of these: a Koch snowflake vase where each level of the fractal costs one triangle, a DNA double helix bent into a ring, and a feather made of 200 Bézier barbs.
+
+[[file:08-exporting.org][Next: exporting and printing]]

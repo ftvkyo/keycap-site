@@ -1,0 +1,77 @@
+#+title: keycap
+#+subtitle: Solid modelling with signed distance fields, in Emacs
+#+description: An Emacs IDE for fidget's Rhai scripts, with a live preview of the model next to the script.
+
+#+review: reviewed 2026-11-17
+
+#+include: "field.html" export html
+
+#+attr_html: :class lead
+keycap is an Emacs IDE for designing parts for 3D printing and laser cutting.
+You write a script, and the model it describes is shown next to it, updating as you type.
+
+#+begin_src keycap :open knob.keycap :exports results :alt A knob's script in Emacs on the left, its rendered model on the right
+#+end_src
+
+The scripts are written in [[https://rhai.rs][Rhai]] and run by Matt Keeter's [[https://github.com/mkeeter/fidget][fidget]].
+In fidget, a shape is a formula: a function of =x=, =y= and =z= that is negative inside the shape, positive outside, and tells how far away the surface is.
+Rounded edges, walls of even thickness and fits with a clearance are easy to make this way, and surfaces have no facets however close you zoom in.
+
+* Features
+:PROPERTIES:
+:CUSTOM_ID: what-it-is-like
+:END:
+
+- Two windows: the script on the left, its preview on the right.
+- The preview updates as you type.
+  It takes about 0.3 s from the last key press to a new frame, and most of that is the pause that waits for you to stop typing.
+- Everything can be done from the keyboard; the mouse can also turn and zoom the model.
+- Errors are marked on the exact token, together with the call that led there.
+- Completion and ElDoc know every shape and function, and the fields of the shape whose map you are typing.
+- =C-c C-n= nudges the number at point and the model updates, so you can try a few values for a dimension instead of guessing.
+- 2D views slice the model anywhere and show its distance field, e.g. how much clearance there is around a hole.
+- =C-c C-e= exports an STL, simplified to a given tolerance.
+  For example, a vase that meshes into 1.5 million triangles is exported as 49,000 within 0.04 mm.
+
+* Compared to OpenSCAD
+:PROPERTIES:
+:CUSTOM_ID: why-fields
+:END:
+
+Most of the models on this site are ports of my older designs, so the two can be compared directly.
+Almost every port was checked against its original's export, by slices or by points on its surface.
+Most agree within 0.3 mm, and the larger differences are mostly where a port rounds a corner that its original left sharp or faceted.
+
+| Design         | OpenSCAD                                 | keycap                                       |
+|----------------+------------------------------------------+----------------------------------------------|
+| Twisted vase   | 72 layers of 180 points stitched by hand | 60 lines of maths, smooth at any zoom        |
+| DNA loop       | a polyhedron                             | helices that stay round                      |
+| Wall thickness | even across each layer                   | even square to the surface, however it leans |
+
+Some things are worse, though.
+Meshes are made on a grid, so some shapes take longer to export.
+There is also no =hull()= and no STL import.
+The [[file:manual/coming-from-openscad.html#porting-from-openscad][porting table]] in the manual lists what translates and what doesn't.
+
+* The parts
+
+- keycap :: the major mode, the preview and the export, in Emacs Lisp.
+- rhai-ts-mode :: a general Emacs mode for Rhai on tree-sitter; it can be used on its own.
+- keycap-server :: a small Rust server that evaluates, renders and meshes scripts with fidget, on the GPU if there is one and on all CPU cores otherwise.
+  It also draws text and imports SVG.
+- The prelude :: a library of shapes written in Rhai: rounded and chamfered combinations, fasteners with print clearances, gears, helices, Bézier strokes, easing and lofts.
+  Its modules add screws, nuts, threads, heat-set inserts, bearings, magnets, aluminium extrusions and laser-cut joints.
+- The manual :: all of the above in one document, as Info in Emacs and as [[file:manual/index.html][web pages]] here, with a picture of every shape.
+
+* Start here
+
+1. [[file:install.html][Install]] it.
+   With Nix, it is one package; without Nix, it is a Rust build and a load path.
+2. Follow the [[file:tutorial/index.html][tutorial]].
+   It starts with a first model typed from scratch, then goes through the examples step by step.
+3. Look through the [[file:gallery/index.html][gallery]] for something close to what you want to make.
+
+* Status
+
+keycap is at version 0.1 and is not on MELPA yet; fidget itself is not at 1.0 yet either.
+Not every example here has been printed.

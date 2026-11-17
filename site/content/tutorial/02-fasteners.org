@@ -1,0 +1,77 @@
+#+title: Bumps and a captive nut
+#+description: Finishing the knob: a ring of bumps for grip, a pocket for a nut, a hole for a bolt.
+
+The knob from [[file:01-first-model.org][the first part]] still needs a grip, and a way to fix it to something.
+The prelude has shapes for both, with clearances for printing that are a starting point: print a test, and adjust them for your printer.
+
+* Asking for help
+
+Delete the =draw= line and start typing the bolt cutter from the next step, up to =screw_hole(BOLT,=.
+The echo area shows the arguments it takes, and the preview waits until the script is complete again:
+
+#+begin_src keycap :model knob :after "01-first-model.org" :typed "screw_hole(BOLT, " :show eldoc :expect error :alt ElDoc showing screw_hole's signature, with the argument being typed highlighted
+#+end_src
+
+=C-c C-d= on a name shows its documentation: what it makes, where its origin is, all of its options, and an example.
+With a prefix, or when point is not on a name, it shows the whole reference, grouped like a table of contents.
+
+#+begin_src keycap :model knob :typed "screw_hole(BOLT, " :at "nut_|trap" :show describe :expect error :alt The documentation of nut_trap in a help window below the script and the preview
+#+end_src
+
+* Bumps, a nut, a bolt
+
+This is the whole step, in place of the =draw= line.
+The preview is still in the section view from [[file:01-first-model.org][the last part]]; press =s= to go back to the shaded view.
+
+#+begin_src keycap :model knob :alt The finished knob with a ring of bumps in its dish, shaded
+// Bumps half sunk into the dish, centred on its surface.
+const BUMPS = 12;
+const BUMP = D / 12;        // bump diameter
+const BUMP_RING = D * 7 / 12;
+
+let bump_z = H - H / 12 * sin(acos(BUMP_RING / D));
+let bump = ellipsoid([BUMP / 2, BUMP / 2, BUMP / 4])
+    .move([BUMP_RING / 2, 0, bump_z]);
+let bumps = bump.polar_array(BUMPS);
+
+// A captive nut from below, so the knob screws onto a bolt.
+const BOLT = "M5";
+let nut = nut_trap(BOLT, 5).reflect_z();
+let bolt = screw_hole(BOLT, 20, #{head: "none"}).reflect_z();
+draw(union(handle, bumps).difference(union(nut, bolt)));
+#+end_src
+
+- =ellipsoid= is a squashed sphere.
+  It is centred on the surface of the dish, so half of it shows, and =polar_array(BUMPS)= places twelve of them around the Z axis.
+  =sin= and =acos= work on plain numbers as well as on shapes; here they find the height of the dish at the ring.
+- =nut_trap("M5", 5)= is a cutter: a hexagonal pocket for an M5 nut, 5 mm deep, sized from ISO tables with 0.4 mm of clearance.
+  =reflect_z= flips it so it opens from below.
+- =screw_hole("M5", 20, #{head: "none"})= is a 20 mm deep clearance hole for the bolt; reflected, it goes up from the bottom.
+- =union(handle, bumps).difference(...)= adds the bumps and takes the cutters away.
+
+Push a nut into the pocket, and the knob screws onto an M5 bolt or threaded rod.
+
+Options go in a map, =#{name: value}=, and they are all optional; ElDoc and completion know their names.
+The manual lists all of them: [[file:../manual/prelude-reference.html#fn-nut_trap][nut_trap]], [[file:../manual/prelude-reference.html#fn-screw_hole][screw_hole]], and the [[file:../manual/prelude-reference.html#fasteners][other fasteners]].
+
+* Seeing inside
+
+The cutters are inside the part, so look at a slice: =d= for the distance view, then =1= for the slice across Y, through the middle.
+
+#+begin_src keycap :model knob :slice y :alt A slice through the finished knob showing the nut's pocket and the bolt's hole from below
+#+end_src
+
+The distance bands show how much material is left around the hole and above it, before anything is printed.
+To see the hexagon of the pocket, press =7= for the slice across Z and =M-2 ]= to put it 2 mm above the bottom; holding Shift and turning the wheel over the preview moves it too.
+
+* When something is wrong
+
+A misspelt name, e.g. =nut_trp=, is underlined where it is, and the message is shown in the echo area and in the header of the preview.
+
+#+begin_src keycap :model knob :change "nut_trap(" "nut_trp(" :at "nut_tr|p" :view shaded :expect error :alt A misspelt function underlined by Flymake, the error in the preview's header; the last good model still shown
+#+end_src
+
+The preview keeps showing the last model that worked, so it doesn't go blank in the middle of typing a line.
+An error inside a function you wrote is reported where it happens, together with the call that led there.
+
+[[file:03-keyboard-and-mouse.org][Next: keyboard and mouse]]

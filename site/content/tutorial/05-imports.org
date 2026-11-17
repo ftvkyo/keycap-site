@@ -1,0 +1,142 @@
+#+title: Splitting a design into files
+#+description: A towel hook for an IKEA SKÅDIS pegboard, with the board in a module of its own.
+
+Some geometry is shared by many parts: the holes of a pegboard, the mounting pattern of a printer, the screw posts of a case.
+It is easier to keep it in a file of its own and import it in every part that needs it.
+
+* A module
+
+Save this as =skadis.rhai=, in the directory where the hook will be:
+
+#+begin_src keycap :save skadis.rhai :exports code
+// IKEA SKÅDIS pegboard: its dimensions, its holes and a peg that locks into
+// one; a module for `import "skadis" as skadis;`.
+//
+// The board stands in the XZ plane, its front face at y = 0 and its back at
+// y = THICKNESS; a hole's centre is the origin.
+//
+// A module's functions see its constants through `global::`, as a script's
+// do; importers read them as `skadis::THICKNESS`.
+
+export const SLOT_W = 5.0;
+export const SLOT_H = 15.0;
+export const THICKNESS = 5.0;
+
+// Between holes along a row, and down a column; alternate columns sit half
+// a column's pitch lower.
+export const PITCH = [20.0, 40.0];
+
+/// One hole: a vertical slot through the board, a little longer than the board is thick.
+fn hole() {
+    let half = (global::SLOT_H - global::SLOT_W) / 2;
+    stroke([[0, -half], [0, half]], global::SLOT_W)
+        .extrude([-global::THICKNESS - 1, 1])
+        .rotate_x(90)
+}
+
+/// A piece of board, `cols` holes wide and `rows` holes tall, its top left hole at the origin.
+fn board(cols, rows) {
+    let p = global::PITCH;
+    let holes = [];
+    for c in 0..cols {
+        for r in 0..rows {
+            holes.push(hole().move([c * p[0], 0, -r * p[1] - (c % 2) * p[1] / 2]));
+        }
+    }
+    let size = [cols * p[0], global::THICKNESS, (rows + 0.5) * p[1]];
+    cuboid(size)
+        .move([(cols - 1) * p[0] / 2, global::THICKNESS / 2, (p[1] - size[2]) / 2 - p[1] / 4])
+        .difference(holes)
+}
+
+/// A peg for one hole, seated: its neck rests at the bottom of the slot and its lip hangs down behind the board.
+///
+/// The peg goes in tilted, lip first, and drops into place; everything in front of y = 0 is the part's to add.
+///
+/// - `clearance`: taken off the neck's width and height, and the gap behind the board
+fn peg(clearance) {
+    let w = global::SLOT_W - clearance;
+    let back = global::THICKNESS + clearance / 2;
+    let lip_t = 2.5;
+    let drop = 6.0;
+    let bottom = -global::SLOT_H / 2 + clearance / 2;
+    let neck = stroke([[0, bottom + w / 2], [0, -w / 2]], w)
+        .extrude([-back - lip_t, 1])
+        .rotate_x(90);
+    let lip = stroke([[0, bottom - drop + w / 2], [0, -w / 2]], w)
+        .extrude([-back - lip_t, -back])
+        .rotate_x(90);
+    union(neck, lip)
+}
+#+end_src
+
+This file is a module because of three things:
+
+- =export const= makes a constant visible to the scripts that import it, as =skadis::PITCH=.
+- Functions see the constants of the module through =global::=; in Rhai, a =fn= can't see the =let=s and =const=s around it otherwise.
+- =///= comments document a function; =C-c C-d= and ElDoc show them for your functions the same way as for the prelude's.
+
+* Importing it
+
+Create a new script next to it, =towel-hook.keycap=:
+
+#+begin_src keycap :model hook :alt A piece of SKÅDIS pegboard, three by three holes
+// Towel hook for an IKEA SKÅDIS pegboard.
+
+import "skadis" as skadis;
+
+draw(skadis::board(3, 3));
+#+end_src
+
+=import "skadis" as skadis;= finds =skadis.rhai= next to the script.
+If you change =skadis.rhai= in another window and save it, the preview of the hook updates.
+This works for any file the script reads.
+
+* The hook
+
+Replace the =draw= line:
+
+#+begin_src keycap :model hook :alt The towel hook on its board: two pegs behind, a plate, an angled rod joined to it with a fillet
+// The hook: pegs into the board, a plate, a rod.
+const CLEARANCE = 0.3;
+const ROD_R = 5.0;
+const ROD_LENGTH = 70.0;
+const ROD_TILT = 5.0;      // degrees upwards, so towels stay on
+
+let column = skadis::PITCH[1];
+
+// Pegs in two holes of one column, 40 mm apart.
+let pegs = skadis::peg(CLEARANCE)
+    .linear_array([0, 0, -column], 2);
+
+// The plate in front of the board, covering both holes.
+let plate = rect([3 * ROD_R, column + 18], #{round: 4})
+    .extrude([0, 4])
+    .rotate_x(90)
+    .move([0, 0, -column / 2 - 3]);
+
+// The rod, from the plate's lower end out and up, joined with a fillet.
+let rise = ROD_LENGTH * sin(ROD_TILT * PI / 180.0);
+let rod = capsule([0, -2, -column], [0, -ROD_LENGTH, -column + rise], ROD_R);
+
+draw(union(pegs, plate.union_round(rod, 3)));
+
+// A piece of board around the hook; false before exporting.
+const PREVIEW = true;
+if PREVIEW {
+    let board = skadis::board(3, 3).move([-skadis::PITCH[0], 0, column / 2]);
+    draw_rgb(board, 0.85, 0.85, 0.8);
+}
+#+end_src
+
+- =skadis::peg(CLEARANCE)= is the peg from the module, 0.3 mm smaller than the hole all around.
+  =linear_array([0, 0, -column], 2)= makes two of them, the second one hole below the first.
+- =capsule= is a rod with round ends between two points; =union_round(rod, 3)= joins it to the plate with a 3 mm fillet.
+- =draw_rgb= also draws the board, in its own colour, to show the hook in place.
+  Export meshes everything that is drawn, so =PREVIEW= turns the board off before exporting.
+
+A plain =if= works here because =PREVIEW= is an ordinary value.
+It doesn't work on a shape, because a shape is a formula, with no value until it is evaluated at a point.
+To choose between shapes point by point, use =min=, =max= and the prelude's combinations; the manual explains this in [[file:../manual/writing-models.html#choices-without-if][Choices without if]].
+
+[[file:06-text-and-svg.org][Next: text and SVG]]

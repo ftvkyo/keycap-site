@@ -1,0 +1,118 @@
+#+title: Install
+#+description: Installing keycap, with Nix or without.
+
+#+review: reviewed 2026-11-17
+
+keycap consists of two Emacs packages and a server program that they start.
+With Nix, all three come as one package; without Nix, you build the server with Rust.
+
+* Requirements
+
+- Emacs 30.1 or later, built with tree-sitter (most distributions' builds are).
+- Linux on x86-64 or AArch64, since fidget compiles shapes to machine code for these.
+  macOS should work too, as fidget supports it, but I haven't tested it.
+- Optionally, a GPU with Vulkan; without one, rendering uses all CPU cores instead.
+
+* Getting the code
+
+keycap and rhai-ts-mode live in two repositories:
+
+#+begin_src sh
+git clone https://tangled.org/rei.gay/keycap
+git clone https://tangled.org/rei.gay/rhai-ts-mode
+#+end_src
+
+* With Nix
+
+The package builds the server, the grammar and the manual, and points keycap at them:
+
+#+begin_src nix
+# In the list of packages given to emacsWithPackages:
+(epkgs.callPackage ./keycap/package.nix {
+  rhai-ts-mode = epkgs.callPackage ./rhai-ts-mode/package.nix { };
+})
+#+end_src
+
+=rhai-ts-mode= comes with it, and =.keycap= and =.fidget= files open in =keycap-mode=.
+Errors are marked by Flymake, so turn it on for them:
+
+#+begin_src emacs-lisp
+(add-hook 'keycap-mode-hook #'flymake-mode)
+#+end_src
+
+To try it without changing your configuration, build an Emacs with it and run that:
+
+#+begin_src sh
+nix-build keycap/default.nix -A emacs
+./result/bin/emacs keycap/examples/knob.keycap
+#+end_src
+
+* Without Nix
+
+** The server
+
+Build it with Rust 1.95 or later:
+
+#+begin_src sh
+cargo build --release --manifest-path keycap/server/Cargo.toml
+#+end_src
+
+Then put =keycap/server/target/release/keycap-server= on your =PATH=, or tell keycap where it is (see below).
+=text()= draws in Liberation Sans unless a script names another font, so have it installed.
+
+** The Emacs packages
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/src/rhai-ts-mode")
+(add-to-list 'load-path "~/src/keycap")
+(require 'keycap)
+(add-hook 'keycap-mode-hook #'flymake-mode)
+;; Only if keycap-server is not on PATH:
+(setq keycap-server-program "~/src/keycap/server/target/release/keycap-server")
+#+end_src
+
+The prelude is found next to =keycap.el=, so there is nothing to set for it.
+
+** The grammar
+
+=M-x rhai-ts-mode-install-grammar= fetches and builds the Rhai grammar.
+This is the unpatched upstream grammar, and it shows floats written as =3.=, =0b= and =0o= numbers, and nested comments as errors.
+The Nix package builds the patched one, which is in rhai-ts-mode's =grammar/=.
+
+** The manual
+
+The manual is =doc/keycap.org=, but its reference is generated from the code.
+=just manual keycap.org= in =keycap/= writes the whole manual as Org, which =C-c C-e i i= exports to Info.
+The recipe takes its Emacs from Nix; without Nix, read the manual [[file:manual/index.html][here]].
+
+* Two dialects
+
+A script's extension says which functions it can use:
+
+- =.keycap= :: fidget's functions and shapes, plus keycap's own: the prelude, =text=, =svg=, =bounds=, =resolution=, and any number of =draw=s.
+  The tutorial and almost all the examples are written in it.
+- =.fidget= :: fidget's own API only, which is what fidget's viewer and CLI run, so the script works there unchanged.
+  Calling one of keycap's functions is an error that says so.
+
+The [[file:gallery/spacer.html][spacer]] is a =.fidget= example.
+
+* Configuration
+
+You don't have to configure anything.
+These are the settings you might want to change:
+
+- =keycap-server-threads= :: how many CPU cores a preview may use; nil (the default) means all of them.
+- =keycap-preview-backend= :: =gpu= or =cpu=; the GPU is used if there is one.
+- =keycap-export-resolution= :: cells per millimetre of exported meshes, for scripts that don't set it.
+- =keycap-export-tolerance= :: how far a simplified export may be from the surface; nil means a tenth of a cell.
+
+With =use-package=:
+
+#+begin_src emacs-lisp
+(use-package keycap
+  :mode ("\\.\\(?:keycap\\|fidget\\)\\'" . keycap-mode)
+  :hook (keycap-mode . flymake-mode))
+#+end_src
+
+=.rhai= files open in =rhai-ts-mode=.
+To use a Rhai file as a script, run =M-x keycap-mode= in it, or add a =-*- mode: keycap -*-= line.
