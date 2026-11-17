@@ -35,7 +35,9 @@ steps:
       mkdir -p .frame-cache
       nix-build -A all --arg frameCache "$PWD/.frame-cache" -o /workspace/site
       rm -rf .frame-cache
-      cp -r --no-preserve=mode /workspace/site-cache/. .frame-cache
+      # BusyBox's cp, so plain -r, then the store's read-only modes lifted.
+      cp -r /workspace/site-cache/. .frame-cache
+      chmod -R u+w .frame-cache
 
   - name: Publish to gh-pages
     command: |
