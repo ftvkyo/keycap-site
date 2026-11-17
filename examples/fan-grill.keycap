@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: 0BSD
+//
+// Grill for a 120 mm fan: a 2D drawing, for the `sdf` and `mono` views.
+//
+// A 2D shape is a tree that never mentions z; extrude it to print it
+// (`grill.extrude([0, 2])`).
+
+// --- Parameters ---
+
+const FAN = 120.0;           // fan's side
+const CORNER = 8.0;          // corner radius, unverified
+const HOLE_SPACING = 105.0;  // between the mounting holes' centres, unverified
+const HOLE_D = 4.5;          // mounting hole diameter, unverified
+const OPENING = 114.0;       // diameter of the vented area
+const CELL = 9.0;            // honeycomb pitch, between cell centres
+const WALL = 1.2;            // honeycomb wall
+
+// --- Grill ---
+
+let outline = rect(FAN, #{round: CORNER});
+
+// Four mounting holes, one per corner.
+let holes = circle(HOLE_D / 2).grid_array([HOLE_SPACING, HOLE_SPACING], [2, 2], #{center: true});
+
+// Honeycomb: copies of one cell at the cost of one.  The hexagons have
+// flats along X, so neighbours sit at 30, 90 and 150 degrees, one pitch
+// away: hex_grid's lattice, whose rows run along X, turned a quarter turn.
+let honeycomb = hexagon_af(CELL - WALL).rotate_z(90).hex_grid(CELL).rotate_z(90);
+
+let vents = honeycomb.intersection(circle(OPENING / 2));
+
+let grill = outline.difference(union(holes, vents));
+
+draw(grill);
