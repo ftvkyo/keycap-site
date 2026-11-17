@@ -1,0 +1,10 @@
+/result
+/result-print
+/public
+# Written by publish.el from keycap's examples and keycap-designs.
+/content/gallery/
+# Written by publish.el from keycap's manual.
+/content/manual/
+# Linked and written by print/watch.sh.
+/print/pictures
+/print/*.pdf

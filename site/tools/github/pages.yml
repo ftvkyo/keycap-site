@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Build the site from its knot repository and publish it with GitHub Pages.
+#
+# This file is the whole GitHub repository: it fetches the site from knot
+# over HTTPS, so nothing has to push to GitHub and no key leaves the infra.
+# Copy it to .github/workflows/pages.yml of an empty GitHub repository,
+# set Pages' source to "GitHub Actions" and its custom domain in the
+# repository's settings.
+name: pages
+
+on:
+  # knot cannot notify GitHub, so the site is rebuilt on a schedule; run the
+  # workflow by hand to publish at once.
+  schedule:
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+
+env:
+  SOURCE: https://tangled.org/rei.gay/keycap-site
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: git clone --depth 1 "$SOURCE" site
+      - uses: cachix/install-nix-action@v31
+      - run: nix-build site
+      # The store path is read-only and full of symlinks; Pages wants plain files.
+      - run: cp -rL result public
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
