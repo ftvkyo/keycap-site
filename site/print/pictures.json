@@ -1,0 +1,33 @@
+[
+  {"script": "$KEYCAP_DESIGNS_DIR/keycaps/preonic.keycap", "renders": [
+    {"name": "preonic", "width": 2400, "height": 1400, "camera": {"azimuth": -80, "elevation": 40, "zoom": 1.05}}
+  ]},
+  {"script": "$KEYCAP_DIR/examples/herringbone.keycap",
+   "source": "draw(involute_gear(16, 2).extrude([0, 10], #{twist: [[0, 0], [0.5, 12], [1, 0]]}));\n",
+   "renders": [
+    {"name": "herringbone", "width": 900, "height": 900, "camera": {"azimuth": -60, "elevation": 18}}
+  ]},
+  {"script": "$KEYCAP_DIR/examples/bolt.keycap",
+   "source": "import \"keycap/threads\" as threads;\ndraw(union(hexagon_af(13).extrude([0, 5.3]), threads::external(\"M8\", [-20, 1])));\n",
+   "renders": [
+    {"name": "bolt-field", "width": 900, "height": 1100, "view": "sdf", "slice": {"axis": "y", "offset": 0}, "crop": false, "gamma": 1.0}
+  ]},
+  {"script": "$KEYCAP_DIR/examples/box.keycap",
+   "source": "import \"keycap/lasercut\" as lc;\ndraw(lc::box([60, 40, 30], 3, #{inner: true, fit: 0.1}));\n",
+   "traces": [{"name": "box"}]},
+
+  {"script": "$KEYCAP_DESIGNS_DIR/keycaps/mx.keycap", "renders": [{"name": "grid-mx", "width": 700, "height": 700, "camera": {"azimuth": -60, "elevation": 30}}]},
+  {"script": "$KEYCAP_DIR/examples/dna-loop.keycap", "renders": [{"name": "grid-dna-loop", "width": 700, "height": 700, "camera": {"azimuth": -60, "elevation": 45}}]},
+  {"script": "$KEYCAP_DIR/examples/menger-sponge.keycap", "renders": [{"name": "grid-menger-sponge", "width": 700, "height": 700, "camera": {"azimuth": -60, "elevation": 30}}]},
+  {"script": "$KEYCAP_DIR/examples/hex-bowl.keycap", "renders": [{"name": "grid-hex-bowl", "width": 700, "height": 700, "camera": {"azimuth": -60, "elevation": 40}}]},
+  {"script": "$KEYCAP_DIR/examples/whistle.keycap", "renders": [{"name": "grid-whistle", "width": 900, "height": 900, "camera": {"azimuth": -60, "elevation": 35}}]},
+  {"script": "$KEYCAP_DIR/examples/vase-koch.keycap", "renders": [{"name": "grid-vase-koch", "width": 700, "height": 700, "camera": {"azimuth": -60, "elevation": 30}}]},
+  {"script": "$KEYCAP_DIR/examples/fidget-magnetic.keycap", "renders": [{"name": "grid-fidget-magnetic", "width": 700, "height": 700, "camera": {"azimuth": -60, "elevation": 30}}]},
+  {"script": "$KEYCAP_DESIGNS_DIR/mods/singer720_hook_drive_gear.keycap", "renders": [{"name": "grid-singer-gear", "width": 700, "height": 700, "camera": {"azimuth": -60, "elevation": 40}}]},
+  {"script": "$KEYCAP_DIR/examples/skadis-towel-hook.keycap", "renders": [{"name": "grid-skadis-hook", "width": 700, "height": 700, "camera": {"azimuth": -60, "elevation": 30}}]},
+
+  {"script": "$KEYCAP_DIR/examples/knob.keycap", "renders": [
+    {"name": "knob-keycap", "width": 700, "height": 700, "camera": {"azimuth": -65, "elevation": 35}}
+  ]},
+  {"openscad": "$OPENSCAD_DIR/src/interactive/knob.scad", "name": "knob-openscad", "size": 700, "defines": {"RENDER": "handle"}}
+]
