@@ -60,6 +60,8 @@ pkgs.runCommand "keycap-site"
   {
     nativeBuildInputs = [
       emacs
+      pkgs.oxipng
+      pkgs.pngquant
       pkgs.python3
     ];
     # For text() of installed fonts, by name.
@@ -87,5 +89,12 @@ pkgs.runCommand "keycap-site"
       emacs --batch --load publish.el
 
     python3 ${./tools/check-links.py} public
+
+    # The frames are most of the site's weight.  A palette of 256 colours
+    # halves them with no difference to the eye, and oxipng takes the rest
+    # it can without loss; both give the same bytes on every build.
+    find public -name '*.png' -exec pngquant --speed 1 --strip --force --ext .png {} +
+    find public -name '*.png' -exec oxipng -q -o 4 --strip safe {} +
+
     cp -r public $out
   ''
