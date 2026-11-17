@@ -2,6 +2,13 @@
 #
 # The site: Org pages published to HTML by a batch Emacs, nothing else.
 # `nix-build` leaves it in ./result; any static file server can host it.
+#
+# frameCache is a directory of renders that a build left in its `cache`
+# output: a frame whose hash is there is taken from it, not rendered again.
+{
+  frameCache ? null,
+}:
+
 let
   sources = import ./npins;
   pkgs = import sources.nixpkgs { };
@@ -64,6 +71,11 @@ pkgs.runCommand "keycap-site"
       pkgs.pngquant
       pkgs.python3
     ];
+    # The renders this build used, from frameCache or new, for the next one.
+    outputs = [
+      "out"
+      "cache"
+    ];
     # For text() of installed fonts, by name.
     FONTCONFIG_FILE = pkgs.makeFontsConf { fontDirectories = [ legend-font ]; };
     # For tools/preview.sh and print/.
@@ -78,6 +90,12 @@ pkgs.runCommand "keycap-site"
     };
   }
   ''
+    mkdir frame-cache
+    ${lib.optionalString (frameCache != null) ''
+      cp -r ${frameCache}/. frame-cache
+      chmod -R u+w frame-cache
+    ''}
+
     cp -r ${src} site
     chmod -R u+w site
     cd site
@@ -86,6 +104,8 @@ pkgs.runCommand "keycap-site"
     KEYCAP_DESIGNS_DIR=${sources.keycap-designs} \
     KEYCAP_FONTS=${fonts}/share/fonts/woff2 \
     KEYCAP_FONTS_LICENCE=${fonts-licence} \
+    KEYCAP_CACHE=$NIX_BUILD_TOP/frame-cache \
+    KEYCAP_CACHE_OUT=$cache \
       emacs --batch --load publish.el
 
     python3 ${./tools/check-links.py} public

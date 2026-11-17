@@ -15,7 +15,26 @@ The stylesheet, the script and the fonts are published as `style.<hash>.css` and
 The rendered pictures already have the hash of their source in their names.
 GitHub Pages sends pages with `Cache-Control: max-age=600`, ten minutes, so an updated page may take that long to show; the pages' own URLs are not hashed, so they are the only thing that can lag.
 
-Every picture is rendered by the build, on the CPU, in one keycap-server: about 150 s on 16 cores.
+Every picture is rendered by the build, on the CPU, in one keycap-server: about 370 s on 16 cores.
+
+A build can start from an earlier one's renders, and render only the frames whose inputs changed:
+
+```sh
+nix-build -A all                                              # the site in ./result, its renders in ./result-cache
+nix-build -A all --arg frameCache "$(readlink result-cache)"  # the same, from the last build's renders
+```
+
+`frameCache` is a directory of renders; the `cache` output, `result-cache`, holds the renders the build used, from `frameCache` or new, and no others, so a frame no page shows any more drops out.
+A render is kept under the hash of everything that makes it -- keycap-server, the script and the files it imports, the view -- so the site comes out the same, byte for byte, with any cache or none.
+With every frame cached, the build takes about 160 s, most of it Emacs publishing the pages.
+
+A pipeline keeps the `cache` output in a directory that persists between runs and passes it back in:
+
+```sh
+mkdir -p "$CACHE"                                             # an absolute path; empty on the first run
+nix-build -A all --arg frameCache "$CACHE"
+rm -rf "$CACHE" && cp -r --no-preserve=mode result-cache/. "$CACHE"
+```
 
 ## Changing the tutorial
 
@@ -76,7 +95,7 @@ content/           the pages, in Org; the tutorial's code is in its keycap block
 static/            style.css, copy.js and the icon
 npins/             keycap, rhai-ts-mode, keycap-designs and openscad (for print/), pinned
 publish.el         the Org projects, the page frame, the gallery, the manual's pages and the anchors
-default.nix        the build: keycap, Emacs, the font
+default.nix        the build: keycap, Emacs, the font, the frame cache
 tools/             ob-keycap.el and ppm2png.py (the frames), preview.sh, dev.py, check-links.py, field.py, shots/
 print/             the brochure and the poster, in Typst; see its README
 ```

@@ -1,7 +1,7 @@
 # The brochure and the poster, as PDFs with their fonts embedded.
 # `nix-build print` leaves them in ./result.
 let
-  site = import ../.;
+  site = import ../. { };
   inherit (site) sources;
   pkgs = import sources.nixpkgs { };
   inherit (pkgs) lib;

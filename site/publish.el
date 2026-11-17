@@ -48,8 +48,8 @@
 ;; --- Renders ---
 
 ;; `keycap' blocks are run by ob-keycap at export, in one keycap-server on
-;; the CPU, on the build's cores; KEYCAP_BACKEND and KEYCAP_CACHE are for
-;; tools/preview.sh.
+;; the CPU, on the build's cores; KEYCAP_BACKEND is for tools/preview.sh,
+;; KEYCAP_CACHE for it and for default.nix's frame cache.
 
 (add-to-list 'load-path (fms-path "tools"))
 (require 'ob-keycap)
@@ -1672,5 +1672,12 @@ files it lists (separated by colons), as tools/dev.py asks for after an edit."
           (org-publish (car project) t))))))
 
 (fms-publish)
+
+;; With KEYCAP_CACHE_OUT, the entries of the render cache this run used are
+;; copied there, the cache the next build starts from.
+(when-let* ((out (getenv "KEYCAP_CACHE_OUT")))
+  (make-directory out t)
+  (dolist (file ob-keycap-cache-used)
+    (copy-file file (expand-file-name (file-name-nondirectory file) out))))
 
 ;;; publish.el ends here
