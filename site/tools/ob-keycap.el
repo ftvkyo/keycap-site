@@ -80,6 +80,10 @@ Images are linked relative to it.")
 (defvar ob-keycap-cache-directory nil
   "Where renders are kept by their hash, or nil to render every time.")
 
+(defvar ob-keycap-cache-used nil
+  "The files of `ob-keycap-cache-directory' used so far, read or written.
+A build keeps only these, so the cache holds no step that has changed since.")
+
 (defvar ob-keycap-examples-directory nil
   "Where `:open' finds its files: keycap's examples.")
 
@@ -502,6 +506,11 @@ FILES is where the files saved on the way are put, as (NAME . TEXT)."
   "A short name for PARTS, printed."
   (substring (sha1 (prin1-to-string parts)) 0 16))
 
+(defun ob-keycap--cache-use (&rest files)
+  "Note FILES of the cache as used, in `ob-keycap-cache-used'."
+  (dolist (file files)
+    (cl-pushnew file ob-keycap-cache-used :test #'equal)))
+
 (defun ob-keycap--file-hash (file)
   "The hash of FILE's contents."
   (with-temp-buffer
@@ -544,6 +553,7 @@ Return the image's file.  A cached render is used unless PARAMS probe it."
                         (buffer-local-value 'keycap-overrides source)
                         (with-current-buffer source (keycap--source))
                         (mapcar #'ob-keycap--file-hash (alist-get 'files keycap--preview-report))
+                        (ob-keycap--file-hash (expand-file-name "ppm2png.py" ob-keycap--directory))
                         (seq-remove (lambda (field) (memq (car field) '(output backend)))
                                     request)))
                  (name (format "%s-%s.png" (file-name-base (buffer-file-name source)) hash))
@@ -569,10 +579,15 @@ Return the image's file.  A cached render is used unless PARAMS probe it."
           (setq keycap--preview-frame frame)
           (ob-keycap--png (keycap--preview-frame-file) (if cache (concat cache ".png") png))
           (when cache
+            ;; Without the request's id and the render time, so that the same
+            ;; render gives the same bytes.
             (with-temp-file (concat cache ".json")
-              (insert (json-serialize frame))))))
+              (insert (json-serialize
+                       (cons '(ms . 0) (seq-remove (lambda (field) (memq (car field) '(id ms)))
+                                                   frame))))))))
       (when cache
-        (copy-file (concat cache ".png") png t))
+        (copy-file (concat cache ".png") png t)
+        (ob-keycap--cache-use (concat cache ".png") (concat cache ".json")))
       png)))
 
 (defun ob-keycap--preview (script report failure params)
@@ -675,11 +690,15 @@ are sorted as Corfu sorts them, shortest first."
 REPORT is the script's `load' reply.  A cached message is used if there is one."
   (let* ((cache (and ob-keycap-cache-directory
                      (expand-file-name
-                      (concat (ob-keycap--hash keycap-server-program (keycap--source) keycap-overrides
+                      ;; keycap's library too, which words the message.
+                      (concat (ob-keycap--hash keycap-server-program (locate-library "keycap")
+                                               (keycap--source) keycap-overrides
                                                (mapcar #'ob-keycap--file-hash (alist-get 'files report)))
                               "-export.txt")
                       ob-keycap-cache-directory)))
          (file (expand-file-name (concat (file-name-base buffer-file-name) ".stl"))))
+    (when cache
+      (ob-keycap--cache-use cache))
     (if (and cache (file-exists-p cache))
         (with-temp-buffer
           (insert-file-contents cache)
