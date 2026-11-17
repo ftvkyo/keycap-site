@@ -1,0 +1,23 @@
+{
+  "pins": {
+    "nixpkgs": {
+      "type": "Channel",
+      "name": "nixos-26.05",
+      "url": "https://releases.nixos.org/nixos/26.05/nixos-26.05.9227.c25784012c99/nixexprs.tar.xz",
+      "hash": "sha256-aVla+xR1lotA4iEMo6ltSr5oKVvWxBZ8Gc9KjbwxJq8="
+    },
+    "rhai-ts-mode": {
+      "type": "Git",
+      "repository": {
+        "type": "Git",
+        "url": "https://tangled.org/rei.gay/rhai-ts-mode"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "600ba270f6cd593f96e2141490be6b76da220585",
+      "url": null,
+      "hash": "sha256-lOCNBER+ILanHNL8OMNIvIngdo+wbKcs5fGRDYuoMbM="
+    }
+  },
+  "version": 7
+}
