@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Mirror every branch and tag to GitHub, where .github/workflows/pages.yml
+# publishes the site.
+#
+# Runs on the spindle at spindle.rei.gay. GITHUB_MIRROR_TOKEN is a repository
+# secret (Settings > Pipelines > Secrets): a fine-grained token for
+# ftvkyo/keycap-site with Contents and Workflows read and write.
+when:
+  - event: push
+    branch: ["**"]
+    tag: ["**"]
+  - event: manual
+
+engine: microvm
+image: alpine
+
+# The default clone is one commit deep, which GitHub refuses as a first push.
+clone:
+  skip: true
+
+environment:
+  GITHUB_REPO: ftvkyo/keycap-site
+
+steps:
+  - name: Push to GitHub
+    command: |
+      set -euo pipefail
+      git clone --bare "$TANGLED_REPO_URL" repo.git
+      cd repo.git
+      git -c credential.helper='!f() { if test "$1" = get; then printf "username=x-access-token\npassword=%s\n" "$GITHUB_MIRROR_TOKEN"; fi; }; f' \
+        push --prune "https://github.com/$GITHUB_REPO.git" \
+        '+refs/heads/*:refs/heads/*' '+refs/tags/*:refs/tags/*'
