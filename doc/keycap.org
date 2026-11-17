@@ -1,0 +1,1913 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#+title: keycap
+#+subtitle: Modelling with signed distance fields in Emacs
+#+language: en
+#+options: ^:nil author:nil toc:t
+#+texinfo_filename: keycap.info
+#+texinfo_dir_category: Emacs
+#+texinfo_dir_name: keycap: (keycap).
+#+texinfo_dir_desc: Modelling with fidget's signed distance fields
+
+* Overview
+:PROPERTIES:
+:DESCRIPTION: What keycap is, and a first model.
+:END:
+
+keycap edits, previews and exports models for [[https://github.com/mkeeter/fidget][fidget]], Matt Keeter's library for implicit surfaces.
+A model is a Rhai script.
+It builds a signed distance field: a function of space that is negative inside the shape, positive outside and zero on its surface.
+fidget renders such fields directly, so the preview needs no mesh and follows every edit.
+A mesh is made only to export an STL.
+
+The script is on the left and its preview on the right:
+
+- the preview follows the script as it is typed, and an error is marked on the token that caused it
+- completion, ElDoc and =C-c C-d= know every function, every shape and every shape's fields
+- a number can be nudged up and down, by keys or with the mouse, while the preview follows
+
+A prelude of shapes, rounded and chamfered combinations, extrusions, arrays and metric fasteners is always loaded.
+Modules of standard parts and laser-cut joints are imported by name.
+
+keycap and its parts come without warranty of any kind.
+Check a standard part's dimensions against the part you have, print or cut a test piece before relying on a fit, and don't use a printed or cut part where its failing could hurt someone.
+
+keycap was written with Claude Code (Anthropic).
+It is not affiliated with fidget, libfive or Rhai, nor endorsed by their authors.
+
+** Requirements
+:PROPERTIES:
+:DESCRIPTION: What keycap needs.
+:END:
+#+cindex: requirements
+
+- Emacs 30.1 or later, with tree-sitter support
+- ~rhai-ts-mode~, which keycap derives from, and its tree-sitter grammar
+- ~keycap-server~, the server that evaluates, renders and meshes scripts, built with the package; ~keycap-server-program~ names it
+- a Vulkan driver for GPU rendering; without one, the CPU renders
+
+** Quick start
+:PROPERTIES:
+:DESCRIPTION: A first model in five minutes.
+:END:
+#+cindex: quick start
+
+A file whose name ends in =.keycap= opens in ~keycap-mode~.
+A =.rhai= file opens in ~rhai-ts-mode~.
+For keycap there, use =M-x keycap-mode=, or a =-*- mode: keycap -*-= cookie on the first line.
+
+Visit =plate.keycap= and type a model, such as this one.
+
+Example: a plate with rounded corners and four countersunk M3 holes.
+#+begin_src rhai
+let plate = rect([40, 30], #{round: 4}).extrude([0, 5]);
+let hole = screw_hole("M3", 10, #{head: "countersunk"})
+    .move([0, 0, 5]);
+let holes = hole.grid_array([30, 20], [2, 2], #{center: true});
+draw(plate.difference(holes));
+#+end_src
+
+Press =C-c C-c=.
+The preview opens beside the script and shows the plate.
+Turn it with the arrow keys or by dragging, and zoom with the wheel or =+= and =-=.
+
+Change =4= to =6=, and the corners follow.
+With point on the =30=, =C-c C-n= and =C-c C-p= step it up and down.
+Press =C-c C-e= to export =plate.stl=.
+
+=C-c C-d= on any name shows its documentation, and =M-x keycap-guide= opens this manual.
+The [[*Examples][examples]] are complete models to start from.
+
+* Editing and previewing
+:PROPERTIES:
+:DESCRIPTION: The script buffer, the preview and exporting.
+:END:
+
+** The script buffer
+:PROPERTIES:
+:DESCRIPTION: Keys and help in the script.
+:END:
+#+cindex: script buffer
+#+cindex: keys, script buffer
+
+~keycap-mode~ starts one ~keycap-server~ process per buffer.
+After each change, once typing pauses for ~keycap-load-delay~ seconds, it evaluates the script; the preview, Flymake and the header line follow.
+
+- Key: C-c C-c (keycap-preview) :: Show the preview of the script beside it, creating it if needed.
+- Key: C-c C-v (keycap-preview-cycle-view) :: Switch the preview to its next view; see [[*Views]].
+- Key: C-c C-e (keycap-export-stl) :: Mesh the drawn shapes into an STL file.
+  With a prefix argument, ask for the resolution too.
+- Key: C-c C-l (keycap-export-2d) :: Trace the drawn shapes' outlines into an SVG or a DXF file for laser cutting; see [[*Exporting for laser cutting]].
+  With a prefix argument, ask for the kerf too.
+- Key: C-c C-k (keycap-export-cancel) :: Cancel the export that runs; the file keeps what it had.
+- Key: C-c C-d (keycap-describe) :: Show the documentation of a function or shape, by default the one at point.
+  The reference it opens lists everything a script can call, grouped by where it comes from.
+  The script's own functions and those it imports, such as =keycap::body=, are documented by their =///= comments.
+- Key: C-x C-e (keycap-eval-last-expression) :: Evaluate the expression before point in the scope of the whole script and show its value in the echo area; with an active region, evaluate the region.
+  A tree shows as its value at the origin and the bounds fitted to it, such as =tree: -5 at the origin; x -5.2 to 5.2, ...=.
+- Key: C-c C-n (keycap-increase-number) :: Add 1 to the digit before point in the number at point, or to its last digit when point is not after one of its digits; with a numeric prefix, add that many.
+  In =12.5= with point after the =5=, it steps by 0.1; after the =2=, by 1; after the =1=, by 10.
+  The echo area shows the number's name and the step, such as =pitch 12 → 22 (step 10)=.
+  Right after, =n= and =p= nudge it again, until another key.
+- Key: C-c C-p (keycap-decrease-number) :: The same, downwards; a number can cross zero.
+- Key: S-<wheel-up> (keycap-mouse-nudge-number) :: Over a digit, add 1 to that digit; =S-<wheel-down>= subtracts.
+  Elsewhere, the wheel scrolls as it would.
+- Key: S-<down-mouse-1> (keycap-mouse-scrub-number) :: From a digit, drag right to add to that digit, a step per column the mouse moves, or left to subtract; the preview follows, and the whole drag undoes as one change.
+
+#+cindex: menu
+#+cindex: mouse
+The =Keycap= menu in the menu bar has these commands with their keys (=F10= opens it when the menu bar is hidden).
+With ~context-menu-mode~, right-clicking a function or shape offers its description.
+
+#+cindex: Flymake
+#+cindex: errors
+#+cindex: no-prefer
+Flymake marks errors on the exact token, the innermost one first: an error inside a function points at the line in the function, and its message names the calls that led there.
+An error in an imported file or in the prelude is reported at the call that reached it, or at the =import=, its message starting with the file and line.
+Warnings mark a ~draw~ whose shape pokes out of the script's ~bounds~, a script that draws nothing, shapes that are empty everywhere, and, without ~bounds~, a shape unbounded on every axis, such as a bare gyroid.
+In a =.keycap= file, notes mark a call of a fidget built-in that has a better keycap call, such as ~rectangle~ where ~rect~ is exact, and say why.
+A line that reads =// keycap: no-prefer=, anywhere in the file, silences them, for a script that keeps fidget's calls on purpose.
+
+#+cindex: completion
+#+cindex: ElDoc
+~completion-at-point~ offers every function, shape and variable, and the script's own; inside a shape's map, as in ~circle(#{~, it offers that shape's fields with their types and defaults.
+ElDoc shows the signature of the call at point, or the doc of the field at point.
+Both know the functions the script defines and imports, as of its last evaluation.
+
+#+cindex: manual
+#+findex: keycap-guide
+=M-x keycap-guide= opens this manual.
+=C-h S= (~info-lookup-symbol~) finds a function in its index.
+
+** The preview
+:PROPERTIES:
+:DESCRIPTION: The window that shows the model.
+:END:
+#+cindex: preview
+
+The preview shows the shapes the script draws, each in its colour, rendered by ~keycap-server~ into a frame under =$XDG_RUNTIME_DIR/keycap/=.
+Its header line shows the view, the bounds in use and where they come from, the backend, the render time, the slice in 2D views, and, while the mouse is over the image, the point under it and the field's value there.
+Lines the script ~print~-s show below the image, up to ~keycap-preview-output-lines~ of them.
+
+#+cindex: mouse, preview
+The header line's words are buttons: the view and the camera, or the slice's axis and offset, offer their choices in a menu, the wheel over the offset moves the slice, a tilted slice's angles level it, and the bounds and the backend switch when clicked; an error goes to its line in the script, and an export cancels.
+Right-clicking the preview opens the same menu as the menu bar's =Preview=, which, over the model, starts with the way to its shape's ~draw~.
+A click selects the preview, for its keys; dragging, the wheel and the header's buttons leave the keyboard where it was, so the script can be typed in while the mouse turns the model.
+
+*** Views
+:PROPERTIES:
+:DESCRIPTION: Shaded, heightmap, sdf and mono.
+:END:
+#+cindex: views
+
+- shaded :: the model in 3D, each shape in its colour, lit as in a studio: a key light from the upper left, a fill light from the right and light from above, less of it in crevices.
+  The lights turn with the camera; the CPU and the GPU light alike.
+- heightmap :: the model in 3D, its depth as grey.
+- sdf :: a 2D slice through the model, coloured by the field's value: orange outside, blue inside, with lines at regular distances, and red where the field is NaN.
+  The view for 2D drawings and for checking that a field is a distance (see [[*Exact distances and bounds]]).
+- mono :: a 2D slice, white inside and black outside.
+
+A model that is unbounded along Z, as every 2D drawing is, opens in the sdf view.
+From a 3D view, the 2D views slice through the middle of the bounds, across the axis sliced last (Z at first), or through 0 along an unbounded axis; the header line shows where, such as =sdf z = 4=.
+
+#+cindex: tilted slice
+A slice can tilt, to cut a slanted wall square across and measure it: about the image's right and up, through the middle of the bounds.
+The image's scale stays; the offset then runs along the tilted normal, and the header line shows the angles, such as =sdf z ⊥ (12°, -30°) at 4=.
+The point under the mouse is read in the model's own coordinates.
+
+#+cindex: hint, preview keys
+=?= names the most used keys of the view shown in the echo area, the slice's in 2D; the preview does so once by itself the first time it shows a 3D view and a 2D one.
+=h= lists every key.
+
+*** Preview keys
+:PROPERTIES:
+:DESCRIPTION: Keys in the preview window.
+:END:
+#+cindex: keys, preview
+
+The keys come in families: the digits point the camera, or the slice in 2D views; brackets and braces move and tilt the slice; =s=, =z=, =d= and =m= pick a view; Shift with the mouse moves the slice, Control tilts it.
+
+- Key: <left> (keycap-preview-orbit-left) :: Turn the camera around the model; in 2D views, the arrows pan.
+  =<right>=, =<up>= and =<down>= turn it the other ways.
+- Key: M-<left> (keycap-preview-pan-left) :: Move the camera; =M-<right>=, =M-<up>= and =M-<down>= likewise.
+- Key: + (keycap-preview-zoom-in) :: Zoom in; also ~=~ and the mouse wheel.
+- Key: - (keycap-preview-zoom-out) :: Zoom out.
+- Key: <down-mouse-1> (keycap-preview-mouse-orbit) :: Drag to turn the camera; while it drags, frames have half the resolution (~keycap-preview-drag-resolution~), the last one in full.
+- Key: <down-mouse-2> (keycap-preview-mouse-pan) :: Drag to move the camera.
+- Key: p (keycap-preview-projection) :: Switch between orthographic and perspective.
+- Key: 1 (keycap-preview-front) :: Look from the front, as the numpad's =1= does in Blender; in 2D views, slice level across Y, the axis the front camera looks along, through the middle of the bounds.
+- Key: 3 (keycap-preview-right) :: Look from the right; in 2D views, slice level across X.
+- Key: 7 (keycap-preview-top) :: Look from the top; in 2D views, slice level across Z.
+- Key: 0 (keycap-preview-isometric) :: Look from the front right, above; in 2D views, slice through the middle of the bounds facing that way, tilted from Z.
+- Key: r (keycap-preview-reset-camera) :: Look from the front right, above, unmoved and unzoomed; in 2D views, level the slice where it is.
+- Key: v (keycap-preview-cycle-view) :: Switch to the next view.
+- Key: s (keycap-preview-shaded) :: Switch to shaded.
+- Key: z (keycap-preview-heightmap) :: Switch to heightmap, the depth along Z.
+- Key: d (keycap-preview-sdf) :: Switch to sdf, the distance field on a slice.
+- Key: m (keycap-preview-mono) :: Switch to mono, the inside and outside on a slice.
+- Key: [ (keycap-preview-slice-backward) :: Move the slice of the 2D views back along its axis, by about a twentieth of the bounds; with a numeric prefix, move it to that offset.
+- Key: ] (keycap-preview-slice-forward) :: Move the slice forward.
+- Key: { (keycap-preview-tilt-backward) :: Tilt the slice 5° about the image's right, its top away; with a numeric prefix, tilt it to that angle.
+- Key: } (keycap-preview-tilt-forward) :: Tilt the slice the other way, its top toward you.
+- Key: M-{ (keycap-preview-tilt-left) :: Tilt the slice 5° about the image's up, its right edge toward you; =M-}= the other way.
+- Key: S-<wheel-up> (keycap-preview-mouse-slice-step) :: Step the slice forward, as =]=; =S-<wheel-down>= steps it back, and =M-<wheel-up>= and =M-<wheel-down>= ten steps.
+- Key: S-<down-mouse-1> (keycap-preview-mouse-slice) :: Drag up or down to move the slice, the window's height covering the bounds along its axis; frames have the resolution of =<down-mouse-1>=, the header line shows where the slice is.
+- Key: C-<down-mouse-1> (keycap-preview-mouse-tilt) :: Drag to tilt the slice, as if holding it: down brings its top toward you, right takes its right edge away.
+- Key: <double-mouse-1> (keycap-preview-mouse-goto-shape) :: Go to the ~draw~ of the shape under the mouse, in the script or the file it imports; in 2D views, of the shape the mouse is in, or the nearest one.
+- Key: <down-mouse-3> :: The preview's menu: views, cameras or slices, bounds, backend and exports.
+- Key: b (keycap-preview-toggle-bounds) :: Switch between the script's bounds and the bounds fitted to the model.
+- Key: G (keycap-preview-toggle-backend) :: Switch between rendering on the GPU and on the CPU.
+- Key: e (keycap-preview-export-stl) :: Export, within the bounds the preview shows.
+- Key: l (keycap-preview-export-2d) :: Export the outlines on the slice the 2D views show, tilted or not, for laser cutting, within the bounds the preview shows.
+- Key: C-g (keycap-preview-keyboard-quit) :: Cancel the export that runs; without one, quit as usual.
+- Key: ? (keycap-preview-keys) :: Name the most used keys of the view shown.
+- Key: g :: Render again.
+
+*** Bounds
+:PROPERTIES:
+:DESCRIPTION: The region the preview shows and exports.
+:END:
+#+cindex: bounds, preview
+
+The preview shows a region of space: the script's, set with ~bounds~, or one fitted to the drawn shapes.
+Without a ~bounds~ call, the fitted region stands in.
+~keycap-server~ fits it by interval arithmetic: it shrinks a large box from each side while the slab it cuts off is provably outside every shape.
+A side where that never becomes provable is unbounded: a 2D drawing along Z, an endless ~repeat~, a field that interval arithmetic sees through badly.
+When the fitted bounds are in use and interval arithmetic gives the shapes NaN far out, the header line says so; see [[*Preview problems]].
+Unbounded axes are centred on 0 and as wide as the widest bounded one, or 20 units when every axis is unbounded; set ~bounds~ when the fitted region is wrong.
+
+** Exporting
+:PROPERTIES:
+:DESCRIPTION: Meshing to STL.
+:END:
+#+cindex: export
+#+cindex: STL
+#+cindex: resolution
+
+=C-c C-e= meshes the union of all drawn shapes, within the bounds, into a binary STL.
+The mesh cells are at most 1/resolution units across: the script's ~resolution~, else ~keycap-export-resolution~ (10 cells per mm by default), or with a prefix argument, the one you type.
+Every ~draw~ is exported, reference geometry included; see [[*Reference geometry]].
+Meshing uses every core, or ~keycap-server-threads~ of them; a part the size of a hand at 10 cells per mm takes a few seconds.
+
+#+cindex: export, tolerance
+#+cindex: tolerance
+The mesher makes triangles of the cells' size everywhere, flat faces as dense as curves, so the export then simplifies the mesh: triangles merge wherever the surface stays within ~keycap-export-tolerance~ of the one meshed, a tenth of a cell unless set.
+Sharp edges and thin walls stay, since flattening them would stray further than that; a flat face becomes a few large triangles, and a curve keeps the triangles it needs to bend within the tolerance.
+At 2 cells per mm, a vase that meshes into 1.5 million triangles exports as 49,000 within 0.04 mm, a file thirty times smaller; a tolerance of 0 keeps every triangle.
+The resolution decides which details the mesh catches, and the tolerance how closely it follows them: a finer resolution for small features, then a tolerance around the printer's own accuracy.
+
+#+cindex: export, cancelling
+The export runs beside everything else: the script can be edited and the preview turned while it does, and it writes the script as it was when the export started.
+The preview's header line shows its progress, such as =Exporting part.stl: sampling, 12 s=: sampling the shapes is most of the time, then triangulating, simplifying and writing.
+The echo area tells the result, such as =Exported part.stl: 48648 triangles (of 1487362, within 0.043) in 64.6 s=.
+An export that would take more memory than is free stops with an error rather than crowd out the rest of the machine; a lower resolution, or tighter bounds, make it fit.
+=C-c C-k= in the script, or =C-g= in the preview, cancels it; the file keeps what it had, since a mesh only replaces it once it is complete.
+One export runs at a time.
+
+** Exporting for laser cutting
+:PROPERTIES:
+:DESCRIPTION: Outlines to SVG and DXF, with cuts, scores and engravings.
+:END:
+#+cindex: export, 2D
+#+cindex: laser cutting
+#+cindex: SVG, export
+#+cindex: DXF
+#+cindex: roles
+#+findex: keycap-export-2d
+
+=C-c C-l= traces the outlines of the drawn shapes on a plane into a drawing for a laser cutter.
+The file's extension chooses an SVG or a DXF.
+A 2D drawing is traced as it is.
+A solid is sliced: at the slice a 2D view of the preview shows, or else across Z through the middle of the bounds.
+=l= in the preview exports the slice it shows, within the bounds it shows.
+
+What the laser does along a shape's outline is the role the shape is drawn with:
+
+- ="cut"= :: the default: cut through, a red (=#ff0000=) hairline.
+- ="score"= :: marked but not cut through, a blue (=#0000ff=) hairline.
+- ="engrave"= :: an area burnt in, filled black (=#000000=).
+
+Example: a tag with a hole to hang it by, a line scored round its edge and an engraved name.
+#+begin_src rhai
+let label = text("keycap", #{
+    size: 12,
+    halign: "center",
+    valign: "center",
+});
+draw(difference(circle(45), circle([0, -40.5], 2)));
+draw(circle(36), #{role: "score"});
+draw(label, #{role: "engrave"});
+#+end_src
+
+The SVG has a group per role, and the DXF a layer per role in AutoCAD colour 1, 5 or 7, each named after it.
+The colours are the ones most laser drivers and makerspaces expect; it is a habit rather than a standard, and some Glowforge guides swap red and blue.
+Software that takes each colour as a layer, as LightBurn and Glowforge's do, needs its settings assigned to them once.
+Hairlines are 0.001 inch wide, as drivers that cut along strokes want them.
+Once a script scores or engraves anything, the 2D views draw every shape's outline in its role's colour.
+Roles are a keycap extension: a =.fidget= script draws plain shapes.
+
+Each role's shapes are traced as their union, cut to the bounds.
+Outlines run counterclockwise and holes clockwise.
+A part's holes come before its outline, parts inside holes before the parts around them, and engravings and scores before cuts, so that a laser following the file in order cuts each part loose last.
+Both files are in millimetres with +Y up: the SVG by its =width=, =height= and =viewBox=, the DXF by =$INSUNITS=.
+The DXF is AutoCAD R12, which every reader takes, each outline a closed polyline.
+
+#+cindex: export, tolerance
+The tracing samples the shapes on a grid of cells 1/resolution across, as meshing does, then moves every point it finds onto the surface: the grid decides which outlines there are, not where they lie, and only details smaller than a cell can go missing.
+Sharp corners the grid cuts off come back where the surface's tangents meet.
+The points are fitted with lines and circular arcs within ~keycap-export-tolerance~, a tenth of a cell unless set: a straight side becomes one line, a rounded corner one arc, a circle two half circles, and a curve that is not circular as many arcs as the tolerance takes.
+A tolerance of 0 keeps a line between every two points.
+The first leg of =laptop-stand.keycap= exports as 7 lines and 23 arcs.
+The living-hinge sheet of =bendy-sheet.keycap=, 280 by 175 mm with 147 slots, takes under 2 seconds at 10 cells per mm.
+
+#+cindex: kerf
+The laser burns away a kerf, a fraction of a millimetre wide, along every cut.
+~keycap-export-kerf~, or with a prefix argument the one you type, grows the shapes to cut by half of it, so that parts come out to size and holes shrink to theirs; scores and engravings stay as drawn.
+The growth is an offset of the field by half the kerf times the field's slope along the plane: exact for an exact 2D distance field, within a few micrometres for a slice of an exact solid, and only a bound for a field that is no distance.
+
+#+cindex: joints, laser-cut
+The prelude's =keycap/lasercut= module, imported with =import "keycap/lasercut" as lc;=, has finger joints, tabs and slots, T-slots for captive nuts, cross laps, living hinges and a box, laid out flat with a sheet to score around them.
+Its joints take a =fit=, the clearance between the parts: with the kerf set to the laser's, it is the clearance as cut; exported with no kerf, a joint comes out looser by twice the kerf.
+
+The export runs as an STL export does, beside everything else and cancelled the same way.
+The header line shows its progress, such as =Exporting part.svg: tracing, 1 s=: sampling, tracing, simplifying, for each role in turn, then writing.
+The echo area tells the result, such as =Exported part.svg: 9 outlines, 7 lines and 23 arcs in 0.2 s=.
+
+#+cindex: laser cutting, materials
+keycap knows shapes, not materials.
+Never laser-cut PVC or vinyl, and don't cut polycarbonate or unidentified plastics: ask your makerspace, or read the material's safety data sheet.
+Cut acrylic only if it is cast acrylic (PMMA), extract the fumes of every job, and don't leave a laser running unattended.
+
+** Customization
+:PROPERTIES:
+:DESCRIPTION: User options.
+:END:
+#+cindex: customization
+
+- User Option: keycap-server-program :: The ~keycap-server~ executable.
+- User Option: keycap-prelude-directory :: The directory whose =.rhai= files every script can call without importing them; the package's prelude by default.
+- User Option: keycap-server-threads :: The threads each ~keycap-server~ renders on, and as many again that it exports on; ~nil~, the default, is one per core.
+  On a machine shared with other work, a few keep the rest of its cores free.
+- User Option: keycap-load-delay :: Seconds of idle time after an edit before the script is evaluated again.
+- User Option: keycap-export-resolution :: Cells per unit for export when the script sets no ~resolution~: of the mesh, or of the grid outlines are traced on.
+- User Option: keycap-export-tolerance :: How far, in units, an exported mesh or outline may stray from the surface as it is simplified; ~nil~, the default, is a tenth of a cell, and 0 keeps every triangle and every point traced.
+- User Option: keycap-export-kerf :: The width a laser burns away along a cut, half of which 2D exports grow the shapes to cut by; 0 by default.
+- User Option: keycap-preview-view :: The view a 3D model opens in: ~shaded~, ~heightmap~, ~sdf~ or ~mono~.
+- User Option: keycap-preview-bounds :: ~script~ or ~fitted~: which bounds the preview shows first.
+- User Option: keycap-preview-backend :: ~gpu~ or ~cpu~.
+- User Option: keycap-preview-projection :: ~orthographic~ or ~perspective~.
+- User Option: keycap-preview-output-lines :: Lines of ~print~ output shown below the image, at most.
+- User Option: keycap-preview-drag-resolution :: The share of the full resolution frames have while the mouse drags the camera, 0.5 by default; the frame the drag ends on is in full.
+- User Option: keycap-preview-probe-interval :: Seconds between two readings of the field under the mouse.
+
+The preview's window comes from ~display-buffer~, so ~display-buffer-alist~ decides where it goes.
+
+* Writing models
+:PROPERTIES:
+:DESCRIPTION: How scripts become shapes.
+:END:
+
+A script is [[https://rhai.rs/book/][Rhai]], a small scripting language with Rust-like syntax: =let=, =fn=, =if=, =for=, arrays (=[1, 2]=), maps (=#{a: 1}=) and closures.
+This chapter is about what is particular to modelling with it.
+
+** Fields and trees
+:PROPERTIES:
+:DESCRIPTION: A script runs once and builds an expression.
+:END:
+#+cindex: tree
+#+cindex: tracing
+#+cindex: field
+
+A script runs once.
+It does not compute shapes.
+It builds one expression per shape, a /tree/, which fidget evaluates later at millions of points to render or mesh it.
+
+The variables ~x~, ~y~ and ~z~ are trees for the coordinates.
+Arithmetic on a tree builds a bigger tree.
+The tree's value at a point is the field there: negative inside, positive outside, zero on the surface.
+
+Example: a sphere of radius 10, written out from the coordinates.
+#+begin_src rhai
+sqrt(square(x) + square(y) + square(z)) - 10
+#+end_src
+
+Shapes such as ~sphere~ and the prelude's ~cuboid~ are functions that build such trees.
+Transforms such as ~move~ build trees that evaluate their input at moved coordinates.
+~min~ and ~max~ of two fields are their union and their intersection.
+
+** Exact distances and bounds
+:PROPERTIES:
+:DESCRIPTION: Why the field's values matter, not only its sign.
+:END:
+#+cindex: exact field
+#+cindex: distance bound
+#+cindex: Lipschitz
+
+Only the sign of the field decides the shape, but its values matter too:
+
+- an /exact/ field is the Euclidean distance to the surface, everywhere
+- a /bound/ never exceeds that distance, but may be smaller: its slope is at most 1
+
+Offsets, shells, rounded combinations and clearances read the field as a distance.
+~offset(s, 1)~ grows a shape by exactly 1 only where the field of ~s~ is exact.
+fidget's ~box~ and ~rectangle~ are bounds beyond their edges and corners, so their offsets keep sharp corners.
+The prelude's ~cuboid~ and ~rect~ are exact, so their offsets have round corners.
+
+Example: fidget's ~rectangle~ and the prelude's ~rect~, both offset by 4; only the exact one gets round corners.
+#+begin_src rhai
+let sharp = rectangle([-30, -10], [-10, 10]).offset(4);
+let exact = rect(20).move([20, 0]).offset(4);
+union(sharp, exact)
+#+end_src
+
+Every prelude function's documentation says how exact its field is.
+Rules of thumb:
+
+- moves, rotations and mirrors keep a field exact
+- ~min~ (union) of exact fields is exact outside, and a bound inside
+- ~max~ (intersection, difference) of exact fields is exact inside and near flat faces, and a bound beyond new edges
+- scaling multiplies distances (see ~scale_exact~), and twisting or bending distorts them
+- a field steeper than a distance, its slope above 1, breaks offsets: ~offset(s, 1)~ moves its surface by less than 1
+
+The sdf view shows how exact a field is: on an exact field the lines are evenly spaced, and round outside convex corners.
+
+** Numbers and trees
+:PROPERTIES:
+:DESCRIPTION: Rhai's integers, and functions that turn numbers into trees.
+:END:
+#+cindex: integers
+#+cindex: integer division
+
+Rhai has integers and floats, and keeps them apart:
+
+- =5 / 2= is =2=, an integer division; write =5.0 / 2= or =5 * 0.5=
+- =-7 % 3= is =-1= for numbers, but =x % 3= at x = -7 is =2=: fidget's remainder on trees is never negative
+- fidget's math functions take anything and return a tree, but Rhai's own take only floats, so ~sqrt(2.0)~ is a number and ~sqrt(2)~ a tree, as is ~sin(1)~
+- ~square~ and ~rand~ always return trees
+
+A tree where a shape wants a number fails with =shape does not have an argument of type Tree=.
+Write float literals in arithmetic that must stay a number: ~sin(30.0 * PI / 180.0)~.
+The prelude's functions take integers anywhere, and convert them.
+
+Trees are 32-bit floats inside, and script arithmetic on numbers is 64-bit.
+
+** Choices without if
+:PROPERTIES:
+:DESCRIPTION: Selecting between values inside a tree.
+:END:
+#+cindex: if
+#+cindex: comparison
+#+cindex: selection
+
+An =if=, a loop or a function call happens once, while the script runs.
+The tree is evaluated later, at every point.
+So =if= can depend on numbers, but never on a tree:
+
+#+begin_src rhai
+let teeth = 12;                        // a number: if and for work
+let gear = if teeth > 10 { ... } else { ... };
+
+if x < 0 { ... }                       // a tree: an error
+#+end_src
+
+The second fails with =cannot compare Tree types during function tracing=.
+Choices inside a tree are made by functions that the tree evaluates at every point:
+
+- ~min(a, b)~ and ~max(a, b)~: the smaller or the larger value
+- ~compare(a, b)~: -1, 0 or 1
+- ~not(a)~: 1 where ~a~ is 0, else 0
+- ~and(a, b)~ and ~or(a, b)~: logical operators on 0 and other values, which return one of their operands
+
+=if a < b { p } else { q }= with trees becomes a sum: =p= times a factor that is 1 where =a < b= and 0 elsewhere, plus =q= times the opposite.
+
+Example: a post of radius 6 below z = 10 and of radius 3 above, chosen at every point.
+#+begin_src rhai
+let below = not(compare(z, 10) + 1);   // 1 where z < 10, else 0
+let r = below * 6 + (1 - below) * 3;
+(hypot(x, y) - r).intersection(slab([0, 20]))
+#+end_src
+
+Many choices are ~min~ or ~max~ in disguise: =abs(x)= is a mirror, ~clamp~ is two of them, and a union is ~min~.
+
+** Functions and constants
+:PROPERTIES:
+:DESCRIPTION: fn, const, global:: and closures.
+:END:
+#+cindex: functions
+#+cindex: const
+#+cindex: global
+
+A Rhai =fn= sees its parameters, other functions, ~x~, ~y~, ~z~ and fidget's constants.
+It does not see the script's =let= variables, and a function that reads one fails with =Variable not found=.
+Declare such values with =const= at the top level, and read them as =global::NAME= inside functions.
+
+Example: a tray whose wall is a constant, read inside the function that makes it.
+#+begin_src rhai
+const WALL = 2.0;
+
+fn tray(size) {
+    cuboid(size, #{anchor: "bottom"})
+        .shell(global::WALL)
+        .intersection(z - size[2] + global::WALL)
+}
+
+draw(tray([40, 30, 15]));
+#+end_src
+
+Closures, such as =|r| circle(r + wall)=, capture the =let= variables around them, and are called with =.call(...)=.
+Rhai has no default arguments.
+A function can have several definitions with different numbers of parameters instead.
+
+** Methods and chaining
+:PROPERTIES:
+:DESCRIPTION: shape.f(...) and when it works.
+:END:
+#+cindex: methods
+#+cindex: chaining
+
+Any of fidget's functions can be called as a method on its first argument: ~circle(5).move([1, 2])~ is ~move(circle(5), [1, 2])~.
+A chain reads in the order the transforms apply.
+
+Example: a pin along Z, laid along Y, then raised by 10.
+#+begin_src rhai
+cylinder(2, 20)
+    .rotate_x(90)
+    .move([0, 0, 10])
+#+end_src
+
+Rhai calls a function defined in a script as a method only through =this=.
+=fn grow(s, d)= cannot be called as =s.grow(d)=, which fails with =Function not found: grow (Tree, ...)=.
+Every prelude function whose first argument is a shape also has such a method form.
+For a function of your own, write the method form as a second definition.
+
+Example: a function and its method form, which grows a square by 2.
+#+begin_src rhai
+fn grow(s, d) { s.offset(d) }
+fn grow(d) { grow(this, d) }
+
+draw(rect(20).grow(2));
+#+end_src
+
+** Calling shapes
+:PROPERTIES:
+:DESCRIPTION: Maps, positional arguments and defaults.
+:END:
+#+cindex: shapes, calling
+#+cindex: map arguments
+
+fidget's shapes take their fields as a map, or positionally.
+Fields left out take their defaults: ~circle(3)~ is centred on the origin.
+
+Example: two circles, the first with its fields in a map, the second with them in order.
+#+begin_src rhai
+union(
+    circle(#{center: [-6, 0], radius: 3}),
+    circle([6, 0], 4)
+)
+#+end_src
+
+- Positional arguments are matched by type, so their order is free when every field's type is different.
+- A 2D vector stands in for a 3D one, the missing Z taking the field's default.
+- Two values of the same type are ambiguous: ~circle(1, 2)~ quietly makes a circle of radius 2.
+- Shapes whose fields share types take them in order, as ~rectangle(lower, upper)~ and ~extrude_z(shape, lower, upper)~ do.
+- A transform called with a shape and a map, as in =s.rotate_x(#{angle: 30})=, needs every field in the map, defaults included, or fails with =field center must be provided for RotateX=.
+  Without the map, defaults apply: ~s.rotate_x(30)~.
+- Vectors are arrays, =[1, 2]= or =[1, 2, 3]=, or ~vec2~ and ~vec3~ values.
+- A field of type Tree takes an array of trees in the map form, as their union.
+  Positional transforms reject arrays with =missing argument of type Tree=, so wrap them: ~union(parts).move(...)~.
+
+** Drawing and colours
+:PROPERTIES:
+:DESCRIPTION: draw and draw_rgb.
+:END:
+#+cindex: draw
+#+cindex: colour
+
+A script shows a shape by passing it to ~draw~, any number of times.
+~draw_rgb(shape, r, g, b)~ draws it in a colour, each component from 0 to 1.
+An array of shapes is drawn as their union.
+The preview shows each drawn shape in its colour, and an export meshes the union of all of them.
+
+Example: an orange plate and a grey boss on it, drawn apart.
+#+begin_src rhai
+let base = cuboid([40, 30, 4], #{anchor: "bottom"});
+let post = cylinder(6, [4, 10]);
+draw_rgb(base, 0.95, 0.55, 0.2);
+draw_rgb(post, 0.6, 0.6, 0.65);
+#+end_src
+
+~draw(shape, #{role: "score"})~ says what a laser does along the shape's outline in a 2D export; see [[*Exporting for laser cutting]].
+
+The value of the script's last expression is not drawn.
+A script that draws nothing gets a warning.
+
+** Bounds and resolution
+:PROPERTIES:
+:DESCRIPTION: bounds() and resolution().
+:END:
+#+cindex: bounds
+#+cindex: resolution
+
+~bounds(lower, upper)~ sets the region to preview and export, from corner to corner.
+A script calls it at most once.
+Without it, the region is fitted to the drawn shapes; see [[*Bounds]].
+A shape that pokes out of the script's bounds gets a warning naming the sides, since export would cut it off.
+
+Example: a gyroid, a surface without end, shown and exported within a cube.
+#+begin_src rhai
+bounds([-15, -15, -15], [15, 15, 15]);
+let k = 0.5;
+let gyroid = sin(k * x) * cos(k * y)
+    + sin(k * y) * cos(k * z)
+    + sin(k * z) * cos(k * x);
+draw(abs(gyroid) - 0.3);
+#+end_src
+
+~resolution(n)~ sets the export's mesh cells per unit: 10 makes cells of 0.1 mm.
+
+** 2D drawings
+:PROPERTIES:
+:DESCRIPTION: Shapes in the XY plane, and extruding them.
+:END:
+#+cindex: 2D
+
+A 2D shape is a tree that never mentions ~z~: ~circle~, ~rectangle~, and the prelude's ~rect~, ~polygon~, ~stroke~ and others.
+Drawn as it is, it is an endless prism along Z.
+The preview opens it in the sdf view, sliced at z = 0.
+
+2D shapes combine as 3D ones do, with ~min~, ~max~, ~difference~ and the prelude's rounded combinations.
+They become solids in several ways:
+
+- ~extrude~, straight up, or twisting, scaling and moving as it rises, with rounded or chamfered rims
+- ~revolve~, around the Z axis, a whole turn or part of one
+- ~loft~, through several profiles stacked along Z
+- ~sweep~, along a path of lines, arcs and helices, and ~helix~
+- fidget's own ~extrude_z~ and ~loft_z~
+
+Each takes the profile's slice at z = 0, so any 2D tree can be made a solid.
+
+Example: a plate with a slot, drawn in 2D, then extruded 3 high.
+#+begin_src rhai
+let plate = rect([30, 20], #{round: 3});
+let slot = stroke([[-8, 0], [8, 0]], 4);
+plate.difference(slot).extrude([0, 3])
+#+end_src
+
+** Text and SVG
+:PROPERTIES:
+:DESCRIPTION: Lettering in a font, and shapes drawn in other programs.
+:END:
+#+cindex: text
+#+cindex: SVG
+#+cindex: fonts
+
+~text~ and ~svg~ make 2D shapes from outlines: letters in a font, and the shapes of an SVG file.
+Both are exact distance fields, so ~offset~, ~shell~ and the rounded combinations work on them as they do on ~rect~.
+
+Example: a tag with its label sunk 0.6 mm into it.
+#+begin_src rhai
+let label = text("M3", #{
+    size: 4,
+    halign: "center",
+    valign: "center",
+});
+let plate = cuboid([20, 10, 2], #{anchor: "bottom"});
+plate.difference(label.extrude([1.4, 3]))
+#+end_src
+
+~text(string, options)~ takes a map of options, any of them left out:
+
+- =size= :: About the height of a capital letter above the baseline, 10 by default.
+  A font's em is drawn =size / 0.72= tall, so Liberation Sans's capitals come out 0.955 of the size.
+- =font= :: A font file, relative to the script, such as =fonts/Iosevka-Light.ttf=.
+  Or an installed font: a family, then =:=-separated properties, such as =JetBrains Mono:style=Bold= or =Iosevka:style=Light Extended=.
+  Liberation Sans by default.
+  ="libfive"= is Matt Keeter's font from libfive, each glyph a few rectangles, triangles and rings: ASCII only and one look, and a bound rather than an exact field, but a tenth of the work to render.
+- =halign= :: ="left"= (the default), ="center"= or ="right"=, by the advance of the whole string.
+- =valign= :: ="baseline"= (the default), ="top"=, ="center"= or ="bottom"=, by the highest and lowest points of its glyphs.
+- =spacing= :: A factor on the advance from one letter to the next, 1 by default.
+
+Letters are shaped by HarfBuzz, with the font's kerning and ligatures, on one line.
+Curves become lines within a thousandth of the size.
+
+~svg(path, options)~ imports an SVG file, relative to the script:
+
+- Its units become millimetres at 96 pixels to the inch.
+  Documents in millimetres, as Inkscape and KiCad save them, keep their numbers.
+- The document's bottom left corner is the origin, Y up.
+- Every closed path is filled whatever its paint, so an outline drawn as a stroke imports as an area.
+  A filled path keeps its =fill-rule=, and a path without a fill is filled even-odd.
+- An open path imports as its stroke, its =stroke-width= wide, or 1 pixel without one.
+- Overlapping paths make their union, and text in the file becomes its glyphs.
+- Curves become lines within 0.01 mm.
+
+Its options:
+
+- =center= :: =true= puts the centre of the shapes' bounding box at the origin.
+- =id= :: Import only the element with this =id=: one path, or one Inkscape layer's group.
+
+A plate drawn in two files, its outline and its holes, is a difference of the two:
+
+#+begin_src rhai
+let plate = svg("plate-edge.svg").difference(svg("plate-holes.svg"));
+draw(plate.extrude([0, 1.5]));
+#+end_src
+
+The preview reloads when a file the script reads changes on disk, as it does when the script itself changes: an SVG file, a font file or an imported script.
+
+** Dialects
+:PROPERTIES:
+:DESCRIPTION: .keycap files and .fidget files.
+:END:
+#+cindex: dialects
+#+cindex: .fidget files
+#+cindex: keycap-dialect
+
+keycap reads two dialects of fidget's Rhai, both in ~keycap-mode~, told apart by the file's extension.
+
+- =.keycap= :: fidget's functions and shapes, plus everything this manual describes: the prelude, ~text~ and ~svg~, ~bounds~ and ~resolution~, the roles of ~draw~.
+- =.fidget= :: only what fidget's own tools run: fidget's functions and shapes, ~draw~ and ~draw_rgb~, and imports.
+  Such a script runs unchanged in fidget's viewer, and with one ~draw~ in its CLI with =--type rhai=, which draws one shape.
+  The preview fits its bounds to the shapes; completion, ElDoc and =C-c C-d= know only fidget's names.
+
+Both draw any number of shapes.
+Calling one of keycap's functions in a =.fidget= script is an error that says so: "~text~ is a keycap extension: rename the file to .keycap".
+fidget's own tools stop a script after 50,000 operations, where keycap allows millions; a =.fidget= script that runs longer gets a warning on its first line, as it runs in the preview but not in them.
+
+The buffer-local ~keycap-dialect~ holds the dialect, =keycap= or =fidget=; a file-local variable sets it for one file, as in =// -*- keycap-dialect: fidget -*-=.
+Imported files are read in the importing script's dialect.
+The example =spacer.fidget= is written for fidget's tools; the other examples are =.keycap= files.
+
+** Imports
+:PROPERTIES:
+:DESCRIPTION: Splitting a model into files.
+:END:
+#+cindex: import
+#+cindex: modules
+
+=import "name" as m;= runs the file =name= when it has an extension, else =name.keycap=, =name.fidget= or =name.rhai= (=.keycap= only in a =.keycap= script), looked up relative to the importing file, and makes its functions available as =m::f(...)=.
+Imported files are read again on every evaluation, and the preview reloads when one is saved, so editing one updates the model.
+
+#+begin_src rhai
+// parts.rhai
+export const WALL = 2.0;
+
+fn bracket(size) {
+    cuboid(size).shell(global::WALL)
+}
+#+end_src
+
+#+begin_src rhai
+// model.keycap
+import "parts" as parts;
+draw(parts::bracket([20, 20, 10]).offset(parts::WALL));
+#+end_src
+
+- A module's =let= and =const= are private unless declared with =export=; importers read exported ones as =m::NAME=.
+- The module's own functions read its constants as =global::NAME=.
+- A module's ~draw~ calls draw too, so a library module should only define functions.
+- An import cycle is an error naming the files in it.
+- A public function's =///= comments document it as =m::f= for completion, ElDoc and =C-c C-d=, the way the prelude's are written; a =private fn= stays out of them.
+
+** The prelude
+:PROPERTIES:
+:DESCRIPTION: The shape library every script can call.
+:END:
+#+cindex: prelude
+
+Every =.rhai= file in ~keycap-prelude-directory~ is loaded before the script, and its functions are available without an import.
+They are shapes with exact fields, rounded and chamfered combinations, extrusions, lofts and sweeps, arrays, easings, Bézier curves, gears and metric fasteners.
+They are described in [[*Prelude reference]].
+Functions named with a leading =_= are the prelude's internals.
+
+The files in its =modules= directory load only when a script imports them by name, as in =import "keycap/screws" as screws;=.
+They hold standard parts, such as threads, screws, nuts, inserts, magnets, bearings and aluminium extrusions, and joints for laser cutting.
+They are described in [[*Modules reference]].
+
+To add your own library everywhere, copy the prelude directory, add files to it and point ~keycap-prelude-directory~ there.
+
+* Shapes reference
+:PROPERTIES:
+:DESCRIPTION: fidget's built-in shapes and transforms.
+:END:
+#+cindex: shapes
+
+fidget's own shapes, as of fidget a386417.
+Each is documented with its fields, in order; =C-c C-d= shows the same, from fidget itself.
+Which fields may be left out depends on the form of the call, as its signatures show; see [[*Reading signatures]].
+
+** Reading signatures
+:PROPERTIES:
+:DESCRIPTION: How the reference writes calls and types.
+:END:
+#+cindex: signatures
+#+cindex: types
+
+A function's description starts with the ways to call it, written as in TypeScript:
+
+#+begin_src keycap-signature
+offset(shape: Shape, d: Tree): Shape
+shape.offset(d: Tree): Shape
+#+end_src
+
+The types are:
+
+- =number= :: a number that is known when the script runs, such as a count or a size
+- =Tree= :: a number, or an expression of ~x~, ~y~ and ~z~ whose value differs from point to point; given only numbers, a function that returns a =Tree= returns a number, unless its entry says otherwise
+- =Shape= :: a =Tree= read as a solid, below 0 inside and above 0 outside
+- =Vec2=, =Vec3= :: =[x, y]= and =[x, y, z]=, of numbers
+- =Axis=, =Plane= :: fidget's axes and planes, see ~rotate~ and ~reflect~
+- =Ease= :: an easing, =string | ((t: Tree) => Tree)=: a name that ~ease~ takes, such as ="in_out_sine"=, or a function of =t= from 0 to 1
+- =Height= :: =number | [number, number]=: a height centred on z = 0, or =[z0, z1]=, from =z0= up to =z1=
+- =Sched= :: a value along a part: a =Tree=, a function of =t=, or keyframes in =t=, as ~keyframes~ takes them; =t= runs from 0 to 1 along the part, from the bottom of an extrusion to its top
+- =string=, =bool= :: Rhai's own
+
+The notation is:
+
+- =T[]= :: an array of =T=
+- =#{ a: T, b?: U }= :: a map whose key =b= may be left out
+- =A | B= :: either of them
+- =(t: Tree) => Tree= :: a function, written as a closure, =|t| ...=, or by name, =Fn("name")=
+- =name: T = v= :: an argument that may be left out, =v= when it is
+- =...input: Shape[]= :: any number of arguments
+- =shape.f(...)= :: the method form, its first argument before the dot
+- =type Slice = ...= :: a name for a type, used by the function it is shown with
+
+fidget's own shapes are called in three ways:
+
+- By position :: when no two fields have the same type, the arguments may come in any order, and those with a default may be left out, so =sphere(10)= is a sphere of radius 10.
+  Otherwise every field comes, in order: =s.repeat_x(5, 0)=, never =s.repeat_x(5)=.
+- With a map of every field, =repeat_x(#{shape: s, radius: 5})= :: the keys with a default may be left out.
+- As a method with a map of the other fields, =s.rotate_x(#{angle: 30, center: [0, 0, 0]})= :: every key is needed, defaults too.
+
+An array of shapes stands for their union in a map, =[a, b].move(#{offset: [1, 0, 0]})=, but not by position: =[a, b].move([1, 0, 0])= is an error; =union(a, b).move(...)= is not.
+
+** Built-in 2D shapes
+:PROPERTIES:
+:DESCRIPTION: circle and rectangle.
+:END:
+
+#+keycap-reference: server/docs/shapes-2d.toml
+
+** Built-in 3D shapes
+:PROPERTIES:
+:DESCRIPTION: sphere, box and plane.
+:END:
+
+#+keycap-reference: server/docs/shapes-3d.toml
+
+** Combinations
+:PROPERTIES:
+:DESCRIPTION: union, intersection, difference, inverse and blend.
+:END:
+#+cindex: CSG
+
+#+keycap-reference: server/docs/combinations.toml
+
+** Transforms
+:PROPERTIES:
+:DESCRIPTION: Moving, turning, scaling and mirroring.
+:END:
+#+cindex: transforms
+
+Transforms take the shape first, so they chain: ~s.move([1, 0, 0]).rotate_z(45)~.
+Moves, rotations and reflections keep a field exact.
+
+#+keycap-reference: server/docs/transforms.toml
+
+** From 2D to 3D
+:PROPERTIES:
+:DESCRIPTION: extrude_z, loft_z and revolve_y.
+:END:
+
+#+keycap-reference: server/docs/extrusion.toml
+
+* Operators and math reference
+:PROPERTIES:
+:DESCRIPTION: Variables, operators and functions on trees.
+:END:
+
+fidget adds these to Rhai.
+Most work on both numbers and trees, and return a tree when an argument is a tree; see [[*Numbers and trees]].
+
+** Coordinates and constants
+:PROPERTIES:
+:DESCRIPTION: x, y, z, axes and the constants.
+:END:
+#+cindex: constants
+
+#+keycap-reference: server/docs/constants.toml
+
+** Arithmetic
+:PROPERTIES:
+:DESCRIPTION: + - * / % on trees.
+:END:
+
+#+keycap-reference: server/docs/arithmetic.toml
+
+** Comparison and selection
+:PROPERTIES:
+:DESCRIPTION: Why < fails on trees, and what to use instead.
+:END:
+
+#+keycap-reference: server/docs/comparison.toml
+
+** Math functions
+:PROPERTIES:
+:DESCRIPTION: abs, sqrt, trigonometry and rounding.
+:END:
+
+Each takes a number or a tree; on an integer, or on anything Rhai lacks a float version of, it returns a tree.
+
+#+keycap-reference: server/docs/math.toml
+
+** Random numbers
+:PROPERTIES:
+:DESCRIPTION: rand and mix.
+:END:
+#+cindex: random
+
+#+keycap-reference: server/docs/random.toml
+
+** Remapping
+:PROPERTIES:
+:DESCRIPTION: remap, the transform behind all transforms.
+:END:
+#+cindex: remap
+
+#+keycap-reference: server/docs/remap.toml
+
+** Vectors and axes
+:PROPERTIES:
+:DESCRIPTION: vec2, vec3, axis and plane values.
+:END:
+#+cindex: vectors
+
+#+keycap-reference: server/docs/vectors.toml
+
+** Script API
+:PROPERTIES:
+:DESCRIPTION: draw, draw_rgb, bounds, resolution, text and svg.
+:END:
+
+These come from ~keycap-server~, not from fidget; scripts written for ~fidget-cli~ or fidget's viewer use the same ~draw~ and ~draw_rgb~.
+A =.fidget= script has those two only, without ~draw~'s options; see [[*Dialects]].
+
+#+keycap-reference: server/docs/script.toml
+
+Rhai's own functions (~print~, ~type_of~, ~to_float~, string and array methods) are in the [[https://rhai.rs/book/][Rhai book]].
+
+* Prelude reference
+:PROPERTIES:
+:DESCRIPTION: The shape library loaded into every script.
+:END:
+#+cindex: prelude, reference
+
+** Conventions
+:PROPERTIES:
+:DESCRIPTION: Placement, sizes, options, rounding, methods, arrays, angles and field quality.
+:END:
+
+What the prelude's functions have in common.
+
+*** Placement and anchors
+:PROPERTIES:
+:DESCRIPTION: Where a shape is, and how to put it elsewhere.
+:END:
+#+cindex: anchor
+
+Shapes are centred on the origin, along Z too: ~cylinder(5, 20)~ runs from z = -10 to 10.
+Round solids and extrusions have their axis along Z.
+
+Three ways put a shape elsewhere:
+
+- a height of =[z0, z1]= runs from =z0= up to =z1=
+- the =anchor= option puts a point of the shape's bounding box on the origin
+- ~move~ moves it
+
+An =anchor= is =[ax, ay, az]=, each from -1 to 1.
+=[-1, -1, -1]= is the corner on the -X, -Y and -Z sides, =[0, 0, 0]= the centre, and =[1, 1, 1]= the opposite corner.
+It may also be a name: ="center"=, ="left"= (-X), ="right"= (+X), ="front"= (-Y), ="back"= (+Y), ="bottom"= (-Z) or ="top"= (+Z).
+A 2D shape takes =[ax, ay]=, and the names other than ="bottom"= and ="top"=.
+
+Example: a plate standing on z = 0 by its anchor, and a post from its top up to z = 20, moved to a corner.
+#+begin_src rhai
+let base = cuboid([40, 30, 4], #{anchor: "bottom"});
+let post = cylinder(4, [4, 20]).move([12, 7]);
+union(base, post)
+#+end_src
+
+*** Sizes and pairs
+:PROPERTIES:
+:DESCRIPTION: Numbers, arrays and pairs of numbers.
+:END:
+
+A size is one number for every side, or an array of them: ~rect(10)~ is a square, ~rect([10, 5])~ a rectangle.
+Points are arrays too, =[x, y]= or =[x, y, z]=.
+Integers are converted, so =10= and =10.0= are the same.
+
+Two numbers of one kind go as a pair, in this order:
+
+- =[outer, inner]=, the radii of ~tube~, ~annulus~ and ~star~
+- =[bottom, top]=, the radii of ~cone~ and the rims of an extrusion
+- =[z0, z1]=, a height from =z0= up to =z1=
+
+Example: a tube with radii of 10 and 8, on a cone with radii of 14 and 10.
+#+begin_src rhai
+union(
+    cone([14, 10], [0, 5]),
+    tube([10, 8], [5, 30])
+)
+#+end_src
+
+*** Options
+:PROPERTIES:
+:DESCRIPTION: The map at the end of a call.
+:END:
+#+cindex: options
+
+Options go in one map, the last argument: ~cylinder(5, 20, #{round: 1, anchor: "bottom"})~.
+Any of them may be left out.
+An option a function does not know is an error that names it, so a misspelt one does not go unnoticed.
+=#{sides: n}= makes a cylinder a prism and a cone a pyramid.
+
+Example: a hexagonal prism standing on z = 0, its top rim rounded.
+#+begin_src rhai
+cylinder(10, [0, 8], #{sides: 6, round: [0, 1]})
+#+end_src
+
+*** Rounding and chamfering
+:PROPERTIES:
+:DESCRIPTION: round and chamfer, by a fixed or a varying size.
+:END:
+#+cindex: rounding, varying
+
+Shapes with edges take =#{round: r}= or =#{chamfer: c}=.
+A cylinder's or an extrusion's rims take a pair, =[bottom, top]=, with 0 for a sharp rim.
+~union_round~ and the other rounded combinations take a radius too.
+
+A radius or a chamfer may vary over space.
+It is then a tree, such as =lerp(1, 3, smoothstep(0, 10, z))=.
+For an extrusion's rims, it may also be a function of =t= or keyframes in =t=, where =t= runs from 0 at the bottom to 1 at the top.
+A size that fades to 0 leaves a sharp edge there.
+
+Such a tree is read in the shape's own coordinates, centred on the origin, before its =anchor= and any ~move~.
+A cuboid 12 high with =anchor: "bottom"= sees its top at z = 6 in its =round=, not at z = 12.
+
+Notes:
+- With a varying size, the field is a distance to first order, as close as with a fixed size.
+- It is divided by the length of its gradient, worked out from the size's own gradient and a second evaluation of the shapes.
+- So a varying size costs about twice as much; =#{normalize: false}= skips the correction.
+- Without the correction, the field would be off by up to 0.41 times how fast the size changes, in mm per mm.
+
+Example: a block with every edge chamfered by 1.
+#+begin_src rhai
+cuboid([30, 20, 10], #{chamfer: 1})
+#+end_src
+
+Example: a plate whose corners grow rounder towards +X.
+#+begin_src rhai
+let corner = lerp(1, 6, linstep(-20, 20, x));
+rect([40, 20], #{round: corner}).extrude([0, 4])
+#+end_src
+
+*** Methods
+:PROPERTIES:
+:DESCRIPTION: shape.f(...) for every function of a shape.
+:END:
+
+Every function whose first argument is a shape is also a method of the shape: ~offset(s, 1)~ is ~s.offset(1)~.
+A chain of methods reads in the order they apply.
+
+Example: an open box: a rectangle grown by 3, extruded, hollowed to a 1 mm wall, and cut open at z = 9.
+#+begin_src rhai
+rect([30, 20])
+    .offset(3)
+    .extrude([0, 10])
+    .shell(1)
+    .intersection(z - 9)
+#+end_src
+
+*** Arrays
+:PROPERTIES:
+:DESCRIPTION: Where copies go.
+:END:
+
+Arrays of copies start at the original and go along their step.
+The step comes before the count: ~linear_array(s, [10, 0], 4)~.
+=#{center: true}= centres the copies on the original instead.
+Endless repetitions, as ~repeat~ makes them, are centred on the origin.
+
+Example: a strip with a row of four holes, centred on it.
+#+begin_src rhai
+let plate = cuboid([50, 15, 4]);
+let holes = cylinder(2, 10)
+    .linear_array([12, 0], 4, #{center: true});
+plate.difference(holes)
+#+end_src
+
+*** Angles in degrees
+:PROPERTIES:
+:DESCRIPTION: The prelude's angles, and fidget's radians.
+:END:
+#+cindex: degrees
+
+The prelude's angles are in degrees.
+~sind~, ~cosd~, ~tand~, ~asind~, ~acosd~, ~atand~ and ~atan2d~ take and give degrees.
+fidget's own ~sin~, ~cos~ and the others work in radians.
+
+Example: five pegs round a disc, placed with ~cosd~ and ~sind~.
+#+begin_src rhai
+let peg = |a| cylinder(2, [3, 10])
+    .move([18 * cosd(a), 18 * sind(a)]);
+let pegs = union([0, 72, 144, 216, 288].map(peg));
+cylinder(25, [0, 3]).union(pegs)
+#+end_src
+
+*** Field quality
+:PROPERTIES:
+:DESCRIPTION: How well a function's field measures distance.
+:END:
+
+The notes of each function's documentation start with how well its field measures distance:
+
+- exact :: the distance to the surface, everywhere
+- exact outside, exact inside :: the distance on that side, and a bound on the other
+- first-order :: close to the distance near the surface, as ~normalize_z~ makes it
+- approx :: close to the distance, within the error it names
+- bound :: never more than the distance, but it may be less
+- steep :: more than the distance, by up to the factor it names, which makes offsets come out thinner
+
+See [[*Exact distances and bounds]] for why it matters.
+
+Example: a bowl: a sphere's exact field, shelled 1 thick and cut at its equator.
+#+begin_src rhai
+sphere(10).shell(1).intersection(z)
+#+end_src
+
+** Math helpers
+:PROPERTIES:
+:DESCRIPTION: clamp, lerp, linstep, smoothstep, hypot, degrees and vectors.
+:END:
+
+#+keycap-reference: prelude/math.rhai
+
+** 2D shapes
+:PROPERTIES:
+:DESCRIPTION: rect, polygon, stroke, squircle and friends.
+:END:
+
+#+keycap-reference: prelude/shapes-2d.rhai
+
+** 3D shapes
+:PROPERTIES:
+:DESCRIPTION: cuboid, cylinder, cone and friends.
+:END:
+
+#+keycap-reference: prelude/shapes-3d.rhai
+
+** Extrusion and revolution
+:PROPERTIES:
+:DESCRIPTION: From 2D profiles to solids.
+:END:
+
+Each takes the profile's slice at z = 0.
+
+#+keycap-reference: prelude/extrude.rhai
+
+** Offsets and combinations
+:PROPERTIES:
+:DESCRIPTION: offset, shell, clearance, fillets, chamfers and engraving.
+:END:
+
+#+keycap-reference: prelude/csg.rhai
+
+The rounded and chamfered combinations come from Mercury's hg_sdf library.
+
+** Transforms in the prelude
+:PROPERTIES:
+:DESCRIPTION: rotate_xyz, symmetry, exact scaling and elongation.
+:END:
+
+#+keycap-reference: prelude/transforms.rhai
+
+** Arrays and repetition
+:PROPERTIES:
+:DESCRIPTION: Copies, and repetition at the cost of one copy.
+:END:
+#+cindex: arrays
+#+cindex: repetition
+
+There are two families.
+The =*_array= functions union real copies, the first on the original: exact for any shape, their cost growing with the count.
+The ~repeat~ functions fold space so that one copy serves every cell, at constant cost, as long as each copy stays inside its cell.
+Their cells are centred on the origin, so the shape goes there and the result is moved.
+
+#+keycap-reference: prelude/patterns.rhai
+
+** Easing and keyframes
+:PROPERTIES:
+:DESCRIPTION: Values that change along a part, smoothly.
+:END:
+#+cindex: easing
+#+cindex: keyframes
+
+The easings of easings.net, the set OpenSCAD libraries copy.
+Each maps 0 to 0 and 1 to 1, takes a number or a tree, and clamps its argument to the range from 0 to 1, so ~ease_in_cubic(linstep(0, 40, z))~ holds still below and above its 40 mm.
+
+#+keycap-reference: prelude/ease.rhai
+
+** Profiles over height
+:PROPERTIES:
+:DESCRIPTION: loft, loft_tilted and normalize_z: vases, keycaps and other point-layer designs.
+:END:
+#+cindex: loft
+#+cindex: vases
+#+cindex: keycaps
+
+Solids whose horizontal profile changes with height.
+~loft~ stacks 2D profiles along Z, for vases and OpenSCAD's other point-layer designs.
+~loft_tilted~ tilts the profiles as they rise, for the sides of sculpted keycaps.
+~normalize_z~ and ~normalize_slope~ correct the field of such a solid built by hand.
+
+#+keycap-reference: prelude/loft.rhai
+
+** Helices, bends and sweeps
+:PROPERTIES:
+:DESCRIPTION: helix, bend and sweep: profiles carried along a path.
+:CUSTOM_ID: helices-and-rings
+:END:
+#+cindex: helix
+#+cindex: spiral
+#+cindex: sweep
+
+#+keycap-reference: prelude/sweep.rhai
+
+** Bézier curves
+:PROPERTIES:
+:DESCRIPTION: Points, graphs and strokes of Bézier curves and splines.
+:END:
+#+cindex: Bézier curves
+
+#+keycap-reference: prelude/curves.rhai
+
+** Gears
+:PROPERTIES:
+:DESCRIPTION: Involute spur gears.
+:END:
+#+cindex: gears
+#+cindex: involute
+
+#+keycap-reference: prelude/gears.rhai
+
+** Fasteners
+:PROPERTIES:
+:DESCRIPTION: Metric screws, nuts and heat-set inserts.
+:END:
+#+cindex: fasteners
+#+cindex: screws
+#+cindex: nuts
+#+cindex: heat-set inserts
+
+Sizes are ="M2"=, ="M2.5"=, ="M3"=, ="M4"=, ="M5"=, ="M6"= and ="M8"=, or the numbers =2=, =2.5=, =3=...
+Every function returns a cutter, open above its z = 0, so it clears whatever lies over the hole; ~nut_slot~'s pocket is centred on z = 0 instead.
+Make holes longer than the material, so they cut through.
+Options are a map, every key optional.
+
+#+keycap-reference: prelude/fasteners.rhai
+
+* Modules reference
+:PROPERTIES:
+:DESCRIPTION: Standard parts and laser-cut joints, imported by name.
+:END:
+#+cindex: modules, reference
+
+The prelude's modules are imported by name, =import "keycap/screws" as screws;=, wherever the script is; see [[*Imports]].
+Their functions are written here as their examples call them, by the name each section's import gives the module.
+A script's own top-level function replaces a prelude function of the same name inside the modules too: with =fn cylinder(r, h) { ... }= in the script, =magnets::magnet("6x3")= is built from that =cylinder=, and nothing says so.
+So don't give a script's functions the prelude's names.
+The tables of standard parts only supply dimensions, by size: every shape also takes its dimensions directly.
+The tables, and the prelude's ~metric~, follow the standards they name; their numbers are from tables that makers and distributors publish, not from the standards' own text.
+Each table says where its numbers come from and marks those only one source gives as unverified.
+Check a dimension against the datasheet of the part you have before relying on it.
+
+** Threads
+:PROPERTIES:
+:DESCRIPTION: ISO metric screw threads.
+:END:
+#+cindex: threads
+
+#+keycap-reference: prelude/modules/threads.rhai
+
+** Screws
+:PROPERTIES:
+:DESCRIPTION: Metric screws and their holes.
+:END:
+#+cindex: screws
+
+#+keycap-reference: prelude/modules/screws.rhai
+
+** Nuts and washers
+:PROPERTIES:
+:DESCRIPTION: Metric nuts, washers and their pockets.
+:END:
+#+cindex: nuts
+#+cindex: washers
+
+#+keycap-reference: prelude/modules/nuts.rhai
+
+** Heat-set inserts
+:PROPERTIES:
+:DESCRIPTION: Threaded inserts and their holes.
+:END:
+#+cindex: heat-set inserts
+
+#+keycap-reference: prelude/modules/inserts.rhai
+
+** Magnets
+:PROPERTIES:
+:DESCRIPTION: Disc magnets and their pockets.
+:END:
+#+cindex: magnets
+
+#+keycap-reference: prelude/modules/magnets.rhai
+
+** Bearings
+:PROPERTIES:
+:DESCRIPTION: Rolling bearings and their seats.
+:END:
+#+cindex: bearings
+
+#+keycap-reference: prelude/modules/bearings.rhai
+
+** Extrusions
+:PROPERTIES:
+:DESCRIPTION: Aluminium extrusions with T-slots.
+:END:
+#+cindex: aluminium extrusions
+
+~extrusions::profile~ is a 2D cross-section, and ~extrusions::beam~ the 3D bar made from it.
+
+#+keycap-reference: prelude/modules/extrusions.rhai
+
+** Laser cutting
+:PROPERTIES:
+:DESCRIPTION: Joints, living hinges, a box and a sheet.
+:END:
+#+cindex: laser cutting, joints
+
+#+keycap-reference: prelude/modules/lasercut.rhai
+
+* Recipes
+:PROPERTIES:
+:DESCRIPTION: Printed parts, step by step.
+:END:
+
+The clearances here are starting points that suit most printers: print a test piece, and adjust them for yours.
+Nothing here has been tested for strength.
+
+** Rounding and chamfering
+:PROPERTIES:
+:DESCRIPTION: Fillets and chamfers on edges and between parts.
+:END:
+#+cindex: rounding
+#+cindex: fillets
+#+cindex: chamfers
+
+An exact field grown by =r= has every convex edge rounded with radius =r=.
+So a shape is rounded on the outside by building it =r= smaller, then offsetting it by =r=.
+The =round= options of the prelude's shapes and extrusions do this, and =chamfer= cuts the edges at 45 degrees instead.
+
+Example: a block with every edge rounded by 2.
+#+begin_src rhai
+cuboid([40, 20, 10], #{round: 2})
+#+end_src
+
+Example: a plate with round corners, its rims chamfered by 0.6, the bottom one against elephant's foot.
+#+begin_src rhai
+rect([40, 20], #{round: 4})
+    .extrude([0, 6], #{chamfer: 0.6})
+#+end_src
+
+Concave edges, where two parts meet, are filleted by the combination that joins them.
+~union_chamfer~ chamfers them instead.
+
+Example: a post on a base, with a fillet of 3 round its foot.
+#+begin_src rhai
+let base = cuboid([40, 40, 4], #{anchor: "bottom"});
+base.union_round(cylinder(5, [0, 30]), 3)
+#+end_src
+
+The rim of a hole or a pocket is rounded or chamfered by the cut.
+
+Example: a plate with an M3 hole, chamfered by 0.5 at both ends.
+#+begin_src rhai
+cuboid([20, 20, 5])
+    .difference_chamfer(cylinder(1.7, 20), 0.5)
+#+end_src
+
+In 2D, ~rounded_polygon~ rounds a polygon's corners: the convex ones by its radius, and the concave ones by its =concave= option.
+~union_round~ fillets the corners where 2D shapes meet.
+
+Example: an angle bracket, its outer corners rounded by 1 and its inner corner by 4.
+#+begin_src rhai
+let profile = [
+    [0, 0], [40, 0], [40, 5],
+    [5, 5], [5, 30], [0, 30],
+];
+rounded_polygon(profile, 1, #{concave: 4})
+    .extrude(20)
+#+end_src
+
+** Shells and hollow parts
+:PROPERTIES:
+:DESCRIPTION: Walls of constant thickness.
+:END:
+#+cindex: shell
+
+~shell(s, t)~ keeps a wall =t= thick inside the surface of =s=.
+It is exact when =s= is.
+A shell is closed, so it is opened by a cut.
+
+Example: a box with 2 mm walls and rounded edges, cut open at z = 25.
+#+begin_src rhai
+let outside = cuboid([60, 40, 30], #{round: 4, anchor: "bottom"});
+outside.shell(2).intersection(z - 25)
+#+end_src
+
+A wall centred on the surface instead is =abs(s) - t / 2=.
+
+** Clearances and fits
+:PROPERTIES:
+:DESCRIPTION: Parts that fit together.
+:END:
+#+cindex: clearance
+
+Parts that fit together need a gap.
+On most printers, it is about 0.2 mm on a side for a sliding fit, and 0.1 mm for a press fit.
+~clearance(part, other, gap)~ cuts =other=, grown by =gap=, out of =part=.
+On exact fields the gap is even all round, edges included.
+
+Example: a socket for a rounded peg, 0.2 larger than the peg all round.
+#+begin_src rhai
+let peg = cuboid([10, 10, 20], #{round: 1}).move([0, 0, 12]);
+cuboid([20, 20, 15], #{anchor: "bottom"}).clearance(peg, 0.2)
+#+end_src
+
+Holes print smaller than drawn, by a few tenths for small ones.
+Grow them with ~offset~, or draw them larger.
+
+** Screw holes and nuts
+:PROPERTIES:
+:DESCRIPTION: Fasteners, step by step.
+:END:
+#+cindex: screw holes
+
+The fasteners are cutters, to subtract from a part.
+Each one's z = 0 is a plane its documentation names, such as where a screw's head rests.
+Above it, each is open without end, so it clears whatever lies over the hole, except ~nut_slot~, whose pocket is centred on z = 0.
+
+Example: three M3 holes: one counterbored 2 mm, one countersunk flush, and one for a heat-set insert.
+#+begin_src rhai
+let plate = cuboid([40, 20, 6], #{anchor: "bottom"});
+let holes = [
+    screw_hole("M3", 10).move([-12, 0, 4]),
+    screw_hole("M3", 10, #{head: "countersunk"}).move([0, 0, 6]),
+    insert_hole("M3").move([12, 0, 6]),
+];
+plate.difference(union(holes))
+#+end_src
+
+A nut trap from below is a ~nut_trap~ turned over, with the screw's hole through it.
+
+Example: an M3 nut trap in a plate's underside, seen from below. [view: camera 210 -35]
+#+begin_src rhai
+let plate = cuboid([20, 20, 6], #{anchor: "bottom"});
+let trap = union(
+    nut_trap("M3", 3).reflect_z(),
+    screw_hole("M3", 20, #{head: "none"})
+);
+plate.difference(trap)
+#+end_src
+
+** Horizontal holes
+:PROPERTIES:
+:DESCRIPTION: Holes that print without support.
+:END:
+#+cindex: teardrop
+
+A round hole along X or Y has a flat overhang at its top.
+A ~teardrop~ cross-section puts a 45-degree point there instead.
+Extrude it along Z, then turn it so that its +Y becomes +Z: ~rotate_x(90)~ for a hole along Y, and ~rotate_x(90).rotate_z(90)~ for one along X.
+
+Example: an M3 hole along X through a block, its point up.
+#+begin_src rhai
+let hole = teardrop(1.7)
+    .extrude(40)
+    .rotate_x(90)
+    .rotate_z(90);
+cuboid([30, 16, 12]).difference(hole)
+#+end_src
+
+** Patterns
+:PROPERTIES:
+:DESCRIPTION: Rows, grids and circles of features.
+:END:
+#+cindex: patterns
+
+~linear_array~ makes a row of copies, ~grid_array~ a grid, and ~polar_array~ a circle of them.
+
+Example: a flange: six holes round a circle of radius 20, and a bore.
+#+begin_src rhai
+let hole = cylinder(2, 10);
+let ring = hole.move([20, 0]).polar_array(6);
+let cutters = union(ring, cylinder(8, 10));
+cylinder(30, [0, 4]).difference(cutters)
+#+end_src
+
+For many small features, the ~repeat~ functions cost the same as one copy.
+Each copy must stay in its cell; for copies that overlap, use the =*_array= functions.
+~repeat~, which repeats without end, suits textures, cut to size with ~intersection~.
+
+Example: 200 vent holes in a 2 mm plate.
+#+begin_src rhai
+let vents = cylinder(1.5, 4)
+    .repeat_grid([5, 5], [20, 10], #{center: true});
+cuboid([110, 60, 2]).difference(vents)
+#+end_src
+
+** Reference geometry
+:PROPERTIES:
+:DESCRIPTION: Showing what the part fits, without exporting it.
+:END:
+#+cindex: reference geometry
+
+Everything drawn is exported.
+To see a part among what it fits, draw the surroundings behind a constant, and set it to =false= before exporting.
+
+Example: a clip on a table's edge, the table drawn only while =PREVIEW= is true.
+#+begin_src rhai
+const PREVIEW = true;
+
+let table = cuboid([60, 40, 18], #{anchor: [1, 0, 1]});
+let slot = rect([10, 18.4]).move([-3, 0]);
+let clip = rect([14, 24])
+    .difference(slot)
+    .extrude(20)
+    .rotate_x(90)
+    .move([-1.8, 0, -9]);
+
+draw_rgb(clip, 0.95, 0.55, 0.2);
+if PREVIEW {
+    draw_rgb(table, 0.65, 0.5, 0.35);
+}
+#+end_src
+
+* Coming from OpenSCAD
+:PROPERTIES:
+:DESCRIPTION: OpenSCAD's constructs, and how a field differs from a mesh.
+:END:
+#+cindex: OpenSCAD
+
+Most of an OpenSCAD design ports line by line.
+This chapter lists what each construct becomes, and what works differently.
+
+** What is different
+:PROPERTIES:
+:DESCRIPTION: Fields, exactness and bounds.
+:END:
+
+- A model is one field, evaluated wherever it is needed.
+  There is no =$fn=: surfaces are smooth at any zoom, and facets appear only at export, at the mesh's resolution.
+- Offsets, shells, fillets and clearances are a few operations on an exact field, in 3D as in 2D.
+  They need the field to be a distance, so the manual says for every function how exact its field is; see [[*Exact distances and bounds]].
+- A mesh knows its extent, but a field does not.
+  The extent is found by interval arithmetic, and a field that hides it needs ~bounds~.
+- Shapes are centred on the origin, along Z too, where OpenSCAD's =cube= and =cylinder= stand on z = 0 by default.
+- ~cylinder(r, h)~ takes the radius first, and OpenSCAD's =cylinder(h, r)= the height.
+- OpenSCAD reads inside out: =translate(v) rotate(a) shape();=.
+  A chain of methods reads in order: ~shape.rotate_xyz(a).move(v)~.
+- Copies placed by a =for= loop cost one each.
+  A fold of space, as the ~repeat~ functions make, costs one copy for all of them.
+- Numbers that get divided should be floats: Rhai's =5 / 2= is 2.
+- The =E = 0.01= overlaps are unnecessary: coincident faces do not flicker in a field.
+  Cutters still need to reach past the material, or a skin of zero thickness can remain.
+
+** OpenSCAD's constructs
+:PROPERTIES:
+:DESCRIPTION: OpenSCAD's modules and functions, and what they become.
+:CUSTOM_ID: porting-from-openscad
+:END:
+#+cindex: porting
+
+Transforms are methods on the shape they apply to.
+
+| OpenSCAD                                        | keycap                                                            |
+|-------------------------------------------------+-------------------------------------------------------------------|
+| =cube(s, center = true)=                        | ~cuboid(s)~                                                       |
+| =cube([a, b, c])=                               | ~cuboid([a, b, c], #{anchor: [-1, -1, -1]})~                      |
+| =cylinder(h, r = r, center = true)=             | ~cylinder(r, h)~                                                  |
+| =cylinder(h, r)=, =cylinder(h, r, $fn = 6)=     | ~cylinder(r, [0, h])~, ~cylinder(r, [0, h], #{sides: 6})~         |
+| =cylinder(h, r1, r2)=                           | ~cone([r1, r2], [0, h])~                                          |
+| =sphere(r)=                                     | ~sphere(r)~                                                       |
+| =circle(r)=, =circle(r, $fn = 6)=               | ~circle(r)~, ~regular_polygon(6, r)~                              |
+| =scale([a, b]) circle(1)=, =sphere(1)=          | ~ellipse([a, b])~, ~ellipsoid([a, b, c])~                         |
+| =square(s, center = true)=                      | ~rect(s)~                                                         |
+| =square([a, b])=                                | ~rect([a, b], #{anchor: [-1, -1]})~                               |
+| =polygon(points)=                               | ~polygon(points)~, or ~rounded_polygon~ for round corners         |
+| =polygon= of several paths, holes included      | ~polygon([outline, hole, ...])~                                   |
+| =union()=, =difference()= of polygons           | ~polygon_clip(a, b, "union")~, on their points                    |
+| =rotate_extrude() polygon(points)=              | ~revolve(points)~                                                 |
+| =polyhedron(points, faces)=                     | none; see [[*Porting point-layer and polyhedron designs]]             |
+| =translate(v)=                                  | ~move(v)~                                                         |
+| =rotate([a, b, c])=, =rotate(a)=                | ~rotate_xyz([a, b, c])~, ~rotate_z(a)~                            |
+| =rotate(a, v)=                                  | ~rotate(#{axis: v, angle: a, center: [0, 0, 0]})~                 |
+| =mirror([1, 0, 0])=                             | ~reflect_x()~                                                     |
+| =children(); mirror([1, 0, 0]) children();=     | ~symmetric_x()~                                                   |
+| =scale(k)=                                      | ~scale_exact(k)~; ~scale_bound([a, b, c])~ when not uniform       |
+| =union() { a; b; }=                             | ~union(a, b)~                                                     |
+| =difference() { a; b; c; }=                     | ~difference(a, union(b, c))~                                      |
+| =intersection() { a; b; }=                      | ~intersection(a, b)~                                              |
+| =linear_extrude(h, center = true)=              | ~extrude(h)~                                                      |
+| =linear_extrude(h)=                             | ~extrude([0, h])~                                                 |
+| =linear_extrude(h, twist = t, scale = k)=       | ~extrude([0, h], #{twist: -t, scale: k})~                         |
+| =rotate_extrude()=                              | ~revolve()~                                                       |
+| =rotate_extrude(angle = a)=, with =$fn = n=     | ~revolve(a)~, ~revolve(a, #{sides: n})~                           |
+| =offset(r = d)=                                 | ~offset(d)~, on an exact field                                    |
+| =offset(delta = d)=                             | ~polygon(miter_offset(points, d))~                                |
+| =offset(-r) offset(r)=, closing                 | ~rounded_polygon(points, 0, #{concave: r})~, or ~union_round~     |
+| =offset(r) offset(-r)=, opening                 | ~rounded_polygon(points, r, #{concave: 0})~, or ~blend~ (below)   |
+| =minkowski() { s; sphere(r); }=                 | ~offset(s, r)~, on an exact field                                 |
+| =minkowski()= with a cone or a cylinder         | a rim: ~extrude(h, #{chamfer: c})~, =#{round: r}=                 |
+| =hull()= of two circles or spheres              | ~stroke([a, b], 2 * r)~, ~capsule(a, b, r)~                       |
+| =hull()= of anything else                       | none; see below                                                   |
+| =projection(cut = true)=                        | the slice at z = 0: ~remap(s, x, y, 0.0 * x)~                     |
+| =projection()=                                  | none                                                              |
+| =text(t, size = s, font = "F:style=Bold")=      | ~text(t, #{size: s, font: "F:style=Bold"})~                       |
+| =import("file.svg", center = true)=             | ~svg("file.svg", #{center: true})~                                |
+| =import("file.stl")=                            | none                                                              |
+| =$fn=, =$fa=, =$fs=                             | none; ~resolution~ sets the export's mesh                         |
+| =module m() { ... children(); }=                | a =fn= taking shapes as arguments                                 |
+| =for (i = [0 : n - 1]) translate(i * v)=        | ~linear_array(v, n)~, or a Rhai =for= collecting into an array    |
+| nested =for= loops of smaller copies            | a fold per level: ~repeat_polar~, ~repeat~, ~recurse~, or mirrors |
+| =sin(a)=, =cos(a)=, =atan2(y, x)=               | ~sind(a)~, ~cosd(a)~, ~atan2d(y, x)~                              |
+| =color("red")=                                  | ~draw_rgb(s, 1, 0, 0)~                                            |
+| =%= and =#= modifiers                           | [[*Reference geometry]]                                               |
+| =include=, =use=                                | =import "file" as m;=                                             |
+| =assert(c, msg)=                                | =if !c { throw msg; }=                                            |
+| =echo(...)=                                     | ~print(...)~                                                      |
+| =linear_extrude(twist = t)= of an offset circle | ~helix(circle(r), radius, pitch)~                                 |
+| point layers stitched into a =polyhedron=       | ~loft~, or ~keyframes~ of ~z~ and ~normalize_z~                   |
+| point layers on tilted planes, as keycaps have  | ~loft_tilted(profile, top, tilt)~                                 |
+| a profile carried along a path of points        | ~sweep~                                                           |
+| a strand built ring by ring round a ring        | ~helix~, then ~bend~                                              |
+| a Bézier curve's points stroked as a =polygon=  | ~bezier_stroke(points, width)~                                    |
+| an involute traced point by point               | ~involute_gear(teeth, m)~                                         |
+
+Notes:
+- =linear_extrude='s =twist= turns clockwise looking down, and ~extrude~'s anticlockwise, hence =-t=.
+- =hull()= has no counterpart: a convex hull is made from a shape's points, and a field has none to list.
+  Write the hull's outline as points for ~polygon~, or use ~stroke~, ~capsule~ or ~rod~ where the hull is of round ends.
+- =projection()= without =cut= would need the field's minimum along Z, which has no closed form; slice instead.
+- Opening and closing in one step, =offset(-r) offset(2 * r) offset(-r)=, is ~rounded_polygon(points, r)~.
+  On an SDF, offsetting twice does nothing: =offset(offset(s, -r), r)= is =s= again.
+  For a shape that is not a polygon, ~blend~ the cutters together and cut them with =inverse(blend(inverse(body), cutter, 2.0 * r))=; =knob.keycap= does this, within about 0.6 mm of OpenSCAD's result.
+
+** Text, imports and exports
+:PROPERTIES:
+:DESCRIPTION: What keeps its size from OpenSCAD.
+:END:
+
+- ~text~'s =size= is OpenSCAD's, and fonts are named as OpenSCAD names them, with Liberation Sans by default.
+  OpenSCAD 2021.01 places letters by metrics 1/1.024 of the font's, 2.3% tighter than its design; keycap does the same, so labels fit where they fitted.
+- ~svg~ fills paths as OpenSCAD does, even-odd for a path without a fill, and =center= is OpenSCAD's =center = true=.
+- A 2D export traces outlines into lines and arcs: the first leg of =laptop-stand.keycap= exports as 7 lines and 23 arcs, within 0.0011 mm of OpenSCAD's own export at =$fn = 360=, which has 4078 lines.
+
+Most of the [[*Examples][examples]] are ports of OpenSCAD designs, commented where the translation is not literal; a header that says how its port was checked gives the distance from the original.
+
+** Porting point-layer and polyhedron designs
+:PROPERTIES:
+:DESCRIPTION: From stitched triangles to the rule behind them.
+:END:
+#+cindex: polyhedron
+#+cindex: point layers
+#+cindex: OpenSCAD, polyhedron
+
+OpenSCAD's richest designs compute their own geometry: layers of points stitched into a ~polyhedron~, curves sampled into a ~polygon~, copies placed by nested loops.
+The points come from some maths: a profile that changes with height, a curve, a sweep.
+Porting such a design means writing that maths as a field, without the points.
+It says what the shape is at every point, so there is no resolution to choose, and offsets and shells work on the result as on any exact shape.
+
+*** Profiles that change with height
+
+A vase built from point layers is a 2D outline whose parameters change with the layer.
+Its field:
+
+1. Make the layer index a coordinate: usually ~z~, through ~linstep(z0, z1, z)~, the =t= from 0 to 1 that OpenSCAD's layer loops run over.
+2. Write the outline as an exact 2D field whose parameters are trees of it.
+   ~keyframes~ and the easings give the schedules.
+   ~star~ with an inner radius that is a tree interpolates the points of two outlines whose corners pair up, such as a hexagon and a hexagram.
+   ~lerp~ blends two unrelated outlines as fields.
+3. Apply the layer's transform to the coordinates, inverted.
+   An outline scaled by =k(z)= and turned by =a(z)= is evaluated at the point turned by =-a(z)= and divided by =k(z)=, and its field multiplied by =k(z)= to stay in true units.
+4. Correct the slope.
+   A field that is exact within every slice measures across the slice, and on a leaning or turning wall the distance square to the wall is shorter.
+   ~normalize_z~ divides by =sqrt(1 + (df/dz)^2)=, which makes it that distance to first order: exact for a straight leaning wall, and close for a curved one.
+5. Cut the ends.
+
+~loft~ does steps 3 to 5 for a list of key slices, and ~extrude~'s =twist=, =scale= and =move= options for one profile.
+
+Example: a vase that turns from a hexagon into a hexagram and back as it rises, shelled 1.2 thick.
+#+begin_src rhai
+let inner = keyframes(z, [
+    [0, 0.866],
+    [25, 0.577, "in_out_cubic"],
+    [50, 0.866, "in_out_cubic"],
+]);
+let vase = loft([
+    #{z: 0, shape: star(6, [1.0, inner]), scale: 30},
+    #{z: 25, angle: 30, ease: "in_out_sine"},
+    #{z: 50, angle: 0, scale: 40, ease: "in_out_sine", ease_scale: "out_quadratic"},
+]);
+vase.shell(1.2).intersection(z - 48.8)
+#+end_src
+
+The shell's wall is 1.2 mm square to the surface everywhere.
+A wall offset in 2D before extruding, as OpenSCAD would make it, is 1.2 mm across each layer, and thinner wherever the wall leans or turns.
+Between outlines whose points do not pair up, a field blend draws slightly different in-between outlines than the points did: rounder, and without the creases where the points' paths cross.
+
+*** Sweeps, helices and rings
+
+- A profile extruded with a twist is the profile evaluated at the point turned back by the twist.
+  For a helix, ~helix~ measures square to the wire instead, which keeps a round wire round, where a twisted extrusion flattens it on steep helices.
+- Something wound round a ring is built straight along Z and bent with ~bend~.
+  A pattern that repeats a whole number of times round the ring closes without a seam.
+- A profile moved along a path of lines, arcs and helices is a ~sweep~.
+
+*** Copies placed by loops
+
+- When each copy is the same piece moved, the loop becomes a fold: the copy's index comes from the coordinates with ~round~, its transform from the index, and one copy is evaluated at the transformed coordinates.
+  Every copy is then a rigid motion of one, so the field stays exact, at the cost of one copy; =dna-loop.keycap= turns each rung with the helix this way.
+- A fractal of nested loops, each placing smaller copies round the last, is a fold at every level, as ~recurse~ makes it: one copy per level, whatever the count.
+  Folding by mirrors costs less than ~repeat_polar~'s trigonometry for shapes symmetric about their axis; =vase-koch.keycap= folds its snowflake that way.
+
+*** Curves and closed forms
+
+- A curve sampled into a polygon, a Bézier stroke for instance, is ~bezier_stroke~: the distance to the curve itself, smooth at any zoom, tapering by a function of =t=.
+- A curve with a known distance needs no points at all.
+  An involute's normals are tangents of its base circle, so its distance is the base radius times an angle, and ~involute_gear~ draws both flanks of every tooth from the gear's four numbers.
+
+The examples =vase-interpolate.keycap=, =vase-koch.keycap=, =gear-involute.keycap=, =dna-loop.keycap= and =feather.keycap= are ports of such designs.
+
+* Performance
+:PROPERTIES:
+:DESCRIPTION: Keeping renders and exports fast.
+:END:
+#+cindex: performance
+
+fidget evaluates the tree over boxes of space with interval arithmetic and skips the boxes it proves empty or full, so speed depends on the tree's size and on how well intervals see through it.
+
+- Copies cost: =grid_array(step, [10, 10])= is a hundred copies in the tree; ~repeat_grid~ is one.
+- ~polygon~ costs about 30 operations per point.
+- ~text~ and ~svg~ cost about 35 operations per edge of their outlines, but boxes around their contours let a render skip the ones far from each region: a line of ten letters is about 10,000 operations and renders in a tenth of a second.
+  An SVG with thousands of small curves, such as a KiCad board's drill holes, is hundreds of thousands, and takes about a second to load and as long to render on the CPU; import it alone, or the part of it you need with =id=.
+  The libfive font is a fortieth of the size of a real one.
+- Exact fields and plain ~min~ and ~max~ prune well; trigonometry, ~%~, ~floor~ and the selection tricks of [[*Choices without if]] prune poorly, and so render slower.
+- Mirrors fold space cheaper than angles do: =abs(x)= and reflections across lines cost a few operations, ~repeat_polar~ an =atan2=, a sine and a cosine; for shapes symmetric about their axis, fold by mirrors, as =vase-koch.keycap= does.
+- ~normalize_z~, and so ~loft~, evaluates the shape twice, as ~loft_tilted~ does its profile, and a shape given at two slices of a ~loft~ is evaluated twice more.
+- A rounding or a chamfer whose size varies over space evaluates its shapes twice, to keep the field a distance.
+- A folded shape hides its extent from interval arithmetic, and so does a turning one, except about the Z axis.
+  =max= with a cylinder, box or torus that contains it changes no value, but lets fitted bounds find it and renders skip the space around it.
+- ~bezier_stroke~ costs about 150 operations per piece of curve, but boxes around the pieces let a render skip the ones far from each region: =feather.keycap='s two hundred barbs load in three seconds and render in about one.
+- A large, loose bounding region wastes work; set ~bounds~ when the fitted region is too large, or when an unbounded axis leaves it guessing.
+- The GPU renders shaded views fastest; =G= switches to the CPU when it does not.
+  It renders a slow frame in tiles, each well short of the time after which the driver resets the GPU.
+- Export time grows with the surface area times the resolution squared: start at 5 cells per mm, go to 10 or 20 for the final part.
+  The memory does too, which makes a long thin part, such as =feather.keycap=, cheap at a resolution that a vase of the same size could not afford.
+- A script stops after 20 million operations, which only an endless loop reaches.
+
+* Troubleshooting
+:PROPERTIES:
+:DESCRIPTION: Messages and what they mean.
+:END:
+#+cindex: troubleshooting
+#+cindex: error messages
+
+** Error messages
+:PROPERTIES:
+:DESCRIPTION: The errors a script most often meets.
+:END:
+
+- =cannot compare Tree types during function tracing= :: A comparison (~<~, ~==~ and the rest) with a tree; see [[*Choices without if]].
+- =Variable not found: w= :: Inside a =fn=, a variable of the script's; declare it =const= and read it as =global::w=, or pass it in.
+  In a module, an exported constant is also read as =global::NAME=.
+- =Function not found: grow (Tree, i64)= :: A function called with arguments of types it has no definition for: a typo, a wrong argument count, or a script function called as a method (see [[*Methods and chaining]]).
+  =difference (Tree, Tree, Tree)= means three arguments where two go.
+- =Syntax error: Expecting ';' to terminate this statement= :: A missing =;= at the end of the line before.
+- =Runtime error: field center must be provided for RotateX= :: A transform called with a map needs every field; leave the map out to get the defaults.
+- =Runtime error: field xy is not present in Circle= :: A misspelt field; completion inside the map lists the right ones.
+- =Runtime error: missing argument of type Vec<Tree>= :: ~union~ or ~intersection~ of a single shape.
+- =Runtime error: missing argument of type Tree= :: An array of shapes where a transform wants one; wrap it in ~union~.
+- =Runtime error: shape does not have an argument of type Tree= :: A tree where a shape wants a number: integer math such as ~sin(1)~ or ~sqrt(4)~ made one; see [[*Numbers and trees]].
+- =Runtime error: shape does not have an argument of type Vec3= :: An argument the shape has no field for, here a 3D point for a 2D shape.
+- =Data type incorrect: Vec3 (expecting Vec2)= :: A vector of the wrong size for a field.
+- =the script ran more than 20000000 operations; is a loop endless?= :: A loop that does not end, or one far too large.
+- =bounds are already set= :: A second ~bounds~ call.
+- =bounds are empty on x: lower must be below upper= :: The corners of ~bounds~ swapped.
+- =import cycle: a.rhai -> b.rhai -> a.rhai= :: Files importing each other.
+- =text: no installed font is "JetBrains Mono:bold"= :: No installed family of that name; =fc-list : family= lists them.
+  A font file needs a =/= or its =.ttf= or =.otf= in the name to be taken as one.
+- =svg: cannot read plate.svg: No such file or directory= :: The path is relative to the script, or to Emacs's directory for a buffer without a file.
+
+** Surprises without an error
+:PROPERTIES:
+:DESCRIPTION: Mistakes the script runs with.
+:END:
+
+- =5 / 2= is 2, and ~sqrt(4)~ is a tree; see [[*Numbers and trees]].
+- ~circle(1, 2)~ is a circle of radius 2: two positional numbers fill the same field.
+- ~cylinder(r, h)~ takes the radius first.
+- Prelude shapes are centred on the origin, along Z too; =#{anchor: "bottom"}= or a height of =[0, h]= stands them on z = 0.
+- An offset of fidget's ~box~ or ~rectangle~ keeps sharp corners: their fields are bounds; use ~cuboid~ and ~rect~.
+- After ~scale~ or ~scale_uniform~, offsets come out the wrong size; use ~scale_exact~.
+- ~reflect(s, "xy")~ mirrors across Y (fidget a386417); use ~reflect_z~.
+- ~revolve_y~ does not revolve (fidget a386417); use ~revolve~.
+- fidget's ~mix~ is a hash, not an interpolation; use ~lerp~.
+- A ~repeat~ whose shape is off-centre cuts the copies at the cell's edges; move the result instead.
+- ~draw~ in an imported module draws too.
+
+** Preview problems
+:PROPERTIES:
+:DESCRIPTION: When the picture is not what the script says.
+:END:
+
+- The model is tiny or far away :: The fitted bounds are loose or unbounded on an axis; set ~bounds~, or press =b= to compare with the script's.
+- The header line says the shapes' intervals are NaN :: Interval arithmetic evaluates a field over a whole box at once, and its intervals are NaN for a division by an interval that holds 0, and for ~sqrt~, ~acos~ or ~ln~ of one that reaches out of their domain, even where the values never do.
+  =2 * x * y / (x * x + y * y)= lies within ±1, but its interval over a box does not, so =sqrt(1 - 0.9 * square(...))= of it is NaN there.
+  A NaN interval proves nothing, and ~min~ and ~max~ pass it on, so the fitted bounds come out loose or missing, and renders evaluate every voxel, which is slow on the CPU and too slow for the GPU.
+  Clamp such a value to the range it has anyway (=clamp(v, -1.0, 1.0)=), take ~sqrt~ of =max(v, 0.0)=, keep a divisor that is positive away from 0 (=max(d, 1e-6)=), or set ~bounds~.
+- A shape is cut off :: It pokes out of the script's ~bounds~; Flymake warns at its ~draw~.
+- The preview is slow :: See [[*Performance]]; the header line shows the render time and backend.
+- The header line says CPU and a reason :: The GPU was asked for, and the CPU rendered instead: there is no GPU, a shape needs more registers than the GPU has, the shapes are too slow for the GPU even in small tiles, or the GPU failed on this scene (its device was lost, or it hung), which keeps the scene on the CPU until the script is evaluated again.
+  Shapes are too slow for the GPU when interval arithmetic tells nothing about them, so that every voxel is evaluated; see [[*Bounds]].
+- Nothing is drawn :: The script ran, but drew nothing, or drew empty space (a ~difference~ that removed everything, an ~intersection~ of disjoint shapes); the sdf view shows where the field is negative.
+  The header line says =nothing in view= when no pixel shows a shape, and =nothing on this slice= in the 2D views.
+
+* Examples
+:PROPERTIES:
+:DESCRIPTION: The models in examples/.
+:END:
+#+cindex: examples
+
+The package's =examples/= directory holds complete models:
+
+- =spacer.fidget= :: a round standoff for an M3 screw, in fidget's own dialect, so that fidget's viewer and CLI run it unchanged.
+- =ivar-joiner.keycap= :: a plate that joins two IKEA IVAR legs: a sloped edge written as a plane equation, wood screw holes, ~grid_array~ and ~symmetric_y~.
+- =table-cable-hook.keycap= :: a cable tray under a table's edge: ~union_round~ fillets, a cutter array, ~draw_rgb~ and reference geometry.
+- =menger-sponge.keycap= :: a Menger sponge three levels deep: one cross of bars per level, repeated without end and cut from the cube, so the cost grows with the levels and not with the 8000 cubes.
+- =fan-grill.keycap= :: a 2D drawing of a fan grill: a honeycomb from ~hex_grid~, best seen in the sdf view.
+- =skadis-towel-hook.keycap= :: a hook for an IKEA SKÅDIS pegboard, importing the board and its peg from =skadis.rhai=.
+- =knob.keycap= :: the handle of a knob, with a waist and a dished top: a revolved profile cut with ellipses, its cusps opened with ~blend~, and a ring of ~ellipsoid~ bumps tilted with the dish.
+- =hex-bowl.keycap= :: a hexagonal bowl pierced by a honeycomb: a rounded prism from ~offset~, a hollow revolved from ~bezier_points~, holes from ~hex_grid~.
+- =badge.keycap= :: a pin badge and its strap bracket: artwork drawn as strokes, imported with ~svg~ and turned into printable lines with ~offset~.
+- =vase-interpolate.keycap= :: a vase whose outline turns from hexagon to hexagram, back, and into a circle, swaying and widening as it rises: ~star~ with a ~keyframes~ inner radius, ~lerp~ of fields, ~loft~ and a ~shell~ of even thickness.
+- =vase-koch.keycap= :: a vase on a Koch snowflake, widening and turning: a fold by mirrors at each level of the fractal, ~loft~.
+- =gear-involute.keycap= :: an involute spur gear, from module, teeth, clearance and pressure angle, both flanks of every tooth exact; =HELIX= makes it a herringbone.
+- =dna-loop.keycap= :: a double helix wound round a ring, with rungs: ~helix~, ~bend~, and one rung repeated and turned with the strands.
+- =feather.keycap= :: a feather the length of a bed's diagonal, with two hundred barbs of Bézier curves whose control points run along Bézier curves: ~bezier_stroke~ with a tapering width, the stem's ends cut square with ~intersection_round~, ~bezier_point~.
+- =bed-washers.keycap= :: bed-levelling washers, 0.5 to 1.0 mm thick, their outlines' sides telling the thickness: ~linear_array~ of rows.
+- =scraper.keycap= :: a bed scraper with scallops for the fingers and a label: an outline from ~polygon_clip~ of circles, its corners rounded by ~rounded_polygon~, ~text~.
+- =phone-stand.keycap= :: a phone stand with every edge rounded: OpenSCAD's minkowski sum with a sphere, exactly, as prisms grown by ~offset~ and extruded with rounded rims.
+- =laptop-stand.keycap= :: two laser-cut legs crossed on printed hinges, and a lock: ~rounded_polygon~ outlines with arcs, the 2D parts laid out on =keycap/lasercut='s ~sheet~ for ~keycap-export-2d~.
+- =laptop-stand-2.keycap= :: the laptop stand's second version, its hinges' arms rounded: a profile from ~polygon_clip~, opened exactly by ~rounded_polygon~.
+- =vase-funky-2.keycap= :: a vase of hexagons on hexagons, twisting and widening along Bézier schedules: ~union_round~ of 43 opened hexagons, a twist from ~bezier_integral~.
+- =vase-practical.keycap= :: a vase on a hexagram rounded both ways, turning a sixth as it rises: ~star~ with rounded points, ~loft~.
+- =whistle.keycap= :: a whistle with its sizes printed on top, and a slider that tunes it: ~text~ from numbers, ~stroke~ and ~union_round~, a part to slice across Z.
+- =fidget-magnetic.keycap= :: a magnetic fidget spinner on a printed bearing: =bearing.rhai= imported as a module, ~difference_round~, magnets from =keycap/magnets=.
+- =fidget-flower.keycap= :: twelve spiral petals on cogs round a housing, on the same bearing: ~loft~ through a petal's slices, ~repeat_polar~.
+- =allen-key-handle.keycap= :: a T-handle for a bent Allen key: one ~sweep~ for the bar, its bends and the stem, its tips tapered by ~sweep_length~, mirrored with ~symmetric_y~.
+- =spike.keycap= :: a stud that screws through fabric, and the drivers that hold it: a twisted-ellipse thread, ~revolve~ from a profile's points.
+- =pointer.keycap= :: a pointing hand of square prisms and octahedra, in halves to print: ~elongate~ of an ~octahedron~.
+- =bendy-sheet.keycap= :: a plywood sheet that bends into a half pipe, and its supports: =keycap/lasercut='s ~living_hinge~ and ~cross_lap~.
+- =intake-manifold.keycap= :: four runners merging into a collector, hollow: tubes along 3D Bézier curves from ~bezier_points~ and ~capsule~, blended with ~smooth_union~, then a ~shell~.
+- =bar-hook.keycap= :: an S-hook for a round or square bar, drawn flat as a pen would: ~arc_stroke~ and ~stroke~, extruded with rounded rims.
+- =desk-cable-clip.keycap= :: a clamp for a desk's edge with a ring a cable snaps into, drawn as its side: ~arc_stroke~, ~stroke~ and ~union_round~.
+- =command-strip-hook.keycap= :: a hook on a back sized for an adhesive strip: a ~bezier_stroke~ hook filleted into the back with ~union_round~.
+- =zip-tie-mount.keycap= :: a base with a bridge for a cable tie, screwed or stuck down: a ~polygon~ gable for the tunnel, ~screw_hole~ countersunk.
+
+* Function Index
+:PROPERTIES:
+:INDEX: fn
+:DESCRIPTION: Functions, shapes and commands.
+:END:
+
+* Key Index
+:PROPERTIES:
+:INDEX: ky
+:DESCRIPTION: Keys.
+:END:
+
+* Concept Index
+:PROPERTIES:
+:INDEX: cp
+:DESCRIPTION: Concepts.
+:END:
