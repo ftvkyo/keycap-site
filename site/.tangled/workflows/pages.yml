@@ -21,9 +21,21 @@ environment:
   # the image's Nix runs as a daemon
   NIX_REMOTE: daemon
 
+# The renders of the last build: only the frames whose inputs changed are
+# rendered again, and the cache keeps just what this build used.
+cache:
+  - key: frames
+    paths:
+      - .frame-cache
+
 steps:
   - name: Build
-    command: nix-build -o /workspace/site
+    command: |
+      set -euo pipefail
+      mkdir -p .frame-cache
+      nix-build -A all --arg frameCache "$PWD/.frame-cache" -o /workspace/site
+      rm -rf .frame-cache
+      cp -r --no-preserve=mode /workspace/site-cache/. .frame-cache
 
   - name: Publish to gh-pages
     command: |

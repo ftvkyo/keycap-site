@@ -1,5 +1,6 @@
 /result
 /result-cache
+/.frame-cache
 /result-print
 /public
 # Written by publish.el from keycap's examples and keycap-designs.
