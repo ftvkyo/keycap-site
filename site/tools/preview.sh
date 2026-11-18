@@ -46,6 +46,10 @@ if [[ -n $root ]]; then
   keycap=$(realpath "$root/keycap")
   designs=$(realpath "$root/keycap-designs")
   (cd "$keycap" && just server-build)
+  # The Vulkan loader, which a cargo-built server has only inside the shell
+  # it was built in; the drivers it loads are the system's.
+  LD_LIBRARY_PATH=$(cd "$keycap" && nix-shell -A serverShell default.nix --run 'printf %s "$LD_LIBRARY_PATH"')
+  export LD_LIBRARY_PATH
   checkout=(
     --eval "(add-to-list 'load-path \"$keycap\")"
     --eval "(setq keycap-server-program \"$keycap/server/target/release/keycap-server\")"
