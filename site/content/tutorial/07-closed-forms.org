@@ -105,5 +105,3 @@ draw(max(gear, hypot(x, y) - radii.tip));
 Turning the profile one way up to half the thickness and then back makes a herringbone gear; this is =loft= again.
 
 The gallery has more of these: a Koch snowflake vase where each level of the fractal costs one triangle, a DNA double helix bent into a ring, and a feather made of 200 Bézier barbs.
-
-[[file:08-exporting.org][Next: exporting and printing]]

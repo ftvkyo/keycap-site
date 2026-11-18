@@ -73,5 +73,3 @@ A misspelt name, e.g. =nut_trp=, is underlined where it is, and the message is s
 
 The preview keeps showing the last model that worked, so it doesn't go blank in the middle of typing a line.
 An error inside a function you wrote is reported where it happens, together with the call that led there.
-
-[[file:03-keyboard-and-mouse.org][Next: keyboard and mouse]]

@@ -116,5 +116,3 @@ Press =s= in the preview to leave the section for the shaded view.
 
 These are the same two lattices, now of holes, going through the whole bowl.
 If you nudge =PITCH= with =C-c C-n=, the honeycomb opens and closes in the preview.
-
-[[file:05-imports.org][Next: splitting a design into files]]

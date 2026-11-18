@@ -203,6 +203,19 @@ the name they are published under, and their bytes.")
    (format "<script src=\"%s%s\" defer></script>\n" up (fms-asset "copy.js"))
    (and fms-dev "<script src=\"/__dev.js\" defer></script>\n")))
 
+(defun fms-pager (previous up next)
+  "Links to the PREVIOUS and NEXT pages and UP, each (ID TITLE) or nil, in HTML."
+  (cl-flet ((link (rel label page)
+              (if page
+                  (format "<a rel=\"%s\" href=\"%s.html\"><span>%s</span> %s</a>"
+                          rel (car page) label (org-html-encode-plain-text (cadr page)))
+                "<span></span>")))
+    (concat "<nav class=\"pager\" aria-label=\"Previous and next\">"
+            (link "prev" "Previous" previous)
+            (link "up" "Up" up)
+            (link "next" "Next" next)
+            "</nav>")))
+
 (setq org-html-doctype "html5"
       org-html-html5-fancy t
       org-html-head-include-default-style nil
@@ -419,6 +432,44 @@ a phone, each row is stacked, every cell after the first labelled."
     html))
 
 (add-to-list 'org-export-filter-special-block-functions #'fms-human-block)
+
+
+;; --- Tutorial ---
+
+;; Each part is numbered under its title, and ends with the pager the
+;; manual's pages have, up to the tutorial's index.
+
+(defconst fms-tutorial-parts
+  (mapcar (lambda (file)
+            (with-temp-buffer
+              (insert-file-contents file)
+              (list (file-name-base file)
+                    (and (re-search-forward "^#\\+title: \\(.*\\)$" nil t)
+                         (match-string 1)))))
+          (directory-files (fms-path "content" "tutorial") t "\\`[0-9]+-.*\\.org\\'"))
+  "The tutorial's parts, in order, each (ID TITLE).")
+
+(defun fms-tutorial-pager (html _backend info)
+  "Number the part of the tutorial in HTML under its title, and end it with the pager.
+HTML is the page INFO exports; another page's is left as it is."
+  (let* ((file (plist-get info :input-file))
+         (n (and (file-equal-p (file-name-directory file) (fms-path "content" "tutorial"))
+                 (cl-position (file-name-base file) fms-tutorial-parts :key #'car :test #'equal))))
+    (if (not n)
+        html
+      (let* ((index '("index" "Tutorial"))
+             (previous (if (> n 0) (nth (1- n) fms-tutorial-parts) index))
+             (next (nth (1+ n) fms-tutorial-parts)))
+        (thread-last
+          html
+          (string-replace "</head>" (concat (format "<link rel=\"prev\" href=\"%s.html\">\n" (car previous))
+                                            (if next (format "<link rel=\"next\" href=\"%s.html\">\n" (car next)) "")
+                                            "</head>"))
+          (string-replace "</h1>" (format "</h1>\n<p class=\"subtitle\">Part %d of %d</p>"
+                                          (1+ n) (length fms-tutorial-parts)))
+          (string-replace "</main>" (concat (fms-pager previous index next) "\n</main>")))))))
+
+(add-to-list 'org-export-filter-final-output-functions #'fms-tutorial-pager)
 
 
 ;; --- Gallery ---
@@ -1435,19 +1486,6 @@ signatures is of the class sig too."
                      (cons '("index" "Contents") chapters) "")
           "</ol></nav>\n"))
 
-(defun fms-manual-pager (previous next)
-  "Links to the PREVIOUS and NEXT pages, each (ID TITLE) or nil, and up to the index."
-  (cl-flet ((link (rel label page)
-              (if page
-                  (format "<a rel=\"%s\" href=\"%s.html\"><span>%s</span> %s</a>"
-                          rel (car page) label (org-html-encode-plain-text (cadr page)))
-                "<span></span>")))
-    (concat "#+html: <nav class=\"pager\" aria-label=\"Previous and next\">"
-            (link "prev" "Previous" previous)
-            (link "up" "Up" '("index" "Contents"))
-            (link "next" "Next" next)
-            "</nav>\n")))
-
 ;; The contents at the top of a chapter's page list its sections; the
 ;; manual's own contents are the index page.  Only the manual's pages
 ;; have a table of contents, so Org's title for them all can change.
@@ -1483,7 +1521,7 @@ CHAPTERS are every page's (ID TITLE), TARGETS every heading's (TITLE ID CHAPTER-
               (fms-manual-nav chapters id)
               body
               "\n"
-              (fms-manual-pager previous next)))))
+              "#+html: " (fms-pager previous '("index" "Contents") next) "\n"))))
 
 (defun fms-write-manual ()
   "Write content/manual/ from keycap's manual: a page per chapter, and the index."

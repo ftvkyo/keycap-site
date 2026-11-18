@@ -117,5 +117,3 @@ Away from a number, the shifted wheel scrolls sideways and the shifted click ope
 | Go to an error               | =M-x flymake-goto-next-error=    | header: the error                                        |
 
 The single keys are the preview's; the =C-c= keys work in the script.
-
-[[file:04-patterns.org][Next: patterns]]

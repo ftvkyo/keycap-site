@@ -140,5 +140,3 @@ Press =d= and then =1= to see the knob cut in half along Y, with its distance fi
 When the mouse is over the image, the header line shows the point under it and the distance there.
 Slices let you check things you can't see from outside, like wall thickness, holes and clearances.
 Holding Shift and dragging up or down scrubs the slice through the whole knob, which is quicker than stepping with =]=.
-
-[[file:02-fasteners.org][Next: bumps and a captive nut]]

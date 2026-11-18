@@ -65,5 +65,3 @@ It fills every closed path, whatever its paint; =id= picks one element or one In
 
 If you keep the SVG open in Inkscape, the preview updates every time you save it.
 The whole badge is in the [[file:../gallery/badge.html][gallery]].
-
-[[file:07-closed-forms.org][Next: shapes from formulas]]

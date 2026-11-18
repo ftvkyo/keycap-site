@@ -138,5 +138,3 @@ if PREVIEW {
 A plain =if= works here because =PREVIEW= is an ordinary value.
 It doesn't work on a shape, because a shape is a formula, with no value until it is evaluated at a point.
 To choose between shapes point by point, use =min=, =max= and the prelude's combinations; the manual explains this in [[file:../manual/writing-models.html#choices-without-if][Choices without if]].
-
-[[file:06-text-and-svg.org][Next: text and SVG]]

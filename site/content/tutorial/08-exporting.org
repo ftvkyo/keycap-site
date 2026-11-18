@@ -44,5 +44,3 @@ A few things that help:
 - Print a test piece before relying on a fit, and don't use a printed part where its failing could hurt someone: nothing here has been tested for strength (see [[file:../about.org::#no-warranty][No warranty]]).
 
 The [[file:../manual/index.html][manual]] has the rest, and the [[file:../gallery/index.html][gallery]] has an example for most kinds of parts.
-
-[[file:09-mx-keycap.org][Next: an MX-style keycap]]
