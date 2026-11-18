@@ -80,7 +80,10 @@ pkgs.runCommand "keycap-site"
       emacs
       pkgs.oxipng
       pkgs.pngquant
-      pkgs.python3
+      (pkgs.python3.withPackages (ps: [
+        ps.brotli
+        ps.fonttools
+      ]))
     ];
     # The renders this build used, from frameCache or new, for the next one.
     outputs = [
@@ -121,6 +124,7 @@ pkgs.runCommand "keycap-site"
     KEYCAP_COMPRESS=1 \
       emacs --batch --load publish.el
 
+    python3 ${./tools/subset-fonts.py} public
     python3 ${./tools/check-links.py} public
 
     cp -r public $out

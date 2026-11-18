@@ -97,7 +97,7 @@ static/            style.css, copy.js and the icon
 npins/             keycap, rhai-ts-mode, keycap-designs and openscad (for print/), pinned
 publish.el         the Org projects, the page frame, the gallery, the manual's pages and the anchors
 default.nix        the build: keycap, Emacs, the font, the frame cache
-tools/             ob-keycap.el and ppm2png.py (the frames), preview.sh, dev.py, check-links.py, field.py, shots/
+tools/             ob-keycap.el and ppm2png.py (the frames), subset-fonts.py, preview.sh, dev.py, check-links.py, field.py, shots/
 print/             the brochure and the poster, in Typst; see its README
 ```
 

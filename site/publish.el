@@ -82,6 +82,8 @@
 ;; changed file is fetched at once; the pages, which Pages caches for ten
 ;; minutes, are the only thing that can lag.  The dev server (KEYCAP_DEV)
 ;; keeps the plain names.  The font files are in KEYCAP_FONTS, their licence is KEYCAP_FONTS_LICENCE.
+;; default.nix then cuts the fonts down to the characters the pages use,
+;; with tools/subset-fonts.py, which renames them and the stylesheet.
 
 (defconst fms-dev (and (getenv "KEYCAP_DEV") t)
   "Whether the site is published for tools/dev.py.")
@@ -204,6 +206,9 @@ the name they are published under, and their bytes.")
    "<meta name=\"color-scheme\" content=\"dark light\">\n"
    (format "<link rel=\"icon\" type=\"image/svg+xml\" href=\"%sfavicon.svg\">\n" up)
    (format "<link rel=\"stylesheet\" href=\"%s%s\">\n" up (fms-asset "style.css"))
+   ;; The face of the code, wanted on every page.
+   (format "<link rel=\"preload\" href=\"%s%s\" as=\"font\" type=\"font/woff2\" crossorigin>\n"
+           up (fms-asset "fonts/MapleMonoNL-Regular.woff2"))
    (format "<script src=\"%s%s\" defer></script>\n" up (fms-asset "copy.js"))
    (and fms-dev "<script src=\"/__dev.js\" defer></script>\n")))
 
