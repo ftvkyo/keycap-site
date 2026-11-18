@@ -1775,7 +1775,7 @@ Transforms are methods on the shape they apply to.
 | =offset(r = d)=                                 | ~offset(d)~, on an exact field                                    |
 | =offset(delta = d)=                             | ~polygon(points::miter_offset(points, d))~                        |
 | =offset(-r) offset(r)=, closing                 | ~rounded_polygon(points, 0, #{concave: r})~, or ~union_round~     |
-| =offset(r) offset(-r)=, opening                 | ~rounded_polygon(points, r, #{concave: 0})~, or ~blend~ (below)   |
+| =offset(r) offset(-r)=, opening                 | ~rounded_polygon(points, r, #{concave: 0})~, ~smooth_difference~  |
 | =minkowski() { s; sphere(r); }=                 | ~offset(s, r)~, on an exact field                                 |
 | =minkowski()= with a cone or a cylinder         | a rim: ~extrude(h, #{chamfer: c})~, =#{round: r}=                 |
 | =hull()= of two circles or spheres              | ~stroke([a, b], 2 * r)~, ~capsule(a, b, r)~                       |
@@ -1810,7 +1810,7 @@ Notes:
 - =projection()= without =cut= would need the field's minimum along Z, which has no closed form; slice instead.
 - Opening and closing in one step, =offset(-r) offset(2 * r) offset(-r)=, is ~rounded_polygon(points, r)~.
   On an SDF, offsetting twice does nothing: =offset(offset(s, -r), r)= is =s= again.
-  For a shape that is not a polygon, ~blend~ the cutters together and cut them with =inverse(blend(inverse(body), cutter, 2.0 * r))=; =knob.keycap= does this, within about 0.6 mm of OpenSCAD's result.
+  For a shape that is not a polygon, cut the cutters away with =body.smooth_difference(cutters, 2.0 * r)=; =knob.keycap= does this, within about 0.6 mm of OpenSCAD's result.
 
 ** Text, imports and exports
 :PROPERTIES:
@@ -2044,7 +2044,7 @@ The package's =examples/= directory holds complete models:
 - =menger-sponge.keycap= :: a Menger sponge three levels deep: one cross of bars per level, repeated without end and cut from the cube, so the cost grows with the levels and not with the 8000 cubes.
 - =fan-grill.keycap= :: a 2D drawing of a fan grill: a honeycomb from ~hex_grid~, best seen in the sdf view.
 - =skadis-towel-hook.keycap= :: a hook for an IKEA SKÅDIS pegboard, importing the board and its peg from =skadis.rhai=.
-- =knob.keycap= :: the handle of a knob, with a waist and a dished top: a revolved profile cut with ellipses, its cusps opened with ~blend~, and a ring of ~ellipsoid~ bumps tilted with the dish.
+- =knob.keycap= :: the handle of a knob, with a waist and a dished top: a revolved profile cut with ellipses, its cusps opened with ~smooth_difference~, and a ring of ~ellipsoid~ bumps tilted with the dish.
 - =hex-bowl.keycap= :: a hexagonal bowl pierced by a honeycomb: a rounded prism from ~offset~, a hollow revolved from ~points::bezier~, holes from ~hex_grid~.
 - =badge.keycap= :: a pin badge and its strap bracket: artwork drawn as strokes, imported with ~svg~ and turned into printable lines with ~offset~.
 - =vase-interpolate.keycap= :: a vase whose outline turns from hexagon to hexagram, back, and into a circle, swaying and widening as it rises: ~star~ with a ~keyframes~ inner radius, ~lerp~ of fields, ~loft~ and a ~shell~ of even thickness.
