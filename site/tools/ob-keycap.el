@@ -609,6 +609,9 @@ The server rounds it back to the same bytes."
   (or ob-keycap-image-directory
       (expand-file-name "ob-keycap" temporary-file-directory)))
 
+(defvar ob-keycap--fallbacks nil
+  "Why frames asked of the GPU were rendered on the CPU, each said once.")
+
 (defun ob-keycap--render (script preview report params)
   "Render the model of the SCRIPT buffer in its snapshot PREVIEW as PARAMS say.
 REPORT is the `load' report PREVIEW shows.  Return the image's file.  A
@@ -649,6 +652,10 @@ cached render is used unless PARAMS probe it."
                                      :null-object nil :false-object nil))
         (setf (alist-get 'backend request) (symbol-name ob-keycap-backend))
         (let ((frame (with-current-buffer script (ob-keycap--request request))))
+          (when-let* ((why (alist-get 'fallback frame))
+                      ((not (member why ob-keycap--fallbacks))))
+            (push why ob-keycap--fallbacks)
+            (message "ob-keycap: %s on the CPU: %s" (file-name-nondirectory (buffer-file-name script)) why))
           (keycap-preview-set-frame frame)
           (ob-keycap--png (alist-get 'output request) (if cache (concat cache ".png") png))
           (when cache
