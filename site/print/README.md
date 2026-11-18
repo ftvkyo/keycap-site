@@ -17,6 +17,8 @@ The fonts are embedded, and the same pins give the same bytes.
 Every picture is rendered by the build from the pinned scripts, on the CPU, in about 30 s on 16 cores: keycap's through `keycap-server`, the OpenSCAD original through `openscad` on Mesa's software renderer.
 They are grey, cropped to the model, and their greys are darkened a little, so that light models keep their shading on paper.
 
+The editor frames are the site's own: `frames.el` runs the front page's keycap block through `tools/ob-keycap.el`, as it is and with the preview's menu open, and `shoot.py` screenshots the pages in headless Chromium, on the CPU, with the site's style sheet and fonts.
+
 ## Changing them
 
 ```sh
@@ -24,7 +26,7 @@ print/watch.sh brochure     # or poster
 ```
 
 `watch.sh` links the built pictures as `print/pictures` and recompiles `print/brochure.pdf` whenever a source changes; `--input layout=sheet` after the name shows the A4 sheet.
-After changing `pictures.json` or `render.py`, run it again to rebuild the pictures.
+After changing `pictures.json`, `render.py` or the frames' files, run it again to rebuild the pictures.
 
 The rules the layout keeps:
 
@@ -38,7 +40,10 @@ The rules the layout keeps:
 default.nix      the build: the pictures, then the PDFs
 render.py        renders pictures.json's pictures, in grey
 pictures.json    which scripts, which views, at what size
-common.typ       type, greys, the field, the small print
+frames.el        the editor frames' pages, made by the site's ob-keycap
+shoot.py         screenshots them, in grey
+shoot.css        a frame alone on the page, for shoot.py
+common.typ       type, greys, pictures, the small print
 brochure.typ     the four pages, and the A4 sheet
 poster.typ       the poster
 print.tmTheme    code in black and white

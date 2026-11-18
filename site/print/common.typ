@@ -1,4 +1,4 @@
-// What the brochure and the poster share: type, greys, the field, the
+// What the brochure and the poster share: type, greys, pictures, the
 // small print.
 
 /* =========== *
@@ -41,6 +41,24 @@
 // A picture, fitted to its box without distortion.
 #let picture(name, width: 100%, height: auto) = image("pictures/" + name, width: width, height: height, fit: "contain")
 
+// A detail of a picture, `width` wide: the part `region`, (x, y, width,
+// height) in fractions of the picture's size.
+#let detail(name, region, width: 40mm) = context {
+  let (x, y, w, h) = region
+  let whole = image("pictures/" + name, width: width / w)
+  let size = measure(whole)
+  // Padded down to the region: whole, it would not fit the block, which
+  // would leave it out.
+  let cut = pad(
+    left: -size.width * x,
+    top: -size.height * y,
+    right: -size.width * (1 - x - w),
+    bottom: -size.height * (1 - y - h),
+    whole,
+  )
+  block(width: width, height: size.height * h, clip: true, cut)
+}
+
 // A trace from keycap-server, `width` wide, its cut lines drawn in black
 // and `weight` thick on paper; its frame grows by half a line, so that the
 // outermost lines are not cut in half.
@@ -57,46 +75,6 @@
     .replace("#ff0000", "#000000")
     .replace(regex("stroke-width=\"[0-9.]+\""), "stroke-width=\"" + str(line) + "\"")
   image(bytes(svg), format: "svg", width: width)
-}
-
-/* ========= *
- * The field *
- * ========= */
-
-// The site's front page in characters, still, with a disc where the site
-// turns a hexagon: a disc and a box, joined round, and the bands of their
-// distance field around them.
-#let field(cols: 70, rows: 15) = {
-  let sdf(x, y) = {
-    let disc = calc.sqrt(calc.pow(x + 8, 2) + calc.pow(y, 2)) - 5.5
-    let qx = calc.abs(x - 6) - 7
-    let qy = calc.abs(y) - 3
-    let box = calc.sqrt(calc.pow(calc.max(qx, 0), 2) + calc.pow(calc.max(qy, 0), 2)) + calc.min(calc.max(qx, qy), 0)
-    let k = 5
-    let h = calc.max(k - calc.abs(disc - box), 0) / k
-    calc.min(disc, box) - h * h * k / 4
-  }
-  let bands = (" ", ".", ":", "-", "=", "+", "*")
-  // A non-breaking space, so that runs of them keep their width.
-  let blank = "\u{00A0}"
-  // Rows as far apart as the site's characters are tall: 1.93 widths.
-  set text(top-edge: "cap-height", bottom-edge: "baseline")
-  set par(leading: 1.16em - 0.7em, spacing: 0pt)
-  for j in range(rows) {
-    let y = (j - (rows - 1) / 2) * 2.1 / 2.0 * 1.15
-    for i in range(cols) {
-      let x = (i - (cols - 1) / 2) / 1.6
-      let d = sdf(x, y)
-      if d <= 0 {
-        text(weight: "extrabold", if d > -1.2 { "#" } else { "@" })
-      } else {
-        let band = int(d / 1.6)
-        let c = if calc.rem(band, 2) == 0 and band < bands.len() { bands.at(-1 - band) } else { " " }
-        if c == " " { blank } else { c }
-      }
-    }
-    linebreak()
-  }
 }
 
 /* ========= *

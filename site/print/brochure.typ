@@ -26,7 +26,9 @@
   #caption[MX-style keycaps on an OLKB Preonic, with the legends of QMK's default keymap: 51 lines of script, on top of my library of keycap shapes.]
   #v(1fr)
 
-  #align(center, text(size: 7.1pt, field()))
+  #picture("frame.png", width: 100%)
+  #v(0.4em)
+  #caption[The knob from keycap's examples beside its preview, as on the front page of the site.]
   #v(1fr)
 
   #set text(size: 10pt)
@@ -92,6 +94,17 @@
       #v(0.2em)
       #caption[The distance field around an M8 bolt from the threads module, cut in half.]
     ],
+  )
+
+  #grid(
+    columns: (1fr, 38mm),
+    column-gutter: 5mm,
+    align: (left + horizon, left + horizon),
+    [
+      In the preview, dragging with the mouse turns the model, the wheel zooms, and a double click goes to the shape's `draw` in the script.
+      A right click opens a menu with the views, the cameras and the exports.
+    ],
+    detail("frame-menu.png", (0.2286, 0.2723, 0.3848, 0.1913), width: 38mm),
   )
 ]
 
