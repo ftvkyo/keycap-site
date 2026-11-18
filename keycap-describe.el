@@ -227,7 +227,7 @@ Without COLUMNS on one line, its parameters with the property
           (concat head "\n" (keycap--signature-lines keys (keycap--signature-columns keys) 4) "}"))
       type)))
 
-(defun keycap--set-out-signatures (signatures &optional types)
+(defun keycap-set-out-signatures (signatures &optional types)
   "SIGNATURES and the TYPES they name, set out for reading and highlighted.
 One string: the calls, then a blank line before each type.  Each line
 has a `wrap-prefix' for a window too narrow for it, and each parameter
@@ -337,7 +337,7 @@ highlighted and indented.  Point ends at its end."
 
 (defun keycap--insert-signatures (signatures types)
   "Insert SIGNATURES and the TYPES they name, set out and indented."
-  (dolist (line (split-string (keycap--set-out-signatures signatures types) "\n"))
+  (dolist (line (split-string (keycap-set-out-signatures signatures types) "\n"))
     (unless (string-empty-p line)
       (let ((start (point)))
         (insert "  " line)
@@ -408,7 +408,7 @@ highlighted and indented.  Point ends at its end."
 Shapes first, then the categories as the server lists them."
   (let ((script (keycap--script-names))
         groups)
-    (dolist (names (list script (keycap--names)))
+    (dolist (names (list script (keycap-names)))
       (when names
         (maphash (lambda (name entry)
                    (unless (and (not (eq names script)) script (gethash name script))
@@ -459,13 +459,8 @@ Nil for no name, which stands for the whole reference."
 
 (defun keycap--update-script-names ()
   "Bring `keycap--script-names' up to date with the text, waiting a moment for it."
-  (unless (eql keycap--report-tick (buffer-chars-modified-tick))
-    (let (done)
-      (ignore-errors
-        (keycap--load (lambda (_) (setq done t)))
-        (with-timeout (2)
-          (while (not done)
-            (accept-process-output keycap--server 0.05)))))))
+  (ignore-errors
+    (keycap-load-sync nil 2)))
 
 ;;;###autoload
 (defun keycap-describe (name &optional script)
@@ -477,9 +472,9 @@ described too; interactively, SCRIPT is the current buffer."
   (interactive
    (progn
      (when (and (derived-mode-p 'keycap-mode)
-                (not (keycap--doc (keycap--name-at-point))))
+                (not (keycap--doc (keycap-name-at-point))))
        (keycap--update-script-names))
-     (list (let ((name (keycap--name-at-point)))
+     (list (let ((name (keycap-name-at-point)))
              (cond
               (current-prefix-arg nil)
               ((keycap--doc name) name)

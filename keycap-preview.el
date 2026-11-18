@@ -181,11 +181,6 @@ It turns about the middle of the bounds, by the right-hand rule.")
   "Where the server writes the frame."
   (expand-file-name "frame.ppm" keycap--preview-directory))
 
-(defun keycap--preview-flat-p (report)
-  "Non-nil when the model of the `load' REPORT is 2D, unbounded along Z."
-  (let ((lower (alist-get 'lower (alist-get 'fitted (alist-get 'bounds report)))))
-    (and lower (null (nth 2 lower)))))
-
 (defun keycap--preview-region ()
   "The bounds in use, as (LOWER UPPER), unbounded axes nil, or nil."
   (let* ((bounds (alist-get 'bounds keycap--preview-report))
@@ -213,13 +208,13 @@ It turns about the middle of the bounds, by the right-hand rule.")
   "Take the script's `load' REPLY into its preview, and render it."
   (when (buffer-live-p keycap--preview)
     (with-current-buffer keycap--preview
-      (setq keycap--preview-failure (keycap--failure reply))
+      (setq keycap--preview-failure (keycap-report-failure reply))
       (unless (alist-get 'error reply)
         (setq keycap--preview-output (alist-get 'output reply)))
       (unless keycap--preview-failure
         (setq keycap--preview-report reply)
         (unless keycap--preview-view-chosen
-          (keycap--preview-set-view (if (keycap--preview-flat-p reply) 'sdf keycap-preview-view)))
+          (keycap--preview-set-view (if (keycap-report-flat-p reply) 'sdf keycap-preview-view)))
         ;; A 2D script that grew a third dimension would be sliced at its base.
         (unless keycap--preview-offset-chosen
           (setq keycap--preview-offset (keycap--preview-middle keycap--preview-axis)))
@@ -1337,7 +1332,7 @@ In 2D views, of the shape the mouse is in, or else the nearest one."
   (interactive nil keycap-preview-mode)
   (let ((failure (with-current-buffer keycap--preview-source
                  (seq-find (lambda (diagnostic) (eq (flymake-diagnostic-type diagnostic) :error))
-                           (keycap--diagnostics keycap--report)))))
+                           (keycap-report-diagnostics keycap--report)))))
     (unless failure
       (user-error "The script has no error"))
     (pop-to-buffer keycap--preview-source)

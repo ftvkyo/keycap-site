@@ -366,6 +366,57 @@ Cut acrylic only if it is cast acrylic (PMMA), extract the fumes of every job, a
 
 The preview's window comes from ~display-buffer~, so ~display-buffer-alist~ decides where it goes.
 
+** Extending keycap
+:PROPERTIES:
+:DESCRIPTION: Functions for Lisp built on keycap.
+:END:
+#+cindex: extending keycap
+#+cindex: Lisp interface
+
+Lisp that drives keycap without a person at the keyboard, such as the build of keycap's site, calls these functions.
+keycap's other names, the ones with =--= in them, may change in any release.
+
+The server answers requests, alists such as =((op . "eval") (source . "") (expression . "1 + 2"))=, as its protocol in =server/src/main.rs= describes them.
+
+#+findex: keycap-request-sync
+#+findex: keycap-server-batch
+#+findex: keycap-use-server
+- =(keycap-request-sync REQUEST &optional TIMEOUT)= :: Send REQUEST to the current buffer's server and return its reply; nil once TIMEOUT seconds pass.
+- =(keycap-server-batch REQUESTS)= :: Answer REQUESTS with a server started for them, and return the replies in their order.
+- =(keycap-use-server BUFFER)= :: Send the current buffer's requests to BUFFER's server, so that many scripts share one; killing them leaves it running.
+
+#+findex: keycap-load-sync
+#+findex: keycap-report-failure
+#+findex: keycap-report-diagnostics
+#+findex: keycap-report-flat-p
+#+findex: keycap-diagnostic-message
+- =(keycap-load-sync &optional RELOAD TIMEOUT)= :: Evaluate the script in the current buffer and return the server's report; with RELOAD, even when the server has its text already.
+- =(keycap-report-failure REPORT)= :: Why the script of REPORT failed to load, as the preview's header line says it, or nil.
+- =(keycap-report-diagnostics REPORT)= :: REPORT's diagnostics as Flymake marks them in the current buffer.
+- =(keycap-report-flat-p REPORT)= :: Non-nil when REPORT's model is 2D, unbounded along Z, which the preview opens in =sdf=.
+- =(keycap-diagnostic-message DIAGNOSTIC)= :: The message of one of a report's diagnostics, without the position Rhai adds.
+
+#+findex: keycap-script-statements
+#+findex: keycap-script-functions
+#+findex: keycap-script-draws
+- =(keycap-script-statements)= :: The top-level statements of the script in the current buffer, any buffer holding Rhai, as =(START . END)=.
+- =(keycap-script-functions)= :: The functions it defines, as =(NAME START . END)=, each from its =///= comment.
+- =(keycap-script-draws)= :: Its top-level ~draw~ and ~draw_rgb~ statements, as =(START . END)=.
+
+#+findex: keycap-docs
+#+findex: keycap-names
+#+findex: keycap-set-out-signatures
+#+findex: keycap-name-at-point
+- =(keycap-docs DIALECT)= :: The server's documentation of DIALECT, ~keycap~ or ~fidget~, which the reference is written from.
+- =(keycap-names &optional DIALECT)= :: A hash table of the names DIALECT documents, asked of the server once; a script buffer highlights them once they are known.
+- =(keycap-set-out-signatures SIGNATURES &optional TYPES)= :: SIGNATURES and the TYPES they name, set out and highlighted as =C-c C-d= shows them.
+- =(keycap-name-at-point)= :: The name =C-c C-d= describes at point.
+
+#+findex: keycap-nudge
+#+findex: keycap-exporting-p
+- =(keycap-nudge N)= :: Add N steps of the digit before point to the number at point, as =C-c C-n= does, and return what the echo area says of it, such as =radius 0.5 → 0.6 (step 0.1)=.
+- =(keycap-exporting-p)= :: Non-nil while an export of the script runs.
+
 * Writing models
 :PROPERTIES:
 :DESCRIPTION: How scripts become shapes.

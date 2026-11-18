@@ -289,7 +289,7 @@ import."
 BACKEND is `texinfo' for the Info manual or `html' for the site.  DOCS
 is the server's `docs' reply, by default the keycap dialect's.  Every
 file that describes functions must have its marker, and each only one."
-  (let* ((docs (or docs (keycap--fetch-docs 'keycap)))
+  (let* ((docs (or docs (keycap-docs 'keycap)))
          (entries (keycap-reference-entries docs))
          (sections (alist-get 'sections docs))
          (unplaced (mapcar (lambda (section) (alist-get 'file section)) sections)))

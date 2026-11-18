@@ -52,6 +52,7 @@
 (require 'subr-x)
 
 (autoload 'keycap-describe "keycap-describe" nil t)
+(autoload 'keycap-set-out-signatures "keycap-describe")
 (autoload 'keycap-preview "keycap-preview" nil t)
 (autoload 'keycap-preview-cycle-view "keycap-preview" nil t)
 (declare-function keycap--insert-description "keycap-describe")
@@ -175,6 +176,7 @@ come out to size."
       (process-put process 'keycap-callbacks (make-hash-table))
       (process-put process 'keycap-output "")
       (process-put process 'keycap-log log)
+      (process-put process 'keycap-buffer (current-buffer))
       (setq keycap--server process))))
 
 (defun keycap--receive (process string)
@@ -223,9 +225,62 @@ stops first."
     id))
 
 (defun keycap--stop-server ()
-  "Stop the script's server."
-  (when (process-live-p keycap--server)
+  "Stop the script's server, unless it is another buffer's."
+  (when (and (process-live-p keycap--server)
+             (eq (process-get keycap--server 'keycap-buffer) (current-buffer)))
     (delete-process keycap--server)))
+
+(defun keycap-use-server (buffer)
+  "Send the current buffer's requests to BUFFER's server, started if need be.
+Scripts that share one server this way, such as the many a batch run
+renders, leave it running when they are killed."
+  (setq keycap--server (with-current-buffer buffer (keycap--server))))
+
+(defun keycap--wait (function &optional timeout)
+  "Call FUNCTION with a callback; return what the callback is first called with.
+Nil once TIMEOUT seconds, if non-nil, pass without a call."
+  (let ((end (and timeout (+ (float-time) timeout)))
+        reply done)
+    (funcall function (lambda (value)
+                        (unless done
+                          (setq reply value
+                                done t))))
+    (while (and (not done) (or (not end) (< (float-time) end)))
+      (accept-process-output nil 0.05))
+    reply))
+
+(defun keycap-request-sync (request &optional timeout)
+  "Send REQUEST, an alist, to the current buffer's server, and return the reply.
+The reply comes after an export's progress; it is an `error' when the
+server stops first, and nil once TIMEOUT seconds, if non-nil, pass."
+  (keycap--wait (lambda (callback)
+                  (keycap--request request (lambda (reply)
+                                             (unless (alist-get 'progress reply)
+                                               (funcall callback reply)))))
+                timeout))
+
+(defun keycap-server-batch (requests)
+  "Send REQUESTS, alists, to a server started for them, and return its replies.
+The replies are in the order of the requests; the server exits once it
+has answered them all."
+  (with-temp-buffer
+    (seq-do-indexed (lambda (request id)
+                      (insert (json-serialize (cons (cons 'id id) request)) "\n"))
+                    requests)
+    (let* ((command (keycap--command))
+           (status (condition-case nil
+                       (apply #'call-process-region (point-min) (point-max) (car command)
+                              t '(t nil) nil (cdr command))
+                     (file-missing (keycap--server-missing))))
+           (replies (make-vector (length requests) nil)))
+      (unless (eql status 0)
+        (error "%s exited with %s" (car command) status))
+      (goto-char (point-min))
+      (while (progn (skip-chars-forward " \t\n") (not (eobp)))
+        (let ((reply (json-parse-buffer :object-type 'alist :array-type 'list
+                                        :null-object nil :false-object nil)))
+          (aset replies (alist-get 'id reply) reply)))
+      (append replies nil))))
 
 ;;;###autoload
 (defun keycap-version ()
@@ -316,11 +371,18 @@ CALLBACK, if non-nil, is called with the reply, in the script buffer."
                  (funcall callback reply))))))
         (setq keycap--load-waiting waiting))))))
 
-(defun keycap--reload ()
-  "Have the server evaluate the script, even if it has this text already."
+(defun keycap--reload (&optional callback)
+  "Have the server evaluate the script, even if it has this text already.
+CALLBACK as `keycap--load' takes it."
   (setq keycap--report-tick nil
         keycap--load-waiting nil)
-  (keycap--load))
+  (keycap--load callback))
+
+(defun keycap-load-sync (&optional reload timeout)
+  "Have the server evaluate the script, and return its reply, the `load' report.
+Without RELOAD, the report on this text, if there is one already, comes
+at once.  Nil once TIMEOUT seconds, if non-nil, pass."
+  (keycap--wait (if reload #'keycap--reload #'keycap--load) timeout))
 
 (defun keycap--change (&rest _)
   "Evaluate the script again a moment after a change, when a preview follows it."
@@ -339,12 +401,12 @@ CALLBACK, if non-nil, is called with the reply, in the script buffer."
         (setq keycap--load-timer nil)
         (keycap--load)))))
 
-(defun keycap--message (diagnostic)
+(defun keycap-diagnostic-message (diagnostic)
   "The message of DIAGNOSTIC, without the position Rhai puts after it."
   (replace-regexp-in-string " (line [0-9]+, position [0-9]+)\\'" ""
                             (or (alist-get 'message diagnostic) "")))
 
-(defun keycap--failure (report)
+(defun keycap-report-failure (report)
   "Why the script failed to load, according to the `load' REPORT; nil if it loaded."
   (cond
    ((alist-get 'error report))
@@ -358,8 +420,13 @@ CALLBACK, if non-nil, is called with the reply, in the script buffer."
                     (concat (file-name-nondirectory file) ":")
                   "line ")
                 (alist-get 'line diagnostic)
-                (keycap--message diagnostic))
+                (keycap-diagnostic-message diagnostic))
       "The script failed"))))
+
+(defun keycap-report-flat-p (report)
+  "Non-nil when the model of the `load' REPORT is 2D, unbounded along Z."
+  (let ((lower (alist-get 'lower (alist-get 'fitted (alist-get 'bounds report)))))
+    (and lower (null (nth 2 lower)))))
 
 
 ;; --- Watching ---
@@ -508,7 +575,7 @@ An error elsewhere is reported on the call that leads there, or on the
                  ("error" :error)
                  ("warning" :warning)
                  (_ :note)))
-         (message (keycap--message diagnostic))
+         (message (keycap-diagnostic-message diagnostic))
          (trace (alist-get 'trace diagnostic))
          (file (alist-get 'file diagnostic))
          (here (keycap--here-p file))
@@ -534,7 +601,7 @@ An error elsewhere is reported on the call that leads there, or on the
                        (format "%s: %s" (alist-get 'message frame) message))))
                   frames))))
 
-(defun keycap--diagnostics (report)
+(defun keycap-report-diagnostics (report)
   "Flymake diagnostics for the `load' REPORT on the current buffer."
   (mapcan #'keycap--diagnostic (alist-get 'diagnostics report)))
 
@@ -551,7 +618,7 @@ An error elsewhere is reported on the call that leads there, or on the
          (when (eq report-fn keycap--flymake-report)
            (if-let* ((failure (alist-get 'error reply)))
                (funcall report-fn :panic :explanation failure)
-             (funcall report-fn (keycap--diagnostics reply))))))
+             (funcall report-fn (keycap-report-diagnostics reply))))))
     (error
      (funcall report-fn :panic :explanation (error-message-string error)))))
 
@@ -570,20 +637,9 @@ description: the server's, with `class' added, `shape' or `function'.")
   "The prelude's modules, per dialect: an alist to their names.
 A script imports the module `screws' as `import \"keycap/screws\"'.")
 
-(defun keycap--fetch-docs (dialect)
-  "The server's `docs' reply for DIALECT, from a server started for it."
-  (with-temp-buffer
-    (insert (json-serialize `((id . 0) (op . "docs") (dialect . ,(symbol-name dialect)))) "\n")
-    (let* ((command (keycap--command))
-           (status (condition-case nil
-                       (apply #'call-process-region (point-min) (point-max) (car command)
-                              t '(t nil) nil (cdr command))
-                     (file-missing (keycap--server-missing)))))
-      (unless (eql status 0)
-        (error "%s exited with %s" (car command) status))
-      (goto-char (point-min))
-      (json-parse-buffer :object-type 'alist :array-type 'list
-                         :null-object nil :false-object nil))))
+(defun keycap-docs (dialect)
+  "The server's `docs' reply for DIALECT: the functions and shapes it documents."
+  (car (keycap-server-batch `(((op . "docs") (dialect . ,(symbol-name dialect)))))))
 
 (defun keycap--index (docs)
   "The server's DOCS reply as a hash table from name to description."
@@ -594,13 +650,14 @@ A script imports the module `screws' as `import \"keycap/screws\"'.")
       (puthash (alist-get 'name shape) (cons '(class . shape) shape) table))
     table))
 
-(defun keycap--names (&optional dialect)
+(defun keycap-names (&optional dialect)
   "The documented names of DIALECT, or of the script's, asking the server once.
-A failed request leaves nothing behind, so that the next call asks again."
+A hash table from each name to its entry of `keycap-docs'.  A failed
+request leaves nothing behind, so that the next call asks again."
   (let ((dialect (or dialect (buffer-local-value 'keycap-dialect (keycap--script)))))
     (or (alist-get dialect keycap--names)
         (condition-case error
-            (let ((docs (keycap--fetch-docs dialect)))
+            (let ((docs (keycap-docs dialect)))
               (setf (alist-get dialect keycap--modules)
                     (seq-keep (lambda (section)
                                 (when (alist-get 'module section)
@@ -638,13 +695,13 @@ The script's own functions come first, as they shadow the others."
   (and name
        (or (when-let* ((names (keycap--script-names)))
              (gethash name names))
-           (gethash name (keycap--names)))))
+           (gethash name (keycap-names)))))
 
 (defun keycap--all-names ()
   "Every documented name, the script's own included."
   (delete-dups (append (when-let* ((names (keycap--script-names)))
                          (hash-table-keys names))
-                       (hash-table-keys (keycap--names)))))
+                       (hash-table-keys (keycap-names)))))
 
 (defun keycap--shape-p (name)
   "Non-nil when NAME is a shape."
@@ -725,7 +782,7 @@ For highlighting them, as `keycap-describe' and the manual's site do."
 (defun keycap--fetch-names (dialect)
   "List the documented names of DIALECT, then highlight them in its scripts."
   (unless (alist-get dialect keycap--names)
-    (keycap--names dialect)
+    (keycap-names dialect)
     (dolist (buffer (buffer-list))
       (with-current-buffer buffer
         (when (and (derived-mode-p 'keycap-mode) (eq keycap-dialect dialect))
@@ -934,7 +991,7 @@ OPEN is where the map's `{' is; POSITION defaults to point."
             (end (save-excursion (skip-chars-forward "^\"\n") (point))))
         (when (and (<= start (point))
                    (string= (buffer-substring-no-properties (1+ string) start) "keycap/"))
-          (keycap--names)
+          (keycap-names)
           (list start end (alist-get keycap-dialect keycap--modules)
                 :company-kind (lambda (_) 'module)))))))
 
@@ -1067,7 +1124,7 @@ of the function at point or called around it."
         (let ((summary (keycap--summary (alist-get 'doc (keycap--doc name)))))
           (funcall callback (concat signature (when summary (concat "  " summary)))))))))
 
-(defun keycap--name-at-point ()
+(defun keycap-name-at-point ()
   "The name at point; on a key of a shape's map, the shape."
   (let ((map (keycap--shape-map)))
     (if (and map (keycap--key-start) (not (keycap--doc (thing-at-point 'symbol t))))
@@ -1162,8 +1219,8 @@ evaluate it instead."
                          ;; The script's own errors are elsewhere than the expression.
                          (if (alist-get 'file diagnostic)
                              (format "The script fails, line %s: %s" (alist-get 'line diagnostic)
-                                     (keycap--message diagnostic))
-                           (keycap--message diagnostic))))
+                                     (keycap-diagnostic-message diagnostic))
+                           (keycap-diagnostic-message diagnostic))))
                       (t (concat "=> " (alist-get 'value reply)))))))))
 
 
@@ -1254,7 +1311,7 @@ The request gets the output FILE, the RESOLUTION, else the script's, else
         (file (expand-file-name file)))
     (keycap--load
      (lambda (report)
-       (if-let* ((failure (keycap--failure report)))
+       (if-let* ((failure (keycap-report-failure report)))
            (message "Exporting failed: %s" failure)
          (message "Exporting %s..." (abbreviate-file-name file))
          (let (timer)
@@ -1340,6 +1397,10 @@ cancels it."
                          (offset . ,offset)
                          ,@(when tilt
                              `((tilt . ,(vector (car tilt) (cdr tilt))))))))))))))
+
+(defun keycap-exporting-p ()
+  "Non-nil while an export of the script runs."
+  (and keycap--export t))
 
 (defun keycap-export-cancel ()
   "Cancel the export that runs; the file it was to write stays as it was."
@@ -1447,14 +1508,20 @@ Return the number before and after, as written, and the unit, as strings."
   "What the echo area says of the number NAME going from BEFORE to AFTER by UNIT."
   (format "%s%s → %s (step %s)" (if name (concat name " ") "") before after unit))
 
+(defun keycap-nudge (n)
+  "Add N units of the digit before point to the number at point.
+Return what the echo area says of it, such as \"width 2.5 → 2.6 (step 0.1)\"."
+  (let ((name (when-let* ((number (keycap--number-at-point)))
+                (keycap--number-name (car number)))))
+    (pcase-let ((`(,before ,after ,unit) (keycap--nudge n)))
+      (keycap--nudge-text name before after unit))))
+
 (defun keycap--nudge-and-repeat (n)
   "Nudge the number at point by N units, then let `n' and `p' nudge it again."
-  (pcase-let* ((name (when-let* ((number (keycap--number-at-point)))
-                       (keycap--number-name (car number))))
-               (`(,before ,after ,unit) (keycap--nudge n)))
+  (let ((text (keycap-nudge n)))
     (keycap--load-now)
     (message "%s; %s"
-             (keycap--nudge-text name before after unit)
+             text
              (substitute-command-keys
               "\\<keycap-number-repeat-map>\\[keycap-increase-number], \\[keycap-decrease-number] again"))
     (set-transient-map keycap-number-repeat-map)))
@@ -1520,10 +1587,9 @@ Off a number, the wheel scrolls as it would."
   (if-let* ((digit (keycap--number-at-mouse event)))
       (with-selected-window (posn-window (event-start event))
         (goto-char (1+ digit))
-        (let ((name (keycap--number-name (car (keycap--number-at-point)))))
-          (pcase-let ((`(,before ,after ,unit) (keycap--nudge (keycap--wheel-direction event))))
-            (keycap--load-now)
-            (message "%s" (keycap--nudge-text name before after unit)))))
+        (let ((text (keycap-nudge (keycap--wheel-direction event))))
+          (keycap--load-now)
+          (message "%s" text)))
     (keycap--mouse-fall-through event)))
 
 (defun keycap-mouse-scrub-number (event)
@@ -1604,7 +1670,7 @@ undoes as one change.  Off a number, the click does what it would."
 For `context-menu-functions'."
   (when-let* ((name (save-excursion
                       (mouse-set-point click)
-                      (keycap--name-at-point)))
+                      (keycap-name-at-point)))
               ((keycap--doc name)))
     (define-key-after menu [keycap-separator] menu-bar-separator)
     (define-key-after menu [keycap-describe]

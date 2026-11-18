@@ -156,6 +156,12 @@ it runs the hooks that stop its server and kill its preview."
         (should (eq (keymap-lookup overriding-terminal-local-map "n") #'keycap-increase-number))
         (should (eq (keymap-lookup overriding-terminal-local-map "p") #'keycap-decrease-number))))))
 
+(ert-deftest keycap-test-nudge-text ()
+  ;; What the shifted wheel says, without the keys that nudge again.
+  (keycap-test-with-script "circle(#{radius: 0.5|})"
+    (should (equal (keycap-nudge -2) "radius 0.5 → 0.3 (step 0.1)"))
+    (should (equal (buffer-string) "circle(#{radius: 0.3})"))))
+
 (ert-deftest keycap-test-nudge-not-a-number ()
   (should-error (keycap-test-nudge "let x1| = y;" 1) :type 'user-error)
   (should-error (keycap-test-nudge "// 1|\n" 1) :type 'user-error)
@@ -221,7 +227,7 @@ it runs the hooks that stop its server and kill its preview."
                   (buffer-substring-no-properties (flymake-diagnostic-beg d)
                                                   (flymake-diagnostic-end d))
                   (flymake-diagnostic-text d)))
-          (keycap--diagnostics report)))
+          (keycap-report-diagnostics report)))
 
 (ert-deftest keycap-test-diagnostic-token ()
   (keycap-test-with-script "let a = 1;\nlet b = frobnicate(a, 2);\n"
@@ -284,12 +290,12 @@ it runs the hooks that stop its server and kill its preview."
                    '((:warning "draw(s);" "shape extends past the bounds on +z"))))))
 
 (ert-deftest keycap-test-failure ()
-  (should-not (keycap--failure '((loaded . t))))
-  (should (equal (keycap--failure '((error . "keycap-server stopped: killed"))) "keycap-server stopped: killed"))
-  (should (equal (keycap--failure '((diagnostics ((severity . "warning") (line . 1) (message . "w"))
+  (should-not (keycap-report-failure '((loaded . t))))
+  (should (equal (keycap-report-failure '((error . "keycap-server stopped: killed"))) "keycap-server stopped: killed"))
+  (should (equal (keycap-report-failure '((diagnostics ((severity . "warning") (line . 1) (message . "w"))
                                                  ((severity . "error") (line . 3) (message . "e (line 3, position 1)")))))
                  "line 3: e"))
-  (should (equal (keycap--failure '((diagnostics ((severity . "error") (line . 2) (file . "/a/parts.keycap")
+  (should (equal (keycap-report-failure '((diagnostics ((severity . "error") (line . 2) (file . "/a/parts.keycap")
                                                   (message . "e")))))
                  "parts.keycap:2: e")))
 
@@ -472,7 +478,7 @@ it runs the hooks that stop its server and kill its preview."
 
 (ert-deftest keycap-test-set-out-signatures ()
   (cl-flet ((set-out (signatures &optional types)
-              (substring-no-properties (keycap--set-out-signatures signatures types))))
+              (substring-no-properties (keycap-set-out-signatures signatures types))))
     ;; Every call's name in one column.
     (should (equal (set-out '("offset(shape: Shape, d: Tree): Shape" "shape.offset(d: Tree): Shape"))
                    (concat "      offset(shape: Shape, d: Tree): Shape\n"
@@ -499,7 +505,7 @@ it runs the hooks that stop its server and kill its preview."
                            "}")))
     ;; Each parameter on one line marked whole, and each line's wrap past
     ;; the name.
-    (let ((text (keycap--set-out-signatures '("min(a: Tree, b) -> Tree" "a.min(b) -> Tree"))))
+    (let ((text (keycap-set-out-signatures '("min(a: Tree, b) -> Tree" "a.min(b) -> Tree"))))
       (should (equal (substring-no-properties text) "  min(a: Tree, b) -> Tree\na.min(b) -> Tree"))
       (should (get-text-property (string-search "a: Tree" text) 'keycap-parameter text))
       (should-not (get-text-property (string-search ", b" text) 'keycap-parameter text))
@@ -526,13 +532,13 @@ it runs the hooks that stop its server and kill its preview."
 (ert-deftest keycap-test-name-at-point ()
   (keycap-test-with-docs
     (keycap-test-with-script "circle(#{rad|ius: min(a, b)})"
-      (should (equal (keycap--name-at-point) "circle")))
+      (should (equal (keycap-name-at-point) "circle")))
     (keycap-test-with-script "circle(#{radius: m|in(a, b)})"
-      (should (equal (keycap--name-at-point) "min")))
+      (should (equal (keycap-name-at-point) "min")))
     (keycap-test-with-script "draw(lib::tw|ice(1.0));"
-      (should (equal (keycap--name-at-point) "lib::twice")))
+      (should (equal (keycap-name-at-point) "lib::twice")))
     (keycap-test-with-script "draw(l|ib::twice(1.0));"
-      (should (equal (keycap--name-at-point) "lib::twice")))))
+      (should (equal (keycap-name-at-point) "lib::twice")))))
 
 (ert-deftest keycap-test-script-functions ()
   (skip-unless keycap-test-server)
@@ -732,8 +738,8 @@ it runs the hooks that stop its server and kill its preview."
       (should (equal keycap--preview-offset 2.5)))))
 
 (ert-deftest keycap-test-preview-flat ()
-  (should (keycap--preview-flat-p '((bounds (fitted (lower -1 -1 nil) (upper 1 1 nil))))))
-  (should-not (keycap--preview-flat-p '((bounds (fitted (lower -1 -1 -1) (upper 1 1 1)))))))
+  (should (keycap-report-flat-p '((bounds (fitted (lower -1 -1 nil) (upper 1 1 nil))))))
+  (should-not (keycap-report-flat-p '((bounds (fitted (lower -1 -1 -1) (upper 1 1 1)))))))
 
 (ert-deftest keycap-test-preview-slice-step ()
   (keycap-test-with-preview-state
@@ -971,7 +977,7 @@ it runs the hooks that stop its server and kill its preview."
         (keycap-prelude-directory nil)
         (keycap--names nil)
         (keycap--modules nil))
-    (should (zerop (hash-table-count (keycap--names 'keycap))))
+    (should (zerop (hash-table-count (keycap-names 'keycap))))
     (should-not keycap--names)
     (should-not keycap--modules)))
 
@@ -980,7 +986,7 @@ it runs the hooks that stop its server and kill its preview."
   (let ((keycap-server-program "keycap-test-no-such-server")
         (keycap-prelude-directory nil))
     (with-temp-buffer
-      (dolist (start (list #'keycap--server (lambda () (keycap--fetch-docs 'keycap))))
+      (dolist (start (list #'keycap--server (lambda () (keycap-docs 'keycap))))
         (should (string-match-p "keycap-server-program"
                                 (cadr (should-error (funcall start) :type 'user-error))))))))
 
@@ -1132,7 +1138,7 @@ it runs the hooks that stop its server and kill its preview."
 
 (ert-deftest keycap-test-server-reference ()
   (skip-unless keycap-test-server)
-  (let* ((docs (keycap--fetch-docs 'keycap))
+  (let* ((docs (keycap-docs 'keycap))
          (manual (expand-file-name "../doc/keycap.org" keycap-test-examples)))
     (dolist (backend '(html texinfo))
       (with-temp-buffer
@@ -1148,7 +1154,7 @@ it runs the hooks that stop its server and kill its preview."
                  (ert-fail (list name (alist-get 'kind entry)))))
              (keycap-reference-entries docs))
     (should (member "screws" (let ((keycap--names nil) (keycap--modules nil))
-                               (keycap--names 'keycap)
+                               (keycap-names 'keycap)
                                (alist-get 'keycap keycap--modules))))))
 
 (ert-deftest keycap-test-server-docs ()
@@ -1221,7 +1227,7 @@ it runs the hooks that stop its server and kill its preview."
           (let (report)
             (keycap--load (lambda (reply) (setq report reply)))
             (keycap-test-wait (lambda () report))
-            (should (equal (list file (keycap--failure report)) (list file nil)))
+            (should (equal (list file (keycap-report-failure report)) (list file nil)))
             (should (alist-get 'shapes report)))
         (kill-buffer)))))
 
@@ -1251,6 +1257,49 @@ it runs the hooks that stop its server and kill its preview."
         (keycap-test-load)
         (should (= requests 1))
         (should (= replies 1))))))
+
+(ert-deftest keycap-test-server-sync ()
+  (skip-unless keycap-test-server)
+  (keycap-test-with-script "const N = 2;\ndraw(sphere(N));\n"
+    (let ((report (keycap-load-sync)))
+      (should (alist-get 'loaded report))
+      ;; The same text is not loaded again, unless asked to be.
+      (should (eq (keycap-load-sync) report))
+      (should-not (eq (keycap-load-sync t) report)))
+    (should (equal (alist-get 'value (keycap-request-sync '((op . "eval") (source . "")
+                                                            (expression . "1 + 2"))))
+                   "3"))
+    (should-not (keycap-request-sync '((op . "eval") (source . "") (expression . "1")) 0))))
+
+(ert-deftest keycap-test-server-batch ()
+  (skip-unless keycap-test-server)
+  (should (equal (mapcar (lambda (reply) (alist-get 'value reply))
+                         (keycap-server-batch
+                          (mapcar (lambda (expression)
+                                    `((op . "eval") (source . "") (expression . ,expression)))
+                                  '("1 + 1" "2 * 3" "10 - 1"))))
+                 '("2" "6" "9"))))
+
+(ert-deftest keycap-test-server-shared ()
+  (skip-unless keycap-test-server)
+  (let ((owner (generate-new-buffer " keycap-test-server"))
+        server)
+    (unwind-protect
+        (progn
+          (keycap-test-with-script "draw(sphere(1));\n"
+            (keycap-use-server owner)
+            (setq server keycap--server)
+            (should (alist-get 'loaded (keycap-load-sync))))
+          ;; Killing the script leaves the server running for the next one.
+          (should (process-live-p server))
+          (keycap-test-with-script "draw(sphere(2));\n"
+            (keycap-use-server owner)
+            (should (eq keycap--server server))
+            (should (alist-get 'loaded (keycap-load-sync)))))
+      (with-current-buffer owner
+        (keycap--stop-server))
+      (kill-buffer owner))
+    (should-not (process-live-p server))))
 
 (ert-deftest keycap-test-server-restart ()
   (skip-unless keycap-test-server)
@@ -1364,12 +1413,13 @@ it runs the hooks that stop its server and kill its preview."
     (let (shown)
       (setq keycap--export (list 1 "/models/part.svg" (- (float-time) 1.2) nil nil))
       (keycap--exported "/models/part.svg" '((progress . "contours")))
+      (should (keycap-exporting-p))
       (should (equal (keycap--export-status) "part.svg: tracing, 1 s"))
       (cl-letf (((symbol-function 'message)
                  (lambda (format &rest args) (setq shown (apply #'format format args)))))
         (keycap--exported "/models/part.svg"
                           '((outlines . 3) (lines . 4) (arcs . 6) (ms . 250))))
-      (should-not keycap--export)
+      (should-not (keycap-exporting-p))
       (should (equal shown "Exported /models/part.svg: 3 outlines, 4 lines and 6 arcs in 0.2 s")))))
 
 (ert-deftest keycap-test-server-export-2d ()
