@@ -89,7 +89,7 @@ The recipe takes its Emacs from Nix; without Nix, read the manual [[file:manual/
 
 A script's extension says which functions it can use:
 
-- =.keycap= :: fidget's functions and shapes, plus keycap's own: the prelude, =text=, =svg=, =bounds=, =resolution=, and any number of =draw=s.
+- =.keycap= :: fidget's functions and shapes, plus keycap's own: the prelude, =text=, =svg=, =bounds= and =resolution=.
   The tutorial and almost all the examples are written in it.
 - =.fidget= :: fidget's own API only, which is what fidget's viewer and CLI run, so the script works there unchanged.
   Calling one of keycap's functions is an error that says so.

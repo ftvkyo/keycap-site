@@ -73,7 +73,7 @@ fn peg(clearance) {
 This file is a module because of three things:
 
 - =export const= makes a constant visible to the scripts that import it, as =skadis::PITCH=.
-- Functions see the constants of the module through =global::=; in Rhai, a =fn= can't see the =let=s and =const=s around it otherwise.
+- Functions see the constants of the module through =global::=; in Rhai, a =fn= can't see the =let= and =const= names around it otherwise.
 - =///= comments document a function; =C-c C-d= and ElDoc show them for your functions the same way as for the prelude's.
 
 * Importing it

@@ -126,7 +126,7 @@ With the preview selected:
 - =s=, =z=, =d=, =m= :: shaded, depth, distance and inside-or-outside views.
 - =1=, =3=, =7=, =0= :: front, right, top and isometric; in a 2D view, the slice across Y, X or Z.
 - =[=, =]= :: move the slice; a numeric prefix puts it at that coordinate.
-- arrows, =M-=arrows, =+=, =-= :: turn, pan and zoom; dragging and the wheel do the same.
+- arrows, =M-= arrows, =+=, =-= :: turn, pan and zoom; dragging and the wheel do the same.
 - =p= :: perspective or orthographic.
 
 The mouse works too: dragging turns the model, the wheel zooms, and with Shift held, the wheel and dragging move the slice through the model.
