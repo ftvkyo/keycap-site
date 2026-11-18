@@ -4,7 +4,7 @@
 // fingers and a bite for the thumb, and a label.
 //
 // Ported from `src/printer/scraper.scad`.  Differences:
-// - The outline is found by polygon_clip when the script runs, the circles
+// - The outline is found by keycap/points when the script runs, the circles
 //   as arcs, and rounded_polygon rounds its corners by ROUNDING, convex
 //   and concave: the original's closing and opening, exactly except where
 //   the two orders could differ.
@@ -14,6 +14,8 @@
 // - The label is set in the Nerd Font build of JetBrains Mono.
 //
 // Compared with the original: within 0.0375 mm, the label left out.
+
+import "keycap/points" as points;
 
 // --- Parameters ---
 
@@ -56,14 +58,14 @@ fn handle_points() {
         handle_at(global::HANDLE_LENGTH, global::HANDLE_THICKNESS),
         handle_at(0, global::HANDLE_THICKNESS),
     ];
-    let outline = polygon_clip(blade(1.0), bar, "union");
+    let outline = points::union(blade(1.0), bar);
     let d = global::FINGER_DIAMETER;
     for finger in 0..4 {
         let at = handle_at(global::HANDLE_LENGTH - d / 2 - d * finger, -d / 4);
-        outline = polygon_clip(outline, circle_points(at, d / 2), "difference");
+        outline = points::difference(outline, circle_points(at, d / 2));
     }
     let thumb = handle_at(0, global::HANDLE_THICKNESS + global::THUMB_DIAMETER / 3);
-    polygon_clip(outline, circle_points(thumb, global::THUMB_DIAMETER / 2), "difference")
+    points::difference(outline, circle_points(thumb, global::THUMB_DIAMETER / 2))
 }
 
 fn label() {

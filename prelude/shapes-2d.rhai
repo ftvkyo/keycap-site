@@ -579,7 +579,7 @@ fn squircle(r, s, opts) {
 /// - `normalize: false` skips that correction: twice as fast, but offsets and shells come out uneven.
 /// - About 25 operations; rounded, about 60.
 ///
-/// See also: `hexagon_af`, `star`, `regular_polygon_points`, `polygon_ray`.
+/// See also: `hexagon_af`, `star`, `points::regular_polygon`, `polygon_ray`.
 ///
 /// References:
 /// - [Regular polygon, Wikipedia](https://en.wikipedia.org/wiki/Regular_polygon)
@@ -652,7 +652,7 @@ fn regular_polygon(n, r, opts) {
 /// - `normalize: false` skips that correction: twice as fast, but offsets and shells come out uneven.
 /// - About 30 operations; rounded, about 60.
 ///
-/// See also: `regular_polygon`, `star_points`, `star_ray`.
+/// See also: `regular_polygon`, `points::star`, `star_ray`.
 ///
 /// References:
 /// - [Star polygon, Wikipedia](https://en.wikipedia.org/wiki/Star_polygon)
@@ -831,7 +831,7 @@ fn _anchor_points(shape, opts, corners, what) {
 ///
 /// Polygon through a list of points, its corners sharp.
 ///
-/// - `points`: the corners, each `[x, y]`; or a list of such lists, the loops of an outline with several parts or holes, as `polygon_clip` gives them
+/// - `points`: the corners, each `[x, y]`; or a list of such lists, the loops of an outline with several parts or holes, as `points::union` gives them
 /// - `opts`:
 ///   - `convex`: `false` keeps a convex polygon on the general field
 ///
@@ -849,7 +849,7 @@ fn _anchor_points(shape, opts, corners, what) {
 /// - Field: exact.
 /// - About 40 operations a point, about 20 for a convex polygon.
 ///
-/// See also: `rounded_polygon`, `polygon_clip`, `miter_offset`, `regular_polygon_points`.
+/// See also: `rounded_polygon`, `points::union`, `points::miter_offset`, `points::regular_polygon`.
 ///
 /// References:
 /// - Inigo Quilez, [2D distance functions](https://iquilezles.org/articles/distfunctions2d/), "Polygon"
@@ -954,7 +954,7 @@ fn polygon(points, opts) {
 /// - Field: exact.
 /// - About 90 operations a corner, 60 a sharp one, and 5 more where the edge after it is an arc; about 20 a corner for a convex polygon.
 ///
-/// See also: `polygon`, `polygon_clip`, `offset`.
+/// See also: `polygon`, `points::union`, `offset`.
 ///
 /// References:
 /// - [Opening (morphology), Wikipedia](https://en.wikipedia.org/wiki/Opening_%28morphology%29), and closing
@@ -1428,69 +1428,9 @@ fn _piece_side(p) {
     or(p.s * _hypot(cx, cy), if p.s > 0.0 { max(l1, l2) } else { min(l1, l2) })
 }
 
-/// miter_offset(points: Vec2[], d: number): Vec2[]
-///
-/// The corners of a polygon moved so that its edges move outwards by `d` and its corners stay sharp.
-///
-/// - `points`: the corners, each `[x, y]`, as in `polygon`, either way round
-/// - `d`: the distance; a negative one moves the edges inwards
-///
-/// Every edge moves `d` along its outward normal, and each corner goes to where its two edges now meet.
-/// It works on numbers when the script runs, so it makes no field.
-///
-/// Notes:
-/// - A sharp corner moves further than `d`, by `d / sin(a / 2)` for a corner of angle `a`.
-/// - A `d` large enough to make an edge vanish leaves a polygon that crosses itself.
-///
-/// See also: `offset`, `polygon`, `polygon_clip`.
-///
-/// References:
-/// - [Parallel curve, Wikipedia](https://en.wikipedia.org/wiki/Parallel_curve)
-///
-/// Example: a pocket 0.3 mm larger than a triangular part all round, its corners still sharp.
-/// ```
-/// let tri = [[-10, -8], [12, -8], [-10, 8]];
-/// rect([40, 30]).difference(polygon(miter_offset(tri, 0.3)))
-/// ```
-fn miter_offset(points, d) {
-    let d = _num(d, "miter_offset: d");
-    let v = [];
-    for p in points {
-        v.push(_vec2(p, "miter_offset: a point"));
-    }
-    let n = v.len();
-    // Twice the signed area: positive when the points run anticlockwise.
-    let area = 0.0;
-    for i in 0..n {
-        let a = v[i];
-        let b = v[(i + 1) % n];
-        area += a[0] * b[1] - b[0] * a[1];
-    }
-    if area < 0.0 {
-        d = -d;
-    }
-    let normals = [];
-    for i in 0..n {
-        let a = v[i];
-        let b = v[(i + 1) % n];
-        let ex = b[0] - a[0];
-        let ey = b[1] - a[1];
-        let l = sqrt(ex * ex + ey * ey);
-        normals.push([ey / l, -ex / l]);
-    }
-    let out = [];
-    for i in 0..n {
-        let n1 = normals[(i + n - 1) % n];
-        let n2 = normals[i];
-        let k = d / (1.0 + n1[0] * n2[0] + n1[1] * n2[1]);
-        out.push([v[i][0] + (n1[0] + n2[0]) * k, v[i][1] + (n1[1] + n2[1]) * k]);
-    }
-    out
-}
-
 // --- Outlines of lines and arcs ---
 //
-// `polygon`, `rounded_polygon` and `polygon_clip` read an outline as one
+// `polygon`, `rounded_polygon` and `_polygon_clip` read an outline as one
 // list of points or a list of such lists, its loops.  Here a loop is a
 // list of vertices, `#{p, k, arc}`: the point, its corner's own radius or
 // `()`, and the signed radius of the arc to the next vertex or `()` for a
@@ -1758,288 +1698,14 @@ fn _inside(p, edges) {
     n % 2 == 1
 }
 
-// --- Point lists ---
-//
-// Plain arithmetic on numbers: points for `polygon` and `rounded_polygon`,
-// and the geometry a script works out before it builds any shape.
+// --- Clipping outlines ---
 
-/// regular_polygon_points(n: number, r: number): Vec2[]
-///
-/// The corners of `regular_polygon(n, r)`, anticlockwise from the one on +X.
-///
-/// - `n`: the number of sides, 3 or more
-/// - `r`: the circumradius, from the centre to a corner
-///
-/// See also: `regular_polygon`, `star_points`, `rounded_polygon`.
-///
-/// Example: the corners of a square standing on one corner, 10 from the centre.
-/// ```
-/// regular_polygon_points(4, 10)
-/// ```
-/// Example: a flange with six bolt holes, one at each corner of a hexagon.
-/// ```
-/// let holes = regular_polygon_points(6, 22)
-///     .map(|p| circle(2).move(p));
-/// circle(30).difference(union(holes))
-/// ```
-fn regular_polygon_points(n, r) {
-    if type_of(n) != "i64" || n < 3 {
-        throw `regular_polygon_points: n must be an integer of at least 3, got ${n}`;
-    }
-    let r = _num(r, "regular_polygon_points: r");
-    let out = [];
-    for i in 0..n {
-        let a = 360.0 * i / n;
-        out.push([r * cosd(a), r * sind(a)]);
-    }
-    out
-}
-
-/// star_points(n: number, r: [number, number]): Vec2[]
-///
-/// The corners of `star(n, r)`, anticlockwise from the point on +X, points and inner corners in turn.
-///
-/// - `n`: the number of points, 2 or more
-/// - `r`: `[outer, inner]`, the radius of the points and that of the inner corners
-///
-/// See also: `star`, `regular_polygon_points`, `polygon_clip`.
-///
-/// Example: the corners of a star of 2 points, a rhombus.
-/// ```
-/// star_points(2, [10, 5])
-/// ```
-fn star_points(n, r) {
-    if type_of(n) != "i64" || n < 2 {
-        throw `star_points: n must be an integer of at least 2, got ${n}`;
-    }
-    let r = _pair(r, "star_points: r");
-    let ro = _num(r[0], "star_points: r");
-    let ri = _num(r[1], "star_points: r");
-    let out = [];
-    for i in 0..n {
-        let a = 360.0 * i / n;
-        let b = a + 180.0 / n;
-        out.push([ro * cosd(a), ro * sind(a)]);
-        out.push([ri * cosd(b), ri * sind(b)]);
-    }
-    out
-}
-
-/// bezier_points(points: Vec2[] | Vec3[], n: number): Vec2[] | Vec3[]
-///
-/// Points along a Bézier curve, for an outline that follows the curve.
-///
-/// - `points`: the control points, 2D or 3D, as for `bezier_point`
-/// - `n`: the number of steps, 1 or more
-///
-/// There are `n + 1` points, at evenly spaced values of the curve's parameter `t`, from the first control point to the last.
-/// They are not evenly spaced along the curve.
-///
-/// Notes:
-/// - A `polygon` through them has straight edges, so it is only as smooth as `n` makes it.
-///
-/// See also: `bezier_point`, `bezier_stroke`, `polygon`.
-///
-/// References:
-/// - [Bézier curve, Wikipedia](https://en.wikipedia.org/wiki/B%C3%A9zier_curve)
-///
-/// From OpenSCAD: `bezier3(points, n)` is `bezier_points(points, n)`.
-///
-/// Example: the points of a curve from three control points, in two steps.
-/// ```
-/// bezier_points([[0, 0], [10, 20], [20, 0]], 2)
-/// ```
-/// Example: a fin with a curved back, its outline a curve closed by a straight base.
-/// ```
-/// let curve = [[0, 0], [5, 30], [30, 25], [40, 0]];
-/// polygon(bezier_points(curve, 24))
-/// ```
-fn bezier_points(points, n) {
-    if type_of(n) != "i64" || n < 1 {
-        throw `bezier_points: n must be an integer of at least 1, got ${n}`;
-    }
-    let out = [];
-    for i in 0..=n {
-        out.push(bezier_point(points, i.to_float() / n));
-    }
-    out
-}
-
-/// pts_move(points: Vec2[] | Vec3[], v: Vec2 | Vec3): Vec2[] | Vec3[]
-///
-/// Points ("pts") moved by a vector.
-///
-/// - `points`: the points, 2D or 3D
-/// - `v`: the move; a 2D `v` moves 3D points along X and Y only
-///
-/// See also: `move`, `pts_rotate`, `pts_scale`.
-///
-/// Example: two points moved 10 along X.
-/// ```
-/// pts_move([[0, 0], [1, 2]], [10, 0])
-/// ```
-fn pts_move(points, v) {
-    let v = _array(v, "pts_move: v");
-    _pts(points, "pts_move").map(|p| {
-        let q = p;
-        for i in 0..min(p.len(), v.len()) {
-            q[i] += v[i];
-        }
-        q
-    })
-}
-
-/// pts_rotate(points: Vec2[] | Vec3[], angle: number): Vec2[] | Vec3[]
-///
-/// Points ("pts") turned about the Z axis, as `rotate_z` turns shapes.
-///
-/// - `points`: the points, 2D or 3D
-/// - `angle`: the turn, in degrees, anticlockwise looking down
-///
-/// See also: `rotate_z`, `pts_move`, `pts_scale`.
-///
-/// Example: a point on +X turned a quarter turn.
-/// ```
-/// pts_rotate([[10, 0]], 90)
-/// ```
-fn pts_rotate(points, angle) {
-    let a = _num(angle, "pts_rotate: angle");
-    let c = cosd(a);
-    let s = sind(a);
-    _pts(points, "pts_rotate").map(|p| {
-        let q = p;
-        q[0] = p[0] * c - p[1] * s;
-        q[1] = p[0] * s + p[1] * c;
-        q
-    })
-}
-
-/// pts_scale(points: Vec2[] | Vec3[], s: number | Vec2 | Vec3): Vec2[] | Vec3[]
-///
-/// Points ("pts") scaled about the origin.
-///
-/// - `points`: the points, 2D or 3D
-/// - `s`: one factor for every axis, or one for each
-///
-/// A polygon through scaled points keeps an exact field.
-/// `scale` on the polygon itself leaves only a bound when it scales the axes differently.
-///
-/// See also: `scale`, `pts_move`, `pts_mirror_x`.
-///
-/// From OpenSCAD: `scale([2, 1]) polygon(points)` is `polygon(pts_scale(points, [2, 1]))`.
-///
-/// Example: two points stretched to twice their distance along X.
-/// ```
-/// pts_scale([[1, 1], [2, -1]], [2, 1])
-/// ```
-fn pts_scale(points, s) {
-    let s = if _is_number(s) { [s.to_float(), s.to_float(), s.to_float()] } else { _array(s, "pts_scale: s") };
-    _pts(points, "pts_scale").map(|p| {
-        let q = p;
-        for i in 0..min(p.len(), s.len()) {
-            q[i] *= s[i];
-        }
-        q
-    })
-}
-
-/// pts_mirror_x(points: Vec2[] | Vec3[]): Vec2[] | Vec3[]
-///
-/// Points ("pts") mirrored across the Y axis, each X negated.
-///
-/// - `points`: the points, 2D or 3D
-///
-/// The order is kept, so an outline through the points goes round the other way.
-///
-/// See also: `reflect`, `pts_mirror_y`.
-///
-/// Example: a symmetric outline, its right half given and its left half mirrored.
-/// ```
-/// let half = [[0, 0], [15, 0], [10, 20], [0, 25]];
-/// let other = pts_mirror_x(half);
-/// other.reverse();
-/// polygon(half + other)
-/// ```
-fn pts_mirror_x(points) {
-    pts_scale(points, [-1.0, 1.0, 1.0])
-}
-
-/// pts_mirror_y(points: Vec2[] | Vec3[]): Vec2[] | Vec3[]
-///
-/// Points ("pts") mirrored across the X axis, each Y negated.
-///
-/// - `points`: the points, 2D or 3D
-///
-/// The order is kept, so an outline through the points goes round the other way.
-///
-/// See also: `reflect`, `pts_mirror_x`.
-///
-/// Example: two points mirrored below the X axis.
-/// ```
-/// pts_mirror_y([[1, 2], [3, 4]])
-/// ```
-fn pts_mirror_y(points) {
-    pts_scale(points, [1.0, -1.0, 1.0])
-}
-
-// A list of points as arrays of floats.
-fn _pts(points, what) {
-    if type_of(points) != "array" {
-        throw `${what}: points must be an array of points, got ${type_of(points)}`;
-    }
-    points.map(|p| _array(p, `${what}: a point`))
-}
-
-/// polygon_clip(a: Outline, b: Outline, op: "intersection" | "union" | "difference"): Point[][]
-/// type Outline = Point[] | Point[][]
-/// type Point = Vec2 | [number, number, #{ arc: number }]
-///
-/// The intersection, union or difference of two outlines, as new points.
-///
-/// - `a`, `b`: the outlines, each a list of points as `polygon` takes them, either way round, or a list of such lists for an outline of several parts or with holes
-/// - `op`: `"intersection"`, `"union"`, or `"difference"`, `a` without `b`
-///
-/// The result is a list of loops, anticlockwise round each part and clockwise round each hole.
-/// `polygon`, `rounded_polygon` and `polygon_clip` itself take it as it is.
-/// An edge that is an arc stays one, `[x, y, #{arc: r}]` as in `rounded_polygon`.
-/// Outlines that share an edge leave no seam there: two squares side by side make one rectangle.
-/// When nothing is left, the result is an empty list.
-///
-/// Shapes combined with `union` or `difference` have a field that is only a bound in places.
-/// A polygon through the result's points has an exact field instead, so its offsets come out right.
-/// `rounded_polygon` can also round the corners where the outlines met.
-///
-/// Each edge is cut where the other outline meets it.
-/// A piece is kept by whether its middle lies inside the other outline, outside it, or along one of its edges.
-/// The kept pieces are then joined into loops.
-///
-/// Notes:
-/// - It works on numbers when the script runs, so it makes no field.
-/// - The points are exact to about a millionth of the outlines' size.
-/// - The outlines must not cross themselves.
-/// - Parts that meet at a single point come out as loops of their own.
-/// - About `n * m` steps for outlines of `n` and `m` edges.
-///
-/// See also: `polygon`, `rounded_polygon`, `revolve`.
-///
-/// References:
-/// - [Boolean operations on polygons, Wikipedia](https://en.wikipedia.org/wiki/Boolean_operations_on_polygons)
-/// - [Greiner-Hormann clipping algorithm, Wikipedia](https://en.wikipedia.org/wiki/Greiner%E2%80%93Hormann_clipping_algorithm), a related method
-///
-/// From OpenSCAD: `difference() { polygon(a); polygon(b); }` is `polygon(polygon_clip(a, b, "difference"))`, and the same for `union` and `intersection`.
-///
-/// Example: a plate with a round notch, its corners then rounded.
-/// ```
-/// let plate = [[-20, -10], [20, -10], [20, 10], [-20, 10]];
-/// let notch = [[8, 10, #{arc: 8}], [-8, 10, #{arc: 8}]];
-/// rounded_polygon(polygon_clip(plate, notch, "difference"), 2)
-/// ```
-fn polygon_clip(a, b, op) {
-    if !["intersection", "union", "difference"].contains(op) {
-        throw `polygon_clip: op must be "intersection", "union" or "difference", got ${op}`;
-    }
-    let ea = _clip_edges(a, "polygon_clip: a");
-    let eb = _clip_edges(b, "polygon_clip: b");
+// The intersection, union or difference of the outlines `a` and `b`, for
+// `points::union` and its kin and for `revolve`'s profiles, as loops of
+// points, anticlockwise round each part and clockwise round each hole.
+fn _polygon_clip(a, b, op, what) {
+    let ea = _clip_edges(a, `${what}: a`);
+    let eb = _clip_edges(b, `${what}: b`);
     let eps = 1e-6 * _outline_size(ea + eb);
     // Each edge cut where the other outline meets it, so that each piece
     // lies inside the other outline, outside it, or along one of its edges.
@@ -2081,7 +1747,7 @@ fn polygon_clip(a, b, op) {
         }
     }
     let loops = [];
-    for chain in _chain(kept, eps) {
+    for chain in _chain(kept, eps, what) {
         let chain = _merge_pieces(chain, eps);
         if chain.len() >= 2 && abs(_loop_area(chain)) > eps * eps {
             loops.push(chain.map(|e| _vertex_point(e)));
@@ -2090,7 +1756,7 @@ fn polygon_clip(a, b, op) {
     loops
 }
 
-// An outline for `polygon_clip`: its loops' edges, all in one list.
+// An outline for `_polygon_clip`: its loops' edges, all in one list.
 fn _clip_edges(v, what) {
     let edges = [];
     for ring in _outline(v, what) {
@@ -2240,7 +1906,7 @@ fn _classify(e, edges, eps) {
 // the one that turns furthest left does: with the inside on the left,
 // that keeps each loop round its own part, and parts that only touch
 // apart.
-fn _chain(edges, eps) {
+fn _chain(edges, eps, what) {
     let used = edges.map(|e| false);
     let loops = [];
     for i in 0..edges.len() {
@@ -2272,7 +1938,7 @@ fn _chain(edges, eps) {
                 break;
             }
             if next == -2 {
-                throw "polygon_clip: an outline does not close; do the outlines cross themselves?";
+                throw `${what}: an outline does not close; do the outlines cross themselves?`;
             }
             used[next] = true;
             chain.push(edges[next]);
@@ -2332,7 +1998,7 @@ fn _join_pieces(e, f, eps) {
     ()
 }
 
-// The point an edge starts from, as `polygon_clip` gives it.
+// The point an edge starts from, as `_polygon_clip` gives it.
 fn _vertex_point(e) {
     if type_of(e.arc) == "()" {
         [e.a[0], e.a[1]]

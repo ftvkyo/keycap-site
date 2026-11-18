@@ -9,6 +9,8 @@
 //
 // Compared with the original: within 0.11 mm, at the hollow's facets.
 
+import "keycap/points" as points;
+
 // --- Parameters ---
 
 const R = 70.0;             // circumradius of the hexagon
@@ -29,12 +31,12 @@ let base = regular_polygon(6, R - ROUNDING)
     .intersection(-z);
 
 // The hollow: a cubic Bézier from the floor's centre to the rim, revolved.
-let points = bezier_points([[0.0, FLOOR], [R / 2, FLOOR], [R / 2, H], [R, H]], 24);
+let profile = points::bezier([[0.0, FLOOR], [R / 2, FLOOR], [R / 2, H], [R, H]], 24);
 // The profile reaches past the axis: with its edge on the axis, the
 // hollow's field would be 0 all along it, and cutting it would leave a fin
 // of no thickness standing in the middle.
-points += [[2.0 * R, H], [2.0 * R, 2.0 * H], [-1.0, 2.0 * H], [-1.0, FLOOR]];
-let hollow = polygon(points).revolve();
+profile += [[2.0 * R, H], [2.0 * R, 2.0 * H], [-1.0, 2.0 * H], [-1.0, FLOOR]];
+let hollow = polygon(profile).revolve();
 
 let bowl = base.difference(hollow);
 

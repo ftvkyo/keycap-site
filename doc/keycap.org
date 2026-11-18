@@ -847,7 +847,7 @@ They are described in [[*Prelude reference]].
 Functions named with a leading =_= are the prelude's internals.
 
 The files in its =modules= directory load only when a script imports them by name, as in =import "keycap/screws" as screws;=.
-They hold standard parts, such as threads, screws, nuts, inserts, magnets, bearings and aluminium extrusions, and joints for laser cutting.
+They hold standard parts, such as threads, screws, nuts, inserts, magnets, bearings and aluminium extrusions, joints for laser cutting, and arithmetic on lists of points.
 They are described in [[*Modules reference]].
 
 To add your own library everywhere, copy the prelude directory, add files to it and point ~keycap-prelude-directory~ there.
@@ -1402,7 +1402,7 @@ Options are a map, every key optional.
 
 * Modules reference
 :PROPERTIES:
-:DESCRIPTION: Standard parts and laser-cut joints, imported by name.
+:DESCRIPTION: Standard parts, laser-cut joints and point arithmetic, imported by name.
 :END:
 #+cindex: modules, reference
 
@@ -1482,6 +1482,20 @@ Check a dimension against the datasheet of the part you have before relying on i
 #+cindex: laser cutting, joints
 
 #+keycap-reference: prelude/modules/lasercut.rhai
+
+** Points
+:PROPERTIES:
+:DESCRIPTION: Arithmetic on lists of points, for outlines measured or traced.
+:END:
+#+cindex: points
+#+cindex: polygons, from points
+
+These take points and give points: they move, turn, mirror, offset and combine an outline's corners when the script runs, and make no field.
+~polygon~, ~rounded_polygon~, ~stroke~ and ~capsule~ make one from what they give.
+An outline built from points costs several times what primitives and their combinations do, to load and to render; see [[*Performance]].
+So they are for outlines measured or traced, and for one that must be rounded exactly after it is combined.
+
+#+keycap-reference: prelude/modules/points.rhai
 
 * Recipes
 :PROPERTIES:
@@ -1741,7 +1755,7 @@ Transforms are methods on the shape they apply to.
 | =square([a, b])=                                | ~rect([a, b], #{anchor: [-1, -1]})~                               |
 | =polygon(points)=                               | ~polygon(points)~, or ~rounded_polygon~ for round corners         |
 | =polygon= of several paths, holes included      | ~polygon([outline, hole, ...])~                                   |
-| =union()=, =difference()= of polygons           | ~polygon_clip(a, b, "union")~, on their points                    |
+| =union()=, =difference()= of polygons           | ~points::union(a, b)~, on their points                            |
 | =rotate_extrude() polygon(points)=              | ~revolve(points)~                                                 |
 | =polyhedron(points, faces)=                     | none; see [[*Porting point-layer and polyhedron designs]]             |
 | =translate(v)=                                  | ~move(v)~                                                         |
@@ -1759,7 +1773,7 @@ Transforms are methods on the shape they apply to.
 | =rotate_extrude()=                              | ~revolve()~                                                       |
 | =rotate_extrude(angle = a)=, with =$fn = n=     | ~revolve(a)~, ~revolve(a, #{sides: n})~                           |
 | =offset(r = d)=                                 | ~offset(d)~, on an exact field                                    |
-| =offset(delta = d)=                             | ~polygon(miter_offset(points, d))~                                |
+| =offset(delta = d)=                             | ~polygon(points::miter_offset(points, d))~                        |
 | =offset(-r) offset(r)=, closing                 | ~rounded_polygon(points, 0, #{concave: r})~, or ~union_round~     |
 | =offset(r) offset(-r)=, opening                 | ~rounded_polygon(points, r, #{concave: 0})~, or ~blend~ (below)   |
 | =minkowski() { s; sphere(r); }=                 | ~offset(s, r)~, on an exact field                                 |
@@ -2028,7 +2042,7 @@ The package's =examples/= directory holds complete models:
 - =fan-grill.keycap= :: a 2D drawing of a fan grill: a honeycomb from ~hex_grid~, best seen in the sdf view.
 - =skadis-towel-hook.keycap= :: a hook for an IKEA SKÅDIS pegboard, importing the board and its peg from =skadis.rhai=.
 - =knob.keycap= :: the handle of a knob, with a waist and a dished top: a revolved profile cut with ellipses, its cusps opened with ~blend~, and a ring of ~ellipsoid~ bumps tilted with the dish.
-- =hex-bowl.keycap= :: a hexagonal bowl pierced by a honeycomb: a rounded prism from ~offset~, a hollow revolved from ~bezier_points~, holes from ~hex_grid~.
+- =hex-bowl.keycap= :: a hexagonal bowl pierced by a honeycomb: a rounded prism from ~offset~, a hollow revolved from ~points::bezier~, holes from ~hex_grid~.
 - =badge.keycap= :: a pin badge and its strap bracket: artwork drawn as strokes, imported with ~svg~ and turned into printable lines with ~offset~.
 - =vase-interpolate.keycap= :: a vase whose outline turns from hexagon to hexagram, back, and into a circle, swaying and widening as it rises: ~star~ with a ~keyframes~ inner radius, ~lerp~ of fields, ~loft~ and a ~shell~ of even thickness.
 - =vase-koch.keycap= :: a vase on a Koch snowflake, widening and turning: a fold by mirrors at each level of the fractal, ~loft~.
@@ -2036,10 +2050,10 @@ The package's =examples/= directory holds complete models:
 - =dna-loop.keycap= :: a double helix wound round a ring, with rungs: ~helix~, ~bend~, and one rung repeated and turned with the strands.
 - =feather.keycap= :: a feather the length of a bed's diagonal, with two hundred barbs of Bézier curves whose control points run along Bézier curves: ~bezier_stroke~ with a tapering width, the stem's ends cut square with ~intersection_round~, ~bezier_point~.
 - =bed-washers.keycap= :: bed-levelling washers, 0.5 to 1.0 mm thick, their outlines' sides telling the thickness: ~linear_array~ of rows.
-- =scraper.keycap= :: a bed scraper with scallops for the fingers and a label: an outline from ~polygon_clip~ of circles, its corners rounded by ~rounded_polygon~, ~text~.
+- =scraper.keycap= :: a bed scraper with scallops for the fingers and a label: an outline from ~points::difference~ of circles, its corners rounded by ~rounded_polygon~, ~text~.
 - =phone-stand.keycap= :: a phone stand with every edge rounded: OpenSCAD's minkowski sum with a sphere, exactly, as prisms grown by ~offset~ and extruded with rounded rims.
 - =laptop-stand.keycap= :: two laser-cut legs crossed on printed hinges, and a lock: ~rounded_polygon~ outlines with arcs, the 2D parts laid out on =keycap/lasercut='s ~sheet~ for ~keycap-export-2d~.
-- =laptop-stand-2.keycap= :: the laptop stand's second version, its hinges' arms rounded: a profile from ~polygon_clip~, opened exactly by ~rounded_polygon~.
+- =laptop-stand-2.keycap= :: the laptop stand's second version, its hinges' arms rounded: a profile from ~points::union~ and ~points::intersection~, opened exactly by ~rounded_polygon~.
 - =vase-funky-2.keycap= :: a vase of hexagons on hexagons, twisting and widening along Bézier schedules: ~union_round~ of 43 opened hexagons, a twist from ~bezier_integral~.
 - =vase-practical.keycap= :: a vase on a hexagram rounded both ways, turning a sixth as it rises: ~star~ with rounded points, ~loft~.
 - =whistle.keycap= :: a whistle with its sizes printed on top, and a slider that tunes it: ~text~ from numbers, ~stroke~ and ~union_round~, a part to slice across Z.
@@ -2049,7 +2063,7 @@ The package's =examples/= directory holds complete models:
 - =spike.keycap= :: a stud that screws through fabric, and the drivers that hold it: a twisted-ellipse thread, ~revolve~ from a profile's points.
 - =pointer.keycap= :: a pointing hand of square prisms and octahedra, in halves to print: ~elongate~ of an ~octahedron~.
 - =bendy-sheet.keycap= :: a plywood sheet that bends into a half pipe, and its supports: =keycap/lasercut='s ~living_hinge~ and ~cross_lap~.
-- =intake-manifold.keycap= :: four runners merging into a collector, hollow: tubes along 3D Bézier curves from ~bezier_points~ and ~capsule~, blended with ~smooth_union~, then a ~shell~.
+- =intake-manifold.keycap= :: four runners merging into a collector, hollow: tubes along 3D Bézier curves from ~points::bezier~ and ~capsule~, blended with ~smooth_union~, then a ~shell~.
 - =bar-hook.keycap= :: an S-hook for a round or square bar, drawn flat as a pen would: ~arc_stroke~ and ~stroke~, extruded with rounded rims.
 - =desk-cable-clip.keycap= :: a clamp for a desk's edge with a ring a cable snaps into, drawn as its side: ~arc_stroke~, ~stroke~ and ~union_round~.
 - =command-strip-hook.keycap= :: a hook on a back sized for an adhesive strip: a ~bezier_stroke~ hook filleted into the back with ~union_round~.

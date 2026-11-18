@@ -11,8 +11,9 @@
 //   not have.
 // - A leg's corners are rounded by rounded_polygon, convex ones by
 //   ROUNDING and concave ones by 1: the original's opening and closing,
-//   exactly.  Its outline is scaled by pts_scale, so its field stays exact.
-// - The lock's outline, its middle and its teeth, is found by polygon_clip
+//   exactly.  Its outline is scaled by points::scale, so its field stays
+//   exact.
+// - The lock's outline, its middle and its teeth, is found by points::union
 //   when the script runs; its 2D cut is the original's opening of it,
 //   rounded_polygon's convex corners, exactly.  The 3D lock extrudes the
 //   same outline, since a rotate_extrude of a square is a ring's sector
@@ -22,6 +23,7 @@
 // Compared with the original: the parts within 0.014 mm, the assembly by eye.
 
 import "keycap/lasercut" as lc;
+import "keycap/points" as points;
 
 // --- Parameters ---
 
@@ -86,8 +88,8 @@ fn leg_points() {
 // recesses down, apart on the two legs.
 fn leg_2d(hole_offset) {
     // Seen square to the leg, which leans out by LEG_ANGLE
-    let points = pts_scale(leg_points(), [1 / cosd(global::LEG_ANGLE), 1.0]);
-    let base = rounded_polygon(points, global::ROUNDING, #{concave: 1.0});
+    let outline = points::scale(leg_points(), [1 / cosd(global::LEG_ANGLE), 1.0]);
+    let base = rounded_polygon(outline, global::ROUNDING, #{concave: 1.0});
     let holes = [];
     for hole in global::HOLES {
         let x = hole[0] - global::LEG_THICKNESS;
@@ -153,8 +155,8 @@ fn lock_outline() {
     let width = global::HOLE_CAP_R * 1.5;
     let outline = lock_middle();
     for r in lock_radii() {
-        outline = polygon_clip(outline, tooth(r, width, a, a + span), "union");
-        outline = polygon_clip(outline, tooth(r, width, -a - span, -a), "union");
+        outline = points::union(outline, tooth(r, width, a, a + span));
+        outline = points::union(outline, tooth(r, width, -a - span, -a));
     }
     outline
 }

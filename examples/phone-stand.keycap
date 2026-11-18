@@ -16,6 +16,8 @@
 //
 // Compared with the original: within 0.051 mm.
 
+import "keycap/points" as points;
+
 // --- Parameters ---
 
 const PHONE = [75.7, 8.9, 165.0];
@@ -55,19 +57,18 @@ fn profile() {
     let h = global::HEIGHT;
     let d = global::DEPTH;
     let tilt = global::PHONE_TILT;
-    let block = polygon_clip(
+    let block = points::intersection(
         rect_points([t - d / 2, h / 2], [d, h]),
-        pts_rotate(rect_points([0.0, 0.0], [d * 2, h * 2]), tilt),
-        "intersection",
+        points::rotate(rect_points([0.0, 0.0], [d * 2, h * 2]), tilt),
     );
-    let slot = pts_rotate(rect_points([t * 7 / 4, h / 2], [t, h * 2]), tilt);
-    polygon_clip(block, slot, "difference").map(|part| part.map(|p| [-p[0], p[1]]))
+    let slot = points::rotate(rect_points([t * 7 / 4, h / 2], [t, h * 2]), tilt);
+    points::mirror(points::difference(block, slot), "x")
 }
 
 // The profile cut to a range of Y
 fn profile_between(y0, y1) {
     let big = global::DEPTH * 4;
-    polygon_clip(profile(), rect_points([(y0 + y1) / 2, 0.0], [y1 - y0, big]), "intersection")
+    points::intersection(profile(), rect_points([(y0 + y1) / 2, 0.0], [y1 - y0, big]))
 }
 
 // A prism of `loops` (Y, Z) from x0 to x1, grown by `r` every way: the

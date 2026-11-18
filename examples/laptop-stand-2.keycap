@@ -10,7 +10,7 @@
 //   (the original's projection(cut = true)), "leg1" and "leg2" the 2D cuts.
 // - A leg's corners are rounded by rounded_polygon, convex ones by ROUNDING
 //   and concave ones by 1: the original's opening and closing, exactly.
-// - A hinge arm's profile is found by polygon_clip when the script runs.
+// - A hinge arm's profile is found by keycap/points when the script runs.
 //   The original's minkowski of its offset profile with a sphere is then
 //   that profile's opening by JOINT_ROUNDING, rounded_polygon's convex
 //   corners, extruded with its rims rounded by the same: exact.
@@ -18,6 +18,8 @@
 //
 // Compared with the original: the parts within 0.047 mm, the assembly's
 // volume within 0.08%.
+
+import "keycap/points" as points;
 
 // --- Parameters ---
 
@@ -83,8 +85,8 @@ fn leg_points() {
 // recesses down, apart on the two legs.
 fn leg_2d(hole_offset) {
     // Seen square to the leg, which leans out by LEG_ANGLE
-    let points = pts_scale(leg_points(), [1 / cosd(global::LEG_ANGLE), 1.0]);
-    let base = rounded_polygon(points, global::ROUNDING, #{concave: 1.0});
+    let outline = points::scale(leg_points(), [1 / cosd(global::LEG_ANGLE), 1.0]);
+    let base = rounded_polygon(outline, global::ROUNDING, #{concave: 1.0});
     let holes = [];
     for hole in global::HOLES {
         let x = hole[0] - global::LEG_THICKNESS;
@@ -117,13 +119,12 @@ fn rect_points(center, size) {
 fn arm_profile(extent) {
     let t = global::LEG_THICKNESS;
     let a = global::LEG_ANGLE;
-    let strips = polygon_clip(
+    let strips = points::union(
         rect_points([extent / 2, t * 3 / 2], [extent, t]),
-        pts_rotate(rect_points([extent / 4 + t / 2 + global::NOZ, 0.0], [extent / 2, t]), a),
-        "union",
+        points::rotate(rect_points([extent / 4 + t / 2 + global::NOZ, 0.0], [extent / 2, t]), a),
     );
-    let inside = polygon_clip(strips, rect_points([extent / 2, t / 2], [extent, t * 3]), "intersection");
-    polygon_clip(inside, pts_rotate(rect_points([extent, -t * 3 / 2], [extent * 2, t * 4]), a), "intersection")
+    let inside = points::intersection(strips, rect_points([extent / 2, t / 2], [extent, t * 3]));
+    points::intersection(inside, points::rotate(rect_points([extent, -t * 3 / 2], [extent * 2, t * 4]), a))
 }
 
 // The arm of a hinge that a leg is screwed to

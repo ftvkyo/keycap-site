@@ -432,14 +432,14 @@ fn _revolve_outline(points, opts) {
     let far = max(hi[0], -lo[0]) + m;
     let right = [[0.0, lo[1] - m], [far, lo[1] - m], [far, hi[1] + m], [0.0, hi[1] + m]];
     let profile = loops.map(|ring| ring.map(|w| if type_of(w.arc) == "()" { w.p } else { [w.p[0], w.p[1], #{arc: w.arc}] }));
-    let half = polygon_clip(profile, right, "intersection");
+    let half = _polygon_clip(profile, right, "intersection", "revolve");
     if half.is_empty() {
-        half = polygon_clip(_mirror_x(profile), right, "intersection");
+        half = _polygon_clip(_mirror_x(profile), right, "intersection", "revolve");
     }
     if half.is_empty() {
         throw "revolve: the profile's points enclose nothing";
     }
-    let whole = polygon_clip(half, _mirror_x(half), "union");
+    let whole = _polygon_clip(half, _mirror_x(half), "union", "revolve");
     let r = _num(_opt(opts, "round", 0.0), "revolve: round");
     let concave = _num(_opt(opts, "concave", r), "revolve: concave");
     if r == 0.0 && concave == 0.0 { polygon(whole) } else { rounded_polygon(whole, r, #{concave: concave}) }

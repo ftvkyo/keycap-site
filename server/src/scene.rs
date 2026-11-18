@@ -276,7 +276,7 @@ mod test {
         "rounded_polygon([[-6, -4], [6, -4, #{arc: 5}], [6, 4], [-6, 4, #{arc: -5}]], 1)",
         "rounded_polygon([[6, 0, #{arc: 6}], [-6, 0, #{arc: 6}]], 0)",
         "polygon([[[-8, -8], [8, -8], [8, 8], [-8, 8]], [[-4, -4], [4, -4], [4, 4], [-4, 4]]])",
-        r#"rounded_polygon(polygon_clip([[-8, -6], [8, -6], [8, 6], [-8, 6]], [[4, 6, #{arc: 4}], [-4, 6, #{arc: 4}]], "difference"), 1)"#,
+        "rounded_polygon([[-8, -6], [8, -6], [8, 6], [4, 6, #{arc: -4}], [-4, 6], [-8, 6]], 1)",
         "rounded_polygon([[0, 0], [10, 0], [6, 5], [4, 5]], 2)",
         "regular_polygon(6, 8, #{round: 2})",
         "star(5, [10, 4], #{round: [2, 1]})",
@@ -546,53 +546,68 @@ mod test {
         }
     }
 
-    /// polygon_clip's loops, point by point: crossing squares, squares
-    /// that share an edge or only a corner, a hole, edges that overlap in
-    /// part, a notch of two half circles, and nothing in common.
+    /// The points module's combinations, point by point: crossing squares,
+    /// squares that share an edge or only a corner, a hole, edges that
+    /// overlap in part, a notch of two half circles, and nothing in common;
+    /// and its mirrors, which keep an outline going the same way round.
     #[test]
-    fn polygon_clips_give_their_points() {
+    fn point_combinations_give_their_points() {
         let prelude = Path::new(env!("CARGO_MANIFEST_DIR")).join("../prelude");
         let mut engine = Engine::new(Some(&prelude));
         let square = "[[0, 0], [10, 0], [10, 10], [0, 10]]";
         let cases = [
             (
-                format!(r#"polygon_clip({square}, [[5, 5], [15, 5], [15, 15], [5, 15]], "intersection")"#),
+                format!(r#"points::intersection({square}, [[5, 5], [15, 5], [15, 15], [5, 15]])"#),
                 "[[[10.0, 5.0], [10.0, 10.0], [5.0, 10.0], [5.0, 5.0]]]",
             ),
             (
-                format!(r#"polygon_clip({square}, [[5, 5], [15, 5], [15, 15], [5, 15]], "difference")"#),
+                format!(r#"points::difference({square}, [[5, 5], [15, 5], [15, 15], [5, 15]])"#),
                 "[[[0.0, 0.0], [10.0, 0.0], [10.0, 5.0], [5.0, 5.0], [5.0, 10.0], [0.0, 10.0]]]",
             ),
             (
-                format!(r#"polygon_clip({square}, [[10, 0], [20, 0], [20, 10], [10, 10]], "union")"#),
+                format!(r#"points::union({square}, [[10, 0], [20, 0], [20, 10], [10, 10]])"#),
                 "[[[0.0, 0.0], [20.0, 0.0], [20.0, 10.0], [0.0, 10.0]]]",
             ),
             (
-                format!(r#"polygon_clip({square}, [[10, 10], [20, 10], [20, 20], [10, 20]], "union")"#),
+                format!(r#"points::union({square}, [[10, 10], [20, 10], [20, 20], [10, 20]])"#),
                 "[[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]], \
                  [[10.0, 10.0], [20.0, 10.0], [20.0, 20.0], [10.0, 20.0]]]",
             ),
             (
-                format!(r#"polygon_clip({square}, [[2, 2], [8, 2], [8, 8], [2, 8]], "difference")"#),
+                format!(r#"points::difference({square}, [[2, 2], [8, 2], [8, 8], [2, 8]])"#),
                 "[[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]], \
                  [[8.0, 2.0], [2.0, 2.0], [2.0, 8.0], [8.0, 8.0]]]",
             ),
             (
-                r#"polygon_clip([[0, 0], [40, 0], [40, 10], [0, 10]], [[0, 0], [10, 0], [10, 30], [0, 30]], "union")"#
+                r#"points::union([[0, 0], [40, 0], [40, 10], [0, 10]], [[0, 0], [10, 0], [10, 30], [0, 30]])"#
                     .into(),
                 "[[[0.0, 0.0], [40.0, 0.0], [40.0, 10.0], [10.0, 10.0], [10.0, 30.0], [0.0, 30.0]]]",
             ),
             (
-                r#"polygon_clip([[-20, -10], [20, -10], [20, 10], [-20, 10]], [[8, 10, #{arc: 8}], [-8, 10, #{arc: 8}]], "difference")"#
+                r#"points::difference([[-20, -10], [20, -10], [20, 10], [-20, 10]], [[8, 10, #{arc: 8}], [-8, 10, #{arc: 8}]])"#
                     .into(),
                 "[[[-20.0, -10.0], [20.0, -10.0], [20.0, 10.0], [8.0, 10.0, #{\"arc\": -8.0}], [-8.0, 10.0], [-20.0, 10.0]]]",
             ),
             (
-                format!(r#"polygon_clip({square}, [[20, 0], [30, 0], [30, 10]], "intersection")"#),
+                format!(r#"points::intersection({square}, [[20, 0], [30, 0], [30, 10]])"#),
                 "[]",
+            ),
+            (
+                r#"points::mirror([[0, 0], [15, 0], [10, 20, #{arc: 30}], [0, 25]], "x")"#.into(),
+                "[[0.0, 25.0, #{\"arc\": 30}], [-10.0, 20.0], [-15.0, 0.0], [0.0, 0.0]]",
+            ),
+            (
+                r#"points::mirror([[1, 2], [3, 4, 0.5], [5, 6, #{arc: 3, round: 1}], [7, 8, #{round: 2}]], [[0, 0], [1, 1]])"#
+                    .into(),
+                "[[8.0, 7.0, #{\"arc\": 3, \"round\": 2}], [6.0, 5.0, #{\"round\": 1}], [4.0, 3.0, 0.5], [2.0, 1.0]]",
+            ),
+            (
+                r#"points::mirror([[[0, 0], [4, 0], [4, 4]], [[1, 1, #{arc: -2}], [2, 1], [2, 2]]], "y")"#.into(),
+                "[[[4.0, -4.0], [4.0, 0.0], [0.0, 0.0]], [[2.0, -2.0], [2.0, -1.0, #{\"arc\": -2}], [1.0, -1.0]]]",
             ),
         ];
         for (source, expected) in cases {
+            let source = format!("import \"keycap/points\" as points;\n{source}");
             let (_, result) = engine.run(&source, None, &Overrides::new());
             let value = result.unwrap_or_else(|error| panic!("{source}: {}", error.message));
             assert_eq!(value.to_string(), expected, "{source}");

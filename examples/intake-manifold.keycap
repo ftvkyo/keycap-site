@@ -4,7 +4,7 @@
 // one collector with a throttle body's flange on top; hollow, with thin
 // walls.
 //
-// Each runner is a 3D Bézier curve made a tube: `bezier_points` walks the
+// Each runner is a 3D Bézier curve made a tube: `points::bezier` walks the
 // curve and `capsule` draws a round rod through the points.  The runners
 // and the collector are blended together and then hollowed in one go,
 // so the bores merge as smoothly as the outside does.  The flanges are
@@ -19,6 +19,8 @@
 // view: camera -60 20
 // view: camera 150 -20
 // view: sdf, slice y
+
+import "keycap/points" as points;
 
 // --- Parameters ---
 
@@ -84,7 +86,7 @@ fn runner_path(i) {
         [end[0], end[1], end[2] - reach],
         end,
     ];
-    [[x, 0.0, 0.0]] + bezier_points(curve, global::STEPS)
+    [[x, 0.0, 0.0]] + points::bezier(curve, global::STEPS)
 }
 
 // The capsules' round ends reach below the bed and into the collector;
