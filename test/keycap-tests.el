@@ -421,7 +421,7 @@ it runs the hooks that stop its server and kill its preview."
     (with-temp-buffer
       (keycap--insert-description "circle")
       (should (equal (buffer-string)
-                     (concat "circle is a shape.\n\n"
+                     (concat "circle is a function from fidget.\n\n"
                              "  circle(center: Vec2 = [0, 0], radius: f64): Shape\n"
                              "  circle(#{ center?: Vec2, radius: f64 }): Shape\n\n"
                              "A circle.\n\nIn the XY plane, around its `center`.\n\n"
@@ -438,9 +438,11 @@ it runs the hooks that stop its server and kill its preview."
       (should (equal (button-get (button-at (1- (point))) 'help-args) '("circle" nil)))
       (search-backward "`a`")
       (should-not (button-at (1+ (point)))))
-    ;; Signatures highlighted, their types after them; the doc set out.
+    ;; Signatures highlighted, their types after them, those the manual
+    ;; lists buttons to it; the doc set out.
     (with-temp-buffer
-      (keycap--insert-description "stroke")
+      (let ((keycap--types '("number" "Tree" "Shape" "Vec2")))
+        (keycap--insert-description "stroke"))
       (should (equal (buffer-substring-no-properties (point-min) (point-max))
                      (concat "stroke is a 2D function from the prelude.\n\n"
                              "  stroke(points: Vec2[], width: number | ((t: Tree) => Tree)): Shape\n\n"
@@ -455,6 +457,9 @@ it runs the hooks that stop its server and kill its preview."
         (should (eq (face-at "stroke(") 'font-lock-function-name-face))
         (should (eq (face-at "Vec2") 'font-lock-type-face))
         (should (eq (face-at "Tree") 'keycap-tree-type))
+        (should (equal (button-get (button-at (match-beginning 0)) 'help-args) '("Tree")))
+        (face-at "Width")
+        (should-not (button-at (match-beginning 0)))
         (should (memq 'help-argument-name (ensure-list (face-at "points`:"))))
         (should (memq 'shadow (ensure-list (face-at "Slow"))))))
     ;; The parts of a doc: their leads bold, a comparison quieter, links

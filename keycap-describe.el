@@ -21,13 +21,15 @@
 ;;; Commentary:
 
 ;; What `keycap-describe' shows of a function or a shape: its kind, its
-;; signatures set out for reading, its doc with links to the names it
-;; quotes, and a shape's fields; without a name, the whole reference by
-;; category.  The manual's site sets out signatures the same way.
+;; signatures set out for reading, their types linked to the manual, its
+;; doc with links to the names it quotes, and a shape's fields; without a
+;; name, the whole reference by category.  The manual's site sets out
+;; signatures the same way.
 
 ;;; Code:
 
 (require 'help-mode)
+(require 'info)
 (require 'keycap)
 
 ;; --- Kinds ---
@@ -343,15 +345,58 @@ highlighted and indented.  Point ends at its end."
         (add-face-text-property (match-beginning 3) (match-end 3) 'help-argument-name))))
     (goto-char end)))
 
+;; The types a signature names link to their place in the manual's Types
+;; node, whose list is read for them: each of its terms is a line of
+;; quoted names, as `‘Vec2’, ‘Vec3’'.
+
+(define-button-type 'keycap-type
+  :supertype 'help-xref
+  'help-function #'keycap--show-type
+  'help-echo "mouse-2, RET: read about this type in the manual")
+
+(defvar keycap--types 'unread
+  "The types the manual's Types node lists, once read; nil without the manual.")
+
+(defun keycap--types ()
+  "The types the manual's Types node lists."
+  (when (eq keycap--types 'unread)
+    (setq keycap--types
+          (ignore-errors
+            (with-temp-buffer
+              (Info-mode)
+              (Info-find-node (keycap--manual) "Types" t)
+              (goto-char (point-min))
+              (let (types)
+                (while (re-search-forward "^‘[^’\n]+’\\(?:, ‘[^’\n]+’\\)*$" nil t)
+                  (setq types (append types (split-string (match-string 0) "[‘’, ]+" t))))
+                types)))))
+  keycap--types)
+
+(defun keycap--show-type (type)
+  "Show TYPE in the manual's Types node."
+  (info (format "(%s)Types" (keycap--manual)))
+  (goto-char (point-min))
+  (when (re-search-forward (format "^\\(?:‘[^’\n]+’, \\)*‘%s’" (regexp-quote type)) nil t)
+    (goto-char (match-beginning 0))))
+
 (defun keycap--insert-signatures (signatures types)
-  "Insert SIGNATURES and the TYPES they name, set out and indented."
-  (dolist (line (split-string (keycap-set-out-signatures signatures types) "\n"))
-    (unless (string-empty-p line)
-      (let ((start (point)))
-        (insert "  " line)
-        (put-text-property start (point) 'wrap-prefix
-                           (concat "  " (get-text-property 0 'wrap-prefix line)))))
-    (insert "\n")))
+  "Insert SIGNATURES and the TYPES they name, set out and indented.
+A type the manual describes is a button to it."
+  (let ((known (keycap--types)))
+    (dolist (line (split-string (keycap-set-out-signatures signatures types) "\n"))
+      (unless (string-empty-p line)
+        (let ((start (point)))
+          (insert "  " line)
+          (put-text-property start (point) 'wrap-prefix
+                             (concat "  " (get-text-property 0 'wrap-prefix line)))
+          (while (< start (point))
+            (let ((end (next-single-property-change start 'face nil (point)))
+                  (face (get-text-property start 'face)))
+              (when-let* (((memq face '(font-lock-type-face keycap-tree-type)))
+                          (type (car (member (buffer-substring-no-properties start end) known))))
+                (make-text-button start end 'type 'keycap-type 'face face 'help-args (list type)))
+              (setq start end)))))
+      (insert "\n"))))
 
 (defun keycap--insert-description (name)
   "Insert the description of NAME at point."
@@ -361,15 +406,15 @@ highlighted and indented.  Point ends at its end."
          (category (alist-get 'category entry)))
     (insert (propertize name 'face 'help-for-help-header)
             " is a " (if kind (concat kind " ") "")
+            "function from "
             (if shape
-                "shape"
-              (concat "function from "
-                      (pcase (alist-get 'source entry)
-                        ("rhai" "Rhai")
-                        ("prelude" "the prelude")
-                        ("script" "this script")
-                        ("import" (alist-get 'file entry))
-                        (source source))))
+                "fidget"
+              (pcase (alist-get 'source entry)
+                ("rhai" "Rhai")
+                ("prelude" "the prelude")
+                ("script" "this script")
+                ("import" (alist-get 'file entry))
+                (source source)))
             ;; The kind says what the category would.
             (if (and category (not kind)) (concat ", in " category) "")
             ".\n\n")
