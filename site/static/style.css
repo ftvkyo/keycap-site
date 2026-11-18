@@ -159,6 +159,15 @@ header nav a.logo:hover {
   color: var(--bg);
 }
 
+/* "IDE" after the name, fainter than it, as in print. */
+.ide {
+  color: var(--muted);
+}
+
+header nav a.logo .ide {
+  color: color-mix(in srgb, var(--bg) 55%, var(--accent));
+}
+
 /* The keyboard's first stop, out of sight until it is reached. */
 a.skip,
 a.skip:visited {

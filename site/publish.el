@@ -192,7 +192,7 @@ the name they are published under, and their bytes.")
 ;; --- Page frame ---
 
 (defconst keycap-site-nav
-  '(("" . "keycap")
+  '(("" . "keycap<span class=\"ide\">IDE</span>")
     ("tutorial/index.html" . "Tutorial")
     ("manual/index.html" . "Manual")
     ("gallery/index.html" . "Gallery")
@@ -233,12 +233,20 @@ the name they are published under, and their bytes.")
      (mapconcat (pcase-lambda (`(,href . ,label))
                   (format "<a href=\"%s%s\"%s>%s</a>"
                           up (if (equal href "") "index.html" href)
-                          (cond ((equal href "") " class=\"logo\"")
+                          (cond ((equal href "") " class=\"logo\" aria-label=\"keycap IDE\"")
                                 ((keycap-site-current-p href page) " aria-current=\"page\"")
                                 (t ""))
                           label))
                 keycap-site-nav "")
      "</nav></header>")))
+
+(defun keycap-site-ide-title (html _backend _info)
+  "The front page's title in HTML as the logo has it, IDE in grey."
+  (string-replace "<h1 class=\"title\">keycap</h1>"
+                  "<h1 class=\"title\">keycap<span class=\"ide\">IDE</span></h1>"
+                  html))
+
+(add-to-list 'org-export-filter-final-output-functions #'keycap-site-ide-title)
 
 (defun keycap-site-postamble (_info)
   "The footer of every page."
