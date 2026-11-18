@@ -41,8 +41,10 @@ if [[ -n $root ]]; then
   for repo in keycap keycap-designs rhai-ts-mode; do
     [[ -d $root/$repo ]] || { echo "preview.sh: no $repo checkout in $root" >&2; exit 1; }
   done
-  keycap=$root/keycap
-  designs=$root/keycap-designs
+  # Each checkout resolved, for a root of symlinks: Nix imports a link as
+  # itself, and the server reports the files a script imports where they are.
+  keycap=$(realpath "$root/keycap")
+  designs=$(realpath "$root/keycap-designs")
   (cd "$keycap" && just server-build)
   checkout=(
     --eval "(add-to-list 'load-path \"$keycap\")"
@@ -51,7 +53,7 @@ if [[ -n $root ]]; then
   watch=(--watch "$keycap" --watch "$designs")
   # keycap is on the load path, so the site's Emacs goes without it; its
   # rhai-ts-mode, with the grammar, is built from the checkout.
-  export NPINS_OVERRIDE_rhai_ts_mode=$root/rhai-ts-mode
+  export NPINS_OVERRIDE_rhai_ts_mode=$(realpath "$root/rhai-ts-mode")
   emacs=$(nix-build --no-out-link -A emacs-checkout "$site")
 else
   keycap=$(nix-instantiate --eval --raw -A sources.keycap.outPath "$site")
