@@ -963,6 +963,17 @@ it runs the hooks that stop its server and kill its preview."
     (should (re-search-forward "^version = \"\\(.*\\)\"$"))
     (should (equal (match-string 1) keycap--version))))
 
+(ert-deftest keycap-test-server-version ()
+  (skip-unless keycap-test-server)
+  (should (equal (keycap-version)
+                 (format "keycap %s, keycap-server %s, Emacs %s"
+                         keycap--version keycap--version emacs-version)))
+  (let ((kill-ring nil))
+    (call-interactively #'keycap-version)
+    (should (equal kill-ring (list (keycap-version)))))
+  (let ((keycap-server-program "keycap-test-no-such-server"))
+    (should (string-search ", no keycap-test-no-such-server," (keycap-version)))))
+
 (ert-deftest keycap-test-dialect ()
   (let* ((directory (make-temp-file "keycap-test-" t))
          (file (lambda (name text)

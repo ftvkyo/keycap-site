@@ -138,6 +138,11 @@ Both know the functions the script defines and imports, as of its last evaluatio
 =M-x keycap-guide= opens this manual.
 =C-h S= (~info-lookup-symbol~) finds a function in its index.
 
+#+cindex: bug reports
+#+cindex: version
+#+findex: keycap-version
+=M-x keycap-version= shows the versions of keycap, its server and Emacs, and copies them, for a bug report.
+
 ** The preview
 :PROPERTIES:
 :DESCRIPTION: The window that shows the model.

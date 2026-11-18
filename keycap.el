@@ -226,6 +226,22 @@ stops first."
   (when (process-live-p keycap--server)
     (delete-process keycap--server)))
 
+;;;###autoload
+(defun keycap-version ()
+  "The versions of keycap, of `keycap-server-program' and of Emacs, in a line.
+Interactively, show the line and copy it, for a bug report."
+  (interactive)
+  (let ((version (format "keycap %s, %s, Emacs %s"
+                         keycap--version
+                         (condition-case nil
+                             (car (process-lines keycap-server-program "--version"))
+                           (file-missing (format "no %s" keycap-server-program)))
+                         emacs-version)))
+    (when (called-interactively-p 'any)
+      (kill-new version)
+      (message "%s" version))
+    version))
+
 
 ;; --- Loading ---
 
