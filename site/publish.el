@@ -208,6 +208,8 @@ the name they are published under, and their bytes.")
       org-html-head-include-default-style nil
       org-html-head-include-scripts nil
       org-html-validation-link nil
+      ;; `fms-head' has it.
+      org-html-viewport nil
       org-html-preamble #'fms-preamble
       org-html-postamble #'fms-postamble
       org-html-divs '((preamble "div" "preamble")
