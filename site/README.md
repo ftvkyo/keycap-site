@@ -95,25 +95,26 @@ content/           the pages, in Org; the tutorial's code is in its keycap block
   manual/          written by publish.el from keycap's manual, not committed
 static/            style.css, copy.js and the icon
 npins/             keycap, rhai-ts-mode, keycap-designs and openscad (for print/), pinned
-publish.el         the Org projects, the page frame, the gallery, the manual's pages and the anchors
+publish.el         the Org projects, the page frame and the anchors
 default.nix        the build: keycap, Emacs, the font, the frame cache
-tools/             ob-keycap.el and ppm2png.py (the frames), subset-fonts.py, preview.sh, dev.py, check-links.py, field.py, shots/
+tools/             keycap-site-gallery.el and keycap-site-manual.el, the gallery and the manual's pages;
+                   ob-keycap.el and ppm2png.py (the frames), subset-fonts.py, preview.sh, dev.py, check-links.py, field.py, shots/
 print/             the brochure and the poster, in Typst; see its README
 ```
 
 - The manual is keycap's own (`doc/keycap.org` in keycap's repository), published as `manual/`; fix it there, not here.
   Its reference is written from keycap-server's docs by keycap's `doc/keycap-reference.el`, as for Info: entries are fixed in the files that describe them, the prelude's `///` comments and the server's `docs/*.toml`.
-  It is split into a page per chapter, with an index page of the contents, functions, keys and concepts, which also keeps the anchors of the single page it once was (`fms-manual-retired-anchors` for entries since merged).
-  Each function that makes a shape gets a picture of its example: the code block in its entry, or else the first `Example:` of its doc that is not a value; easings and steps get their graph (`fms-manual-plots`); an example that makes no shape shows its value.
+  It is split into a page per chapter, with an index page of the contents, functions, keys and concepts, which also keeps the anchors of the single page it once was (`keycap-site-manual-retired-anchors` for entries since merged).
+  Each function that makes a shape gets a picture of its example: the code block in its entry, or else the first `Example:` of its doc that is not a value; easings and steps get their graph (`keycap-site-manual-plots`); an example that makes no shape shows its value.
   An entry's parts, `Notes:`, `See also:`, `References:` and `From OpenSCAD:`, and its `Example:` with a caption and then a code block, are boxes, the example's with its picture; every entry is headed by its signatures, set out by keycap as `C-c C-d` sets them out.
   Each entry has a strip in the colour of its kind, which the file that describes it declares, and a label of that and where it comes from; the legend is at the end of Reading signatures.
 - The gallery is generated from two sources: keycap's `examples/`, a section of their own, and my designs (the `keycap-designs` pin), a section with a subsection per directory of the repository: `keycaps/` first, then the groups of ports of my designs made for one thing.
   A source or group with no models is left out.
   Each model gets a page with its opening comment, renders, files and source, under `gallery/` as it is laid out in its repository (`gallery/designs/<group>/<design>.html`); its files are published as `examples/` and `designs/`.
   A model's `// view: camera 120 30` lines (settings apart by commas: `camera AZIMUTH ELEVATION` or `front`/`right`/`top`/`iso`, `shaded`/`heightmap`/`sdf`/`mono`, `slice AXIS [OFFSET]`) replace its default renders, the first also its card's; a manual example's ` [view: ...]` at the end of its `Example:` line does the same for its picture.
-  Each card and page says who made the model (`fms-author`, or `fms-examples-author` for an example that is not a port); every card marks a port with an icon, the page's a link to the original on GitHub, and links to the model on Printables if it is there (`fms-printables`, by its page in the gallery).
-  A port's original is in its row of `PORTS.md`, a keycap's in its opening comment, an example's in `fms-example-originals`.
-  A port's page shows its row of `PORTS.md`, whatever columns that has, the keycaps' too, and the cryptodancer's some of its legends (`fms-keycaps-legends`); an example's opening comment says how it compares with its original in one line.
+  Each card and page says who made the model (`keycap-site-author`, or `keycap-site-examples-author` for an example that is not a port); every card marks a port with an icon, the page's a link to the original on GitHub, and links to the model on Printables if it is there (`keycap-site-printables`, by its page in the gallery).
+  A port's original is in its row of `PORTS.md`, a keycap's in its opening comment, an example's in `keycap-site-example-originals`.
+  A port's page shows its row of `PORTS.md`, whatever columns that has, the keycaps' too, and the cryptodancer's some of its legends (`keycap-site-keycaps-legends`); an example's opening comment says how it compares with its original in one line.
   Imports resolve as in Emacs: `keycap.rhai` beside the keycaps, `keycap/<name>` from the pinned keycap's prelude.
 - The site's colours are the infra's: Ayu Dark, Ayu Light for light schemes; the frames take the infra's Emacs theme; the font is Maple Mono, served from the site.
 
