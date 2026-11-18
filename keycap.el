@@ -738,6 +738,64 @@ For highlighting them, as `keycap-describe' and the manual's site do."
     (run-with-idle-timer 0.1 nil #'keycap--fetch-names keycap-dialect)))
 
 
+;; --- Scripts ---
+
+;; What a script defines and draws, read from its tree-sitter tree, which
+;; rhai-ts-mode keeps up to date in a script buffer; in any other buffer,
+;; such as a temporary one holding a script, the first call parses it.
+
+(defun keycap--statements ()
+  "The top-level statements of the current buffer's script, as tree-sitter nodes."
+  (treesit-filter-child (treesit-buffer-root-node 'rhai)
+                        (lambda (node) (equal (treesit-node-type node) "Stmt"))))
+
+(defun keycap--statement-expression (statement)
+  "The expression the STATEMENT node is, such as an `ExprFn' or an `ExprCall'.
+Past its `///' comment, if it has one."
+  (when-let* ((item (treesit-node-child statement 0 t))
+              (expression (car (last (treesit-node-children item t)))))
+    (treesit-node-child expression 0 t)))
+
+(defun keycap--node-region (node)
+  "The region of NODE, as (START . END)."
+  (cons (treesit-node-start node) (treesit-node-end node)))
+
+(defun keycap-script-statements ()
+  "The top-level statements of the script in the current buffer, in order.
+Each is (START . END), past its `;', and a function's from its `///'
+comment.  The last may be an expression without a `;'."
+  (mapcar #'keycap--node-region (keycap--statements)))
+
+(defun keycap-script-functions ()
+  "The functions the script in the current buffer defines, in order.
+Each is (NAME START . END), from its `///' comment to its closing brace."
+  (seq-keep (lambda (statement)
+              (when-let* ((function (keycap--statement-expression statement))
+                          ((equal (treesit-node-type function) "ExprFn")))
+                (cons (treesit-node-text (treesit-node-child-by-field-name function "fn_name") t)
+                      (keycap--node-region statement))))
+            (keycap--statements)))
+
+(defun keycap-script-draws ()
+  "The top-level `draw' and `draw_rgb' statements of the current buffer's script.
+In order, each as (START . END)."
+  (seq-keep (lambda (statement)
+              (when-let* ((call (keycap--statement-expression statement))
+                          ((equal (treesit-node-type call) "ExprCall"))
+                          ((member (treesit-node-text (treesit-node-child-by-field-name call "fn_name") t)
+                                   '("draw" "draw_rgb"))))
+                (keycap--node-region statement)))
+            (keycap--statements)))
+
+(defun keycap--definitions ()
+  "The script's own names: its functions, variables and constants.
+None without the Rhai grammar."
+  (when (treesit-ready-p 'rhai t)
+    (delete-dups (mapcar (lambda (capture) (treesit-node-text (cdr capture) t))
+                         (treesit-query-capture 'rhai '((FnDeclName) @name
+                                                        (ExprDeclareVar name: (ident) @name)))))))
+
+
 ;; --- Completion and ElDoc ---
 
 (defun keycap--skip-qualifiers ()
@@ -763,18 +821,6 @@ On `keycap::body', from `keycap' to `body', wherever point is in it."
   "The name at point, with the modules that qualify it, or nil."
   (when-let* ((bounds (keycap--name-bounds)))
     (buffer-substring-no-properties (car bounds) (cdr bounds))))
-
-(defun keycap--definitions ()
-  "The script's own names: its functions, variables and constants."
-  (save-excursion
-    (goto-char (point-min))
-    (let (names)
-      (while (re-search-forward (concat "\\_<\\(?:fn\\|let\\|const\\)[ \t]+\\("
-                                        keycap--name-regexp "\\)")
-                                nil t)
-        (unless (nth 8 (syntax-ppss))
-          (push (match-string-no-properties 1) names)))
-      (delete-dups names))))
 
 (defun keycap--shape-map (&optional position)
   "When POSITION is in a map given to a shape, (SHAPE . OPEN).

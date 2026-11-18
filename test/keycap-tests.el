@@ -183,6 +183,35 @@ it runs the hooks that stop its server and kill its preview."
   (should (equal (keycap-test-expression "let s = \"a;b\" + c|") "\"a;b\" + c")))
 
 
+;; --- Scripts ---
+
+(ert-deftest keycap-test-script-structure ()
+  ;; In any buffer, not only a script's.
+  (with-temp-buffer
+    (insert "// A model\n"
+            "/// Twice `v`.\nfn twice(v) { v * 2 }\n\n"
+            "private fn hidden() { draw(sphere(1)); }\n"
+            "const A = \"draw(a);\"; // draw(b);\n"
+            "draw(twice(1),\n     #{role: \"cut\"});\n"
+            "lib::draw(1);\n"
+            "draw_rgb(A, 1, 0, 0);\n"
+            "twice(2)\n")
+    (cl-flet ((text (region) (buffer-substring-no-properties (car region) (cdr region))))
+      (should (equal (mapcar #'car (keycap-script-functions)) '("twice" "hidden")))
+      (should (equal (text (alist-get "twice" (keycap-script-functions) nil nil #'equal))
+                     "/// Twice `v`.\nfn twice(v) { v * 2 }"))
+      (should (equal (mapcar #'text (keycap-script-draws))
+                     '("draw(twice(1),\n     #{role: \"cut\"});" "draw_rgb(A, 1, 0, 0);")))
+      (should (equal (mapcar #'text (keycap-script-statements))
+                     '("/// Twice `v`.\nfn twice(v) { v * 2 }"
+                       "private fn hidden() { draw(sphere(1)); }"
+                       "const A = \"draw(a);\";"
+                       "draw(twice(1),\n     #{role: \"cut\"});"
+                       "lib::draw(1);"
+                       "draw_rgb(A, 1, 0, 0);"
+                       "twice(2)"))))))
+
+
 ;; --- Flymake ---
 
 (defun keycap-test-flymake (report)
