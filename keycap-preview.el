@@ -126,7 +126,7 @@ the drag ends on is in full.  1 renders every frame in full."
   "Why the last render failed, or nil.")
 
 (defvar-local keycap--preview-rendering nil
-  "While a render runs, how much denser than the window its image is.")
+  "While a render runs, the id of its request.")
 (defvar-local keycap--preview-render-start nil)
 (defvar-local keycap--preview-pending nil
   "Non-nil when the preview needs another render once this one is done.")
@@ -243,9 +243,10 @@ It turns about the middle of the bounds, by the right-hand rule.")
                   (* (length (keycap--preview-output-shown))
                      (window-default-line-height window))))))
 
-(defun keycap--preview-render ()
+(defun keycap--preview-render (&optional now)
   "Render the model into the preview, or once it is in a window.
-While a render runs, this waits for it, then renders what is current."
+While a render runs, this waits for it, then renders what is current;
+with NOW, it renders at once, and the server drops the render that runs."
   (let ((window (get-buffer-window (current-buffer) t)))
     (cond
      ((not keycap--preview-report))
@@ -255,7 +256,7 @@ While a render runs, this waits for it, then renders what is current."
         (keycap--reload)))
      ;; `keycap--preview-resized' renders once a window shows it.
      ((not window) (setq keycap--preview-size nil))
-     (keycap--preview-rendering (setq keycap--preview-pending t))
+     ((and keycap--preview-rendering (not now)) (setq keycap--preview-pending t))
      (t
       (let ((scale (* (frame-scale-factor (window-frame window))
                       (if keycap--preview-dragging keycap-preview-drag-resolution 1)))
@@ -293,16 +294,20 @@ While a render runs, this waits for it, then renders what is current."
 (defun keycap--preview-send (width height scale)
   "Ask the server for a WIDTH by HEIGHT frame, to show SCALE times denser."
   (let ((preview (current-buffer))
-        (request (keycap-preview-request width height)))
+        (request (keycap-preview-request width height))
+        id)
     (condition-case error
         (progn
-          (with-current-buffer keycap--preview-source
-            (keycap--request request
-                             (lambda (reply)
-                               (when (buffer-live-p preview)
-                                 (with-current-buffer preview
-                                   (keycap--preview-rendered reply scale))))))
-          (setq keycap--preview-rendering scale
+          (setq id (with-current-buffer keycap--preview-source
+                     (keycap--request request
+                                      (lambda (reply)
+                                        (when (buffer-live-p preview)
+                                          (with-current-buffer preview
+                                            ;; Unless a newer render superseded it
+                                            (when (eql id keycap--preview-rendering)
+                                              (keycap--preview-rendered reply scale))))))))
+          (setq keycap--preview-rendering id
+                keycap--preview-pending nil
                 keycap--preview-render-start (float-time))
           ;; Quick renders would only flicker in the header line.
           (run-with-timer 0.3 nil #'keycap--preview-update preview))
@@ -928,8 +933,8 @@ the keyboard in the window it was in, such as the script's."
         (with-current-buffer preview
           (setq keycap--preview-dragging nil)
           (if moved
-              ;; The last frame, in full
-              (keycap--preview-render)
+              ;; The last frame, in full, without waiting for the one that runs
+              (keycap--preview-render t)
             (select-window window)))))))
 
 (defun keycap-preview-mouse-orbit (event)
