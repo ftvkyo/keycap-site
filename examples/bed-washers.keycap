@@ -25,7 +25,8 @@ fn washer(height, mark) {
         .difference(cylinder(global::D_INNER / 2, [-1, height + 1]))
 }
 
-// One washer per thickness from 5 to 10 tenths, then four such rows.
+// One washer per thickness from 5 to 10 tenths, then four such rows, at
+// the cost of one.
 let set = arrange_row([
     washer(L * 5, 5),
     washer(L * 6, 6),
@@ -35,4 +36,4 @@ let set = arrange_row([
     washer(L * 10, 10),
 ], [STEP, 0]);
 
-draw(set.linear_array([0, STEP], 4));
+draw(set.repeat_grid([0, STEP], [1, 4]));

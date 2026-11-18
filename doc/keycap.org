@@ -2052,7 +2052,7 @@ The package's =examples/= directory holds complete models:
 - =gear-involute.keycap= :: an involute spur gear, from module, teeth, clearance and pressure angle, both flanks of every tooth exact; =HELIX= makes it a herringbone.
 - =dna-loop.keycap= :: a double helix wound round a ring, with rungs: ~helix~, ~bend~, and one rung repeated and turned with the strands.
 - =feather.keycap= :: a feather the length of a bed's diagonal, with two hundred barbs of Bézier curves whose control points run along Bézier curves: ~bezier_stroke~ with a tapering width, the stem's ends cut square with ~intersection_round~, ~bezier_point~.
-- =bed-washers.keycap= :: bed-levelling washers, 0.5 to 1.0 mm thick, their outlines' sides telling the thickness: ~linear_array~ of rows.
+- =bed-washers.keycap= :: bed-levelling washers, 0.5 to 1.0 mm thick, their outlines' sides telling the thickness: a row by ~arrange_row~, repeated by ~repeat_grid~.
 - =scraper.keycap= :: a bed scraper with scallops for the fingers and a label: an outline from ~points::difference~ of circles, its corners rounded by ~rounded_polygon~, ~text~.
 - =phone-stand.keycap= :: a phone stand with every edge rounded: OpenSCAD's minkowski sum with a sphere, exactly, as prisms grown by ~offset~ and extruded with rounded rims.
 - =laptop-stand.keycap= :: two laser-cut legs crossed on printed hinges, and a lock: ~rounded_polygon~ outlines with arcs, the 2D parts laid out on =keycap/lasercut='s ~sheet~ for ~keycap-export-2d~.
