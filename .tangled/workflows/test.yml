@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# `just test` on every push and pull request. keycap-server is built, and
+# its own tests run, as part of the package, so this covers both. Runs on
+# the spindle at spindle.rei.gay.
+when:
+  - event: push
+    branch: ["**"]
+    tag: ["**"]
+  - event: pull_request
+    branch: main
+  - event: manual
+
+engine: microvm
+# room for keycap-server's build
+image: alpine-large
+
+environment:
+  # the image's Nix runs as a daemon
+  NIX_REMOTE: daemon
+
+steps:
+  - name: Test
+    command: |
+      set -euo pipefail
+      # just from the pinned nixpkgs; the image has none
+      just=$(nix-build --no-out-link -E '(import (import ./npins).nixpkgs { }).just')
+      "$just/bin/just" test
