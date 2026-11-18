@@ -9,11 +9,9 @@ On the way, it shows the preview, the 2D views, completion, and how to change a 
 Visit a new file, =knob.keycap=, and press =C-c C-c=.
 The preview opens next to it, and says there is nothing in view yet.
 
-#+begin_src keycap :model knob :expect warning :alt An empty script on the left; the preview on the right says nothing in view
-#+end_src
-
 The preview is a side window.
 From now on, it updates every time you stop typing for a moment, so you don't have to save to see a change.
+While a line is half typed, the script has an error, and the preview keeps the last model that worked; [[file:../manual/troubleshooting.html#when-a-script-fails][When a script fails]] in the manual shows what an error looks like.
 
 * Two cutters
 
@@ -93,13 +91,9 @@ draw(profile);
 * Into three dimensions
 
 Replace the =draw= line again.
-As you type =profile.revo=, completion offers what fits.
-Meanwhile, the preview is empty, since there is no =draw= any more, and its header shows the error from the half-typed line until the line is complete.
+As you type =profile.revo=, completion offers what fits:
 
-#+begin_src keycap :model knob :typed "profile.revo" :show completion :expect error :alt Completion offering revolve after profile.revo
-#+end_src
-
-#+begin_src keycap :model knob :alt The profile revolved into a knob, shaded
+#+begin_src keycap :model knob :at "profile.revo|lve" :show completion :alt The profile revolved into a knob, shaded; completion offers revolve and the other names like it
 // The profile spun around the Z axis.
 let handle = profile.revolve();
 draw(handle);

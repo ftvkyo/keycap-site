@@ -9,7 +9,7 @@ The first eight together take an hour or two; the last one is a longer project.
 You need keycap [[file:../install.html][installed]] and nothing else: no knowledge of distance fields, and only a little programming.
 
 1. [[file:01-first-model.org][A first model]] -- a knob from a 2D profile: the preview, the distance view, rounding by blending, nudging numbers.
-2. [[file:02-fasteners.org][Bumps and a captive nut]] -- finishing the knob: documentation at point, cutters with print clearances, slicing, errors.
+2. [[file:02-fasteners.org][Bumps and a captive nut]] -- finishing the knob: cutters with print clearances, documentation at point, slicing.
 3. [[file:03-keyboard-and-mouse.org][Keyboard and mouse]] -- the knob again, with the keyboard alone and with the mouse: the header line's buttons, the menus, scrubbing slices and numbers, every action's key and gesture.
 4. [[file:04-patterns.org][Patterns]] -- a fan grill and a honeycomb bowl: repeating a shape cheaply, rounding by offsetting.
 5. [[file:05-imports.org][Splitting a design into files]] -- a pegboard hook that imports the board from a module.
