@@ -10,6 +10,7 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use fidget::context::Tree;
 use fidget::rhai::FromDynamic;
+use fidget::shapes::types::Vec3;
 use rhai::module_resolvers::ModuleResolver;
 use rhai::{
     AST, ASTFlags, ASTNode, Dynamic, EvalAltResult, Expr, FnAccess, FuncRegistration,
@@ -634,25 +635,23 @@ fn base(ctx: &NativeCallContext) -> PathBuf {
         .unwrap_or_default()
 }
 
-/// A corner of `bounds`: three numbers.
+/// A corner of `bounds`: `[x, y, z]`, or `[x, y]` with z = 0.
 fn corner(
     ctx: &NativeCallContext,
     value: Dynamic,
     name: &str,
 ) -> Result<[f64; 3], Box<EvalAltResult>> {
     let position = ctx.call_position();
-    let wrong = || runtime_error(format!("bounds' {name} corner must be [x, y, z]"), position);
-    let array = value.into_array().map_err(|_| wrong())?;
-    if array.len() != 3 {
+    let wrong = || {
+        runtime_error(
+            format!("bounds' {name} corner must be [x, y] or [x, y, z]"),
+            position,
+        )
+    };
+    let v = Vec3::from_dynamic(ctx, value, None).map_err(|_| wrong())?;
+    let out = [v.x, v.y, v.z].map(f64::from);
+    if !out.iter().all(|c| c.is_finite()) {
         return Err(wrong());
-    }
-    let mut out = [0.0; 3];
-    for (o, v) in out.iter_mut().zip(array) {
-        let v = f32::from_dynamic(ctx, v, None).map_err(|_| wrong())?;
-        if !v.is_finite() {
-            return Err(wrong());
-        }
-        *o = f64::from(v);
     }
     Ok(out)
 }

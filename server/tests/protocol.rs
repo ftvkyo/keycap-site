@@ -367,12 +367,27 @@ fn shapes_colours_bounds_resolution_and_output() {
 }
 
 #[test]
+fn bounds_take_2d_corners_with_z_0() {
+    let mut server = Server::start(&[]);
+    let reply = server.load("bounds([-2, -2], [2, 2, 2]);\ndraw(sphere(1));\n", None);
+    assert_eq!(reply["loaded"], true, "{reply}");
+    assert_eq!(
+        reply["bounds"]["script"],
+        json!({"lower": [-2.0, -2.0, 0.0], "upper": [2.0, 2.0, 2.0]})
+    );
+}
+
+#[test]
 fn script_api_errors() {
     let mut server = Server::start(&[]);
     for (source, message) in [
         (
-            "bounds([-1, -1], [1, 1, 1]);",
-            "bounds' lower corner must be [x, y, z]",
+            "bounds([-1, -1, -1, -1], [1, 1, 1]);",
+            "bounds' lower corner must be [x, y] or [x, y, z]",
+        ),
+        (
+            "bounds([-1, -1], [1, 1]);",
+            "bounds are empty on z: lower must be below upper",
         ),
         (
             "bounds([1, -1, -1], [1, 1, 1]);",
