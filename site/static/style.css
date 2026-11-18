@@ -111,10 +111,13 @@ html {
   line-height: 1.6;
 }
 
+/* A word longer than the line, such as a design's name or a path,
+   breaks rather than widen the page on a phone. */
 body {
   margin: 0 auto;
   max-width: 42rem;
   padding: 0 1.25rem;
+  overflow-wrap: break-word;
 }
 
 header nav {
