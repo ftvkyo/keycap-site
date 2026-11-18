@@ -113,7 +113,7 @@ html {
 
 body {
   margin: 0 auto;
-  max-width: 48rem;
+  max-width: 42rem;
   padding: 0 1.25rem;
 }
 
@@ -1022,7 +1022,7 @@ p.human-label {
 /* A card per example, the whole card a link to its page. */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
   gap: 1rem;
   margin: 1.5rem 0;
 }
@@ -1127,7 +1127,7 @@ ul.checked {
 /* Renders of one model side by side, such as a keycap's legends. */
 .renders {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
   gap: 1rem;
   margin: 1.5rem 0;
 }
@@ -1207,8 +1207,8 @@ dt a:visited {
 
 /* The index's lists of names, in as many columns as fit. */
 ul.index {
-  columns: 13rem;
-  column-gap: 2rem;
+  columns: 11rem;
+  column-gap: 1.5rem;
   padding-left: 0;
   list-style: none;
 }

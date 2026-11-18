@@ -1073,7 +1073,7 @@ A tree with nothing inside, such as a factor, is no shape."
 (defconst fms-manual-example-size "\"480 360\""
   "The size of an example box's picture, twice as large as it is shown.")
 
-(defconst fms-manual-example-columns 52
+(defconst fms-manual-example-columns 42
   "The longest line of code that fits beside an example's picture.
 An example with a longer one has its picture below the code instead.")
 
