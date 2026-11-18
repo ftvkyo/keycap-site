@@ -134,6 +134,7 @@ Nothing needs configuring; the user options are in the manual's [[file:manual/ed
 - =requires rustc 1.95=, from cargo :: The Rust toolchain is too old; =rustup update= updates it.
 - =text: no default font; Liberation Sans is not installed, so give a font= :: Install Liberation Sans, or name a font in the =text= call.
 - The preview's header line says =CPU= and =(no GPU)= :: The server found no Vulkan device: without Nix, check that the Vulkan loader and your GPU's Vulkan driver are installed.
+  On NixOS, a server built with cargo finds no loader unless =LD_LIBRARY_PATH= has =vulkan-loader='s =lib= directory; installed with Nix, it needs nothing.
   The manual's [[file:manual/troubleshooting.html#preview-problems][Preview problems]] has the other reasons the CPU renders.
 
 * Updating
