@@ -22,14 +22,27 @@ async function copy(text) {
   }
 }
 
+// What a block holds, by its language, for its button's name.
+const languages = {
+  "emacs-lisp": "Emacs Lisp",
+  keycap: "keycap script",
+  "keycap-signature": "signature",
+  nix: "Nix code",
+  rhai: "Rhai code",
+  sh: "shell commands",
+};
+
 for (const block of document.querySelectorAll(".org-src-container")) {
   const code = block.querySelector("pre");
+  const language = [...code.classList].find((name) => name.startsWith("src-"))?.slice(4);
+  const label = `Copy ${languages[language] ?? "code"}`;
   const button = document.createElement("button");
   let timer;
 
   button.type = "button";
   button.className = "copy";
   button.textContent = "Copy";
+  button.setAttribute("aria-label", label);
   // Read out when it changes to "Copied".
   button.setAttribute("aria-live", "polite");
 
@@ -43,9 +56,12 @@ for (const block of document.querySelectorAll(".org-src-container")) {
       button.textContent = "Selected";
     }
     button.dataset.state = "done";
+    // Named by what it did, until it is ready again.
+    button.removeAttribute("aria-label");
     clearTimeout(timer);
     timer = setTimeout(() => {
       button.textContent = "Copy";
+      button.setAttribute("aria-label", label);
       delete button.dataset.state;
     }, 2000);
   });
