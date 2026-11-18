@@ -9,7 +9,7 @@ doc = """
 Draws `shape`, for the preview to show and an export to write.
 
 - `shape`: a shape, or an array of shapes, drawn as their union
-- `opts`, in a `.keycap` script only:
+- `opts`: in a `.keycap` script only
   - `role`: what a laser does along the outline in a 2D export: `"cut"`, the default, `"score"` or `"engrave"`
 
 A script may draw any number of shapes.
