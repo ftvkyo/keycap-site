@@ -17,7 +17,7 @@
  * ====== */
 
 #let cover = [
-  #block(below: 1.5mm, text(size: 50pt, weight: "extrabold", tracking: -0.02em, bottom-edge: "descender")[keycap])
+  #block(below: 1.5mm, text(size: 50pt, weight: "extrabold", tracking: -0.02em, bottom-edge: "descender")[keycap#text(fill: rule-grey)[IDE]])
   #text(size: 11pt)[Solid modelling with signed distance fields, in Emacs]
 
   #v(1fr)

@@ -9,7 +9,7 @@
 #set text(size: 12pt)
 #set list(spacing: 0.8em)
 
-#block(below: 2mm, text(size: 76pt, weight: "extrabold", tracking: -0.02em, bottom-edge: "descender")[keycap])
+#block(below: 2mm, text(size: 76pt, weight: "extrabold", tracking: -0.02em, bottom-edge: "descender")[keycap#text(fill: rule-grey)[IDE]])
 #text(size: 15pt)[Solid modelling with signed distance fields, in Emacs]
 
 #text(size: 13pt)[by Rei (ftvkyo) \ #credit]
