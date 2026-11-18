@@ -1855,6 +1855,11 @@ fn docs_give_typed_signatures() {
             .unwrap_or("")
             .starts_with("Grows a shape")
     );
+    // The prelude's hypot, not Rhai's own it shadows
+    let hypot = named("functions", "hypot");
+    let doc = hypot["doc"].as_str().unwrap_or("");
+    assert!(doc.starts_with("The length of `[a, b]`"), "{doc}");
+    assert!(!doc.contains("Return the hypotenuse"), "{doc}");
     let loft = named("functions", "loft");
     assert_eq!(
         loft["signatures"],

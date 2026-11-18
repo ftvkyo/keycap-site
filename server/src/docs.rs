@@ -496,9 +496,13 @@ fn functions(
                 .signatures
                 .insert(signature(name, &params, text("returnType")));
         }
-        let comments = function.get("docComments").and_then(Value::as_array);
-        for comment in comments.into_iter().flatten().filter_map(Value::as_str) {
-            entry.comment(name, comment);
+        // A prelude function's doc comments leave out those of the native
+        // functions it shadows.
+        if text("type") == "script" || !prelude.contains_key(name) {
+            let comments = function.get("docComments").and_then(Value::as_array);
+            for comment in comments.into_iter().flatten().filter_map(Value::as_str) {
+                entry.comment(name, comment);
+            }
         }
     }
     // fidget's variables, which Rhai's metadata does not list
