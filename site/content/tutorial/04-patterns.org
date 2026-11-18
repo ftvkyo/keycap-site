@@ -74,7 +74,7 @@ It reads from the inside out:
 3. =offset(ROUNDING)= grows it by 5 mm in every direction, which rounds every edge and corner with a 5 mm radius, since the prism's field is an exact distance;
 4. =intersection(-z)= keeps what is above the XY plane, so the bottom is cut flat.
 
-=-z= is a shape too: the field of the half-space above the plane.
+=-z= is a shape too: a [[file:../manual/concepts.html#trees-and-shapes][tree]] of the coordinates, the field of the half-space above the plane.
 
 * A hollow, from a curve
 
