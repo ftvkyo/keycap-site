@@ -79,17 +79,15 @@ fn petal() {
 fn gear() {
     let r = global::CONNECTION_R;
     let e = global::CONNECTION_EXTENT;
-    // Triangles turned by a cog each, three cogs a triangle.
+    // Triangles turned by a cog each, three cogs a triangle: a star whose
+    // inner corners are where neighbouring triangles' sides cross.
     let n = global::HOUSING_PETAL_COGS;
-    let cogs = [];
-    for k in 0..n / 3 {
-        cogs.push(regular_polygon(3, r[0]).rotate_z(360.0 / n * k));
-    }
+    let cogs = star(n, [r[0], r[0] / 2.0 / cosd(60.0 - 180.0 / n)]);
     let groove = _rhombus(global::CONNECTION_GROOVE)
         .rotate_z(atand(e / (r[1] - r[0])))
         .move([(r[0] + r[1]) / 2, e / 2])
         .revolve();
-    loft([#{z: 0, shape: union(cogs)}, #{z: e, scale: r[1] / r[0]}])
+    loft([#{z: 0, shape: cogs}, #{z: e, scale: r[1] / r[0]}])
         .difference(groove)
         .rotate_x(180)
 }
