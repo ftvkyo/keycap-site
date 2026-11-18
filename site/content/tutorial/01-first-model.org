@@ -13,49 +13,53 @@ The preview is a side window.
 From now on, it updates every time you stop typing for a moment, so you don't have to save to see a change.
 While a line is half typed, the script has an error, and the preview keeps the last model that worked; [[file:../manual/troubleshooting.html#when-a-script-fails][When a script fails]] in the manual shows what an error looks like.
 
-* Two cutters
+* A block and two cutters
 
-The knob is a profile (half of its cross-section) revolved around its axis.
+The knob is a profile, its cross-section, revolved around its axis.
 The profile is a block with two cuts: a waist for the fingers, and a dish on top.
-Type the dimensions and the two cutters:
+Type the dimensions, the block and the cutters:
 
-#+begin_src keycap :model knob :alt Two cutters in the distance view: an ellipse at the side, and an ellipse at the top merged with everything above it
+#+begin_src keycap :model knob :alt The block in white, and the cutters in orange: an ellipse at each side for the waist, and a flat one along the top for the dish
 // Knob: a round handle with a dished top and a waist for the fingers.
 
 const D = 60.0;             // handle diameter
 const H = 30.0;             // handle height
 const ROUNDING = 2.0;
 
-// The cutters: the waist, and the dish with everything above it.
-let waist = ellipse([D / 6, H / 2]).move([D / 2, H / 2]);
-let above = rect([2.0 * D, 2.0 * H]).move([0, 2.0 * H]);
-let dish = min(ellipse([D / 2, H / 12]).move([0, H]), above);
-draw(union(waist, dish));
+// The knob's cross-section before the cuts.
+let block = rect([D, H]).move([0, H / 2]);
+
+// The cutters: the waist on both sides, and the dish.
+let waist = ellipse([D / 6, H / 2]).move([D / 2, H / 2]).symmetric_x();
+let dish = ellipse([D / 2, H / 12]).move([0, H]);
+
+draw(block);
+draw_rgb([waist, dish], 0.95, 0.55, 0.2);
 #+end_src
 
 These are 2D shapes, so the preview shows them from above, as a distance field.
-Every point is coloured by how far it is from the outline: blue inside, orange outside, and white where the distance is zero, which is the surface itself.
+Every point is shaded by how far it is from the nearest outline, in bands: in the shape's colour inside, and dark grey outside.
+=draw= draws a shape in white, and =draw_rgb= in a colour, its red, green and blue each from 0 to 1.
 
 keycap is built around this.
 A shape is a function rather than a list of triangles: for a given point, it says how far away the surface is, negative inside.
+The script builds it as an expression of =x= and =y=, a /tree/, which keycap evaluates at every point it shows; [[file:../manual/writing-models.html#fields-and-trees][Fields and trees]] in the manual has more.
 Everything else is arithmetic on such functions:
 
-- =min(a, b)= is the nearer of two surfaces, which gives both shapes: a union.
-  So the dish is an ellipse plus a wide rectangle above it, and everything above the top of the knob is cut away.
-- =move= shifts a shape; =const= names a number.
-  Functions don't see the script's names: inside a =fn=, a =const= is =global::D=, and anything else has to be passed in.
+- =move= shifts a shape, and =symmetric_x= reads it at =abs(x)=, so the waist's ellipse on the right is mirrored to the left.
+- =min(a, b)= is the nearer of two surfaces, which gives both shapes: a union, the same as =union(a, b)=.
 
 * Cutting
 
-Add this below the cutters:
+Replace the =draw= lines with:
 
 #+begin_src keycap :model knob :alt The block with the cutters taken away: sharp cusps where each cut meets the block's corner
-// The block they are cut from.
-let block = rect([D, 2.0 * H]).move([0, H]);
 draw(block.difference(union(waist, dish)));
 #+end_src
 
 =difference= takes the cutters away.
+With no shape in colour, the field is blue inside and orange outside, and white where the distance is zero, which is the surface itself.
+
 It works, but both ellipses touch the outer corners of the block, and there are sharp cusps where they meet.
 A knob shouldn't have those.
 
@@ -63,30 +67,20 @@ A knob shouldn't have those.
 
 In OpenSCAD, a profile like this is rounded with =offset(r) offset(-r)=: shrink it, then grow it back, and every convex corner comes back round.
 On a field, the two would just cancel out.
-The closest thing is to combine the shapes smoothly in the first place: =blend(a, b, w)= is a union with its seam rounded over a width =w=.
-Replace the =draw= line with a function that does that, and use it:
+The closest thing is to combine the shapes smoothly in the first place.
+Replace the =draw= line with:
 
 #+begin_src keycap :model knob :alt The profile with both cuts' edges rounded and the cusps gone
-/// `body` with `cutters` taken away, every edge they leave rounded by `r`.
-fn opened(body, cutters, r) {
-    let cutter = cutters[0];
-    for c in cutters.extract(1) {
-        cutter = blend(cutter, c, 2.0 * r);
-    }
-    inverse(blend(inverse(body), cutter, 2.0 * r))
-}
-
-let profile = opened(block, [waist, dish], ROUNDING);
+// The cuts, with every edge they leave rounded.
+let profile = block.smooth_difference([waist, dish], 2.0 * ROUNDING);
 draw(profile);
 #+end_src
 
-- The cutters are blended into one, so the rim between the waist and the dish is rounded too.
-- =inverse= swaps inside and outside.
-  Blending the cutter with the inverted block and then inverting back gives a difference with a rounded seam.
-- The block is twice as tall as the knob, so that its top face is far from the shallow dish and doesn't blend with it.
+- =smooth_difference= takes the cutters away and blends the edges they leave over a width, here twice the rounding radius.
+- The cutters are blended into each other first, so the rim between the waist and the dish is rounded too.
+- =smooth_union= and =smooth_intersection= blend the other two ways of combining shapes.
 
-=///= comments document a function you write.
-=C-c C-d= on =opened= shows them, the same as for any built-in function.
+=C-c C-d= on =smooth_difference= shows its documentation, with what it does at the cusps and how it compares to OpenSCAD's offsets.
 
 * Into three dimensions
 
