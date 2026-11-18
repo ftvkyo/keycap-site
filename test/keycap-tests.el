@@ -606,6 +606,47 @@ it runs the hooks that stop its server and kill its preview."
                      (fitted (lower -3.1 -3 nil) (upper 3.1 3 nil)))))
      ,@body))
 
+(ert-deftest keycap-test-preview-snapshot ()
+  (keycap-test-with-script ""
+    (let ((report '((loaded . t)
+                    (bounds (script (lower -10 -10 -5) (upper 10 10 5))
+                            (fitted (lower -3 -3 nil) (upper 3 3 nil)))))
+          (keycap-preview-backend 'gpu)
+          directory)
+      (let ((snapshot (keycap-preview-snapshot (current-buffer) :report report)))
+        (with-current-buffer snapshot
+          (setq directory keycap--preview-directory)
+          (should (file-directory-p directory))
+          ;; A 2D model, sliced through the middle of the script's bounds
+          (should (equal (keycap-preview-header) "sdf z = 0"))
+          (let ((request (keycap-preview-request 40 30)))
+            (should (equal (alist-get 'output request) (expand-file-name "frame.ppm" directory)))
+            (should (equal (alist-get 'backend request) "gpu"))
+            (should (equal (alist-get 'width request) 40)))
+          (keycap-preview-set-frame '((backend . "gpu") (bounds . "script") (ms . 3) (scale . 0.5)))
+          (should (equal (keycap-preview-header) "sdf z = 0  ·  script bounds 20 × 20 × 10  ·  GPU 3.0 ms"))
+          (should-error (keycap-preview-set-frame '((error . "no scene"))))
+          ;; The menus, with their items for this preview
+          (should (lookup-key (keycap-preview-menu 'context) [keycap-goto-shape]))
+          (should (assq 'Level (keycap-preview-menu 'slice))))
+        (kill-buffer snapshot)
+        (should-not (file-exists-p directory)))
+      (with-current-buffer (keycap-preview-snapshot (current-buffer)
+                                                    :report report :view 'shaded :camera '(0 90)
+                                                    :slice '(x 2 (10 . 0)) :bounds 'fitted
+                                                    :backend 'cpu :failure "line 1: no")
+        (unwind-protect
+            (progn
+              (should (equal (keycap-preview-header) "line 1: no  ·  shaded 0° 90°"))
+              (let* ((request (keycap-preview-request 1 1))
+                     (slice (alist-get 'slice request)))
+                (should (equal (list (alist-get 'elevation (alist-get 'camera request))
+                                     (alist-get 'axis slice) (alist-get 'offset slice)
+                                     (alist-get 'tilt slice)
+                                     (alist-get 'bounds request) (alist-get 'backend request))
+                               '(89.9 "x" 2 [10 0] "fitted" "cpu")))))
+          (kill-buffer))))))
+
 (ert-deftest keycap-test-preview-buffer ()
   ;; A renamed script's preview keeps its old name; a new script of that
   ;; name gets a preview of its own.
@@ -627,48 +668,48 @@ it runs the hooks that stop its server and kill its preview."
 
 (ert-deftest keycap-test-preview-header ()
   (keycap-test-with-preview-state
-    (should (equal (keycap--preview-header) "shaded iso"))
+    (should (equal (keycap-preview-header) "shaded iso"))
     (setq keycap--preview-frame '((backend . "gpu") (bounds . "script") (ms . 12.5) (scale . 0.0123)))
-    (should (equal (keycap--preview-header) "shaded iso  ·  script bounds 20 × 20 × 10  ·  GPU 12 ms"))
+    (should (equal (keycap-preview-header) "shaded iso  ·  script bounds 20 × 20 × 10  ·  GPU 12 ms"))
     (push '(empty . t) keycap--preview-frame)
-    (should (string-prefix-p "shaded iso  ·  nothing in view  ·  script bounds" (keycap--preview-header)))
+    (should (string-prefix-p "shaded iso  ·  nothing in view  ·  script bounds" (keycap-preview-header)))
     (setq keycap--preview-frame '((backend . "cpu") (bounds . "fitted") (ms . 1250) (scale . 0.0123))
           keycap--preview-view 'sdf
           keycap--preview-offset 0.5
           keycap--preview-failure "line 3: 100% wrong")
     (keycap--preview-read '((position 1.2345 -0.0001 0.5) (value . -0.21)))
-    (should (equal (keycap--preview-header)
+    (should (equal (keycap-preview-header)
                    (concat "line 3: 100%% wrong"
                            "  ·  sdf z = 0.5  ·  x 1.23  y 0.00  = -0.210"
                            "  ·  fitted bounds 6.2 × 6 × ∞  ·  CPU 1.2 s (no GPU)")))
     (push '(fallback . "the GPU's device was lost") keycap--preview-frame)
-    (should (string-suffix-p "CPU 1.2 s (the GPU's device was lost)" (keycap--preview-header)))
+    (should (string-suffix-p "CPU 1.2 s (the GPU's device was lost)" (keycap-preview-header)))
     (setq keycap--preview-report
           '((loaded . t)
             (bounds (fitted (lower -3.1 -3 nil) (upper 3.1 3 nil))
                     (loose . "the shapes' intervals are NaN"))))
     (should (string-search "fitted bounds 6.2 × 6 × ∞ (the shapes' intervals are NaN)"
-                           (keycap--preview-header)))))
+                           (keycap-preview-header)))))
 
 (ert-deftest keycap-test-preview-header-camera ()
   (keycap-test-with-preview-state
     (cl-letf (((symbol-function 'keycap--preview-render) #'ignore))
       (keycap-preview-front)
-      (should (equal (keycap--preview-header) "shaded front"))
+      (should (equal (keycap-preview-header) "shaded front"))
       (keycap-preview-top)
-      (should (equal (keycap--preview-header) "shaded top"))
+      (should (equal (keycap-preview-header) "shaded top"))
       ;; Turned, the camera is its angles, the azimuth within ±180°.
       (keycap--preview-look 330 20.4)
-      (should (equal (keycap--preview-header) "shaded -30° 20°"))
+      (should (equal (keycap-preview-header) "shaded -30° 20°"))
       (keycap--preview-look 300 30)
-      (should (equal (keycap--preview-header) "shaded iso"))
+      (should (equal (keycap-preview-header) "shaded iso"))
       (keycap-preview-projection)
-      (should (equal (keycap--preview-header) "shaded iso perspective")))))
+      (should (equal (keycap-preview-header) "shaded iso perspective")))))
 
 (ert-deftest keycap-test-preview-header-buttons ()
   (keycap-test-with-preview-state
     (setq keycap--preview-frame '((backend . "gpu") (bounds . "script") (ms . 12.5) (scale . 0.0123)))
-    (let ((header (keycap--preview-header)))
+    (let ((header (keycap-preview-header)))
       ;; Each word that says what is shown runs a command when clicked.
       (pcase-dolist (`(,word . ,command) '(("shaded" . keycap-preview-view-menu)
                                           ("iso" . keycap-preview-camera-menu)
@@ -681,7 +722,7 @@ it runs the hooks that stop its server and kill its preview."
       (should-not (get-text-property (string-search "·" header) 'keycap-command header)))
     (setq keycap--preview-view 'sdf
           keycap--preview-offset 2.5)
-    (let ((header (keycap--preview-header)))
+    (let ((header (keycap-preview-header)))
       (should (string-prefix-p "sdf z = 2.5" header))
       (should (eq (get-text-property 4 'keycap-command header) 'keycap-preview-slice-menu))
       ;; The wheel over the offset moves the slice.
@@ -778,7 +819,7 @@ it runs the hooks that stop its server and kill its preview."
       (keycap-preview-cycle-view)
       (should (eq keycap--preview-view 'sdf))
       (should (equal keycap--preview-offset 4.0))
-      (should (equal (keycap--preview-header) "sdf z = 4"))
+      (should (equal (keycap-preview-header) "sdf z = 4"))
       (keycap-preview-front)
       (should (equal (list keycap--preview-axis keycap--preview-offset) '(y 10.0)))
       (keycap-preview-slice-forward)
@@ -885,11 +926,11 @@ it runs the hooks that stop its server and kill its preview."
       (should (equal (keymap-lookup keycap-preview-mode-map "C-<down-mouse-1>")
                      'keycap-preview-mouse-tilt))
       (setq keycap--preview-tilt '(12.4 . -30))
-      (let ((header (keycap--preview-header)))
+      (let ((header (keycap-preview-header)))
         (should (equal header "sdf z ⊥ (12°, -30°) at 4"))
         (should (eq (get-text-property (string-search "(" header) 'keycap-command header)
                     'keycap-preview-level)))
-      (should (equal (alist-get 'slice (keycap--preview-request 10 10))
+      (should (equal (alist-get 'slice (keycap-preview-request 10 10))
                      '((axis . "z") (offset . 4) (tilt . [12.4 -30]))))
       (should (equal (keycap--preview-slice-shown) '(z 4 (12.4 . -30))))
       ;; Tilted, every coordinate of the point read changes.
@@ -1475,10 +1516,7 @@ The preview renders into a 300 by 200 window; batch Emacs has none."
 
 (defun keycap-test-preview-idle ()
   "Wait for the preview's frame, with no load or render left."
-  (keycap-test-wait (lambda ()
-                      (and keycap--preview-frame
-                           (not keycap--preview-rendering)
-                           (not (buffer-local-value 'keycap--load-waiting keycap--preview-source))))))
+  (keycap-test-wait (lambda () (keycap-preview-idle-p keycap--preview-source))))
 
 (ert-deftest keycap-test-preview-render ()
   (skip-unless keycap-test-server)
@@ -1491,7 +1529,7 @@ The preview renders into a 300 by 200 window; batch Emacs has none."
     (should keycap--preview-image)
     (should (equal (keycap-test-frame-size (current-buffer)) '(300 . 200)))
     (should (string-match-p "\\`shaded iso  ·  fitted bounds [0-9.]+ × [0-9.]+ × [0-9.]+  ·  [GC]PU [0-9.]+ m?s\\(?: (no GPU)\\)?\\'"
-                            (keycap--preview-header)))
+                            (keycap-preview-header)))
     ;; Requests while one runs wait, and coalesce into one.
     (let ((renders 0))
       (cl-letf* ((send (symbol-function 'keycap--preview-send))
@@ -1510,7 +1548,7 @@ The preview renders into a 300 by 200 window; batch Emacs has none."
   (keycap-test-with-preview "draw(circle(#{center: [0, 0], radius: 1}));\n"
     (keycap-test-preview-idle)
     (should (eq keycap--preview-view 'sdf))
-    (should (string-prefix-p "sdf z = 0  ·  fitted bounds " (keycap--preview-header)))
+    (should (string-prefix-p "sdf z = 0  ·  fitted bounds " (keycap-preview-header)))
     ;; The field at the image's centre: the circle's, inside.
     (setq keycap--preview-probe-next '(150 . 100)
           keycap--preview-leave-timer (timer-create))
@@ -1521,6 +1559,38 @@ The preview renders into a 300 by 200 window; batch Emacs has none."
     (keycap-preview-orbit-left)
     (keycap-test-preview-idle)
     (should-not keycap--preview-readout)))
+
+(ert-deftest keycap-test-preview-snapshot-render ()
+  (skip-unless keycap-test-server)
+  (keycap-test-with-script (concat "bounds([-4, -2, -1], [4, 2, 1]);\n"
+                                   "draw(circle(#{center: [2, 1], radius: 0.5}));\n")
+    (let ((snapshot (keycap-preview-snapshot (current-buffer) :report (keycap-load-sync) :backend 'cpu))
+          (script (current-buffer)))
+      (cl-flet ((render ()
+                  (let ((request (keycap-preview-request 80 40)))
+                    (keycap-preview-set-frame (with-current-buffer script
+                                                (keycap-request-sync request)))))
+                (reading ()
+                  ;; Where the reading is, and whether it is inside the circle
+                  (should (string-match "\\`x \\([-0-9.]+\\)  y \\([-0-9.]+\\)  = \\(-?\\)"
+                                        keycap--preview-readout))
+                  (list (< (abs (- (string-to-number (match-string 1 keycap--preview-readout)) 2)) 0.2)
+                        (< (abs (- (string-to-number (match-string 2 keycap--preview-readout)) 1)) 0.2)
+                        (match-string 3 keycap--preview-readout))))
+        (unwind-protect
+            (with-current-buffer snapshot
+              (render)
+              (should (equal (keycap-test-frame-size snapshot) '(80 . 40)))
+              (should (string-prefix-p "sdf z = 0  ·  script bounds 8 × 4 × 2  ·  CPU "
+                                       (keycap-preview-header)))
+              (let ((pixel (keycap-preview-probe-sync 2 1 80 40)))
+                (should (equal (reading) '(t t "-")))
+                ;; Moved right, the camera sees the circle further left.
+                (setq keycap--preview-pan '(0.5 . 0.0))
+                (render)
+                (should (< (car (keycap-preview-probe-sync 2 1 80 40)) (car pixel)))
+                (should (equal (reading) '(t t "-")))))
+          (kill-buffer snapshot))))))
 
 (ert-deftest keycap-test-preview-goto-shape ()
   (skip-unless keycap-test-server)
@@ -1560,7 +1630,7 @@ The preview renders into a 300 by 200 window; batch Emacs has none."
       (should (string-match-p "\\`line 3: .*q" keycap--preview-failure))
       ;; The last frame stays.
       (should (eq keycap--preview-image image))
-      (should (string-prefix-p keycap--preview-failure (keycap--preview-header))))))
+      (should (string-prefix-p keycap--preview-failure (keycap-preview-header))))))
 
 (ert-deftest keycap-test-preview-follows ()
   (skip-unless keycap-test-server)
@@ -1610,7 +1680,7 @@ The preview renders into a 300 by 200 window; batch Emacs has none."
               (keycap-test-wait (lambda () (nth 3 keycap--export)))
               (should-error (keycap-export-stl file) :type 'user-error))
             (should (string-match-p "\\`shaded iso  ·  Exporting keycap-test-[^ ]+\\.stl: sampling, [0-9]+ s (C-g cancels)"
-                                    (keycap--preview-header)))
+                                    (keycap-preview-header)))
             ;; The preview renders meanwhile.
             (let ((frame keycap--preview-frame))
               (keycap-preview-orbit-left)

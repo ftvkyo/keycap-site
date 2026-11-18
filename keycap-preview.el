@@ -266,8 +266,8 @@ While a render runs, this waits for it, then renders what is current."
                               scale))))
     (force-mode-line-update)))
 
-(defun keycap--preview-request (width height)
-  "The `render' request for a WIDTH by HEIGHT frame."
+(defun keycap-preview-request (width height)
+  "The `render' request for a WIDTH by HEIGHT frame of what the preview shows."
   `((op . "render")
     (output . ,(keycap--preview-frame-file))
     (width . ,width)
@@ -293,7 +293,7 @@ While a render runs, this waits for it, then renders what is current."
 (defun keycap--preview-send (width height scale)
   "Ask the server for a WIDTH by HEIGHT frame, to show SCALE times denser."
   (let ((preview (current-buffer))
-        (request (keycap--preview-request width height)))
+        (request (keycap-preview-request width height)))
     (condition-case error
         (progn
           (with-current-buffer keycap--preview-source
@@ -568,8 +568,8 @@ is a button."
                       (concat " " (keycap--preview-button "perspective" #'keycap-preview-projection
                                                           "mouse-1: switch to orthographic")))))))
 
-(defun keycap--preview-header ()
-  "The preview's header line."
+(defun keycap-preview-header ()
+  "The preview's header line, as text."
   (let ((frame keycap--preview-frame))
     ;; Messages may hold `%', which the header line would take for its own.
     (string-replace
@@ -696,6 +696,98 @@ its own."
   (keycap--preview-flush)
   (when keycap--preview-directory
     (delete-directory keycap--preview-directory t)))
+
+
+;; --- Snapshots ---
+
+;; A preview that no window shows and no edit changes, rendered by hand:
+;; for frames made in a batch, such as the manual site's.
+
+(defun keycap-preview-snapshot (script &rest settings)
+  "A preview of the script buffer SCRIPT, set up by SETTINGS, that no window shows.
+It does not follow the script: `keycap-preview-request' is its render
+request, which the script's server answers, and `keycap-preview-set-frame'
+takes the reply.  Killing it deletes its frames.  SETTINGS are:
+
+- `:report', the `load' report whose model it shows, SCRIPT's last by default
+- `:failure', why the script fails to load, by default the report's
+- `:view', `shaded', `heightmap', `sdf' or `mono', by default the one the
+  preview starts in for the model
+- `:camera', (AZIMUTH ELEVATION) in degrees, iso by default
+- `:slice', (AXIS OFFSET TILT), AXIS `x', `y' or `z', OFFSET nil for the
+  middle of the bounds and TILT (RIGHT . UP) in degrees; level across Z
+  through the middle by default
+- `:bounds', `script' or `fitted', and `:backend', `gpu' or `cpu', by
+  default `keycap-preview-bounds' and `keycap-preview-backend'."
+  (let ((report (or (plist-get settings :report) (buffer-local-value 'keycap--report script)))
+        (slice (plist-get settings :slice))
+        (camera (plist-get settings :camera)))
+    (with-current-buffer (generate-new-buffer (format "*keycap: %s*" (buffer-name script)))
+      (keycap-preview-mode)
+      (keycap--preview-reset-camera)
+      (setq keycap--preview-source script
+            keycap--preview-directory (keycap--preview-make-directory (buffer-name script))
+            keycap--preview-report report
+            keycap--preview-failure (if (plist-member settings :failure)
+                                        (plist-get settings :failure)
+                                      (keycap-report-failure report))
+            keycap--preview-view (or (plist-get settings :view)
+                                     (if (keycap-report-flat-p report) 'sdf keycap-preview-view))
+            keycap--preview-bounds (or (plist-get settings :bounds) keycap-preview-bounds)
+            keycap--preview-backend (or (plist-get settings :backend) keycap-preview-backend)
+            keycap--preview-axis (or (car slice) 'z)
+            keycap--preview-offset (or (nth 1 slice) (keycap--preview-middle keycap--preview-axis))
+            keycap--preview-tilt (or (nth 2 slice) '(0 . 0)))
+      (when camera
+        (setq keycap--preview-azimuth (car camera)
+              keycap--preview-elevation (keycap--preview-elevation (cadr camera))))
+      (current-buffer))))
+
+(defun keycap-preview-set-frame (frame)
+  "Take FRAME, the server's reply to a render request, as the frame shown.
+The header line and readings are of it; its image is the file the
+request named.  An `error' reply signals it."
+  (when-let* ((error (alist-get 'error frame)))
+    (error "%s" error))
+  (setq keycap--preview-frame frame
+        keycap--preview-render-error nil
+        keycap--preview-readout nil))
+
+(defun keycap-preview-probe-sync (right up width height)
+  "Read the model at RIGHT and UP on the level slice of a 2D view.
+The reading shows in the header line as the mouse's would.  WIDTH and
+HEIGHT are the frame's, in pixels.  Return the pixel read, (X . Y) from
+the frame's top left corner."
+  (unless (keycap--preview-2d-p)
+    (user-error "Only the 2D views show a slice"))
+  (pcase-let* ((`(,across ,upward) (pcase keycap--preview-axis
+                                     ('x '(y z))
+                                     ('y '(x z))
+                                     (_ '(x y))))
+               (scale (alist-get 'scale keycap--preview-frame))
+               (x (+ (/ width 2.0)
+                     (/ (- right (keycap--preview-middle across)) scale)
+                     (* -0.5 height (car keycap--preview-pan))))
+               (y (+ (/ height 2.0)
+                     (/ (- (keycap--preview-middle upward) up) scale)
+                     (* 0.5 height (cdr keycap--preview-pan)))))
+    (keycap--preview-read
+     (with-current-buffer keycap--preview-source
+       (keycap-request-sync `((op . "probe") (x . ,(floor x)) (y . ,(floor y))))))
+    (cons x y)))
+
+(defun keycap-preview-idle-p (&optional script)
+  "Non-nil when the preview of SCRIPT shows a frame, and nothing loads or renders.
+SCRIPT is a script buffer, the current one by default."
+  (let ((script (or script (current-buffer))))
+    (when-let* ((preview (buffer-local-value 'keycap--preview script))
+                ((buffer-live-p preview)))
+      (with-current-buffer preview
+        (and keycap--preview-frame
+             (not keycap--preview-rendering)
+             (not keycap--preview-pending)
+             (not (buffer-local-value 'keycap--load-waiting script))
+             (not (buffer-local-value 'keycap--load-timer script)))))))
 
 
 ;; --- Commands ---
@@ -1258,17 +1350,30 @@ toward you, right takes its right edge away."
 (defun keycap-preview-view-menu ()
   "Pick the preview's view from a menu."
   (interactive nil keycap-preview-mode)
-  (popup-menu (cons "View" keycap--preview-view-items)))
+  (popup-menu (keycap-preview-menu 'view)))
 
 (defun keycap-preview-camera-menu ()
   "Pick the preview's camera from a menu."
   (interactive nil keycap-preview-mode)
-  (popup-menu (cons "Camera" keycap--preview-camera-items)))
+  (popup-menu (keycap-preview-menu 'camera)))
 
 (defun keycap-preview-slice-menu ()
   "Pick the slice of the preview's 2D views from a menu."
   (interactive nil keycap-preview-mode)
-  (popup-menu (cons "Slice" keycap--preview-slice-items)))
+  (popup-menu (keycap-preview-menu 'slice)))
+
+(defun keycap-preview-menu (name)
+  "The preview's menu NAME, as a keymap.
+NAME is `context', the menu a right click on the model opens, or `view',
+`camera' or `slice', the menu of that word of the header line."
+  (pcase name
+    ;; A click on the frame, which `posn-image' takes for one on an image
+    ('context (keycap--preview-context-menu (make-sparse-keymap)
+                                            '(mouse-3 (nil 1 (0 . 0) 0 nil 1 nil (image) nil nil))))
+    ('view (easy-menu-create-menu "View" keycap--preview-view-items))
+    ('camera (easy-menu-create-menu "Camera" keycap--preview-camera-items))
+    ('slice (easy-menu-create-menu "Slice" keycap--preview-slice-items))
+    (_ (error "No preview menu %s" name))))
 
 (defun keycap--preview-context-menu (menu click)
   "Fill MENU with the preview's menu, for a mouse CLICK on the preview.
@@ -1454,7 +1559,7 @@ In 2D views, of the shape the mouse is in, or else the nearest one."
               truncate-lines nil
               show-trailing-whitespace nil
               display-line-numbers nil
-              header-line-format '(:eval (keycap--preview-header))
+              header-line-format '(:eval (keycap-preview-header))
               revert-buffer-function #'keycap--preview-revert
               context-menu-functions '(keycap--preview-context-menu))
   (add-hook 'kill-buffer-hook #'keycap--preview-cleanup nil t)
