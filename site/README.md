@@ -26,7 +26,8 @@ nix-build -A all --arg frameCache "$(readlink result-cache)"  # the same, from t
 
 `frameCache` is a directory of renders; the `cache` output, `result-cache`, holds the renders the build used, from `frameCache` or new, and no others, so a frame no page shows any more drops out.
 A render is kept under the hash of everything that makes it -- keycap-server, the script and the files it imports, the view -- so the site comes out the same, byte for byte, with any cache or none.
-With every frame cached, the build takes about 160 s, most of it Emacs publishing the pages.
+So is each script's evaluation, until a file it imports changes: a block whose frame is cached evaluates nothing.
+With every frame cached, the build takes about 35 s on 6 cores.
 
 A pipeline keeps the `cache` output in a directory that persists between runs and passes it back in:
 

@@ -53,7 +53,7 @@
 ;; One keycap-server renders every block of an Emacs session, on the
 ;; backend `ob-keycap-backend'.  Images are named by a hash of what makes
 ;; them, so an unchanged step keeps its file, and with
-;; `ob-keycap-cache-directory' set, its render.
+;; `ob-keycap-cache-directory' set, its render and its script's evaluation.
 
 ;;; Code:
 
@@ -134,13 +134,89 @@ build without a GPU makes of it.")
 
 (defun ob-keycap--request (request)
   "Send REQUEST to the server of the current script buffer, and return the reply."
+  (ob-keycap--need-server)
   (ob-keycap--wait (lambda (callback) (keycap--request request callback))))
 
+
+;; --- Loading ---
+
+;; A `load' reply is kept in `ob-keycap-cache-directory' with the hashes of
+;; the files the script read, and a load of the same script takes it while
+;; those files are unchanged: a block whose image is cached then runs with
+;; no evaluation at all.  A block that needs the server after all, for a
+;; render, a probe or an export, runs again with every load evaluated.
+
+(defvar ob-keycap--keep t
+  "Whether a load may take a kept reply.")
+
+(defvar ob-keycap--kept nil
+  "Whether a load of the block being run took a kept reply.")
+
+(defvar ob-keycap--root nil
+  "The new directory the block being run writes its scripts in, or nil.")
+
+(defconst ob-keycap--root-name "/ob-keycap-root"
+  "What a kept reply and its hash say instead of `ob-keycap--root'.")
+
+(defun ob-keycap--need-server ()
+  "Run the block again, every load evaluated, if a load took a kept reply.
+For what needs the server to have the script."
+  (when ob-keycap--kept
+    (throw 'ob-keycap--evaluate nil)))
+
+(defun ob-keycap--reroot (string from to)
+  "STRING with FROM replaced by TO, or as it is outside a block."
+  (if ob-keycap--root (string-replace from to string) string))
+
+(defun ob-keycap--timeless (reply)
+  "REPLY without its id and its time, so that the same work gives the same bytes."
+  (cons '(ms . 0) (seq-remove (lambda (field) (memq (car field) '(id ms)))
+                              reply)))
+
 (defun ob-keycap--load ()
-  "Load the current script buffer, even if the server has it, and return the reply."
-  (setq keycap--report-tick nil
-        keycap--load-waiting nil)
-  (ob-keycap--wait #'keycap--load))
+  "Load the current script buffer, even if the server has it, and return the reply.
+A kept reply is taken instead, if `ob-keycap--keep' allows it."
+  (let* ((cache (and ob-keycap-cache-directory
+                     (expand-file-name
+                      (concat (ob-keycap--hash keycap-server-program keycap-prelude-directory
+                                               keycap-dialect keycap-overrides
+                                               (ob-keycap--reroot (keycap--path) ob-keycap--root
+                                                                  ob-keycap--root-name)
+                                               (keycap--source))
+                              "-load.eld")
+                      ob-keycap-cache-directory)))
+         (kept (and cache ob-keycap--keep (file-exists-p cache)
+                    (with-temp-buffer
+                      (let ((coding-system-for-read 'utf-8))
+                        (insert-file-contents cache))
+                      (read (ob-keycap--reroot (buffer-string) ob-keycap--root-name
+                                               ob-keycap--root))))))
+    (when cache
+      (ob-keycap--cache-use cache))
+    (if (and kept (equal (car kept) (ignore-errors
+                                      (mapcar #'ob-keycap--file-hash (alist-get 'files (cdr kept))))))
+        ;; As `keycap--load' takes a reply.
+        (progn
+          (setq keycap--report (cdr kept)
+                keycap--report-tick (buffer-chars-modified-tick)
+                keycap--load-waiting nil
+                ob-keycap--kept t)
+          (run-hook-with-args 'keycap--load-functions keycap--report)
+          keycap--report)
+      (setq keycap--report-tick nil
+            keycap--load-waiting nil)
+      (let ((reply (ob-keycap--wait #'keycap--load)))
+        (when (and cache (not (alist-get 'error reply)))
+          (make-directory ob-keycap-cache-directory t)
+          (let ((coding-system-for-write 'utf-8)
+                (print-length nil)
+                (print-level nil))
+            (with-temp-file cache
+              (insert (ob-keycap--reroot
+                       (prin1-to-string (cons (mapcar #'ob-keycap--file-hash (alist-get 'files reply))
+                                              (ob-keycap--timeless reply)))
+                       ob-keycap--root ob-keycap--root-name)))))
+        reply))))
 
 
 ;; --- Scripts ---
@@ -603,12 +679,8 @@ Return the image's file.  A cached render is used unless PARAMS probe it."
           (setq keycap--preview-frame frame)
           (ob-keycap--png (keycap--preview-frame-file) (if cache (concat cache ".png") png))
           (when cache
-            ;; Without the request's id and the render time, so that the same
-            ;; render gives the same bytes.
             (with-temp-file (concat cache ".json")
-              (insert (json-serialize
-                       (cons '(ms . 0) (seq-remove (lambda (field) (memq (car field) '(id ms)))
-                                                   frame))))))))
+              (insert (json-serialize (ob-keycap--timeless frame)))))))
       (when cache
         (copy-file (concat cache ".png") png t)
         (ob-keycap--cache-use (concat cache ".png") (concat cache ".json")))
@@ -727,6 +799,7 @@ REPORT is the script's `load' reply.  A cached message is used if there is one."
         (with-temp-buffer
           (insert-file-contents cache)
           (buffer-string))
+      (ob-keycap--need-server)
       (let ((shown (string-replace (file-name-directory file) ""
                                    (replace-regexp-in-string
                                     " in [0-9.]+ s\\'" ""
@@ -1103,10 +1176,10 @@ Notes, such as a keycap call to prefer, are advice: shown, not failed."
 
 (defun ob-keycap--execute (body params)
   "The result of the block of BODY and PARAMS: an image's file or a frame."
-  (let* ((root (make-temp-file "ob-keycap" t))
+  (let* ((ob-keycap--root (make-temp-file "ob-keycap" t))
          ;; Named as the page's directory is, for the mode line.
          (directory (expand-file-name (file-name-nondirectory (directory-file-name default-directory))
-                                      root))
+                                      ob-keycap--root))
          (state (progn (make-directory directory)
                        (ob-keycap--state body params directory)))
          (script (ob-keycap--script-buffer state))
@@ -1186,7 +1259,7 @@ Notes, such as a keycap call to prefer, are advice: shown, not failed."
           (delete-directory keycap--preview-directory t))
         (kill-buffer preview))
       (ob-keycap--kill script)
-      (delete-directory root t))))
+      (delete-directory ob-keycap--root t))))
 
 (defun ob-keycap--drop-empty (html _backend _info)
   "Nothing for the HTML of a keycap block without code.
@@ -1200,7 +1273,12 @@ Such a block shows only its result."
   (if (ob-keycap--param params :save)
       ""
     (condition-case error
-        (ob-keycap--execute body params)
+        (let ((ob-keycap--kept nil))
+          (or (catch 'ob-keycap--evaluate
+                (ob-keycap--execute body params))
+              (let ((ob-keycap--keep nil)
+                    (ob-keycap--kept nil))
+                (ob-keycap--execute body params))))
       (error
        (error "%s: keycap block of %s: %s" (ob-keycap--where)
               (ob-keycap--param params :model) (error-message-string error))))))
