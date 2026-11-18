@@ -49,8 +49,8 @@ let
     keycap
   ];
 
-  # Without keycap, for tools/preview.sh with a keycap checkout on its load
-  # path: the pinned keycap is neither fetched nor built.
+  # Without keycap, for tools/preview.sh --root, which puts a keycap checkout
+  # on the load path: the pinned keycap is neither fetched nor built.
   emacs-checkout = epkgs.emacsWithPackages [
     epkgs.htmlize
     epkgs.nix-mode

@@ -42,10 +42,10 @@ It writes the site into `public/`.
   With `tools/` on the `load-path` and `(require 'ob-keycap)`, `C-c C-c` on a block renders it in Emacs.
 - The gallery and the manual are written into `content/` by the build: the manual from keycap's `doc/keycap.org`, which is where to fix it.
 - `#+review:` and `#+begin_human` mark what a person has read or written, as `publish.el`'s Review section describes.
-- `tools/preview.sh` publishes into `public/` and serves it on http://localhost:8000, rendering on the GPU when there is one; `--dev` publishes again after an edit and reloads the page.
+- `tools/preview.sh` publishes into `public/` and serves it on http://localhost:8000, rendering on the GPU when there is one.
+  `--root ..` publishes with the keycap, keycap-designs and rhai-ts-mode checkouts beside this one instead of the pins, keycap's server built first; `--dev`, which needs `--root`, publishes again after an edit and reloads the page.
 - `NPINS_OVERRIDE_keycap=../keycap nix-build` builds with a keycap checkout instead of the pin, and so do `NPINS_OVERRIDE_rhai_ts_mode` and `NPINS_OVERRIDE_keycap_designs`, with underscores for dashes.
   A checkout is copied to the store without `.git` and `target/`, so keycap's `server/target` stays out.
-- `KEYCAP_DIR=../keycap tools/preview.sh` uses a keycap checkout as it is, its server from `just server-build`.
 - A commit is one change, its subject the area and what the change makes, as in `git log`, with an `Assisted-by:` trailer when an AI helped write it.
 - Issues and patches go to [tangled](https://tangled.org/rei.gay/keycap-site).
 
