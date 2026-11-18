@@ -781,10 +781,10 @@ The menu opens under the word, the mouse on it."
   (let* ((header (string-replace "%%" "%" header))
          (command (and menu (not (equal (car menu) "context"))
                        (intern (format "keycap-preview-%s-menu" (car menu)))))
-         (html (ob-keycap--html header (when command
-                                         (lambda (i)
-                                           (when (eq (get-text-property i 'keycap-command header) command)
-                                             '("ef-hover")))))))
+         (html (ob-keycap-html header (when command
+                                        (lambda (i)
+                                          (when (eq (get-text-property i 'keycap-command header) command)
+                                            '("ef-hover")))))))
     (cond
      ((not command) html)
      ((string-match "class=\"ef-hover\">[^<]*" html)
@@ -820,7 +820,7 @@ The menu opens under the word, the mouse on it."
         (format "<span class=\"%s\">%s</span>" (string-join classes " ") text)
       text)))
 
-(defun ob-keycap--html (string &optional extra)
+(defun ob-keycap-html (string &optional extra)
   "STRING as HTML, its faces as classes.
 EXTRA, called with a position in STRING, returns more classes for it."
   (let ((html "")
@@ -936,17 +936,17 @@ Return the HTML and the mode line's position."
                   (here (and (= n point-line) (- point start)))
                   (html (if (and here (= here (length text)))
                             ;; Point past the line's end: the cursor on a space.
-                            (concat (ob-keycap--html text extra) "<span class=\"ef-cursor\"> </span>")
-                          (ob-keycap--html text extra))))
+                            (concat (ob-keycap-html text extra) "<span class=\"ef-cursor\"> </span>")
+                          (ob-keycap-html text extra))))
              (when (and popup (= (line-number-at-pos (cdr popup)) n))
                (let ((column (- (cdr popup) start)))
-                 (setq html (concat (ob-keycap--html (substring text 0 column) extra)
+                 (setq html (concat (ob-keycap-html (substring text 0 column) extra)
                                     "<span class=\"ef-anchor\">"
                                     (ob-keycap--popup (car popup)
                                                       (< (- (cdr window) n) (length (car popup))))
                                     "</span>"
-                                    (ob-keycap--html (substring text column)
-                                                     (lambda (i) (funcall extra (+ i column))))
+                                    (ob-keycap-html (substring text column)
+                                                    (lambda (i) (funcall extra (+ i column))))
                                     (if (and here (= here (length text)))
                                         "<span class=\"ef-cursor\"> </span>"
                                       "")))))
@@ -1033,11 +1033,11 @@ context menu at the mouse, or a header line word's under it."
          (concat "<div class=\"ef-window ef-help\">"
                  (format "<div class=\"ef-text\"><div class=\"ef-lc\"><span class=\"ef-cursor\">%s</span>%s</div></div>"
                          (org-html-encode-plain-text (substring help 0 1))
-                         (ob-keycap--html (substring help 1)))
+                         (ob-keycap-html (substring help 1)))
                  (ob-keycap--modeline t "*Help*" "Top" "<span class=\"ef-mode\">Help</span>")
                  "</div>")
        "")
-     (format "<div class=\"ef-echo\">%s</div>" (if echo (ob-keycap--html echo) ""))
+     (format "<div class=\"ef-echo\">%s</div>" (if echo (ob-keycap-html echo) ""))
      "</figure>")))
 
 

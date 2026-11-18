@@ -1172,41 +1172,12 @@ A tree with nothing inside, such as a factor, is no shape."
   "The longest line of code that fits beside an example's picture.
 An example with a longer one has its picture below the code instead.")
 
-(defun fms-manual-signature-html (text)
-  "TEXT, highlighted by keycap, as HTML: its faces as htmlize's classes.
-Each run with the property `keycap-parameter' is a span of the class p."
-  (let ((start 0)
-        html)
-    (while (< start (length text))
-      (let* ((end (next-single-property-change start 'keycap-parameter text (length text)))
-             (part (substring text start end))
-             (runs (let ((at 0)
-                         runs)
-                     (while (< at (length part))
-                       (let* ((next (next-single-property-change at 'face part (length part)))
-                              (face (get-text-property at 'face part))
-                              (run (org-html-encode-plain-text (substring-no-properties part at next))))
-                         (push (if (and face (symbolp face))
-                                   (format "<span class=\"hl-%s\">%s</span>"
-                                           (string-remove-suffix
-                                            "-face" (string-remove-prefix "font-lock-" (symbol-name face)))
-                                           run)
-                                 run)
-                               runs)
-                         (setq at next)))
-                     (apply #'concat (nreverse runs)))))
-        (push (if (get-text-property start 'keycap-parameter text)
-                  (format "<span class=\"p\">%s</span>" runs)
-                runs)
-              html)
-        (setq start end)))
-    (apply #'concat (nreverse html))))
-
 (defun fms-manual-signature (name)
   "NAME's signatures and types as keycap sets them out, as HTML on one line.
 Each line is a span, its indentation and keycap's `wrap-prefix' as
-properties, so that a line too long for the page wraps at a parameter,
-the rest as far in as that.  Nil when it has none."
+properties, and a parameter's text of the class p, so that a line too
+long for the page wraps at a parameter, the rest as far in as that.  Nil
+when it has none."
   (when-let* ((entry (fms-manual-entry name))
               (signatures (alist-get 'signatures entry)))
     (concat "<code class=\"sig\">"
@@ -1217,7 +1188,9 @@ the rest as far in as that.  Nil when it has none."
                              (format "<span style=\"--indent: %d; --hang: %d\">%s</span>"
                                      (- (length line) (length text))
                                      (length (get-text-property 0 'wrap-prefix line))
-                                     (fms-manual-signature-html text)))))
+                                     (ob-keycap-html
+                                      text (lambda (i)
+                                             (and (get-text-property i 'keycap-parameter text) '("p"))))))))
                        (split-string (keycap-set-out-signatures signatures (alist-get 'types entry)) "\n")
                        "")
             "</code>")))
