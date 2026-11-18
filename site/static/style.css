@@ -305,6 +305,13 @@ pre code {
   /* As wide as its code, beside a float too, so that the button keeps to
      the code's corner. */
   display: flow-root;
+  margin: 1.25rem 0;
+}
+
+/* The block's margin is the container's, or the button would sit above
+   the code. */
+.org-src-container > pre {
+  margin: 0;
 }
 
 button.copy {
@@ -1500,11 +1507,11 @@ figure.example .example-code {
 
 figure.example .example-code .org-src-container {
   height: 100%;
+  margin: 0;
 }
 
 figure.example .example-code pre {
   height: 100%;
-  margin: 0;
   border: none;
   border-radius: 0;
   background: var(--bg);
