@@ -934,7 +934,7 @@ fn polygon(points) {
 ///
 /// Notes:
 /// - Field: exact.
-/// - About 60 operations a corner, and as many an arc.
+/// - About 90 operations a corner, 60 a sharp one, and 5 more where the edge after it is an arc.
 ///
 /// See also: `polygon`, `polygon_clip`, `offset`.
 ///

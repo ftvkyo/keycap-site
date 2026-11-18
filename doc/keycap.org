@@ -251,19 +251,19 @@ Unbounded axes are centred on 0 and as wide as the widest bounded one, or 20 uni
 =C-c C-e= meshes the union of all drawn shapes, within the bounds, into a binary STL.
 The mesh cells are at most 1/resolution units across: the script's ~resolution~, else ~keycap-export-resolution~ (10 cells per mm by default), or with a prefix argument, the one you type.
 Every ~draw~ is exported, reference geometry included; see [[*Reference geometry]].
-Meshing uses every core, or ~keycap-server-threads~ of them; a part the size of a hand at 10 cells per mm takes a few seconds.
+Meshing uses every core, or ~keycap-server-threads~ of them; at 10 cells per mm, a part the size of a hand, such as =knob.keycap=, takes a few seconds, and a vase a few minutes.
 
 #+cindex: export, tolerance
 #+cindex: tolerance
 The mesher makes triangles of the cells' size everywhere, flat faces as dense as curves, so the export then simplifies the mesh: triangles merge wherever the surface stays within ~keycap-export-tolerance~ of the one meshed, a tenth of a cell unless set.
 Sharp edges and thin walls stay, since flattening them would stray further than that; a flat face becomes a few large triangles, and a curve keeps the triangles it needs to bend within the tolerance.
-At 2 cells per mm, a vase that meshes into 1.5 million triangles exports as 49,000 within 0.04 mm, a file thirty times smaller; a tolerance of 0 keeps every triangle.
+At 2 cells per mm, =vase-koch.keycap= meshes into 2 million triangles and exports as 73,000 within 0.04 mm, a file nearly thirty times smaller; a tolerance of 0 keeps every triangle.
 The resolution decides which details the mesh catches, and the tolerance how closely it follows them: a finer resolution for small features, then a tolerance around the printer's own accuracy.
 
 #+cindex: export, cancelling
 The export runs beside everything else: the script can be edited and the preview turned while it does, and it writes the script as it was when the export started.
 The preview's header line shows its progress, such as =Exporting part.stl: sampling, 12 s=: sampling the shapes is most of the time, then triangulating, simplifying and writing.
-The echo area tells the result, such as =Exported part.stl: 48648 triangles (of 1487362, within 0.043) in 64.6 s=.
+The echo area tells the result, such as =Exported knob.stl: 42564 triangles (of 960906, within 0.0053) in 5.1 s=.
 An export that would take more memory than is free stops with an error rather than crowd out the rest of the machine; a lower resolution, or tighter bounds, make it fit.
 =C-c C-k= in the script, or =C-g= in the preview, cancels it; the file keeps what it had, since a mesh only replaces it once it is complete.
 One export runs at a time.
