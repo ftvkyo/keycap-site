@@ -90,6 +90,7 @@ let
       ./publish.el
       ./content
       ./static
+      ./tools/keycap-site-field.el
       ./tools/keycap-site-gallery.el
       ./tools/keycap-site-manual.el
       ./tools/ob-keycap.el

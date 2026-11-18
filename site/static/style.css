@@ -537,7 +537,9 @@ nav#table-of-contents ul {
 /* ===== Landing ===== */
 
 /* The field drawn in characters on the front page, its 70 columns no
-   wider than the page: 0.6em is the font's advance. */
+   wider than the page: 0.6em is the font's advance.  Its frames are one
+   block behind a window a frame high, 15 lines, moved up a frame at a
+   step; --frames is set with them. */
 pre.field {
   margin: 1rem 0 2rem;
   padding: 0;
@@ -546,7 +548,27 @@ pre.field {
   color: var(--muted);
   font-size: min(0.9em, (100vw - 2.5rem) / 70 / 0.6);
   line-height: 1.15;
+  height: 15lh;
   overflow: hidden;
+}
+
+/* A loop in 12 s: the box turns half a turn in it, 15 degrees a second. */
+pre.field > span {
+  display: block;
+  animation: field 12s steps(var(--frames)) infinite;
+}
+
+@keyframes field {
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+/* The first frame, still. */
+@media (prefers-reduced-motion: reduce) {
+  pre.field > span {
+    animation: none;
+  }
 }
 
 pre.field .surface {

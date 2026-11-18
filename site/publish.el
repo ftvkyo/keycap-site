@@ -530,10 +530,11 @@ HTML is the page INFO exports; another page's is left as it is."
 (add-to-list 'org-export-filter-final-output-functions #'keycap-site-tutorial-pager)
 
 
-;; --- Gallery and manual ---
+;; --- Gallery, manual and field ---
 
 (require 'keycap-site-gallery)
 (require 'keycap-site-manual)
+(require 'keycap-site-field)
 
 
 ;; --- Projects ---
@@ -637,7 +638,8 @@ files it lists (separated by colons), as tools/dev.py asks for after an edit."
     (keycap-site-publish-assets)
     (unless only
       (keycap-site-write-gallery)
-      (keycap-site-write-manual))
+      (keycap-site-write-manual)
+      (keycap-site-write-field))
     (let ((org-publish-project-alist (keycap-site-projects)))
       (if only
           (dolist (file (split-string only ":" t))

@@ -63,8 +63,9 @@
  * The field *
  * ========= */
 
-// The site's front page in characters (`tools/field.py`): a disc and a
-// box, joined round, and the bands of their distance field around them.
+// The site's front page in characters, still, with a disc where the site
+// turns a hexagon: a disc and a box, joined round, and the bands of their
+// distance field around them.
 #let field(cols: 70, rows: 15) = {
   let sdf(x, y) = {
     let disc = calc.sqrt(calc.pow(x + 8, 2) + calc.pow(y, 2)) - 5.5
@@ -78,7 +79,7 @@
   let bands = (" ", ".", ":", "-", "=", "+", "*")
   // A non-breaking space, so that runs of them keep their width.
   let blank = "\u{00A0}"
-  // Rows as far apart as field.py's characters are tall: 1.93 widths.
+  // Rows as far apart as the site's characters are tall: 1.93 widths.
   set text(top-edge: "cap-height", bottom-edge: "baseline")
   set par(leading: 1.16em - 0.7em, spacing: 0pt)
   for j in range(rows) {

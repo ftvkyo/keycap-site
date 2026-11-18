@@ -21,7 +21,7 @@ from pathlib import Path
 site = Path(__file__).resolve().parent.parent
 
 # Written by publish.el itself, which must not start another round.
-generated = [site / "content" / "gallery", site / "content" / "manual"]
+generated = [site / "content" / "gallery", site / "content" / "manual", site / "content" / "field.html"]
 skipped = {".git", "target", "node_modules", "__pycache__"}
 
 SCRIPT = """\
@@ -46,6 +46,8 @@ def scan(roots):
             names[:] = [n for n in names if n not in skipped and Path(directory, n) not in generated]
             for name in files:
                 path = Path(directory, name)
+                if path in generated:
+                    continue
                 try:
                     seen[path] = path.stat().st_mtime_ns
                 except FileNotFoundError:
