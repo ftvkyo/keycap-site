@@ -843,11 +843,11 @@ fn _anchor_points(shape, opts, corners, what) {
 /// Such an outline is a `rounded_polygon` with every corner sharp.
 ///
 /// A single loop of straight edges that turns the same way at every corner, with no two points together and no three in a line, is convex.
-/// Its field is then built corner by corner: the same values, to rounding, in half the operations, and several times faster to render.
+/// Its field is then built corner by corner: the same values, to rounding, in a third of the operations, and several times faster to render and to export.
 ///
 /// Notes:
 /// - Field: exact.
-/// - About 40 operations a point, about 20 for a convex polygon.
+/// - About 40 operations a point, about 15 for a convex polygon.
 ///
 /// See also: `rounded_polygon`, `points::union`, `points::miter_offset`, `points::regular_polygon`.
 ///
@@ -948,11 +948,11 @@ fn polygon(points, opts) {
 /// Where they turn opposite ways, it throws, naming the edge.
 ///
 /// A polygon that `polygon` takes as convex, its arcs fitting on every edge with room to spare, is rounded corner by corner.
-/// Its field is then the same values, to rounding, in a quarter of the operations, and several times faster to render.
+/// Its field is then the same values, to rounding, in a fifth of the operations, and several times faster to render and to export.
 ///
 /// Notes:
 /// - Field: exact.
-/// - About 90 operations a corner, 60 a sharp one, and 5 more where the edge after it is an arc; about 20 a corner for a convex polygon.
+/// - About 90 operations a corner, 60 a sharp one, and 5 more where the edge after it is an arc; about 16 a corner for a convex polygon.
 ///
 /// See also: `polygon`, `points::union`, `offset`.
 ///
@@ -1061,10 +1061,15 @@ fn _convex_corners(loops, r) {
 // the largest of its corners' wedges, as each wedge holds the polygon and
 // the nearest corner's or edge's wedge is as far as the polygon.  Outside
 // a wedge, between its sides' normals, its apex is nearest; elsewhere the
-// nearer side's line.  The apex is never nearer than the lines, so `max`
-// with them, against a constant far below elsewhere, chooses it and keeps
-// their interval as the wedge's lower bound.  A corner of radius `k` is
-// the wedge with its sides moved in by `k`, grown by `k`.
+// nearer side's line.  With `q - v = s n1 + t n2`, the lines' distances
+// are `s + c t` and `c s + t`, and the larger of them is
+// `s + t - (1 - c) min(s, t)`: below `s + t` in the cone between the
+// normals, where `s` and `t` are positive, above it elsewhere.  In the
+// cone the apex is no farther than `s + t` and no nearer than the lines,
+// so the larger of the lines and the smaller of the apex and `s + t` is
+// the wedge, with no comparison; and as `s + t` is linear, inside the
+// polygon the wedge's interval stays its lines'.  A corner of radius `k`
+// is the wedge with its sides moved in by `k`, grown by `k`.
 fn _convex_field(corners) {
     let n = corners.len();
     let normals = [];
@@ -1087,8 +1092,10 @@ fn _convex_field(corners) {
         let v = [p[0] - k * (n1[0] + n2[0]) / (1.0 + c), p[1] - k * (n1[1] + n2[1]) / (1.0 + c)];
         let a = if k == 0.0 { lines[(i + n - 1) % n] } else { lines[(i + n - 1) % n] + k };
         let b = if k == 0.0 { lines[i] } else { lines[i] + k };
-        let cone = min(a - c * b, b - c * a);
-        let wedge = max(max(a, b), or(and(_less(0.0, cone), hypot(x - v[0], y - v[1])), -1e30));
+        let dx = x - v[0];
+        let dy = y - v[1];
+        let st = dx * ((n1[0] + n2[0]) / (1.0 + c)) + dy * ((n1[1] + n2[1]) / (1.0 + c));
+        let wedge = max(max(a, b), min(hypot(dx, dy), st));
         let wedge = if k == 0.0 { wedge } else { wedge - k };
         d = if type_of(d) == "()" { wedge } else { max(d, wedge) };
     }

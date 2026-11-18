@@ -949,6 +949,10 @@ mod test {
             };
             cases.push((p, round));
         }
+        // A corner of under 3 degrees, sharp and rounded
+        let thin = vec![[0.0, 0.0], [20.0, 0.0], [0.0, 1.0]];
+        cases.push((thin.clone(), None));
+        cases.push((thin, Some((0.1, vec![None; 3]))));
         for n in (3..=12).chain([64]) {
             let p: Vec<[f64; 2]> = (0..n)
                 .map(|i| {
@@ -1090,6 +1094,56 @@ mod test {
                     "{fast} at {q:?}: {} outside {bound:?}",
                     g.v
                 );
+            }
+        }
+    }
+
+    /// A convex polygon's intervals prove the boxes inside it filled, so
+    /// renders and meshes skip them instead of sampling them point by
+    /// point: on a 64-gon of radius 10, sharp and rounded, every box of a
+    /// lattice 2 across over its middle, and the lattice's own box.
+    #[test]
+    fn convex_polygons_intervals_fill_their_inside() {
+        use fidget::types::Interval;
+
+        let tau = std::f64::consts::TAU;
+        let points = (0..64)
+            .map(|i| {
+                let t = tau * i as f64 / 64.0;
+                format!("[{}, {}]", 10.0 * t.cos(), 10.0 * t.sin())
+            })
+            .collect::<Vec<_>>()
+            .join(", ");
+        let prelude = Path::new(env!("CARGO_MANIFEST_DIR")).join("../prelude");
+        let mut engine = Engine::new(Some(&prelude));
+        for source in [
+            format!("polygon([{points}])"),
+            format!("rounded_polygon([{points}], 0.5)"),
+        ] {
+            let (run, result) = engine.run(&format!("draw({source});"), None, &Overrides::new());
+            if let Err(error) = result {
+                panic!("{source}: {}", error.message);
+            }
+            let shape = jit(&run.drawn[0].tree).expect("compiles");
+            let tape = shape.interval_tape(Default::default());
+            let mut eval = JitShape::new_interval_eval();
+            let mut boxes = vec![[-6.0, 6.0, -6.0, 6.0]];
+            for i in 0..6 {
+                for j in 0..6 {
+                    let (u, v) = (-6.0 + 2.0 * i as f32, -6.0 + 2.0 * j as f32);
+                    boxes.push([u, u + 2.0, v, v + 2.0]);
+                }
+            }
+            for b in boxes {
+                let (bound, _) = eval
+                    .eval(
+                        &tape,
+                        Interval::new(b[0], b[1]),
+                        Interval::new(b[2], b[3]),
+                        Interval::new(0.0, 0.0),
+                    )
+                    .expect("evaluates");
+                assert!(bound.upper() < 0.0, "{source} on {b:?}: {bound:?}");
             }
         }
     }
