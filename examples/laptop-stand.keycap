@@ -163,8 +163,9 @@ fn lock_outline() {
 
 // The original's cut opens the lock's outline by 1: its convex corners
 // rounded, its concave ones sharp.
-let lock_2d = rounded_polygon(lock_outline(), 1.0, #{concave: 0});
-let lock = polygon(lock_outline())
+let lock_points = lock_outline();
+let lock_2d = rounded_polygon(lock_points, 1.0, #{concave: 0});
+let lock = polygon(lock_points)
     .extrude(LEG_THICKNESS)
     .move([0, 0, LAPTOP_LIFT]);
 
