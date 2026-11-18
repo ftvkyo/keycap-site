@@ -51,35 +51,43 @@ the face `keycap-kind-KIND'.")
 
 (defface keycap-kind-2d
   '((((background dark)) :foreground "#aad94c") (t :foreground "#5b7a00"))
-  "The kind of 2D shapes, in descriptions.")
+  "The kind of 2D shapes, in descriptions."
+  :group 'keycap)
 
 (defface keycap-kind-3d
   '((((background dark)) :foreground "#59c2ff") (t :foreground "#1f6fb5"))
-  "The kind of solids, in descriptions.")
+  "The kind of solids, in descriptions."
+  :group 'keycap)
 
 (defface keycap-kind-extrude
   '((((background dark)) :foreground "#95e6cb") (t :foreground "#2d8f73"))
-  "The kind of solids made from 2D shapes, in descriptions.")
+  "The kind of solids made from 2D shapes, in descriptions."
+  :group 'keycap)
 
 (defface keycap-kind-csg
   '((((background dark)) :foreground "#f07178") (t :foreground "#d33a46"))
-  "The kind of combinations and offsets, in descriptions.")
+  "The kind of combinations and offsets, in descriptions."
+  :group 'keycap)
 
 (defface keycap-kind-transform
   '((((background dark)) :foreground "#d2a6ff") (t :foreground "#8a55c4"))
-  "The kind of transforms, in descriptions.")
+  "The kind of transforms, in descriptions."
+  :group 'keycap)
 
 (defface keycap-kind-pattern
   '((((background dark)) :foreground "#ffb454") (t :foreground "#b78300"))
-  "The kind of copies, in descriptions.")
+  "The kind of copies, in descriptions."
+  :group 'keycap)
 
 (defface keycap-kind-math
   '((t :foreground "#8a9199"))
-  "The kind of numbers and expressions, in descriptions.")
+  "The kind of numbers and expressions, in descriptions."
+  :group 'keycap)
 
 (defface keycap-kind-script
   '((((background dark)) :foreground "#ff8cbe") (t :foreground "#d0558f"))
-  "The kind of the script API, in descriptions.")
+  "The kind of the script API, in descriptions."
+  :group 'keycap)
 
 (defun keycap--kind-label (kind)
   "The label of KIND, in its face; nil for no kind."
