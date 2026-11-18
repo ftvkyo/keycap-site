@@ -445,7 +445,7 @@ impl Device {
             let [w, h] = [side.min(width), side.min(height)];
             let took = self.tile3(view, middle([w, h]), [w, h])?.1;
             let tile = (volume([w, h], view.depth), took.as_secs_f64());
-            let linear = Cost::through((0.0, 0.0), tile);
+            let linear = Cost::linear(tile);
             if linear.of(volume([width, height], view.depth)) <= budget {
                 return Ok(linear);
             }
@@ -580,22 +580,44 @@ impl Device {
 /// through the stages of the render, then a time per voxel once the tiles
 /// of a stage outnumber the GPU's cores.  Shapes whose intervals tell
 /// nothing take a long time per voxel, as every voxel is evaluated.
+///
+/// Tiles are (voxels, seconds).  A small tile, such as a frame while the
+/// camera is dragged, takes mostly latency, so the line is fitted through
+/// two tiles of sizes far apart, and keeps its latency only until there
+/// are two.
 #[derive(Clone, Copy, Debug)]
 struct Cost {
     /// Seconds
     latency: f64,
     /// Seconds
     per_voxel: f64,
+    /// The tile the line was last fitted to
+    last: (f64, f64),
+    /// The latest tile at least twice or at most half the size of `last`
+    other: Option<(f64, f64)>,
 }
 
 impl Cost {
-    /// The line through two tiles, as (voxels, seconds), the first the
-    /// smaller.
-    fn through(a: (f64, f64), b: (f64, f64)) -> Cost {
-        let per_voxel = ((b.1 - a.1) / (b.0 - a.0)).max(0.0);
+    /// The line through the origin and one tile, all of whose time is
+    /// taken as per voxel
+    fn linear(tile: (f64, f64)) -> Cost {
         Cost {
-            latency: (a.1 - per_voxel * a.0).max(0.0),
+            latency: 0.0,
+            per_voxel: tile.1 / tile.0,
+            last: tile,
+            other: None,
+        }
+    }
+
+    /// The line through two tiles of different sizes, `b` the later.
+    fn through(a: (f64, f64), b: (f64, f64)) -> Cost {
+        let (small, large) = if a.0 < b.0 { (a, b) } else { (b, a) };
+        let per_voxel = ((large.1 - small.1) / (large.0 - small.0)).max(0.0);
+        Cost {
+            latency: (small.1 - per_voxel * small.0).max(0.0),
             per_voxel,
+            last: b,
+            other: Some(a),
         }
     }
 
@@ -604,14 +626,22 @@ impl Cost {
         self.latency + self.per_voxel * voxels
     }
 
-    /// The same latency, with the time per voxel of a tile of `voxels`
-    /// that took `took`: the slowest of a frame, so the densest.
+    /// Fitted again to a tile of `voxels` that took `took`, the slowest of
+    /// a frame, so the densest.
     fn refit(&self, took: Duration, voxels: f64) -> Cost {
-        let took = took.as_secs_f64();
-        let latency = self.latency.min(took);
-        Cost {
-            latency,
-            per_voxel: (took - latency) / voxels,
+        let tile = (voxels, took.as_secs_f64());
+        let apart = |other: &(f64, f64)| other.0 >= 2.0 * voxels || 2.0 * other.0 <= voxels;
+        match Some(self.last).filter(apart).or(self.other.filter(apart)) {
+            Some(other) => Cost::through(other, tile),
+            None => {
+                let latency = self.latency.min(tile.1);
+                Cost {
+                    latency,
+                    per_voxel: (tile.1 - latency) / voxels,
+                    last: tile,
+                    other: None,
+                }
+            }
         }
     }
 
@@ -662,4 +692,59 @@ fn geometry(voxels: &[PackedVoxel], view: &View3) -> cpu_voxel::Image {
         };
     }
     image
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use nalgebra::Matrix4;
+
+    fn view(width: u32, height: u32) -> View3 {
+        View3 {
+            world_to_model: Matrix4::identity(),
+            width,
+            height,
+            depth: width.max(height),
+            z_scale: 1.0,
+            scale: 1.0,
+        }
+    }
+
+    /// A GPU whose tiles take `latency`, then the rest of `full` for an
+    /// 800x600 frame, in seconds
+    fn gpu(latency: f64, full: f64) -> impl Fn(&View3) -> (f64, f64) {
+        move |view| {
+            let voxels = volume([view.width, view.height], view.depth);
+            let share = voxels / volume([800, 600], 800);
+            (voxels, latency + (full - latency) * share)
+        }
+    }
+
+    #[test]
+    fn a_frame_after_small_ones_is_one_tile() {
+        let budget = Duration::from_millis(400);
+        let (full, small) = (view(800, 600), view(200, 150));
+        for (latency, seconds) in [(0.03, 0.09), (0.05, 0.25)] {
+            let took = gpu(latency, seconds);
+            let mut cost = Cost::linear(took(&view(MIN_TILE, MIN_TILE)));
+            for view in [&full, &full].into_iter().chain([&small; 30]) {
+                let (voxels, seconds) = took(view);
+                cost = cost.refit(Duration::from_secs_f64(seconds), voxels);
+            }
+            assert_eq!(cost.side(budget, &full), 800);
+            let predicted = cost.of(took(&full).0);
+            assert!(
+                (predicted - seconds).abs() < 0.01,
+                "{predicted} s for {seconds} s"
+            );
+        }
+    }
+
+    #[test]
+    fn sizes_too_close_keep_the_latency() {
+        let cost = Cost::through((4000.0, 0.02), (8000.0, 0.03));
+        let refit = cost.refit(Duration::from_secs_f64(0.04), 5000.0);
+        assert_eq!(refit.latency, cost.latency);
+        assert!(refit.other.is_none());
+    }
 }
