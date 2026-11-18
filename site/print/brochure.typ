@@ -181,7 +181,7 @@
     columns: (1fr, 1fr),
     column-gutter: 4mm,
     align: center,
-    picture("knob-openscad.png", height: 28mm), picture("knob-keycap.png", height: 28mm),
+    picture("knob-openscad.png", height: 25mm), picture("knob-keycap.png", height: 25mm),
     caption[OpenSCAD, at the file's `$fn = 24`], caption[keycap],
   )
 
@@ -208,6 +208,7 @@
   - Review everything by hand, eventually
 
   #v(1fr)
+  #v(3mm)
   #hairline
   #v(0.2em)
   #grid(
