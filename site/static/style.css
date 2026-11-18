@@ -1336,10 +1336,14 @@ dt.entry .hl-function-name {
   font-weight: 700;
 }
 
+/* An entry off screen is laid out only as it nears, at the size it had
+   or else about a median one's: the prelude's page has 16,000 elements. */
 dd.entry {
   margin: 0;
   padding-top: 0.75rem;
   padding-bottom: 0.1rem;
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 55rem;
 }
 
 dt.entry .label {
