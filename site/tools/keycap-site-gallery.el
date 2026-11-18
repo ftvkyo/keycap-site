@@ -15,7 +15,8 @@
 ;; OpenSCAD design with an icon, the page's a link to the original, and
 ;; link to the model on Printables if it is there.  A port also says in
 ;; one line how it compares with its original: an example in its opening
-;; comment, a design in its row of PORTS.md.  A port rewritten with fields
+;; comment, a design in its row of PORTS.md.  A design is labelled with its
+;; idiom, how much of it is drawn with fields; a port rewritten with fields
 ;; shares its page with the rewrite, which PORTS.md compares with it.  The
 ;; renders are keycap blocks; the gallery's directory is written afresh on
 ;; every build.
@@ -308,6 +309,71 @@ With HEADING, the first table under the `## HEADING' line."
   "Keycap designs shown with some of their legends, as export-legends.py takes them.")
 
 
+;; --- Idioms ---
+
+;; A design's `// idiom LEVEL: why' line, under its opening comment, says
+;; how much of it is drawn with fields; the designs' README defines the
+;; levels, in its Idioms section.
+
+(defun keycap-site-idiom (file)
+  "The idiom line of the model FILE, (LEVEL . WHY), or nil without one."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (when (re-search-forward "^// idiom \\([-a-z]+\\): \\(.+\\)$" nil t)
+      (cons (match-string 1) (match-string 2)))))
+
+(defun keycap-site-idiom-levels ()
+  "The idioms' levels as the designs' README defines them, each (LEVEL . MEANING), in order."
+  (when keycap-site-designs
+    (with-temp-buffer
+      (insert-file-contents (expand-file-name "README.md" keycap-site-designs))
+      (when (re-search-forward "^## Idioms$" nil t)
+        (narrow-to-region (point) (if (re-search-forward "^## " nil t) (match-beginning 0) (point-max)))
+        (goto-char (point-min))
+        (cl-loop while (re-search-forward "^- `\\([-a-z]+\\)` -- \\(.+\\)$" nil t)
+                 collect (cons (match-string 1) (match-string 2)))))))
+
+(defun keycap-site-idiom-label (level &optional href)
+  "HTML naming the idiom LEVEL, a link to HREF if given."
+  (if href
+      (format "<a class=\"idiom\" href=\"%s\">%s</a>" href level)
+    (format "<span class=\"idiom\">%s</span>" level)))
+
+(defun keycap-site-idiom-labels (model)
+  "HTML naming the idioms of MODEL's scripts, \"and\" between them, or an empty string."
+  (let ((idioms (delq nil (mapcar #'keycap-site-idiom (keycap-site-scripts model)))))
+    (if idioms
+        (format "<span class=\"idioms\">%s</span>"
+                (mapconcat (lambda (idiom) (keycap-site-idiom-label (car idiom))) idioms " and "))
+      "")))
+
+(defun keycap-site-idiom-lines (model up)
+  "Org lines saying of each of MODEL's scripts why it is of its idiom.
+Each level links to its definition on the gallery's index, UP being the
+way up from MODEL's page to the site's root; with a rewrite, each line
+names its script."
+  (let ((scripts (keycap-site-scripts model)))
+    (mapconcat (lambda (file)
+                 (if-let* ((idiom (keycap-site-idiom file)))
+                     (format "#+html: <p class=\"idiom-why\">%s %s%s</p>\n"
+                             (keycap-site-idiom-label (car idiom) (concat up "gallery/index.html#idioms"))
+                             (if (cdr scripts) (format "<code>%s</code>: " (file-name-nondirectory file)) "")
+                             (org-html-encode-plain-text (cdr idiom)))
+                   ""))
+               scripts "")))
+
+(defun keycap-site-idiom-index ()
+  "The gallery index's definitions of the idioms' levels, or an empty string without them."
+  (if-let* ((levels (keycap-site-idiom-levels)))
+      (concat "Each is marked with how much of it is drawn with fields, rather than with lists of points as in OpenSCAD:\n\n"
+              "#+attr_html: :id idioms :class idioms\n"
+              (mapconcat (pcase-lambda (`(,level . ,meaning))
+                           (format "- @@html:%s@@ :: %s\n" (keycap-site-idiom-label level) (keycap-site-markdown-org meaning)))
+                         levels "")
+              "\n")
+    ""))
+
+
 ;; --- Pages ---
 
 (defun keycap-site-render (file &rest arguments)
@@ -354,7 +420,11 @@ table, the others under it."
                            (let ((name (file-name-nondirectory file)))
                              (concat "#+html: <figure>\n"
                                      (keycap-site-render file ":size \"800 600\"" view (format ":alt %s" name))
-                                     (format "#+html: <figcaption><code>%s</code></figcaption></figure>\n" name))))
+                                     (format "#+html: <figcaption><code>%s</code> %s</figcaption></figure>\n"
+                                             name
+                                             (if-let* ((idiom (keycap-site-idiom file)))
+                                                 (keycap-site-idiom-label (car idiom))
+                                               "")))))
                          scripts "")
               "#+html: </div>\n\n"
               (format "| | %s |\n|-\n"
@@ -397,6 +467,8 @@ A port with a rewrite has the rewrite's files and source on its page too."
                 (if (string-empty-p credits)
                     ""
                   (format "#+html: <p class=\"credits\">%s</p>\n\n" credits)))
+              (let ((idioms (keycap-site-idiom-lines model up)))
+                (if (string-empty-p idioms) "" (concat idioms "\n")))
               summary "\n\n"
               ;; In a box, apart from a list the comment ends with.
               (if about (concat "#+attr_html: :class checked\n" about) "")
@@ -467,7 +539,8 @@ A port with a rewrite has the rewrite's files and source on its page too."
                                          (org-html-encode-plain-text
                                           (string-replace "=" "" (keycap-site-first-sentence
                                                                   (keycap-site-model-summary file))))
-                                         (let ((credits (keycap-site-credits model)))
+                                         (let ((credits (concat (keycap-site-credits model)
+                                                                (keycap-site-idiom-labels model))))
                                            (if (string-empty-p credits)
                                                ""
                                              (format "<p class=\"credits\">%s</p>" credits)))))))
@@ -526,6 +599,7 @@ A group's designs are published at designs/GROUP/, and have their pages there in
       (when designs
         (insert "* My designs\n\n"
                 "Made for something specific of mine.\n\n"
+                (keycap-site-idiom-index)
                 "Two of the ports have a rewrite with fields on their page, since drawing them so changed their shape.\n"
                 "For [[file:designs/earrings/nix.org][nix]] it pays: a seventh of the nodes and under half the export time, for corners up to 0.16 mm off, less than half a 0.4 mm nozzle's width.\n"
                 "For [[file:designs/mods/steam_deck_dpad.org][steam_deck_dpad]] it doesn't: keycap already draws the buttons' convex pentagon about as cheaply as planes, so the rewrite saves a tenth of the render, and moves their corners by 0.24 mm.\n"
