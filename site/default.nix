@@ -22,9 +22,9 @@ let
   # does not compile cleanly.
   epkgs = pkgs.emacsPackagesFor pkgs.emacs-pgtk;
   rhai-ts-mode = epkgs.callPackage "${sources.rhai-ts-mode}/package.nix" { };
+  keycap-server = (import sources.keycap).server;
   keycap = epkgs.callPackage "${sources.keycap}/package.nix" {
-    inherit rhai-ts-mode;
-    keycap-server = (import sources.keycap).server;
+    inherit rhai-ts-mode keycap-server;
   };
 
   # Code blocks are highlighted by rhai-ts-mode, with its patched grammar,
@@ -89,12 +89,13 @@ pkgs.runCommand "keycap-site"
     ];
     # For text() of installed fonts, by name.
     FONTCONFIG_FILE = pkgs.makeFontsConf { fontDirectories = [ legend-font ]; };
-    # For tools/preview.sh and print/.
+    # For tools/preview.sh, print/ and pages.yml.
     passthru = {
       inherit
         emacs
         fonts
         fonts-licence
+        keycap-server
         legend-font
         sources
         ;

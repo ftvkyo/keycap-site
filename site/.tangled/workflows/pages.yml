@@ -23,21 +23,35 @@ environment:
 
 # The renders of the last build: only the frames whose inputs changed are
 # rendered again, and the cache keeps just what this build used.
+# keycap-server, which cache.nixos.org does not have, is kept as an export
+# of its closure, built again when a pin changes.
 cache:
   - key: frames
     paths:
       - .frame-cache
+  - key: keycap-server
+    hash:
+      - npins/sources.json
+    paths:
+      - .keycap-server
 
 steps:
   - name: Build
     command: |
       set -euo pipefail
+      if [ -e .keycap-server/closure ]; then
+        nix-store --import < .keycap-server/closure > /dev/null
+      fi
       mkdir -p .frame-cache
       nix-build -A all --arg frameCache "$PWD/.frame-cache" -o /workspace/site
       rm -rf .frame-cache
       # BusyBox's cp, so plain -r, then the store's read-only modes lifted.
       cp -r /workspace/site-cache/. .frame-cache
       chmod -R u+w .frame-cache
+      if [ ! -e .keycap-server/closure ]; then
+        mkdir -p .keycap-server
+        nix-store --export $(nix-store -qR "$(nix-build --no-out-link -A keycap-server)") > .keycap-server/closure
+      fi
 
   - name: Publish to gh-pages
     command: |
