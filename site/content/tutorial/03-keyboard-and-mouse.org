@@ -87,6 +87,7 @@ Away from a number, the shifted wheel scrolls sideways and the shifted click ope
 
 * Every action
 
+#+attr_html: :class map
 | Action                       | Key                              | Mouse                                                    |
 |------------------------------+----------------------------------+----------------------------------------------------------|
 | Show the preview             | =C-c C-c=                        | =Keycap= menu                                            |

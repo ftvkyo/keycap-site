@@ -418,6 +418,38 @@ th {
   font-weight: 700;
 }
 
+/* A map table, from its first column to the others, is too wide for a
+   phone: there, a row is a block, each cell under the one before it
+   with its column's name, which publish.el copies to it. */
+@media (max-width: 36rem) {
+  table.map thead {
+    display: none;
+  }
+
+  table.map tr {
+    display: block;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  table.map td {
+    display: block;
+    padding: 0.1rem 0;
+    border: none;
+  }
+
+  table.map td:first-child {
+    color: var(--strong);
+  }
+
+  table.map td + td::before {
+    content: attr(data-label) ": ";
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.85em;
+  }
+}
+
 /* ===== Details, lists, contents ===== */
 
 details {

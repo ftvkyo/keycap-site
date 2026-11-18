@@ -277,6 +277,32 @@ It fits on a phone, about 40 columns.")
 
 (add-to-list 'org-export-filter-final-output-functions #'fms-long-code)
 
+(defun fms-map-tables (html _backend _info)
+  "Give each cell of a map table in HTML its column's header, as data-label.
+A map table, of the class map, maps its first column to the others; on
+a phone, each row is stacked, every cell after the first labelled."
+  (replace-regexp-in-string
+   "<table class=\"map\"[^>]*>\\(?:.\\|\n\\)*?</table>"
+   (lambda (table)
+     (let ((labels (save-match-data
+                     (let ((start 0)
+                           labels)
+                       (while (string-match "<th[^>]*>\\(.*?\\)</th>" table start)
+                         (push (replace-regexp-in-string "<[^>]*>" "" (match-string 1 table)) labels)
+                         (setq start (match-end 0)))
+                       (nreverse labels)))))
+       (replace-regexp-in-string
+        "<tr>\\(?:.\\|\n\\)*?</tr>"
+        (lambda (row)
+          (let ((n -1))
+            (replace-regexp-in-string
+             "<td" (lambda (_) (format "<td data-label=\"%s\"" (nth (cl-incf n) labels)))
+             row t t)))
+        table t t)))
+   html t t))
+
+(add-to-list 'org-export-filter-final-output-functions #'fms-map-tables)
+
 
 ;; --- Review ---
 
@@ -1447,6 +1473,10 @@ CHAPTERS are every page's (ID TITLE), TARGETS every heading's (TITLE ID CHAPTER-
           (goto-char heading)
           (org-end-of-subtree t t)
           (insert fms-manual-legend "\n")))
+      ;; Its tables are map tables, OpenSCAD's names to keycap's.
+      (dolist (table (reverse (org-element-map (org-element-parse-buffer 'element) 'table #'identity)))
+        (goto-char (org-element-property :post-affiliated table))
+        (insert (make-string (current-indentation) ?\s) "#+attr_html: :class map\n"))
       ;; Signatures in the text are set out as the entries' are.
       (save-excursion
         (goto-char (point-min))
