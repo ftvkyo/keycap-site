@@ -944,6 +944,15 @@ it runs the hooks that stop its server and kill its preview."
     (should-not keycap--names)
     (should-not keycap--modules)))
 
+(ert-deftest keycap-test-server-missing ()
+  ;; Either way a server starts, a missing one says what to set.
+  (let ((keycap-server-program "keycap-test-no-such-server")
+        (keycap-prelude-directory nil))
+    (with-temp-buffer
+      (dolist (start (list #'keycap--server (lambda () (keycap--fetch-docs 'keycap))))
+        (should (string-match-p "keycap-server-program"
+                                (cadr (should-error (funcall start) :type 'user-error))))))))
+
 (ert-deftest keycap-test-dialect ()
   (let* ((directory (make-temp-file "keycap-test-" t))
          (file (lambda (name text)

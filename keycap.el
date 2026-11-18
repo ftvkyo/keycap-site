@@ -140,6 +140,11 @@ come out to size."
           (when keycap-server-threads
             (list "--threads" (number-to-string keycap-server-threads)))))
 
+(defun keycap--server-missing ()
+  "Signal that `keycap-server-program' is not there to start."
+  (user-error "No %s found: install keycap-server (%s), or set `keycap-server-program'"
+              keycap-server-program "https://keycap.rei.gay/install.html"))
+
 (defun keycap--server ()
   "The current buffer's server, started if it is not running."
   (if (process-live-p keycap--server)
@@ -157,6 +162,9 @@ come out to size."
                  :stderr stderr
                  :filter #'keycap--receive
                  :sentinel #'keycap--server-sentinel)
+              (file-missing
+               (kill-buffer log)
+               (keycap--server-missing))
               (error
                (kill-buffer log)
                (signal (car error) (cdr error))))))
@@ -601,8 +609,10 @@ the face `keycap-kind-KIND'.")
   (with-temp-buffer
     (insert (json-serialize `((id . 0) (op . "docs") (dialect . ,(symbol-name dialect)))) "\n")
     (let* ((command (keycap--command))
-           (status (apply #'call-process-region (point-min) (point-max) (car command)
-                          t '(t nil) nil (cdr command))))
+           (status (condition-case nil
+                       (apply #'call-process-region (point-min) (point-max) (car command)
+                              t '(t nil) nil (cdr command))
+                     (file-missing (keycap--server-missing)))))
       (unless (eql status 0)
         (error "%s exited with %s" (car command) status))
       (goto-char (point-min))
