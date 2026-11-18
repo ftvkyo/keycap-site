@@ -8,9 +8,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "4e1b7b2c099296e9c95c15ea5bbdcf992ddff42f",
+      "revision": "52639f3235f91533e9b247748c3b59b6a6bcf0d5",
       "url": null,
-      "hash": "sha256-t0tlo/oLoNj3cUmPaBnd3vH65rpezT5LBr4vQak4yIo="
+      "hash": "sha256-qCO1tR01gUE0qcHdmnpjcmKfNIpNq3tm2JdZ5RfTGq4="
     },
     "keycap-designs": {
       "type": "Git",
@@ -20,9 +20,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "582de4d0ce8fb5fb3e24ebf1f83694c351d478d8",
+      "revision": "5939c5e2f7ec762e9f3728c8374248cb6edc2a1d",
       "url": null,
-      "hash": "sha256-J1oOGBh+kDlGioQMI2Iht4Yw8c1wJ5iFooE1JsMFKuU="
+      "hash": "sha256-IJo+7/4452S8P2Wiktwct/L5ZycFVTtDOzHeUgBqdpE="
     },
     "nixpkgs": {
       "type": "Channel",
