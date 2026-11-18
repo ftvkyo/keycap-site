@@ -1907,7 +1907,10 @@ The examples =vase-interpolate.keycap=, =vase-koch.keycap=, =gear-involute.keyca
 fidget evaluates the tree over boxes of space with interval arithmetic and skips the boxes it proves empty or full, so speed depends on the tree's size and on how well intervals see through it.
 
 - Copies cost: =grid_array(step, [10, 10])= is a hundred copies in the tree; ~repeat_grid~ is one.
-- ~polygon~ costs about 40 operations per point.
+- ~polygon~ costs about 40 operations per point and ~rounded_polygon~ about 90 per rounded corner, and intervals see through neither well: a prism on a 64-gon of points renders in about 5 CPU-seconds, one on ~regular_polygon(64, r)~ in 0.7.
+  A single convex loop of straight edges takes a path of about 20 operations a corner, with the same values to rounding, and its prism renders in 1.5; =#{convex: false}= keeps the general one.
+  Draw with primitives, planes and their combinations where they fit, and keep points for outlines measured or traced.
+- =keycap/points='s combinations work when the script runs, in about =n * m= steps for outlines of =n= and =m= edges: =scraper.keycap='s six take a tenth of a second.
 - ~text~ and ~svg~ cost about 35 operations per edge of their outlines, but boxes around their contours let a render skip the ones far from each region: a line of ten letters is about 10,000 operations and renders in a tenth of a second.
   An SVG with thousands of small curves, such as a KiCad board's drill holes, is hundreds of thousands, and takes about a second to load and as long to render on the CPU; import it alone, or the part of it you need with =id=.
   The libfive font is a fortieth of the size of a real one.
