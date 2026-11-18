@@ -22,7 +22,7 @@ esac
 port=${1:-8000}
 
 site=$(realpath "$(dirname "$0")/..")
-emacs=$(nix-build --no-out-link -A emacs "$site")
+emacs=$(nix-build --no-out-link -A "emacs${KEYCAP_DIR:+-checkout}" "$site")
 fonts=$(nix-build --no-out-link -A fonts "$site")
 fonts_licence=$(nix-build --no-out-link -A fonts-licence "$site")
 

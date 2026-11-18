@@ -49,6 +49,14 @@ let
     keycap
   ];
 
+  # Without keycap, for tools/preview.sh with a keycap checkout on its load
+  # path: the pinned keycap is neither fetched nor built.
+  emacs-checkout = epkgs.emacsWithPackages [
+    epkgs.htmlize
+    epkgs.nix-mode
+    rhai-ts-mode
+  ];
+
   # Maple Mono, the infra's own font, without ligatures.
   fonts = pkgs.maple-mono.NL-Woff2;
 
@@ -112,6 +120,7 @@ pkgs.runCommand "keycap-site"
     passthru = {
       inherit
         emacs
+        emacs-checkout
         fonts
         fonts-licence
         keycap-server
