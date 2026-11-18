@@ -1,16 +1,22 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # keycap as an Emacs package, its server, prelude and manual at store paths.
-# For `epkgs.callPackage`, with `rhai-ts-mode` the package from its own repository.
+# For `epkgs.callPackage`; besides Emacs, what it needs comes from keycap's
+# pins unless passed.
 {
   lib,
   melpaBuild,
   callPackage,
-  rhai-ts-mode,
-  # ELPA's Org, for the manual: Emacs 30.2's Org 9.7.11 cuts Texinfo
-  # definitions' names at their first `_'.
-  org,
-  keycap-server ? callPackage ./server/package.nix { },
+  rhai-ts-mode ? callPackage "${(import ./npins).rhai-ts-mode}/package.nix" { },
+  # Built with keycap's pinned nixpkgs, whose Rust is new enough for fidget.
+  # One built with the system's nixpkgs, where its Rust is 1.95 or later,
+  # loads a Vulkan driver built against the same glibc.
+  keycap-server ? (import ./default.nix).server,
+  # ELPA's Org from keycap's pinned nixpkgs, for the manual: Emacs 30.2's
+  # Org 9.7.11 cuts Texinfo definitions' names at their first `_', and an
+  # older nixpkgs' ELPA tarball can be gone from elpa.gnu.org. Compiled by
+  # another Emacs, it is only loaded while building.
+  manualOrg ? (import ./default.nix).org,
 }:
 let
   # keycap, its server and its prelude are one version, which keycap.el's
@@ -52,10 +58,10 @@ melpaBuild {
   # docs first.
   postBuild = ''
     emacs --batch -f package-activate-all \
-      -L ${org}/share/emacs/site-lisp/elpa/org-${org.version} -L . \
+      -L ${manualOrg}/share/emacs/site-lisp/elpa/org-${manualOrg.version} -L . \
       -l doc/keycap-reference.el \
       --eval '(keycap-reference-write "doc/keycap.org" "keycap.org" (quote texinfo))'
-    emacs --batch -L ${org}/share/emacs/site-lisp/elpa/org-${org.version} keycap.org \
+    emacs --batch -L ${manualOrg}/share/emacs/site-lisp/elpa/org-${manualOrg.version} keycap.org \
       --eval "(require 'ox-texinfo)" \
       --eval "(setq org-export-use-babel nil)" \
       -f org-texinfo-export-to-texinfo

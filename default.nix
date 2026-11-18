@@ -6,14 +6,11 @@ let
   epkgs = pkgs.emacsPackagesFor pkgs.emacs-pgtk;
 in
 rec {
+  # package.nix's defaults, built with these pins whatever Emacs it is for.
   server = pkgs.callPackage ./server/package.nix { };
+  inherit (epkgs) org;
 
-  rhai-ts-mode = epkgs.callPackage "${sources.rhai-ts-mode}/package.nix" { };
-
-  package = epkgs.callPackage ./package.nix {
-    inherit rhai-ts-mode;
-    keycap-server = server;
-  };
+  package = epkgs.callPackage ./package.nix { };
 
   # An Emacs with the package, for the tests.
   emacs = epkgs.emacsWithPackages [ package ];
