@@ -9,9 +9,9 @@ test:
     emacs=$(nix-build --no-out-link -A emacs default.nix) && \
       "$emacs/bin/emacs" --batch -l test/keycap-tests.el -f ert-run-tests-batch-and-exit
 
-# Write the manual to OUT, its reference from the working tree's prelude and docs and the server
-# `server-build` leaves: Org for Info, or with BACKEND html, for the site.
-manual OUT BACKEND="texinfo":
+# Write the manual to OUT, its reference from the working tree's prelude, docs and server: Org for
+# Info, or with BACKEND html, for the site.
+manual OUT BACKEND="texinfo": server-build
     emacs=$(nix-build --no-out-link -A emacs default.nix) && \
       "$emacs/bin/emacs" --batch -L . -L doc -l keycap-reference \
         --eval '(setq keycap-server-program (expand-file-name "server/target/release/keycap-server"))' \
