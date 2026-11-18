@@ -24,6 +24,7 @@
 ;;; Code:
 
 (require 'keycap)
+(require 'keycap-describe)
 (require 'org)
 (require 'subr-x)
 

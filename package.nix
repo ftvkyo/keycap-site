@@ -27,6 +27,7 @@ melpaBuild {
     root = ./.;
     fileset = lib.fileset.unions [
       ./keycap.el
+      ./keycap-describe.el
       ./keycap-preview.el
       ./doc/keycap.org
       ./doc/keycap-reference.el

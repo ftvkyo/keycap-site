@@ -14,6 +14,7 @@
 (require 'flymake)
 (require 'lisp-mnt)
 (require 'keycap)
+(require 'keycap-describe)
 (require 'keycap-preview)
 
 ;; The manual's generator, from the checkout.
