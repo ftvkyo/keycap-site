@@ -4,10 +4,10 @@
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; A `keycap' source block is a step of a script: the blocks of one
-;; `:model' add up in document order, each block's last `draw' replacing
-;; the last `draw' so far, as the tutorial tells the reader to do.  Its
-;; result is an editor frame -- the script so far beside its preview, as
-;; keycap shows them -- or, with `:frame no', the preview's image alone.
+;; `:model' add up in document order, each block's `draw' lines replacing
+;; the last `draw' lines so far, as the tutorial tells the reader to do.
+;; Its result is an editor frame -- the script so far beside its preview,
+;; as keycap shows them -- or, with `:frame no', the preview's image alone.
 ;; Everything in a frame comes from keycap itself: the render and the
 ;; diagnostics from keycap-server, the header line, completion, ElDoc, the
 ;; reference and the messages from keycap's own functions, run in a
@@ -245,10 +245,16 @@ A kept reply is taken instead, if `ob-keycap--keep' allows it."
   (cons (save-excursion (goto-char (car region)) (line-beginning-position))
         (save-excursion (goto-char (cdr region)) (min (point-max) (1+ (line-end-position))))))
 
-(defun ob-keycap--last-draw ()
-  "The last top-level `draw' statement, as whole lines (START . END), or nil."
-  (when-let* ((draw (car (last (keycap-script-draws)))))
-    (ob-keycap--whole-lines draw)))
+(defun ob-keycap--last-draws ()
+  "The last top-level `draw' statements, as whole lines (START . END), or nil.
+They are the last one and those on the lines right above it, such as a
+step's shapes each drawn in its colour."
+  (when-let* ((draws (reverse (mapcar #'ob-keycap--whole-lines (keycap-script-draws)))))
+    (let ((run (car draws)))
+      (dolist (draw (cdr draws))
+        (when (= (cdr draw) (car run))
+          (setcar run (car draw))))
+      run)))
 
 (defun ob-keycap--draws-p (code)
   "Non-nil when CODE has a top-level `draw'."
@@ -267,7 +273,8 @@ As whole lines (START . END)."
 (defun ob-keycap--add (script body &optional replace drop-draw)
   "SCRIPT once BODY is typed below it.
 The functions named in REPLACE are edited where they are rather than
-added.  The last `draw' so far goes when BODY has one, or with DROP-DRAW."
+added.  The last `draw' lines so far go when BODY has one, or with
+DROP-DRAW."
   (let ((rest (string-trim body "\n+"))
         (edits nil))
     ;; Take the functions to replace out of the block.
@@ -293,8 +300,8 @@ added.  The last `draw' so far goes when BODY has one, or with DROP-DRAW."
           (when (member name defined)
             (error "fn %s is defined already; name it in :replace to edit it" name))))
       (when (or drop-draw (ob-keycap--draws-p rest))
-        (when-let* ((draw (ob-keycap--last-draw)))
-          (delete-region (car draw) (cdr draw))))
+        (when-let* ((draws (ob-keycap--last-draws)))
+          (delete-region (car draws) (cdr draws))))
       (let ((before (string-trim-right (buffer-string))))
         (concat before
                 (cond ((string-empty-p rest) "")
@@ -444,7 +451,7 @@ FILES is where the files saved on the way are put, as (NAME . TEXT)."
       (let* ((next (ob-keycap--next-step blocks position model))
              (end (or (string-search typed next) (error ":typed %S is not in the next step" typed)))
              (start (ob-keycap--add so-far "" nil (ob-keycap--draws-p next))))
-        ;; The script as it was before typing, without the `draw' the step replaces.
+        ;; The script as it was before typing, without the `draw' lines the step replaces.
         (setf (ob-keycap--state-previous state) start
               (ob-keycap--state-script state)
               (string-trim-right (ob-keycap--add start (substring next 0 (+ end (length typed))))
