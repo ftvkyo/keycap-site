@@ -131,10 +131,12 @@ pub struct ScriptFn {
 }
 
 /// The functions `ast` defines, as from `file`, the private ones too
-/// unless `public`.
+/// unless `public`.  Its closures are left out: Rhai names them `anon$`
+/// and a hash that differs from one process to the next.
 fn script_fns(ast: &AST, file: Option<&Path>, public: bool) -> Vec<ScriptFn> {
     ast.iter_functions()
         .filter(|f| !public || f.access != FnAccess::Private)
+        .filter(|f| !f.name.starts_with("anon$"))
         .map(|f| ScriptFn {
             name: f.name.to_owned(),
             params: f.params.iter().map(|p| (*p).to_owned()).collect(),

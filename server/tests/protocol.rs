@@ -329,6 +329,31 @@ fn load_lists_the_functions_a_script_defines_and_imports() {
     assert_eq!(reply["functions"][0]["name"], "f", "{reply}");
 }
 
+/// A closure's name is Rhai's, with a hash that changes from one server to
+/// the next: neither the script's closures nor a module's are listed.
+#[test]
+fn load_lists_no_closures() {
+    let source = "import \"keycap/points\" as points;\n\n\
+                  fn twice(v) { v * 2 }\n\n\
+                  print(points::regular_polygon(4, 1.0).map(|p| p[0]));\n";
+    let functions = || {
+        let reply = with_prelude().load(source, None);
+        assert_eq!(reply["loaded"], true, "{reply}");
+        reply["functions"].clone()
+    };
+    let first = functions();
+    let names: Vec<&str> = first
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(|f| f["name"].as_str())
+        .collect();
+    assert!(names.contains(&"twice"), "{names:?}");
+    assert!(names.iter().any(|n| n.starts_with("points::")), "{names:?}");
+    assert!(!names.iter().any(|n| n.contains("anon$")), "{names:?}");
+    assert_eq!(first, functions());
+}
+
 #[test]
 fn a_failed_load_keeps_the_scene() {
     let dir = scratch("keep");
