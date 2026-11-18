@@ -44,13 +44,22 @@ let
     unzip -p ${fonts.src} LICENSE.txt > $out
   '';
 
-  # The faces the models' text() names, each alone from its nerd-fonts release
-  # rather than the whole family: the keycaps' legends in Iosevka NF Light,
-  # the whistle port's label in JetBrains Mono NF Bold.
+  # The faces the models' text() names, each alone from the nerd-fonts
+  # repository rather than its family's release (84 MB for Iosevka), the
+  # same files as v3.4.0's: the keycaps' legends in Iosevka NF Light, the
+  # whistle port's label in JetBrains Mono NF Bold.
+  nerd-font =
+    path: hash:
+    pkgs.fetchurl {
+      url = "https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v3.4.0/patched-fonts/${path}";
+      inherit hash;
+    };
   legend-font = pkgs.runCommand "legend-fonts" { } ''
     mkdir -p $out/share/fonts
-    tar -xJf ${pkgs.nerd-fonts.iosevka.src} -C $out/share/fonts IosevkaNerdFont-Light.ttf
-    tar -xJf ${pkgs.nerd-fonts.jetbrains-mono.src} -C $out/share/fonts JetBrainsMonoNerdFont-Bold.ttf
+    cp ${nerd-font "Iosevka/IosevkaNerdFont-Light.ttf" "sha256-/xUh3JcanrAfEh+ThywzoQrq57gfgWfUi28lwDU7zFE="} \
+      $out/share/fonts/IosevkaNerdFont-Light.ttf
+    cp ${nerd-font "JetBrainsMono/Ligatures/Bold/JetBrainsMonoNerdFont-Bold.ttf" "sha256-6C4np/N8mgoTzE5BdQOhScagKAWGkwdy0uvtgDFZyGQ="} \
+      $out/share/fonts/JetBrainsMonoNerdFont-Bold.ttf
   '';
 
   src = lib.fileset.toSource {
