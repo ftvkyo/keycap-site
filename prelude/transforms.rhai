@@ -45,7 +45,8 @@ fn rotate_xyz(shape, angles) {
 /// A part that is symmetric across the YZ plane can be drawn as its +X half only.
 ///
 /// Notes:
-/// - Field: exact, as long as the shape's +X half ends at x = 0 or crosses it square.
+/// - Field: exact outside, for a shape at x >= 0.
+///   Inside, near the plane, only where the shape reaches past x = 0 at least as far as its nearest surface is from the plane: a half that ends at x = 0 leaves a field of -|x| there, a bound.
 /// - Costs one evaluation of the shape, where `union(shape, shape.reflect_x())` costs two; the two agree when the shape lies at x >= 0.
 ///
 /// See also: `symmetric_y`, `symmetric_z`, `reflect_x`, `kaleidoscope`.
@@ -72,7 +73,8 @@ fn symmetric_x(shape) {
 /// Whatever the shape has at -Y is replaced by the mirror image, as `symmetric_x` does across X.
 ///
 /// Notes:
-/// - Field: exact, as long as the shape's +Y half ends at y = 0 or crosses it square.
+/// - Field: exact outside, for a shape at y >= 0.
+///   Inside, near the plane, only where the shape reaches past y = 0 at least as far as its nearest surface is from the plane, as for `symmetric_x`.
 ///
 /// See also: `symmetric_x`, `symmetric_z`, `reflect_y`.
 ///
@@ -95,7 +97,8 @@ fn symmetric_y(shape) {
 /// Whatever the shape has at -Z is replaced by the mirror image, as `symmetric_x` does across X.
 ///
 /// Notes:
-/// - Field: exact, as long as the shape's +Z half ends at z = 0 or crosses it square.
+/// - Field: exact outside, for a shape at z >= 0.
+///   Inside, near the plane, only where the shape reaches past z = 0 at least as far as its nearest surface is from the plane, as for `symmetric_x`.
 ///
 /// See also: `symmetric_x`, `symmetric_y`, `reflect_z`.
 ///

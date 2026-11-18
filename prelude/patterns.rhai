@@ -462,7 +462,8 @@ fn hex_grid(step, opts) {
 /// With `n` = 1, it mirrors the shape's +Y half onto -Y, as `symmetric_y`.
 ///
 /// Notes:
-/// - Field: exact, as long as the shape's part in the wedge ends at the wedge's sides or crosses them square.
+/// - Field: exact outside, for a shape in the wedge.
+///   Inside, near the wedge's sides, only where the shape reaches past them at least as far as its nearest surface is from them, as for `symmetric_x`.
 /// - Costs one evaluation of the shape, however many copies there are.
 ///
 /// See also: `repeat_polar`, `symmetric_y`, `recurse`.
