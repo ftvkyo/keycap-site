@@ -101,10 +101,10 @@ build without a GPU makes of it.")
 (defvar ob-keycap-size 960
   "The width and height in pixels of an image: twice its size on the page.")
 
-(defvar ob-keycap-window-lines 28
+(defvar ob-keycap-window-lines 26
   "The lines the code window shows beside a square image.")
 
-(defvar ob-keycap-window-columns 66
+(defvar ob-keycap-window-columns 80
   "The columns of the code window, where long lines wrap at the frame's full width.")
 
 (defvar ob-keycap-background "#0b0e14"

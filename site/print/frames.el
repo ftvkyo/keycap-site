@@ -31,9 +31,9 @@
         ob-keycap-html-directory out
         ;; The light scheme's, which the images are shown on.
         ob-keycap-background "#fcfcfc"
-        ;; The preview's window, 32rem of 18 px, at shoot.py's three
-        ;; pixels to one.
-        ob-keycap-size 1728)
+        ;; The preview's window as shoot.py lays it out: what the code
+        ;; window leaves of 64rem of 18 px, at three pixels to one.
+        ob-keycap-size 1472)
   (when-let* ((cores (string-to-number (or (getenv "NIX_BUILD_CORES") "0")))
               ((> cores 0)))
     (setq keycap-server-threads cores))
@@ -47,7 +47,7 @@
     ;; image is taller, so that the menu fits under the mouse.
     (pcase-dolist (`(,name ,extra ,class)
                    '(("frame" "" "")
-                     ("frame-menu" " :size \"1728 1944\" :pointer \"0.24 0.27\" :menu context" "preview")))
+                     ("frame-menu" " :size \"1472 1656\" :pointer \"0.24 0.27\" :menu context" "preview")))
       (let* ((default-directory (file-name-as-directory out))
              (html (org-export-string-as (format "#+begin_src keycap%s%s\n#+end_src\n" header extra)
                                          'html t)))

@@ -18,7 +18,7 @@ body {
 
 .preview .ef {
   grid-template-columns: minmax(0, 1fr);
-  width: 32rem;
+  width: calc(64rem - var(--ef-code-width) - 2px);
 }
 
 .preview .ef-code,

@@ -38,7 +38,7 @@ Hovering a button highlights it and shows a tooltip with what a click does.
 
 Right-click the preview for its menu: the views, the cameras (or, in 2D, the slices), the toggles and the exports, each with its key.
 
-#+begin_src keycap :model knob :view shaded :pointer "0.4 0.28" :menu context :alt The preview's context menu open at the mouse, over the knob: go to shape, the four views, the cameras, the toggles and the exports
+#+begin_src keycap :model knob :view shaded :pointer "0.4 0.25" :menu context :alt The preview's context menu open at the mouse, over the knob: go to shape, the four views, the cameras, the toggles and the exports
 #+end_src
 
 On the image, the menu starts with "Go to Shape": it moves to the script, at the =draw= of the shape under the mouse.

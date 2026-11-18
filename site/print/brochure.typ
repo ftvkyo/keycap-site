@@ -104,7 +104,7 @@
       In the preview, dragging with the mouse turns the model, the wheel zooms, and a double click goes to the shape's `draw` in the script.
       A right click opens a menu with the views, the cameras and the exports.
     ],
-    detail("frame-menu.png", (0.2286, 0.2723, 0.3848, 0.1913), width: 38mm),
+    detail("frame-menu.png", (0.2266, 0.2718, 0.4217, 0.2084), width: 38mm),
   )
 ]
 

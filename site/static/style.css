@@ -591,7 +591,9 @@ pre.field .surface {
 /* A step of the tutorial as keycap shows it in Emacs: the script so far,
    and its preview beside it.  The faces are Rei's Emacs theme; wider
    than the text, as two windows need to be.  The images' background is
-   transparent, so the preview takes the frame's. */
+   transparent, so the preview takes the frame's.  The code window has
+   80 columns after the fringe and the line numbers' 5.5, and half a
+   column to spare; the preview takes the rest, at least 40%. */
 .ef {
   --ef-bg: #0b0e14;
   --ef-fg: #e6e1cf;
@@ -619,9 +621,10 @@ pre.field .surface {
   --ef-d4: #508ea7;
   --ef-d5: #b5638a;
   --ef-d6: #b59fa9;
+  --ef-code-width: 86ch;
 
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, var(--ef-code-width)) minmax(40%, 1fr);
   gap: 0 2px;
   width: min(64rem, 100vw - 2rem);
   margin: 1.5rem 0 1.5rem calc(50% - min(32rem, 50vw - 1rem));
@@ -631,7 +634,7 @@ pre.field .surface {
   overflow: hidden;
   color: var(--ef-fg);
   font-family: var(--mono);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   line-height: 1.5;
 }
 
