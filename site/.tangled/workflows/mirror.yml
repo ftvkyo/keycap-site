@@ -3,9 +3,12 @@
 # Mirror main and every tag to GitHub. Other branches stay on the knot, and
 # --prune only reaches tags, so pages.yml's gh-pages is left alone.
 #
-# Runs on the spindle at spindle.rei.gay. GITHUB_MIRROR_TOKEN is a repository
-# secret (Settings > Pipelines > Secrets): a fine-grained token for
-# ftvkyo/keycap-site with Contents read and write.
+# Runs on the spindle at spindle.rei.gay, picked in the repository's
+# Settings > Pipelines. GITHUB_MIRROR_TOKEN is a repository secret
+# (Settings > Pipelines > Secrets): a fine-grained token for
+# ftvkyo/keycap-site with Contents read and write. The first push also
+# needs Workflows read and write, since the history adds and removes a
+# GitHub workflow.
 when:
   - event: push
     branch: main

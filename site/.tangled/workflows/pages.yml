@@ -8,6 +8,12 @@
 # makes the same commit, and only changed files are uploaded. Runs on the
 # spindle at spindle.rei.gay, with the GITHUB_MIRROR_TOKEN secret that
 # mirror.yml uses.
+#
+# Set up once: in the GitHub repository's settings, Pages deployed from
+# gh-pages, with the custom domain keycap.rei.gay; at the DNS host of
+# rei.gay, a CNAME from keycap to <owner>.github.io, and rei.gay verified in
+# the account's Pages settings (a TXT record), so that no other account can
+# claim it; then "Enforce HTTPS".
 when:
   - event: push
     branch: main
