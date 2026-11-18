@@ -439,7 +439,6 @@ This chapter is about what is particular to modelling with it.
 :PROPERTIES:
 :DESCRIPTION: A script runs once and builds an expression.
 :END:
-#+cindex: tree
 #+cindex: tracing
 #+cindex: field
 
@@ -634,7 +633,7 @@ union(
 - Positional arguments are matched by type, so their order is free when every field's type is different.
 - A 2D vector stands in for a 3D one, the missing Z taking the field's default.
 - Two values of the same type are ambiguous: ~circle(1, 2)~ quietly makes a circle of radius 2.
-- Shapes whose fields share types take them in order, as ~rectangle(lower, upper)~ and ~extrude_z(shape, lower, upper)~ do.
+- Shapes whose fields share types take every field, in order, as ~rectangle(lower, upper)~ and ~extrude_z(shape, lower, upper)~ do: =s.repeat_x(5, 0)=, never =s.repeat_x(5)=.
 - A transform called with a shape and a map, as in =s.rotate_x(#{angle: 30})=, needs every field in the map, defaults included, or fails with =field center must be provided for RotateX=.
   Without the map, defaults apply: ~s.rotate_x(30)~.
 - Vectors are arrays, =[1, 2]= or =[1, 2, 3]=, or ~vec2~ and ~vec3~ values.
@@ -851,22 +850,63 @@ They are described in [[*Modules reference]].
 
 To add your own library everywhere, copy the prelude directory, add files to it and point ~keycap-prelude-directory~ there.
 
-* Shapes reference
+* Concepts
 :PROPERTIES:
-:DESCRIPTION: fidget's built-in shapes and transforms.
+:DESCRIPTION: Trees and shapes, the reference's types and signatures, units.
 :END:
-#+cindex: shapes
+#+cindex: concepts
 
-fidget's own shapes, as of fidget a386417.
-Each is documented with its fields, in order; =C-c C-d= shows the same, from fidget itself.
-Which fields may be left out depends on the form of the call, as its signatures show; see [[*Reading signatures]].
+What the reference chapters take as known; [[*Writing models]] shows it at work.
+
+** Trees and shapes
+:PROPERTIES:
+:DESCRIPTION: The one kind of value a model is made of.
+:END:
+#+cindex: tree
+#+cindex: Tree, type
+#+cindex: Shape, type
+
+A /tree/ is an expression of the coordinates ~x~, ~y~ and ~z~, such as =hypot(x, y) - 5=.
+A script builds its trees once, as it runs, and fidget evaluates them later, at every point it renders or meshes.
+A tree's value at a point is its field there.
+
+A script has one type for trees, =Tree=, as ~type_of~ and error messages name it.
+=Shape= in a signature is a =Tree= read as a solid, negative inside, positive outside and zero on its surface, while =Tree= is any such value, a number that may vary over space.
+So any tree can stand for a shape: =z - 9= is everything below z = 9.
+A 2D shape is a tree without ~z~, in the XY plane; see [[*2D drawings]].
+
+This manual calls fidget's built-ins shapes too, transforms and combinations included, as fidget does.
+fidget calls their parameters fields, as in =field center must be provided for RotateX=; anywhere else, a field is a tree's values.
+
+** Types
+:PROPERTIES:
+:DESCRIPTION: The types in the reference's signatures.
+:END:
+#+cindex: types
+#+cindex: number, type
+#+cindex: Vec2, type
+#+cindex: Vec3, type
+#+cindex: Axis, type
+#+cindex: Plane, type
+#+cindex: Ease, type
+#+cindex: Height, type
+#+cindex: Sched, type
+
+- =number= :: a number that is known when the script runs, such as a count or a size; Rhai keeps integers and floats apart, see [[*Numbers and trees]]
+- =Tree= :: a number that may vary over space: a number, or an expression of ~x~, ~y~ and ~z~; given only numbers, a function that returns a =Tree= returns a number, unless its entry says otherwise
+- =Shape= :: a =Tree= read as a solid, below 0 inside and above 0 outside
+- =Vec2=, =Vec3= :: =[x, y]= and =[x, y, z]=, of numbers, or ~vec2~ and ~vec3~ values; =[x, y]= stands for a =Vec3= with z = 0 for a point or a direction, or 1 for a scale or a count, but a 3D size needs all three
+- =Axis=, =Plane= :: fidget's axes and planes, see ~rotate~ and ~reflect~
+- =Ease= :: an easing, =string | ((t: Tree) => Tree)=: a name that ~ease~ takes, such as ="in_out_sine"=, or a function of =t= from 0 to 1
+- =Height= :: =number | [number, number]=: a height centred on z = 0, or =[z0, z1]=, from =z0= up to =z1=
+- =Sched= :: a value along a part: a =Tree=, a function of =t=, or keyframes in =t=, as ~keyframes~ takes them; =t= runs from 0 to 1 along the part, from the bottom of an extrusion to its top
+- =string=, =bool= :: Rhai's own
 
 ** Reading signatures
 :PROPERTIES:
-:DESCRIPTION: How the reference writes calls and types.
+:DESCRIPTION: How the reference writes calls.
 :END:
 #+cindex: signatures
-#+cindex: types
 
 A function's description starts with the ways to call it, written as in TypeScript:
 
@@ -874,18 +914,6 @@ A function's description starts with the ways to call it, written as in TypeScri
 offset(shape: Shape, d: Tree): Shape
 shape.offset(d: Tree): Shape
 #+end_src
-
-The types are:
-
-- =number= :: a number that is known when the script runs, such as a count or a size
-- =Tree= :: a number, or an expression of ~x~, ~y~ and ~z~ whose value differs from point to point; given only numbers, a function that returns a =Tree= returns a number, unless its entry says otherwise
-- =Shape= :: a =Tree= read as a solid, below 0 inside and above 0 outside
-- =Vec2=, =Vec3= :: =[x, y]= and =[x, y, z]=, of numbers; =[x, y]= stands for a =Vec3= with z = 0, or 1 for a scale or a count, but a 3D size needs all three
-- =Axis=, =Plane= :: fidget's axes and planes, see ~rotate~ and ~reflect~
-- =Ease= :: an easing, =string | ((t: Tree) => Tree)=: a name that ~ease~ takes, such as ="in_out_sine"=, or a function of =t= from 0 to 1
-- =Height= :: =number | [number, number]=: a height centred on z = 0, or =[z0, z1]=, from =z0= up to =z1=
-- =Sched= :: a value along a part: a =Tree=, a function of =t=, or keyframes in =t=, as ~keyframes~ takes them; =t= runs from 0 to 1 along the part, from the bottom of an extrusion to its top
-- =string=, =bool= :: Rhai's own
 
 The notation is:
 
@@ -898,14 +926,40 @@ The notation is:
 - =shape.f(...)= :: the method form, its first argument before the dot
 - =type Slice = ...= :: a name for a type, used by the function it is shown with
 
-fidget's own shapes are called in three ways:
+Which of fidget's fields may be left out, and in which order they come, depends on the form of the call; see [[*Calling shapes]].
 
-- By position :: when no two fields have the same type, the arguments may come in any order, and those with a default may be left out, so =sphere(10)= is a sphere of radius 10.
-  Otherwise every field comes, in order: =s.repeat_x(5, 0)=, never =s.repeat_x(5)=.
-- With a map of every field :: =repeat_x(#{shape: s, radius: 5})=; the keys with a default may be left out.
-- As a method, with a map of the other fields :: =s.rotate_x(#{angle: 30, center: [0, 0, 0]})=; every key is needed, defaults too.
+** Units and axes
+:PROPERTIES:
+:DESCRIPTION: Millimetres, degrees, and Z up.
+:END:
+#+cindex: units
+#+cindex: millimetres
+#+cindex: axes
 
-An array of shapes stands for their union in a map, =[a, b].move(#{offset: [1, 0, 0]})=, but not by position: =[a, b].move([1, 0, 0])= is an error; =union(a, b).move(...)= is not.
+- A length is in millimetres: the SVG and DXF exports are in millimetres, and slicers read an STL's numbers as millimetres.
+- An angle is in degrees, but fidget's ~sin~, ~cos~ and the other trigonometric functions take radians; see [[*Angles in degrees]].
+- 2D shapes lie in the XY plane, and the prelude's round solids and extrusions have their axis along Z.
+- The prelude's shapes are centred on the origin; see [[*Placement and anchors]].
+
+** Scripts and files
+:PROPERTIES:
+:DESCRIPTION: What is drawn, and where functions come from.
+:END:
+
+- A script shows and exports what it passes to ~draw~, and the value of its last expression is not drawn; see [[*Drawing and colours]].
+- The prelude is loaded before every script; its modules load by name, as in =import "keycap/screws" as screws;=, and other files by their path; see [[*The prelude]] and [[*Imports]].
+- A =.keycap= script can call everything in this manual, a =.fidget= script only what fidget's own tools run; see [[*Dialects]].
+
+* Shapes reference
+:PROPERTIES:
+:DESCRIPTION: fidget's built-in shapes and transforms.
+:END:
+#+cindex: shapes
+
+fidget's own shapes, as of fidget a386417.
+Each is documented with its fields, in order; =C-c C-d= shows the same, from fidget itself.
+Which fields may be left out depends on the form of the call; see [[*Calling shapes]].
+Signatures and their types are explained in [[*Concepts]].
 
 ** Built-in 2D shapes
 :PROPERTIES:
@@ -954,6 +1008,7 @@ Moves, rotations and reflections keep a field exact.
 
 fidget adds these to Rhai.
 Most work on both numbers and trees, and return a tree when an argument is a tree; see [[*Numbers and trees]].
+Signatures and their types are explained in [[*Concepts]].
 
 ** Coordinates and constants
 :PROPERTIES:
@@ -1027,6 +1082,8 @@ Rhai's own functions (~print~, ~type_of~, ~to_float~, string and array methods) 
 :DESCRIPTION: The shape library loaded into every script.
 :END:
 #+cindex: prelude, reference
+
+Signatures and their types are explained in [[*Concepts]].
 
 ** Conventions
 :PROPERTIES:
@@ -1349,6 +1406,7 @@ Options are a map, every key optional.
 
 The prelude's modules are imported by name, =import "keycap/screws" as screws;=, wherever the script is; see [[*Imports]].
 Their functions are written here as their examples call them, by the name each section's import gives the module.
+Signatures and their types are explained in [[*Concepts]].
 A script's own top-level function replaces a prelude function of the same name inside the modules too: with =fn cylinder(r, h) { ... }= in the script, =magnets::magnet("6x3")= is built from that =cylinder=, and nothing says so.
 So don't give a script's functions the prelude's names.
 The tables of standard parts only supply dimensions, by size: every shape also takes its dimensions directly.
