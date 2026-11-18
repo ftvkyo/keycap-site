@@ -51,7 +51,8 @@
 
 ;; `keycap' blocks are run by ob-keycap at export, in one keycap-server on
 ;; the CPU, on the build's cores; KEYCAP_BACKEND is for tools/preview.sh,
-;; KEYCAP_CACHE for it and for default.nix's frame cache.
+;; KEYCAP_CACHE for it and for default.nix's frame cache, KEYCAP_COMPRESS
+;; for default.nix.
 
 (add-to-list 'load-path (fms-path "tools"))
 (require 'ob-keycap)
@@ -60,6 +61,7 @@
 (setq org-confirm-babel-evaluate nil
       ob-keycap-examples-directory (expand-file-name "examples" fms-keycap)
       ob-keycap-cache-directory (getenv "KEYCAP_CACHE")
+      ob-keycap-compress (and (getenv "KEYCAP_COMPRESS") t)
       ob-keycap-backend (intern (or (getenv "KEYCAP_BACKEND") "cpu")))
 
 (when-let* ((cores (string-to-number (or (getenv "NIX_BUILD_CORES") "0")))

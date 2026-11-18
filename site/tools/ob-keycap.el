@@ -87,6 +87,12 @@ A build keeps only these, so the cache holds no step that has changed since.")
 (defvar ob-keycap-examples-directory nil
   "Where `:open' finds its files: keycap's examples.")
 
+(defvar ob-keycap-compress nil
+  "Whether frames are made smaller as they are written, by pngquant and oxipng.
+A palette of 256 colours halves them with no difference to the eye, and
+oxipng takes the rest it can without loss; both give the same bytes on
+every run.")
+
 (defvar ob-keycap-backend 'cpu
   "The backend images are rendered on.
 An image is named after its CPU render either way, which is what a
@@ -525,12 +531,28 @@ The server rounds it back to the same bytes."
                      (/ (string-to-number (substring ob-keycap-background i (+ i 2)) 16) 255.0))
                    '(1 3 5))))
 
+(defconst ob-keycap--compressors
+  '(("pngquant" "--speed" "1" "--strip" "--force" "--ext" ".png")
+    ("oxipng" "-q" "-o" "4" "--strip" "safe"))
+  "The commands `ob-keycap-compress' runs on a frame, in order, its file last.")
+
+(defun ob-keycap--compression ()
+  "The commands that compress a frame, their programs found; nil if not asked."
+  (when ob-keycap-compress
+    (mapcar (lambda (command)
+              (cons (or (executable-find (car command)) (error "%s is not installed" (car command)))
+                    (cdr command)))
+            ob-keycap--compressors)))
+
 (defun ob-keycap--png (ppm png)
-  "Convert the frame PPM to PNG, its background transparent."
+  "Convert the frame PPM to PNG, its background transparent, compressed if asked."
   (unless (zerop (call-process "python3" nil nil nil
                                (expand-file-name "ppm2png.py" ob-keycap--directory)
                                ppm png (substring ob-keycap-background 1)))
-    (error "Could not convert %s" ppm)))
+    (error "Could not convert %s" ppm))
+  (pcase-dolist (`(,program . ,arguments) (ob-keycap--compression))
+    (unless (zerop (apply #'call-process program nil nil nil (append arguments (list png))))
+      (error "%s could not compress %s" (file-name-nondirectory program) png))))
 
 (defun ob-keycap--image-directory ()
   "Where images go."
@@ -558,9 +580,11 @@ Return the image's file.  A cached render is used unless PARAMS probe it."
                                     request)))
                  (name (format "%s-%s.png" (file-name-base (buffer-file-name source)) hash))
                  (png (expand-file-name name (ob-keycap--image-directory)))
+                 ;; The image's bytes depend on its compression too, its name not.
                  (cache (and ob-keycap-cache-directory
                              (not (ob-keycap--param params :probe))
-                             (expand-file-name hash ob-keycap-cache-directory)))
+                             (expand-file-name (ob-keycap--hash hash (ob-keycap--compression))
+                                               ob-keycap-cache-directory)))
                  (cached (and cache (file-exists-p (concat cache ".json")))))
       (make-directory (file-name-directory png) t)
       (when cache
