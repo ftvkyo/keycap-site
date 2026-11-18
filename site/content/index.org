@@ -10,7 +10,7 @@
 keycap is an Emacs IDE for designing parts for 3D printing and laser cutting.
 You write a script, and the model it describes is shown next to it, updating as you type.
 
-#+begin_src keycap :open knob.keycap :exports results :alt A knob's script in Emacs on the left, its rendered model on the right
+#+begin_src keycap :open knob.keycap :exports results :alt The knob the script draws: a round handle with a waist, and a ring of twelve bumps on its top
 #+end_src
 
 The scripts are written in [[https://rhai.rs][Rhai]] and run by Matt Keeter's [[https://github.com/mkeeter/fidget][fidget]].
