@@ -15,8 +15,10 @@
 ;; OpenSCAD design with an icon, the page's a link to the original, and
 ;; link to the model on Printables if it is there.  A port also says in
 ;; one line how it compares with its original: an example in its opening
-;; comment, a design in its row of PORTS.md.  The renders are keycap
-;; blocks; the gallery's directory is written afresh on every build.
+;; comment, a design in its row of PORTS.md.  A port rewritten with fields
+;; shares its page with the rewrite, which PORTS.md compares with it.  The
+;; renders are keycap blocks; the gallery's directory is written afresh on
+;; every build.
 ;;
 ;; Loaded by publish.el, on top of its page frame.
 
@@ -225,8 +227,9 @@ For its PAGE, the author and the port's icon are links, the icon's to the origin
                              (replace-regexp-in-string "`\\([^`\n]+\\)`" "=\\1=" text))
    t t))
 
-(defun keycap-site-markdown-table (file)
-  "The rows of the first table in the Markdown FILE, each an alist of its header and cell."
+(defun keycap-site-markdown-table (file &optional heading)
+  "The rows of the first table in the Markdown FILE, each an alist of its header and cell.
+With HEADING, the first table under the `## HEADING' line."
   (when (file-exists-p file)
     (with-temp-buffer
       (insert-file-contents file)
@@ -234,7 +237,9 @@ For its PAGE, the author and the port's icon are links, the icon's to the origin
                                   (split-string (string-trim (string-trim (buffer-substring (point) (line-end-position)))
                                                              "|" "|")
                                                 "|"))))
-        (when (re-search-forward "^|" nil t)
+        (when (and (or (not heading)
+                       (re-search-forward (format "^## %s$" (regexp-quote heading)) nil t))
+                   (re-search-forward "^|" nil t))
           (beginning-of-line)
           (let ((headers (cells))
                 rows)
@@ -269,6 +274,28 @@ For its PAGE, the author and the port's icon are links, the icon's to the origin
                           (keycap-site-port-row (plist-get model :file)) "")))
     (unless (string-empty-p items)
       (concat items "\n"))))
+
+(defun keycap-site-rewrites ()
+  "PORTS.md's SDF-native rewrites, each (PORT REWRITE . ROW): the two files and the row."
+  (mapcar (lambda (row)
+            (cl-flet ((file (header)
+                        (expand-file-name (string-trim (cdr (assoc header row)) "`" "`") keycap-site-designs)))
+              (cl-list* (file "Port") (file "Rewrite") row)))
+          (keycap-site-markdown-table (expand-file-name "PORTS.md" keycap-site-designs) "SDF-native rewrites")))
+
+(defun keycap-site-with-rewrites (models)
+  "MODELS without the SDF-native rewrites, a port that has one with its (REWRITE . ROW) as :rewrite."
+  (let ((rewrites (keycap-site-rewrites)))
+    (seq-keep (lambda (model)
+                (let ((file (plist-get model :file)))
+                  (cond ((seq-find (lambda (rewrite) (equal (cadr rewrite) file)) rewrites) nil)
+                        ((assoc file rewrites) (append model (list :rewrite (cdr (assoc file rewrites)))))
+                        (t model))))
+              models)))
+
+(defun keycap-site-scripts (model)
+  "The scripts of MODEL: its own, then its rewrite's if it has one."
+  (cons (plist-get model :file) (when-let* ((rewrite (plist-get model :rewrite))) (list (car rewrite)))))
 
 (defun keycap-site-keycap-original (file)
   "The original of the keycap design FILE, as its opening comment names it, or nil."
@@ -309,6 +336,42 @@ For its PAGE, the author and the port's icon are links, the icon's to the origin
              legends "")
             "#+html: </div>\n\n")))
 
+(defun keycap-site-rewrite-section (model)
+  "A section comparing MODEL with its SDF-native rewrite, or nil without one.
+The rewrite's first paragraph, renders of both from one side, and their
+row of PORTS.md: the cells of both scripts, \"port / rewrite\", as a
+table, the others under it."
+  (when-let* ((rewrite (plist-get model :rewrite)))
+    (let ((scripts (keycap-site-scripts model))
+          (row (cdr rewrite))
+          (view (if-let* ((view (car (keycap-site-model-views (plist-get model :file)))))
+                    (keycap-site-view-arguments (cdr view))
+                  "")))
+      (concat "* Rewritten with fields\n\n"
+              (car (split-string (keycap-site-model-summary (car rewrite)) "\n\n")) "\n\n"
+              "#+html: <div class=\"pair\">\n"
+              (mapconcat (lambda (file)
+                           (let ((name (file-name-nondirectory file)))
+                             (concat "#+html: <figure>\n"
+                                     (keycap-site-render file ":size \"800 600\"" view (format ":alt %s" name))
+                                     (format "#+html: <figcaption><code>%s</code></figcaption></figure>\n" name))))
+                         scripts "")
+              "#+html: </div>\n\n"
+              (format "| | %s |\n|-\n"
+                      (mapconcat (lambda (file) (format "=%s=" (file-name-nondirectory file))) scripts " | "))
+              (mapconcat (pcase-lambda (`(,header . ,cell))
+                           (if (string-search " / " cell)
+                               (format "| %s | %s |\n" header (string-join (split-string cell " / ") " | "))
+                             ""))
+                         row "")
+              "\n"
+              (mapconcat (pcase-lambda (`(,header . ,cell))
+                           (if (or (member header '("Port" "Rewrite")) (string-search " / " cell))
+                               ""
+                             (format "- %s: %s\n" header (keycap-site-markdown-org cell))))
+                         row "")
+              "\n"))))
+
 (defun keycap-site-up-from (page)
   "The way up from the gallery's PAGE to the site's root."
   (apply #'concat (make-list (1+ (cl-count ?/ page)) "../")))
@@ -317,8 +380,10 @@ For its PAGE, the author and the port's icon are links, the icon's to the origin
   "Write the gallery's page of MODEL.
 ABOUT, an Org list of how it compares with its original, follows its
 opening comment;
-DETAILS, Org sections, its renders."
+DETAILS, Org sections, its renders.
+A port with a rewrite has the rewrite's files and source on its page too."
   (let* ((file (plist-get model :file))
+         (scripts (keycap-site-scripts model))
          (name (plist-get model :title))
          (report (ob-keycap-load file))
          (summary (keycap-site-model-summary file))
@@ -366,14 +431,21 @@ DETAILS, Org sections, its renders."
                            (format "- [[file:%s%s%s][=%s=]]\n"
                                    up (plist-get model :site) (file-relative-name path (plist-get model :root))
                                    (file-relative-name path (file-name-directory file))))
-                         (cons file (keycap-site-example-files model report))
+                         (seq-uniq
+                          (mapcan (lambda (script)
+                                    (cons script (keycap-site-example-files
+                                                  model (if (equal script file) report (ob-keycap-load script)))))
+                                  scripts))
                          "")
               "\n* Source\n\n"
-              "#+begin_src keycap :exports code\n"
-              (org-escape-code-in-string (with-temp-buffer
-                                           (insert-file-contents file)
-                                           (buffer-string)))
-              "#+end_src\n"))))
+              (mapconcat (lambda (script)
+                           (concat (if (cdr scripts) (format "** =%s=\n\n" (file-name-nondirectory script)) "")
+                                   "#+begin_src keycap :exports code\n"
+                                   (org-escape-code-in-string (with-temp-buffer
+                                                                (insert-file-contents script)
+                                                                (buffer-string)))
+                                   "#+end_src\n"))
+                         scripts "\n")))))
 
 (defun keycap-site-cards (models)
   "The cards of MODELS on the gallery's index, each a link to its page."
@@ -413,11 +485,12 @@ A group's designs are published at designs/GROUP/, and have their pages there in
                   (mapcar (lambda (group)
                             (let ((site (concat "designs/" group "/")))
                               (cons group
-                                    (keycap-site-models (expand-file-name group keycap-site-designs) site site
-                                                        (if (equal group "keycaps")
-                                                            #'keycap-site-keycap-original
-                                                          #'keycap-site-port-original)
-                                                        keycap-site-author))))
+                                    (keycap-site-with-rewrites
+                                     (keycap-site-models (expand-file-name group keycap-site-designs) site site
+                                                         (if (equal group "keycaps")
+                                                             #'keycap-site-keycap-original
+                                                           #'keycap-site-port-original)
+                                                         keycap-site-author)))))
                           (if (member "keycaps" groups)
                               (cons "keycaps" (delete "keycaps" groups))
                             groups))))))
@@ -438,7 +511,7 @@ A group's designs are published at designs/GROUP/, and have their pages there in
       (dolist (model models)
         (if (equal group "keycaps")
             (keycap-site-write-model model (keycap-site-port-about model) (keycap-site-keycap-legends model))
-          (keycap-site-write-model model (keycap-site-port-about model) nil))))
+          (keycap-site-write-model model (keycap-site-port-about model) (keycap-site-rewrite-section model)))))
     (with-temp-file (expand-file-name "index.org" directory)
       (insert "#+title: Gallery\n"
               "#+description: Models made in keycap, with their source: its examples and my own designs.\n\n"
@@ -452,7 +525,11 @@ A group's designs are published at designs/GROUP/, and have their pages there in
                 (keycap-site-cards examples)))
       (when designs
         (insert "* My designs\n\n"
-                "Made for something specific of mine.\n\n"))
+                "Made for something specific of mine.\n\n"
+                "Two of the ports have a rewrite with fields on their page, since drawing them so changed their shape.\n"
+                "For [[file:designs/earrings/nix.org][nix]] it pays: a seventh of the nodes and under half the export time, for corners up to 0.16 mm off, less than half a 0.4 mm nozzle's width.\n"
+                "For [[file:designs/mods/steam_deck_dpad.org][steam_deck_dpad]] it doesn't: keycap already draws the buttons' convex pentagon about as cheaply as planes, so the rewrite saves a tenth of the render, and moves their corners by 0.24 mm.\n"
+                "The brooch stays on points, as its plate is the logo's closing by a disc, and a field has no closing.\n\n"))
       (pcase-dolist (`(,group . ,models) designs)
         (insert (format "** %s\n\n" (capitalize group))
                 (if (equal group "keycaps")

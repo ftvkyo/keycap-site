@@ -1196,6 +1196,30 @@ ul.checked {
   margin: 0 0 0.4rem;
 }
 
+/* ===== Gallery: rewrites ===== */
+
+/* A port and its rewrite, side by side. */
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.pair figure {
+  margin: 0;
+}
+
+.pair img {
+  margin: 0 0 0.4rem;
+}
+
+@media (max-width: 36rem) {
+  .pair {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ===== Manual ===== */
 
 /* The manual's own pages, the current one marked. */
