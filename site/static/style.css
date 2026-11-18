@@ -1373,11 +1373,12 @@ dd.entry dl.org-dl dl.org-dl {
 }
 
 /* Reading signatures' types and notation: each term beside what it
-   means, in two columns, as the legend below them. */
+   means, in two columns, as the legend below them.  A term as long as a
+   sentence wraps rather than take the line. */
 @media (min-width: 36rem) {
   #outline-container-reading-signatures dl.org-dl {
     display: grid;
-    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-columns: fit-content(16rem) minmax(0, 1fr);
     gap: 0.35rem 1rem;
   }
 
