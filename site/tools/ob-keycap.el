@@ -121,6 +121,37 @@ build without a GPU makes of it.")
   (ob-keycap--need-server)
   (keycap-request-sync request))
 
+(defvar ob-keycap--contents (make-hash-table :test #'equal)
+  "The hashes `ob-keycap--content' has taken, by path.")
+
+(defun ob-keycap--stored-p (path)
+  "Non-nil when PATH is in the Nix store, whose paths change with their contents."
+  (and path (string-prefix-p "/nix/store/" (expand-file-name path))))
+
+(defun ob-keycap--content (path)
+  "PATH for a hash: as it is in the Nix store, or else its contents' hash.
+A directory's contents are every file under it.  A path is hashed once
+per Emacs, which is once per publish."
+  (if (or (ob-keycap--stored-p path) (not (and path (file-exists-p path))))
+      path
+    (with-memoization (gethash path ob-keycap--contents)
+      (if (file-directory-p path)
+          (sha1 (prin1-to-string
+                 (mapcar (lambda (file)
+                           (cons (file-relative-name file path) (ob-keycap--file-hash file)))
+                         (directory-files-recursively path ""))))
+        (ob-keycap--file-hash path)))))
+
+(defun ob-keycap--server ()
+  "The server and the prelude it runs with, for a hash.
+In the Nix store the server's path stands for both, as keycap's server
+is built from the source its prelude is in."
+  (if (and (ob-keycap--stored-p keycap-server-program)
+           (ob-keycap--stored-p keycap-prelude-directory))
+      keycap-server-program
+    (list (ob-keycap--content (or (executable-find keycap-server-program) keycap-server-program))
+          (ob-keycap--content keycap-prelude-directory))))
+
 
 ;; --- Loading ---
 
@@ -164,7 +195,7 @@ For what needs the server to have the script, or its buffer the reply."
 A kept reply is taken instead, if `ob-keycap--keep' allows it."
   (let* ((cache (and ob-keycap-cache-directory
                      (expand-file-name
-                      (concat (ob-keycap--hash keycap-server-program keycap-prelude-directory
+                      (concat (ob-keycap--hash (ob-keycap--server) keycap-prelude-directory
                                                keycap-dialect keycap-overrides
                                                (ob-keycap--reroot buffer-file-name ob-keycap--root
                                                                   ob-keycap--root-name)
@@ -582,7 +613,7 @@ cached render is used unless PARAMS probe it."
                           ;; The same bytes on every run, on either backend.
                           (alist-get 'reproducible request) t))
                  (hash (ob-keycap--hash
-                        keycap-server-program
+                        (ob-keycap--server)
                         (buffer-local-value 'keycap-dialect script)
                         (buffer-local-value 'keycap-overrides script)
                         (with-current-buffer script
@@ -704,7 +735,8 @@ REPORT is the script's `load' reply.  A cached message is used if there is one."
   (let* ((cache (and ob-keycap-cache-directory
                      (expand-file-name
                       ;; keycap's library too, which words the message.
-                      (concat (ob-keycap--hash keycap-server-program (locate-library "keycap")
+                      (concat (ob-keycap--hash (ob-keycap--server)
+                                               (ob-keycap--content (locate-library "keycap"))
                                                (buffer-substring-no-properties (point-min) (point-max))
                                                keycap-overrides
                                                (mapcar #'ob-keycap--file-hash (alist-get 'files report)))
