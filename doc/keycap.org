@@ -1767,7 +1767,7 @@ The examples =vase-interpolate.keycap=, =vase-koch.keycap=, =gear-involute.keyca
 fidget evaluates the tree over boxes of space with interval arithmetic and skips the boxes it proves empty or full, so speed depends on the tree's size and on how well intervals see through it.
 
 - Copies cost: =grid_array(step, [10, 10])= is a hundred copies in the tree; ~repeat_grid~ is one.
-- ~polygon~ costs about 30 operations per point.
+- ~polygon~ costs about 40 operations per point.
 - ~text~ and ~svg~ cost about 35 operations per edge of their outlines, but boxes around their contours let a render skip the ones far from each region: a line of ten letters is about 10,000 operations and renders in a tenth of a second.
   An SVG with thousands of small curves, such as a KiCad board's drill holes, is hundreds of thousands, and takes about a second to load and as long to render on the CPU; import it alone, or the part of it you need with =id=.
   The libfive font is a fortieth of the size of a real one.
@@ -1781,7 +1781,7 @@ fidget evaluates the tree over boxes of space with interval arithmetic and skips
 - A large, loose bounding region wastes work; set ~bounds~ when the fitted region is too large, or when an unbounded axis leaves it guessing.
 - The GPU renders shaded views fastest; =G= switches to the CPU when it does not.
   It renders a slow frame in tiles, each well short of the time after which the driver resets the GPU.
-- Export time grows with the surface area times the resolution squared: start at 5 cells per mm, go to 10 or 20 for the final part.
+- Export time grows with the surface area times the resolution squared: try a part at 5 cells per mm, then export it at the default 10, or at 20 for fine details.
   The memory does too, which makes a long thin part, such as =feather.keycap=, cheap at a resolution that a vase of the same size could not afford.
 - A script stops after 20 million operations, which only an endless loop reaches.
 
