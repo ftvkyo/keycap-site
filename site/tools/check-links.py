@@ -11,7 +11,7 @@ from urllib.parse import unquote
 
 site = Path(sys.argv[1])
 pages = sorted(site.rglob("*.html"))
-ids = {page: set(re.findall(r'\bid="([^"]+)"', page.read_text())) for page in pages}
+ids = {page.resolve(): set(re.findall(r'\bid="([^"]+)"', page.read_text())) for page in pages}
 dead = []
 for page in pages:
     for link in re.findall(r'\b(?:href|src)="([^"]+)"', page.read_text()):
@@ -24,7 +24,7 @@ for page in pages:
             target = target / "index.html"
         if not target.exists():
             dead.append(f"{page.relative_to(site)}: {link}")
-        elif fragment and target.suffix == ".html" and fragment not in ids.get(target, set(re.findall(r'\bid="([^"]+)"', target.read_text()))):
+        elif fragment and target.suffix == ".html" and fragment not in ids.get(target, ()):
             dead.append(f"{page.relative_to(site)}: {link} (no such id)")
 print(f"{len(pages)} pages, {len(dead)} dead links")
 for line in dead[:40]:
