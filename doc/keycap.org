@@ -118,14 +118,7 @@ After each change, once typing pauses for ~keycap-load-delay~ seconds, it evalua
 The =Keycap= menu in the menu bar has these commands with their keys (=F10= opens it when the menu bar is hidden).
 With ~context-menu-mode~, right-clicking a function or shape offers its description.
 
-#+cindex: Flymake
-#+cindex: errors
-#+cindex: no-prefer
-Flymake marks errors on the exact token, the innermost one first: an error inside a function points at the line in the function, and its message names the calls that led there.
-An error in an imported file or in the prelude is reported at the call that reached it, or at the =import=, its message starting with the file and line.
-Warnings mark a ~draw~ whose shape pokes out of the script's ~bounds~, a script that draws nothing, shapes that are empty everywhere, and, without ~bounds~, a shape unbounded on every axis, such as a bare gyroid.
-In a =.keycap= file, notes mark a call of a fidget built-in that has a better keycap call, such as ~rectangle~ where ~rect~ is exact, and say why.
-A line that reads =// keycap: no-prefer=, anywhere in the file, silences them, for a script that keeps fidget's calls on purpose.
+Flymake marks errors, warnings and notes in the script; see [[*When a script fails]].
 
 #+cindex: completion
 #+cindex: ElDoc
@@ -1864,6 +1857,41 @@ fidget evaluates the tree over boxes of space with interval arithmetic and skips
 :END:
 #+cindex: troubleshooting
 #+cindex: error messages
+
+** When a script fails
+:PROPERTIES:
+:DESCRIPTION: What an error looks like, and where it points.
+:END:
+#+cindex: errors
+#+cindex: Flymake
+
+An error stops the script where it happens:
+
+- Flymake underlines the token that caused it, marks its line in the fringe and counts it in the mode line; with point on the token, the echo area shows the message.
+- The preview's header line shows the line number and the message, and a click on it goes to the line.
+- The preview keeps the last model that worked, so it doesn't go blank while a line is half typed.
+
+Example: misspell ~screw_hole~ in the plate from the [[*Quick start][Quick start]].
+#+begin_src keycap :model plate :exports results :change "screw_hole(" "screw_hol(" :at "screw_hol|(" :expect error :alt The plate's script with screw_hol underlined and the error in the echo area; the preview still shows the plate, the error in its header line
+let plate = rect([40, 30], #{round: 4}).extrude([0, 5]);
+let hole = screw_hole("M3", 10, #{head: "countersunk"})
+    .move([0, 0, 5]);
+let holes = hole.grid_array([30, 20], [2, 2], #{center: true});
+draw(plate.difference(holes));
+#+end_src
+
+The mark is on the innermost place it can be: an error inside a function is marked on its line in the function, and the message names the calls that led there.
+An error in an imported file or in the prelude is marked at the call that reached it, or at the =import=, its message starting with the file and line.
+=M-x flymake-goto-next-error= goes to the next mark, and =M-x flymake-show-buffer-diagnostics= lists them all.
+[[*Error messages]] has the messages a script most often meets.
+
+#+cindex: warnings
+#+cindex: notes
+#+cindex: no-prefer
+Warnings and notes leave the script running.
+Warnings mark a ~draw~ whose shape pokes out of the script's ~bounds~, a script that draws nothing, shapes that are empty everywhere, and, without ~bounds~, a shape unbounded on every axis, such as a bare gyroid.
+In a =.keycap= file, notes mark a call of a fidget built-in that has a better keycap call, such as ~rectangle~ where ~rect~ is exact, and say why.
+A line that reads =// keycap: no-prefer=, anywhere in the file, silences them, for a script that keeps fidget's calls on purpose.
 
 ** Error messages
 :PROPERTIES:
