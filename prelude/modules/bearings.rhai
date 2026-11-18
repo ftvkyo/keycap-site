@@ -21,7 +21,7 @@
 // - [B3] https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-608-Z
 // - [B4] https://bearingsize.info/catalogue-online/deep-groove-ball-bearings/bearing-61800-skf-obj208259.html
 // - [B5] https://www.tuli-shop.com/us/skf-bearing-61800-10x19x5mm ,
-//   https://dsfbearings.co.uk/shop/bearings/deep-groove-ball-bearings/skf/61800-series-skf-bearings
+//   DSF Bearings' "61800 Series SKF Bearings 61800-61808 (6800-6808)"
 // - [B6] https://www.skf.com/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-61803
 // - [B7] https://iskbearing.com/product-details/lm8uu
 // - [B8] https://www.motedis-usa.com/en/Linear-bearing-8mm-LM8UU
@@ -52,7 +52,7 @@
 /// References:
 /// - [ISO 15, Radial bearings, boundary dimensions](https://www.iso.org/standard/69977.html)
 /// - SKF's pages of the [623](https://www.skf.com/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-623), the [625](https://www.skf.com/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-625), the [608](https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-608-Z) and the [61803](https://www.skf.com/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings/productid-61803)
-/// - Distributors' pages of SKF's 618 series: [bearingsize.info](https://bearingsize.info/catalogue-online/deep-groove-ball-bearings/bearing-61800-skf-obj208259.html), [Tuli](https://www.tuli-shop.com/us/skf-bearing-61800-10x19x5mm), [DSF Bearings](https://dsfbearings.co.uk/shop/bearings/deep-groove-ball-bearings/skf/61800-series-skf-bearings)
+/// - Distributors' pages of SKF's 618 series: [bearingsize.info](https://bearingsize.info/catalogue-online/deep-groove-ball-bearings/bearing-61800-skf-obj208259.html), [Tuli](https://www.tuli-shop.com/us/skf-bearing-61800-10x19x5mm), DSF Bearings
 /// - [Ball bearing, Wikipedia](https://en.wikipedia.org/wiki/Ball_bearing)
 ///
 /// Example: a 608's outer diameter, the skateboard bearing's.
