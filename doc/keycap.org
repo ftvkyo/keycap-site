@@ -836,8 +836,8 @@ fidget's own shapes are called in three ways:
 
 - By position :: when no two fields have the same type, the arguments may come in any order, and those with a default may be left out, so =sphere(10)= is a sphere of radius 10.
   Otherwise every field comes, in order: =s.repeat_x(5, 0)=, never =s.repeat_x(5)=.
-- With a map of every field, =repeat_x(#{shape: s, radius: 5})= :: the keys with a default may be left out.
-- As a method with a map of the other fields, =s.rotate_x(#{angle: 30, center: [0, 0, 0]})= :: every key is needed, defaults too.
+- With a map of every field :: =repeat_x(#{shape: s, radius: 5})=; the keys with a default may be left out.
+- As a method, with a map of the other fields :: =s.rotate_x(#{angle: 30, center: [0, 0, 0]})=; every key is needed, defaults too.
 
 An array of shapes stands for their union in a map, =[a, b].move(#{offset: [1, 0, 0]})=, but not by position: =[a, b].move([1, 0, 0])= is an error; =union(a, b).move(...)= is not.
 
