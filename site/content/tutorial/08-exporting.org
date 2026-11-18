@@ -26,7 +26,7 @@ Without =bounds(...)=, the preview finds the bounds itself, from the field, and 
 * Resolution and tolerance
 
 - =resolution(n)= in the script, or =keycap-export-resolution=, is the density of the grid: =n= cells per millimetre.
-  Details smaller than a cell can be lost; a resolution of 5 (cells of 0.2 mm) is fine for most printed parts.
+  Details smaller than a cell can be lost; try a part at 5 (cells of 0.2 mm), then export it at the default 10.
 - The mesh is then simplified wherever that changes it by less than =keycap-export-tolerance=, which is a tenth of a cell by default.
   Flat faces become a few large triangles, and curves keep as many as they need.
 

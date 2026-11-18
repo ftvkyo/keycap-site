@@ -324,7 +324,7 @@ draw(key);
 #+end_src
 
 - =bounds= is a box around the cap: 20 mm square, from just below z = 0 to above the top of row 1, the tallest.
-- =resolution(20)= is 20 cells per millimetre: much finer than the 5 that [[file:08-exporting.org][part 8]] suggests, because the cross has to fit the switch to a few hundredths.
+- =resolution(20)= is 20 cells per millimetre: twice the default 10 that [[file:08-exporting.org][part 8]] exports at, because the cross has to fit the switch to a few hundredths.
 
 Press =C-c C-e=, and =mx.stl= appears next to the script.
 It takes a few seconds, and the echo area says how many triangles the mesh has, before and after simplifying.
