@@ -106,6 +106,7 @@ By position, all three come, in this order.
 
 Notes:
 - Field: a bound.
+- `smooth_union` with its default `kind` is this same blend, and takes arrays of shapes, a width that varies over space, other profiles, and a difference and an intersection to match; prefer it in scripts.
 
 See also: `union_round`, which makes a circular fillet, `smooth_union`, `smooth_difference`, `smooth_intersection`.
 
