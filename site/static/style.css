@@ -533,13 +533,15 @@ nav#table-of-contents ul {
 
 /* ===== Landing ===== */
 
-/* The field drawn in characters on the front page. */
+/* The field drawn in characters on the front page, its 70 columns no
+   wider than the page: 0.6em is the font's advance. */
 pre.field {
   margin: 1rem 0 2rem;
   padding: 0;
   background: none;
   border: none;
   color: var(--muted);
+  font-size: min(0.9em, (100vw - 2.5rem) / 70 / 0.6);
   line-height: 1.15;
   overflow: hidden;
 }
