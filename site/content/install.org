@@ -24,16 +24,24 @@ git clone https://tangled.org/rei.gay/rhai-ts-mode
 
 * With Nix
 
-The package builds the server, the grammar and the manual, and points keycap at them:
+The package builds the server, the grammar and the manual, and points keycap at them.
+Nix can fetch keycap itself, so no checkout is needed:
 
 #+begin_src nix
-# In the list of packages given to emacsWithPackages:
-(epkgs.callPackage ./keycap/package.nix {
-  rhai-ts-mode = epkgs.callPackage ./rhai-ts-mode/package.nix { };
-})
+let
+  keycap = builtins.fetchTarball "https://tangled.org/rei.gay/keycap/archive/main.tar.gz";
+in
+(pkgs.emacsPackagesFor pkgs.emacs).emacsWithPackages (epkgs: [
+  (epkgs.callPackage "${keycap}/package.nix" { })
+])
 #+end_src
 
-=rhai-ts-mode= comes with it, and =.keycap= and =.fidget= files open in =keycap-mode=.
+With home-manager, the same =callPackage= goes in =programs.emacs.extraPackages=.
+=main.tar.gz= follows the main branch; to pin a commit, fetch =<commit>.tar.gz= with its =sha256=, or add keycap with npins or as a flake input with =flake = false=.
+From a checkout, the package is =epkgs.callPackage ./keycap/package.nix { }=.
+
+The first build compiles the server, which takes a few minutes; it is built with keycap's own nixpkgs, whatever yours is.
+=rhai-ts-mode= comes with the package, and =.keycap= and =.fidget= files open in =keycap-mode=.
 Errors are marked by Flymake, so turn it on for them:
 
 #+begin_src emacs-lisp
