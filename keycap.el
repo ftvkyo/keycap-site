@@ -803,8 +803,9 @@ For highlighting them, as `keycap-describe' and the manual's site do."
 
 (defun keycap--statements ()
   "The top-level statements of the current buffer's script, as tree-sitter nodes."
-  (treesit-filter-child (treesit-buffer-root-node 'rhai)
-                        (lambda (node) (equal (treesit-node-type node) "Stmt"))))
+  (treesit-filter-child
+   (treesit-parser-root-node (treesit-parser-create 'rhai))
+   (lambda (node) (equal (treesit-node-type node) "Stmt"))))
 
 (defun keycap--statement-expression (statement)
   "The expression the STATEMENT node is, such as an `ExprFn' or an `ExprCall'.
