@@ -156,6 +156,23 @@ header nav a.logo:hover {
   color: var(--bg);
 }
 
+/* The keyboard's first stop, out of sight until it is reached. */
+a.skip,
+a.skip:visited {
+  position: absolute;
+  top: -3rem;
+  left: 1.25rem;
+  z-index: 4;
+  padding: 0.25rem 0.75rem;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--mono);
+}
+
+a.skip:focus {
+  top: 0.5rem;
+}
+
 main {
   padding: 1rem 0 3rem;
 }

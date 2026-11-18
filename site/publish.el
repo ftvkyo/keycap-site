@@ -173,6 +173,7 @@ the name they are published under, and their bytes.")
   (let ((up (fms-up info))
         (page (fms-page info)))
     (concat
+     "<a class=\"skip\" href=\"#content\">Skip to the content</a>"
      "<header><nav>"
      (mapconcat (pcase-lambda (`(,href . ,label))
                   (format "<a href=\"%s%s\"%s>%s</a>"
