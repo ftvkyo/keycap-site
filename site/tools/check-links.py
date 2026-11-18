@@ -18,7 +18,8 @@ for page in pages:
         if re.match(r"^(?:[a-z]+:|//)", link):
             continue
         path, _, fragment = link.partition("#")
-        target = (page.parent / unquote(path)).resolve() if path else page.resolve()
+        base = site if path.startswith("/") else page.parent
+        target = (base / unquote(path.lstrip("/"))).resolve() if path else page.resolve()
         if path and target.is_dir():
             target = target / "index.html"
         if not target.exists():

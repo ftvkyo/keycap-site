@@ -1714,10 +1714,26 @@ The gallery's are those of the pages `fms-write-gallery' wrote."
      :recursive t
      :base-extension "org"
      ;; Published by "tutorial", the gallery's and "manual", whose pages
-     ;; link up.  Matched against the path below content/.
-     :exclude "\\`\\(?:tutorial\\|gallery\\|manual\\)/"
+     ;; link up, and "404".  Matched against the path below content/.
+     :exclude "\\`\\(?:\\(?:tutorial\\|gallery\\|manual\\)/\\|404\\.org\\'\\)"
      :publishing-function fms-publish-to-html
      :html-head ,(fms-head "")
+     :with-toc nil)
+    ;; Served by Pages at any address that has no page, so its links start
+    ;; at the root.
+    ("404"
+     :base-directory ,(fms-path "content")
+     :publishing-directory ,fms-public
+     :base-extension "org"
+     :exclude "."
+     :include ("404.org")
+     :publishing-function fms-publish-to-html
+     :html-head ,(fms-head "/")
+     :fms-up "/"
+     :html-link-home "/"
+     :html-link-use-abs-url t
+     ;; Without the links to home and up that `:html-link-home' adds.
+     :html-home/up-format ""
      :with-toc nil)
     ("tutorial"
      :base-directory ,(fms-path "content" "tutorial")
