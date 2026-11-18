@@ -35,7 +35,7 @@
 
 (require 'keycap)
 (require 'nix-mode)
-(keycap--names 'keycap)
+(keycap-names 'keycap)
 (add-to-list 'org-src-lang-modes '("rhai" . rhai-ts))
 (add-to-list 'org-src-lang-modes '("keycap" . keycap))
 (add-to-list 'org-src-lang-modes '("keycap-signature" . keycap-signature))
@@ -761,7 +761,7 @@ DETAILS, Org sections, its renders."
                                                    (org-html-encode-plain-text label)))
                                  render)))
                            (fms-model-views file) ""))
-               ((keycap--preview-flat-p report)
+               ((keycap-report-flat-p report)
                 (concat (fms-render file ":size \"800 600\"" (format ":alt %s, its distance field" name))
                         (fms-render file ":size \"800 600\" :view mono"
                                     (format ":alt %s, inside and outside" name))))
@@ -987,7 +987,7 @@ A group's designs are published at designs/GROUP/, and have their pages there in
 
 (load (expand-file-name "doc/keycap-reference.el" fms-keycap) nil t)
 
-(defconst fms-manual-docs (keycap--fetch-docs 'keycap)
+(defconst fms-manual-docs (keycap-docs 'keycap)
   "The keycap server's `docs' reply, which the reference is written from.")
 
 (defconst fms-manual-table (keycap-reference-entries fms-manual-docs)
@@ -1091,23 +1091,25 @@ A module's function, `screws::hole', is fn-screws-hole."
 `plane''s Plane value is in its shape's entry, `draw''s options in its one entry,
 the constants are `PI''s aliases and the comparison operators `<''s.")
 
+(defun fms-manual-draws-p (code)
+  "Non-nil when CODE draws at its top level."
+  (with-temp-buffer
+    (insert code)
+    (keycap-script-draws)))
+
 (defun fms-manual-statements (code)
-  "CODE split after each semicolon outside brackets: its statements, then its last expression."
-  (let ((depth 0)
-        (start 0)
-        statements)
-    (dotimes (i (length code))
-      (pcase (aref code i)
-        ((or ?\( ?\[ ?\{) (cl-incf depth))
-        ((or ?\) ?\] ?\}) (cl-decf depth))
-        (?\; (when (zerop depth)
-               (push (string-trim (substring code start (1+ i))) statements)
-               (setq start (1+ i))))))
-    (nreverse (cons (string-trim (substring code start)) statements))))
+  "CODE's statements, each with the comments before it, then its last expression."
+  (with-temp-buffer
+    (insert code)
+    (let ((start (point-min)))
+      (mapcar (pcase-lambda (`(,_ . ,end))
+                (prog1 (string-trim (buffer-substring-no-properties start end))
+                  (setq start end)))
+              (keycap-script-statements)))))
 
 (defun fms-manual-draw (code)
   "CODE with its last expression drawn, unless it draws itself."
-  (if (string-match-p "\\_<draw\\(?:_rgb\\)?(" code)
+  (if (fms-manual-draws-p code)
       code
     (let ((statements (fms-manual-statements code)))
       (string-join (append (butlast statements)
@@ -1135,25 +1137,20 @@ the constants are `PI''s aliases and the comparison operators `<''s.")
 (defun fms-manual-evaluate (codes)
   "Keep the values of CODES, the examples' code, in `fms-manual-values'.
 One server evaluates them all, with every module imported."
-  (with-temp-buffer
-    (seq-do-indexed (lambda (code id)
-                      (insert (json-serialize `((id . ,id) (op . "eval")
-                                                (source . ,fms-manual-imports)
-                                                (expression . ,code)))
-                              "\n"))
-                    codes)
-    (let ((command (keycap--command)))
-      (apply #'call-process-region (point-min) (point-max) (car command) t '(t nil) nil (cdr command)))
-    (goto-char (point-min))
-    (while (progn (skip-chars-forward " \t\n") (not (eobp)))
-      (let ((reply (json-parse-buffer :object-type 'alist :null-object nil)))
-        (puthash (nth (alist-get 'id reply) codes) (alist-get 'value reply) fms-manual-values)))))
+  (seq-mapn (lambda (code reply)
+              (puthash code (alist-get 'value reply) fms-manual-values))
+            codes
+            (keycap-server-batch (mapcar (lambda (code)
+                                           `((op . "eval")
+                                             (source . ,fms-manual-imports)
+                                             (expression . ,code)))
+                                         codes))))
 
 (defun fms-manual-shape-p (code)
   "Non-nil when the example CODE draws or makes a shape, as far as is known.
 A tree with nothing inside, such as a factor, is no shape."
   (let ((value (gethash code fms-manual-values)))
-    (or (string-match-p "\\_<draw\\(?:_rgb\\)?(" code)
+    (or (fms-manual-draws-p code)
         (not value)
         (and (string-prefix-p "tree:" value)
              (not (string-suffix-p "; empty" value))))))
@@ -1221,7 +1218,7 @@ the rest as far in as that.  Nil when it has none."
                                      (- (length line) (length text))
                                      (length (get-text-property 0 'wrap-prefix line))
                                      (fms-manual-signature-html text)))))
-                       (split-string (keycap--set-out-signatures signatures (alist-get 'types entry)) "\n")
+                       (split-string (keycap-set-out-signatures signatures (alist-get 'types entry)) "\n")
                        "")
             "</code>")))
 
@@ -1568,7 +1565,7 @@ CHAPTERS are every page's (ID TITLE), TARGETS every heading's (TITLE ID CHAPTER-
             (insert (replace-regexp-in-string
                      "^\\(.\\)" (concat indent "\\1")
                      (concat (substring-no-properties
-                              (keycap--set-out-signatures (seq-difference lines types) types))
+                              (keycap-set-out-signatures (seq-difference lines types) types))
                              "\n"))))))
       (pcase-let ((`(,entries ,keys ,concepts) (fms-manual-entries))
                   (subtitle (cadar (org-collect-keywords '("SUBTITLE")))))

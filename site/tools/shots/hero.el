@@ -25,21 +25,9 @@
 (setenv "HOME" (directory-file-name h/dir))
 (setq abbreviated-home-dir nil)
 
-(defun f/idle-p ()
-  "Non-nil when the knob's preview neither loads nor renders."
-  (when-let* ((script (get-file-buffer f/file))
-              (preview (buffer-local-value 'keycap--preview script))
-              ((buffer-live-p preview)))
-    (with-current-buffer preview
-      (and keycap--preview-frame
-           (not keycap--preview-rendering)
-           (not keycap--preview-pending)
-           (not (buffer-local-value 'keycap--load-waiting script))
-           (not (buffer-local-value 'keycap--load-timer script))))))
-
 (defun f/take ()
   "Screenshot the window once the preview has been idle a moment, then quit."
-  (if (not (f/idle-p))
+  (if (not (keycap-preview-idle-p (get-file-buffer f/file)))
       (run-with-timer 0.5 nil #'f/take)
     (sit-for 1.5)
     (message nil)

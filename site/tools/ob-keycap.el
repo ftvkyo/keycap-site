@@ -116,26 +116,10 @@ build without a GPU makes of it.")
 
 ;; --- Server ---
 
-(defun ob-keycap--server ()
-  "The server every block renders with, started by keycap if need be."
-  (with-current-buffer (get-buffer-create " *ob-keycap server*")
-    (keycap--server)))
-
-(defun ob-keycap--wait (function)
-  "Call FUNCTION with a callback, and return what that is called with first."
-  (let (reply done)
-    (funcall function (lambda (value)
-                        (unless done
-                          (setq reply value
-                                done t))))
-    (while (not done)
-      (accept-process-output nil 0.05))
-    reply))
-
 (defun ob-keycap--request (request)
   "Send REQUEST to the server of the current script buffer, and return the reply."
   (ob-keycap--need-server)
-  (ob-keycap--wait (lambda (callback) (keycap--request request callback))))
+  (keycap-request-sync request))
 
 
 ;; --- Loading ---
@@ -143,8 +127,10 @@ build without a GPU makes of it.")
 ;; A `load' reply is kept in `ob-keycap-cache-directory' with the hashes of
 ;; the files the script read, and a load of the same script takes it while
 ;; those files are unchanged: a block whose image is cached then runs with
-;; no evaluation at all.  A block that needs the server after all, for a
-;; render, a probe or an export, runs again with every load evaluated.
+;; no evaluation at all, and its script buffer knows nothing of the reply.
+;; A block that needs the server after all, for a render, a probe or an
+;; export, or the reply in the buffer, for completion, ElDoc or the
+;; reference, runs again with every load evaluated.
 
 (defvar ob-keycap--keep t
   "Whether a load may take a kept reply.")
@@ -160,7 +146,7 @@ build without a GPU makes of it.")
 
 (defun ob-keycap--need-server ()
   "Run the block again, every load evaluated, if a load took a kept reply.
-For what needs the server to have the script."
+For what needs the server to have the script, or its buffer the reply."
   (when ob-keycap--kept
     (throw 'ob-keycap--evaluate nil)))
 
@@ -180,9 +166,9 @@ A kept reply is taken instead, if `ob-keycap--keep' allows it."
                      (expand-file-name
                       (concat (ob-keycap--hash keycap-server-program keycap-prelude-directory
                                                keycap-dialect keycap-overrides
-                                               (ob-keycap--reroot (keycap--path) ob-keycap--root
+                                               (ob-keycap--reroot buffer-file-name ob-keycap--root
                                                                   ob-keycap--root-name)
-                                               (keycap--source))
+                                               (buffer-substring-no-properties (point-min) (point-max)))
                               "-load.eld")
                       ob-keycap-cache-directory)))
          (kept (and cache ob-keycap--keep (file-exists-p cache)
@@ -195,17 +181,10 @@ A kept reply is taken instead, if `ob-keycap--keep' allows it."
       (ob-keycap--cache-use cache))
     (if (and kept (equal (car kept) (ignore-errors
                                       (mapcar #'ob-keycap--file-hash (alist-get 'files (cdr kept))))))
-        ;; As `keycap--load' takes a reply.
         (progn
-          (setq keycap--report (cdr kept)
-                keycap--report-tick (buffer-chars-modified-tick)
-                keycap--load-waiting nil
-                ob-keycap--kept t)
-          (run-hook-with-args 'keycap--load-functions keycap--report)
-          keycap--report)
-      (setq keycap--report-tick nil
-            keycap--load-waiting nil)
-      (let ((reply (ob-keycap--wait #'keycap--load)))
+          (setq ob-keycap--kept t)
+          (cdr kept))
+      (let ((reply (keycap-load-sync t)))
         (when (and cache (not (alist-get 'error reply)))
           (make-directory ob-keycap-cache-directory t)
           (let ((coding-system-for-write 'utf-8)
@@ -221,80 +200,38 @@ A kept reply is taken instead, if `ob-keycap--keep' allows it."
 
 ;; --- Scripts ---
 
-(defconst ob-keycap--syntax-table
-  (let ((table (make-syntax-table)))
-    (modify-syntax-entry ?/ ". 124" table)
-    (modify-syntax-entry ?* ". 23b" table)
-    (modify-syntax-entry ?\n ">" table)
-    (modify-syntax-entry ?` "\"" table)
-    (modify-syntax-entry ?' "\"" table)
-    table)
-  "Enough of Rhai's syntax to step over its brackets, strings and comments.")
+;; A script is read by keycap, from its tree in a buffer that holds it.
 
 (defmacro ob-keycap--with-code (code &rest body)
-  "Run BODY in a buffer holding CODE, with Rhai's brackets and comments."
+  "Run BODY in a buffer holding CODE."
   (declare (indent 1))
   `(with-temp-buffer
-     (set-syntax-table ob-keycap--syntax-table)
-     (setq-local parse-sexp-ignore-comments t)
      (insert ,code "\n")
      ,@body))
 
-(defun ob-keycap--search (regexp &optional backward)
-  "Find REGEXP outside comments and strings, forward or BACKWARD.
-Leave point at its start."
-  (let (found)
-    (while (and (not found)
-                (if backward
-                    (re-search-backward regexp nil t)
-                  (re-search-forward regexp nil t)))
-      (goto-char (match-beginning 0))
-      (if (nth 8 (syntax-ppss))
-          (unless backward (goto-char (match-end 0)))
-        (setq found (point))))
-    found))
-
-(defun ob-keycap--whole-lines (start end)
-  "START and END widened to whole lines, END past its newline, as a cons."
-  (cons (save-excursion (goto-char start) (line-beginning-position))
-        (save-excursion (goto-char end) (min (point-max) (1+ (line-end-position))))))
+(defun ob-keycap--whole-lines (region)
+  "REGION, (START . END), widened to whole lines, END past its newline."
+  (cons (save-excursion (goto-char (car region)) (line-beginning-position))
+        (save-excursion (goto-char (cdr region)) (min (point-max) (1+ (line-end-position))))))
 
 (defun ob-keycap--last-draw ()
-  "The last top-level `draw' statement, as (START . END), or nil.
-It may span several lines: the call is skipped as one bracketed list."
-  (goto-char (point-max))
-  (when (ob-keycap--search "^draw\\(?:_rgb\\)?\\s-*(" t)
-    (let ((start (point)))
-      (forward-sexp 2)
-      (ob-keycap--whole-lines start (point)))))
+  "The last top-level `draw' statement, as whole lines (START . END), or nil."
+  (when-let* ((draw (car (last (keycap-script-draws)))))
+    (ob-keycap--whole-lines draw)))
 
 (defun ob-keycap--draws-p (code)
   "Non-nil when CODE has a top-level `draw'."
-  (ob-keycap--with-code code (ob-keycap--last-draw)))
+  (ob-keycap--with-code code (keycap-script-draws)))
 
 (defun ob-keycap--function (name)
   "The definition of the function NAME with its `///' comment, or nil.
-As (START . END)."
-  (goto-char (point-min))
-  (when (ob-keycap--search (format "^\\(?:private \\)?fn %s\\s-*(" (regexp-quote name)))
-    (let ((start (point)))
-      (search-forward "{")
-      (backward-char)
-      (forward-sexp)
-      (let ((region (ob-keycap--whole-lines start (point))))
-        (goto-char start)
-        (while (and (zerop (forward-line -1)) (looking-at-p "\\s-*///"))
-          (setcar region (point)))
-        region))))
+As whole lines (START . END)."
+  (when-let* ((function (alist-get name (keycap-script-functions) nil nil #'equal)))
+    (ob-keycap--whole-lines function)))
 
 (defun ob-keycap--functions ()
   "The names of the functions defined at top level."
-  (goto-char (point-min))
-  (let (names)
-    (while (ob-keycap--search "^\\(?:private \\)?fn \\([A-Za-z_][A-Za-z0-9_]*\\)")
-      (push (match-string-no-properties 1) names)
-      (goto-char (match-end 0)))
-    names))
+  (mapcar #'car (keycap-script-functions)))
 
 (defun ob-keycap--add (script body &optional replace drop-draw)
   "SCRIPT once BODY is typed below it.
@@ -507,8 +444,7 @@ FILES is where the files saved on the way are put, as (NAME . TEXT)."
 
 (defun ob-keycap--script-buffer (state)
   "A keycap-mode buffer for STATE, its point and server set; its file written."
-  (let ((path (ob-keycap--state-path state))
-        (server (ob-keycap--server)))
+  (let ((path (ob-keycap--state-path state)))
     ;; The last saved of each name wins.
     (pcase-dolist (`(,name . ,text) (reverse (ob-keycap--state-files state)))
       (with-temp-file (expand-file-name name (file-name-directory path))
@@ -522,17 +458,17 @@ FILES is where the files saved on the way are put, as (NAME . TEXT)."
             default-directory (file-name-directory path))
       (let ((treesit-font-lock-level 3))
         ;; The names of the script's dialect, highlighted as builtins.
-        (keycap--names (if (string-suffix-p ".fidget" path) 'fidget 'keycap))
+        (keycap-names (if (string-suffix-p ".fidget" path) 'fidget 'keycap))
         (keycap-mode))
-      (setq keycap--server server
-            keycap-overrides (ob-keycap--state-overrides state))
+      ;; One server for every block, which killing the script leaves running.
+      (keycap-use-server (get-buffer-create " *ob-keycap server*"))
+      (setq keycap-overrides (ob-keycap--state-overrides state))
       (goto-char (ob-keycap--state-point state))
       (current-buffer))))
 
 (defun ob-keycap--kill (buffer)
-  "Kill the script BUFFER, leaving the server running."
+  "Kill the script BUFFER."
   (with-current-buffer buffer
-    (setq keycap--server nil)
     (set-buffer-modified-p nil)
     (kill-buffer)))
 
@@ -635,26 +571,27 @@ The server rounds it back to the same bytes."
   (or ob-keycap-image-directory
       (expand-file-name "ob-keycap" temporary-file-directory)))
 
-(defun ob-keycap--render (preview params)
-  "Render the model of the keycap-preview-mode buffer PREVIEW as PARAMS say.
-Return the image's file.  A cached render is used unless PARAMS probe it."
+(defun ob-keycap--render (script preview report params)
+  "Render the model of the SCRIPT buffer in its snapshot PREVIEW as PARAMS say.
+REPORT is the `load' report PREVIEW shows.  Return the image's file.  A
+cached render is used unless PARAMS probe it."
   (with-current-buffer preview
     (pcase-let* ((`(,width ,height) (ob-keycap--size params))
-                 (request (keycap--preview-request width height))
+                 (request (keycap-preview-request width height))
                  (_ (setf (alist-get 'background request) (ob-keycap--rgb)
                           ;; The same bytes on every run, on either backend.
                           (alist-get 'reproducible request) t))
-                 (source keycap--preview-source)
                  (hash (ob-keycap--hash
                         keycap-server-program
-                        (buffer-local-value 'keycap-dialect source)
-                        (buffer-local-value 'keycap-overrides source)
-                        (with-current-buffer source (keycap--source))
-                        (mapcar #'ob-keycap--file-hash (alist-get 'files keycap--preview-report))
+                        (buffer-local-value 'keycap-dialect script)
+                        (buffer-local-value 'keycap-overrides script)
+                        (with-current-buffer script
+                          (buffer-substring-no-properties (point-min) (point-max)))
+                        (mapcar #'ob-keycap--file-hash (alist-get 'files report))
                         (ob-keycap--file-hash (expand-file-name "ppm2png.py" ob-keycap--directory))
                         (seq-remove (lambda (field) (memq (car field) '(output backend)))
                                     request)))
-                 (name (format "%s-%s.png" (file-name-base (buffer-file-name source)) hash))
+                 (name (format "%s-%s.png" (file-name-base (buffer-file-name script)) hash))
                  (png (expand-file-name name (ob-keycap--image-directory)))
                  ;; The image's bytes depend on its compression too, its name not.
                  (cache (and ob-keycap-cache-directory
@@ -666,18 +603,16 @@ Return the image's file.  A cached render is used unless PARAMS probe it."
       (when cache
         (make-directory ob-keycap-cache-directory t))
       (if cached
-          (setq keycap--preview-frame (json-parse-string
-                                       (with-temp-buffer
-                                         (insert-file-contents (concat cache ".json"))
-                                         (buffer-string))
-                                       :object-type 'alist :array-type 'list
-                                       :null-object nil :false-object nil))
+          (keycap-preview-set-frame (json-parse-string
+                                     (with-temp-buffer
+                                       (insert-file-contents (concat cache ".json"))
+                                       (buffer-string))
+                                     :object-type 'alist :array-type 'list
+                                     :null-object nil :false-object nil))
         (setf (alist-get 'backend request) (symbol-name ob-keycap-backend))
-        (let ((frame (with-current-buffer source (ob-keycap--request request))))
-          (when (alist-get 'error frame)
-            (error "%s" (alist-get 'error frame)))
-          (setq keycap--preview-frame frame)
-          (ob-keycap--png (keycap--preview-frame-file) (if cache (concat cache ".png") png))
+        (let ((frame (with-current-buffer script (ob-keycap--request request))))
+          (keycap-preview-set-frame frame)
+          (ob-keycap--png (alist-get 'output request) (if cache (concat cache ".png") png))
           (when cache
             (with-temp-file (concat cache ".json")
               (insert (json-serialize (ob-keycap--timeless frame)))))))
@@ -687,62 +622,40 @@ Return the image's file.  A cached render is used unless PARAMS probe it."
       png)))
 
 (defun ob-keycap--preview (script report failure params)
-  "A preview of the SCRIPT buffer showing REPORT, as PARAMS say.
+  "A snapshot of the SCRIPT buffer showing REPORT, as PARAMS say.
 FAILURE is why the script failed to load, the scene of REPORT shown instead."
-  (pcase-let* ((slice (ob-keycap--strings (ob-keycap--param params :slice)))
-               (view (cond ((ob-keycap--param params :view) (intern (ob-keycap--param params :view)))
-                           (slice 'sdf)
-                           ((keycap--preview-flat-p report) 'sdf)
-                           (t keycap-preview-view)))
-               (`(,azimuth ,elevation) (ob-keycap--camera (ob-keycap--param params :camera))))
-    (with-current-buffer (generate-new-buffer (format "*keycap: %s*" (buffer-name script)))
-      (keycap-preview-mode)
-      (keycap--preview-reset-camera)
-      (setq keycap--preview-source script
-            keycap--preview-directory (make-temp-file "ob-keycap" t)
-            keycap--preview-report report
-            keycap--preview-failure failure
-            keycap--preview-view view
-            keycap--preview-bounds (intern (or (ob-keycap--param params :bounds) "script"))
-            keycap--preview-backend 'cpu
-            keycap--preview-azimuth azimuth
-            keycap--preview-elevation elevation
-            keycap--preview-axis (intern (or (car slice) "z")))
-      (setq keycap--preview-offset (if (cadr slice)
-                                       (string-to-number (cadr slice))
-                                     (keycap--preview-middle keycap--preview-axis)))
-      (when (nth 3 slice)
-        (setq keycap--preview-tilt (cons (string-to-number (nth 2 slice))
-                                         (string-to-number (nth 3 slice)))))
-      (current-buffer))))
+  (let ((slice (ob-keycap--strings (ob-keycap--param params :slice))))
+    (keycap-preview-snapshot
+     script
+     :report report
+     :failure failure
+     :view (cond ((ob-keycap--param params :view) (intern (ob-keycap--param params :view)))
+                 (slice 'sdf))
+     :camera (ob-keycap--camera (ob-keycap--param params :camera))
+     :slice (list (intern (or (car slice) "z"))
+                  (and (cadr slice) (string-to-number (cadr slice)))
+                  (and (nth 3 slice) (cons (string-to-number (nth 2 slice))
+                                           (string-to-number (nth 3 slice)))))
+     :bounds (intern (or (ob-keycap--param params :bounds) "script"))
+     :backend 'cpu)))
 
 (defun ob-keycap--probe (preview params)
   "Read the model in PREVIEW at the point `:probe' of PARAMS names.
 The point is on the slice of a 2D view, as its right and up coordinates.
 Return where the mouse is, as fractions of the image's width and height."
   (when-let* ((probe (ob-keycap--strings (ob-keycap--param params :probe))))
+    (ob-keycap--need-server)
     (with-current-buffer preview
-      (unless (keycap--preview-2d-p)
-        (error ":probe is for 2D views"))
       (pcase-let* ((`(,width ,height) (ob-keycap--size params))
                    (`(,right ,up) (mapcar #'string-to-number probe))
-                   (`(,across ,upward) (pcase keycap--preview-axis
-                                         ('x '(y z))
-                                         ('y '(x z))
-                                         (_ '(x y))))
-                   (scale (alist-get 'scale keycap--preview-frame))
-                   (x (+ (/ width 2.0) (/ (- right (keycap--preview-middle across)) scale)))
-                   (y (- (/ height 2.0) (/ (- up (keycap--preview-middle upward)) scale))))
-        (keycap--preview-read
-         (with-current-buffer keycap--preview-source
-           (ob-keycap--request `((op . "probe") (x . ,(floor x)) (y . ,(floor y))))))
+                   (`(,x . ,y) (keycap-preview-probe-sync right up width height)))
         (list (/ x width) (/ y height))))))
 
 (defun ob-keycap--header (preview)
   "The header line of PREVIEW, without the backend and render time.
 The time differs from one render to the next, and so would the page."
   (string-join (seq-remove (lambda (part) (string-match-p "\\`[CG]PU " part))
-                           (split-string (with-current-buffer preview (keycap--preview-header))
+                           (split-string (with-current-buffer preview (keycap-preview-header))
                                          "  ·  "))
                "  ·  "))
 
@@ -753,6 +666,7 @@ The time differs from one render to the next, and so would the page."
   "What completion offers at point: the candidates and the column they start at.
 Candidates match as orderless matches them, a substring in any case, and
 are sorted as Corfu sorts them, shortest first."
+  (ob-keycap--need-server)
   (pcase-let* ((`(,start ,end ,table . ,properties) (or (keycap-completion-at-point)
                                                         (error ":show completion, but nothing completes at point")))
                (prefix (buffer-substring-no-properties start end))
@@ -771,12 +685,15 @@ are sorted as Corfu sorts them, shortest first."
 
 (defun ob-keycap--eldoc ()
   "What ElDoc shows at point."
-  (or (ob-keycap--wait (lambda (callback) (keycap-eldoc-function callback)))
-      (error ":show eldoc, but ElDoc has nothing at point")))
+  (ob-keycap--need-server)
+  (let (shown)
+    (keycap-eldoc-function (lambda (text &rest _) (setq shown text)))
+    (or shown (error ":show eldoc, but ElDoc has nothing at point"))))
 
 (defun ob-keycap--describe (script)
   "The help buffer's text for the name at point in SCRIPT, with its faces."
-  (let ((name (or (keycap--name-at-point) (error ":show describe, but point is on no name"))))
+  (ob-keycap--need-server)
+  (let ((name (or (keycap-name-at-point) (error ":show describe, but point is on no name"))))
     (ob-keycap--capture (lambda () (keycap-describe name script)))
     (with-current-buffer (help-buffer)
       (buffer-string))))
@@ -788,7 +705,8 @@ REPORT is the script's `load' reply.  A cached message is used if there is one."
                      (expand-file-name
                       ;; keycap's library too, which words the message.
                       (concat (ob-keycap--hash keycap-server-program (locate-library "keycap")
-                                               (keycap--source) keycap-overrides
+                                               (buffer-substring-no-properties (point-min) (point-max))
+                                               keycap-overrides
                                                (mapcar #'ob-keycap--file-hash (alist-get 'files report)))
                               "-export.txt")
                       ob-keycap-cache-directory)))
@@ -806,7 +724,7 @@ REPORT is the script's `load' reply.  A cached message is used if there is one."
                                     (ob-keycap--capture
                                      (lambda ()
                                        (keycap-export-stl file)
-                                       (while keycap--export
+                                       (while (keycap-exporting-p)
                                          (accept-process-output nil 0.05))))))))
         (when cache
           (make-directory ob-keycap-cache-directory t)
@@ -821,30 +739,6 @@ REPORT is the script's `load' reply.  A cached message is used if there is one."
   "Where `:pointer' of PARAMS puts the mouse, as fractions of the image, or nil."
   (when-let* ((pointer (ob-keycap--strings (ob-keycap--param params :pointer))))
     (mapcar #'string-to-number pointer)))
-
-(defun ob-keycap--wheel (n)
-  "Nudge the digit before point N steps, as the shifted wheel does over it.
-Return the message keycap shows."
-  (pcase-let* ((number (or (keycap--number-at-point)
-                           (error ":wheel, but point is after no number")))
-               (name (keycap--number-name (car number)))
-               (`(,before ,after ,unit) (keycap--nudge n)))
-    (keycap--nudge-text name before after unit)))
-
-(defconst ob-keycap--menus
-  '(("view" . keycap--preview-view-items)
-    ("camera" . keycap--preview-camera-items)
-    ("slice" . keycap--preview-slice-items))
-  "The menus of the header line's words, by name, as keycap lists their items.")
-
-(defun ob-keycap--menu-keymap (name)
-  "The menu NAME of the current preview, as keycap builds it."
-  (if (equal name "context")
-      ;; A right click on the image
-      (keycap--preview-context-menu (make-sparse-keymap)
-                                    '(mouse-3 (nil 1 (0 . 0) 0 nil 1 nil (image) nil nil)))
-    (easy-menu-create-menu "" (symbol-value (or (cdr (assoc name ob-keycap--menus))
-                                                (error ":menu %s is none of keycap's" name))))))
 
 (defun ob-keycap--menu-item (binding)
   "The HTML of BINDING, an item of a menu keymap, in the current preview."
@@ -874,7 +768,7 @@ Return the message keycap shows."
       (let (items)
         (map-keymap (lambda (_key binding)
                       (push (ob-keycap--menu-item binding) items))
-                    (ob-keycap--menu-keymap name))
+                    (keycap-preview-menu (intern name)))
         (concat "<span class=\"ef-popup ef-menu\">" (string-join (nreverse items)) "</span>")))))
 
 (defun ob-keycap--pointer-html (x y)
@@ -1157,7 +1051,7 @@ Notes, such as a keycap call to prefer, are advice: shown, not failed."
                                     (when (equal (alist-get 'severity d) "note")
                                       (message "ob-keycap: %s: note on line %s: %s"
                                                (file-name-nondirectory (or buffer-file-name (buffer-name)))
-                                               (alist-get 'line d) (keycap--message d))))
+                                               (alist-get 'line d) (keycap-diagnostic-message d))))
                                   (alist-get 'diagnostics report)))
          (severities (mapcar (lambda (d) (alist-get 'severity d)) diagnostics))
          (first (car diagnostics)))
@@ -1170,9 +1064,9 @@ Notes, such as a keycap call to prefer, are advice: shown, not failed."
       (error "a warning was expected, the script has none"))
      ((and (equal expect "warning") (member "error" severities))
       (error "a warning was expected, the script has an error: line %s: %s"
-             (alist-get 'line first) (keycap--message first)))
+             (alist-get 'line first) (keycap-diagnostic-message first)))
      ((and diagnostics (not expect))
-      (error "line %s of the script: %s" (alist-get 'line first) (keycap--message first))))))
+      (error "line %s of the script: %s" (alist-get 'line first) (keycap-diagnostic-message first))))))
 
 (defun ob-keycap--execute (body params)
   "The result of the block of BODY and PARAMS: an image's file or a frame."
@@ -1205,14 +1099,14 @@ Notes, such as a keycap call to prefer, are advice: shown, not failed."
                                        (if (> n 0) (keycap-increase-number 1) (keycap-decrease-number 1)))))
                              (setq report (ob-keycap--load)))))
                  (wheeled (when-let* ((n (ob-keycap--param params :wheel)))
-                            (prog1 (ob-keycap--wheel n)
+                            (prog1 (keycap-nudge n)
                               (setq report (ob-keycap--load))))))
             (ob-keycap--check report params)
-            (let* ((failure (keycap--failure report))
+            (let* ((failure (keycap-report-failure report))
                    (shown (if failure (or previous report) report))
-                   (diagnostics (keycap--diagnostics report)))
+                   (diagnostics (keycap-report-diagnostics report)))
               (setq preview (ob-keycap--preview script shown failure params))
-              (let* ((png (ob-keycap--render preview params))
+              (let* ((png (ob-keycap--render script preview shown params))
                      (pointer (or (ob-keycap--probe preview params) (ob-keycap--pointer params)))
                      (menu (when-let* ((name (ob-keycap--param params :menu)))
                              (cons (format "%s" name) (ob-keycap--menu preview (format "%s" name))))))
@@ -1255,8 +1149,6 @@ Notes, such as a keycap call to prefer, are advice: shown, not failed."
                                       (append code (list (ob-keycap--counters diagnostics)))
                                       echo help (ob-keycap--param params :alt) pointer menu))))))))
       (when (buffer-live-p preview)
-        (with-current-buffer preview
-          (delete-directory keycap--preview-directory t))
         (kill-buffer preview))
       (ob-keycap--kill script)
       (delete-directory ob-keycap--root t))))
