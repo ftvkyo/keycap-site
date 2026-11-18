@@ -71,10 +71,20 @@ Without a `bounds' call in the script, the fitted ones stand in."
   :group 'keycap)
 
 (defcustom keycap-preview-drag-resolution 0.5
-  "The share of the full resolution frames have while the mouse drags the camera.
-Fewer pixels render sooner and follow the mouse more closely; the frame
-the drag ends on is in full.  1 renders every frame in full."
+  "The share of the full resolution a camera drag's frames start at.
+Fewer pixels render sooner and follow the mouse more closely; as the
+drag goes on, the share follows `keycap-preview-drag-frame-time', never
+above this.  The frame the drag ends on is in full."
   :type 'number
+  :group 'keycap)
+
+(defcustom keycap-preview-drag-frame-time 0.05
+  "Seconds a frame should take while the mouse drags the camera, or nil.
+Slower frames have fewer pixels, down to a quarter of the full
+resolution each way, or to the share below which they rendered no
+sooner; faster ones have more, up to `keycap-preview-drag-resolution'.
+nil keeps every frame of a drag at that share."
+  :type '(choice number (const nil))
   :group 'keycap)
 
 (defcustom keycap-preview-probe-interval 0.05
@@ -93,6 +103,9 @@ the drag ends on is in full.  1 renders every frame in full."
 
 (defconst keycap--preview-tilt-step 5
   "Degrees one tilt command turns the slice.")
+
+(defconst keycap--preview-drag-least 0.25
+  "The least share of the full resolution a drag's frames go down to.")
 
 (defconst keycap--preview-cameras
   '((front -90 0) (right 0 0) (top -90 90) (iso -60 30))
@@ -133,6 +146,12 @@ the drag ends on is in full.  1 renders every frame in full."
 
 (defvar-local keycap--preview-dragging nil
   "Non-nil while the mouse drags the camera.")
+(defvar-local keycap--preview-drag-share nil
+  "The share of the full resolution the drag's next frame has.")
+(defvar-local keycap--preview-drag-floor nil
+  "The least share the drag goes down to, when it found one.")
+(defvar-local keycap--preview-drag-last nil
+  "The drag's last frame, as (SHARE . SECONDS), or nil.")
 
 (defvar-local keycap--preview-image nil)
 (defvar-local keycap--preview-scale nil
@@ -259,7 +278,7 @@ with NOW, it renders at once, and the server drops the render that runs."
      ((and keycap--preview-rendering (not now)) (setq keycap--preview-pending t))
      (t
       (let ((scale (* (frame-scale-factor (window-frame window))
-                      (if keycap--preview-dragging keycap-preview-drag-resolution 1)))
+                      (if keycap--preview-dragging keycap--preview-drag-share 1)))
             (size (keycap--preview-image-size window)))
         (setq keycap--preview-size (cons (window-body-width window t)
                                          (window-body-height window t)))
@@ -295,6 +314,7 @@ with NOW, it renders at once, and the server drops the render that runs."
   "Ask the server for a WIDTH by HEIGHT frame, to show SCALE times denser."
   (let ((preview (current-buffer))
         (request (keycap-preview-request width height))
+        (dragged keycap--preview-dragging)
         id)
     (condition-case error
         (progn
@@ -305,7 +325,7 @@ with NOW, it renders at once, and the server drops the render that runs."
                                           (with-current-buffer preview
                                             ;; Unless a newer render superseded it
                                             (when (eql id keycap--preview-rendering)
-                                              (keycap--preview-rendered reply scale))))))))
+                                              (keycap--preview-rendered reply scale dragged))))))))
           (setq keycap--preview-rendering id
                 keycap--preview-pending nil
                 keycap--preview-render-start (float-time))
@@ -321,15 +341,17 @@ with NOW, it renders at once, and the server drops the render that runs."
     (with-current-buffer preview
       (force-mode-line-update))))
 
-(defun keycap--preview-rendered (reply scale)
+(defun keycap--preview-rendered (reply scale dragged)
   "Show the frame the server's REPLY is about, rendered SCALE times denser.
-Then render again if needed."
+DRAGGED is non-nil for a frame of a drag.  Then render again if needed."
   (setq keycap--preview-rendering nil)
   (cond
    ((alist-get 'cancelled reply))
    ((alist-get 'error reply)
     (setq keycap--preview-render-error (propertize (alist-get 'error reply) 'face 'error)))
    (t
+    (when dragged
+      (keycap--preview-drag-adapt (- (float-time) keycap--preview-render-start)))
     (setq keycap--preview-frame reply
           keycap--preview-render-error nil
           keycap--preview-readout nil)
@@ -345,6 +367,28 @@ Then render again if needed."
     (setq keycap--preview-pending nil)
     (keycap--preview-render))
   (force-mode-line-update))
+
+(defun keycap--preview-drag-adapt (seconds)
+  "Pick the share of the drag's next frame, its last having taken SECONDS.
+The time goes with the pixels, so with the square of the share; once a
+share renders hardly sooner than the larger one before it, the drag goes
+no lower than that."
+  (let ((share keycap--preview-drag-share)
+        (last keycap--preview-drag-last)
+        (target keycap-preview-drag-frame-time))
+    (setq keycap--preview-drag-last (cons share seconds))
+    (cond
+     ((not target))
+     ((and last (< share (* 0.9 (car last))) (> seconds (* 0.9 (cdr last))))
+      (setq keycap--preview-drag-floor (car last)
+            keycap--preview-drag-share (car last)))
+     ;; Near enough: a frame size that stays keeps the server's buffers.
+     ((< 0.8 (/ seconds target) 1.25))
+     (t
+      (setq keycap--preview-drag-share
+            (min keycap-preview-drag-resolution
+                 (max (or keycap--preview-drag-floor keycap--preview-drag-least)
+                      (* share (sqrt (/ target seconds))))))))))
 
 (defun keycap--preview-flush ()
   "Drop the shown frame from the image cache."
@@ -921,7 +965,10 @@ the keyboard in the window it was in, such as the script's."
                     (window-body-height window t))))
       (unwind-protect
           (progn
-            (setq keycap--preview-dragging t)
+            (setq keycap--preview-dragging t
+                  keycap--preview-drag-share keycap-preview-drag-resolution
+                  keycap--preview-drag-floor nil
+                  keycap--preview-drag-last nil)
             (track-mouse
               (while (mouse-movement-p (setq movement (read-event)))
                 (when-let* ((now (keycap--event-pixel movement)))

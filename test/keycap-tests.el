@@ -867,12 +867,47 @@ it runs the hooks that stop its server and kill its preview."
                 ((symbol-function 'keycap--preview-send) (lambda (&rest args) (setq sent args))))
         ;; While the mouse drags, frames have half the pixels each way,
         ;; shown twice the size.
-        (setq keycap--preview-dragging t)
+        (setq keycap--preview-dragging t
+              keycap--preview-drag-share 0.5)
         (keycap--preview-render)
         (should (equal sent '(150 100 0.5)))
+        ;; A frame far slower than `keycap-preview-drag-frame-time'
+        ;; makes the next one smaller.
+        (cl-letf (((symbol-function 'keycap--preview-show) #'ignore)
+                  ((symbol-function 'float-time) (lambda (&rest _) 0.4)))
+          (setq keycap--preview-render-start 0.0)
+          (keycap--preview-rendered '((ms . 400)) 0.5 t))
+        (keycap--preview-render)
+        (should (equal sent '(75 50 0.25)))
         (setq keycap--preview-dragging nil)
         (keycap--preview-render)
         (should (equal sent '(300 200 1)))))))
+
+(ert-deftest keycap-test-preview-drag-adapt ()
+  (let ((keycap-preview-drag-resolution 0.5)
+        (keycap-preview-drag-frame-time 0.05))
+    (cl-flet ((drag (seconds)
+                ;; The shares of a drag's frames, each taking SECONDS of its share
+                (with-temp-buffer
+                  (setq keycap--preview-drag-share keycap-preview-drag-resolution)
+                  (cl-loop repeat 8
+                           collect keycap--preview-drag-share
+                           do (keycap--preview-drag-adapt
+                               (funcall seconds keycap--preview-drag-share))))))
+      ;; A time that goes with the pixels: on to the share that takes 50 ms.
+      (should (equal (seq-uniq (drag (lambda (share) (* 0.4 share share))))
+                     (list 0.5 (sqrt 0.125))))
+      ;; Fast enough: the share stays.
+      (should (equal (seq-uniq (drag (lambda (_) 0.01))) '(0.5)))
+      ;; A latency that fewer pixels cannot go below: down to the least share.
+      (should (equal (car (last (drag (lambda (share) (+ 0.04 (* 0.5 share share)))))) 0.25))
+      ;; A time that fewer pixels do not lower: back to the share before.
+      (should (equal (drag (lambda (_) 2.4)) '(0.5 0.25 0.5 0.5 0.5 0.5 0.5 0.5)))
+      (should (equal (drag (lambda (share) (if (< share 0.5) 0.7 0.56)))
+                     '(0.5 0.25 0.5 0.5 0.5 0.5 0.5 0.5)))
+      ;; Unless the time to aim at is nil.
+      (let ((keycap-preview-drag-frame-time nil))
+        (should (equal (seq-uniq (drag (lambda (_) 2.4))) '(0.5)))))))
 
 (ert-deftest keycap-test-preview-keys ()
   (keycap-test-with-preview-state

@@ -189,7 +189,7 @@ The keys come in families: the digits point the camera, or the slice in 2D views
 - Key: M-<left> (keycap-preview-pan-left) :: Move the camera; =M-<right>=, =M-<up>= and =M-<down>= likewise.
 - Key: + (keycap-preview-zoom-in) :: Zoom in; also ~=~ and the mouse wheel.
 - Key: - (keycap-preview-zoom-out) :: Zoom out.
-- Key: <down-mouse-1> (keycap-preview-mouse-orbit) :: Drag to turn the camera; while it drags, frames have half the resolution (~keycap-preview-drag-resolution~), the last one in full.
+- Key: <down-mouse-1> (keycap-preview-mouse-orbit) :: Drag to turn the camera; while it drags, frames have at most half the resolution (~keycap-preview-drag-resolution~), the last one in full.
 - Key: <down-mouse-2> (keycap-preview-mouse-pan) :: Drag to move the camera.
 - Key: p (keycap-preview-projection) :: Switch between orthographic and perspective.
 - Key: 1 (keycap-preview-front) :: Look from the front, as the numpad's =1= does in Blender; in 2D views, slice level across Y, the axis the front camera looks along, through the middle of the bounds.
@@ -354,7 +354,9 @@ Cut acrylic only if it is cast acrylic (PMMA), extract the fumes of every job, a
 - User Option: keycap-preview-backend :: ~gpu~ or ~cpu~.
 - User Option: keycap-preview-projection :: ~orthographic~ or ~perspective~.
 - User Option: keycap-preview-output-lines :: Lines of ~print~ output shown below the image, at most.
-- User Option: keycap-preview-drag-resolution :: The share of the full resolution frames have while the mouse drags the camera, 0.5 by default; the frame the drag ends on is in full.
+- User Option: keycap-preview-drag-resolution :: The share of the full resolution a camera drag's frames start at and never exceed, 0.5 by default; the frame the drag ends on is in full.
+- User Option: keycap-preview-drag-frame-time :: Seconds a frame should take while the mouse drags the camera, 0.05 by default.
+  Slower frames have fewer pixels, down to a quarter of the full resolution each way, or to the share below which they rendered no sooner; ~nil~ keeps a drag at ~keycap-preview-drag-resolution~.
 - User Option: keycap-preview-probe-interval :: Seconds between two readings of the field under the mouse.
 
 The preview's window comes from ~display-buffer~, so ~display-buffer-alist~ decides where it goes.
