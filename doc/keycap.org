@@ -101,7 +101,7 @@ After each change, once typing pauses for ~keycap-load-delay~ seconds, it evalua
 - Key: C-c C-k (keycap-export-cancel) :: Cancel the export that runs; the file keeps what it had.
 - Key: C-c C-d (keycap-describe) :: Show the documentation of a function or shape, by default the one at point.
   The reference it opens lists everything a script can call, grouped by where it comes from.
-  The script's own functions and those it imports, such as =keycap::body=, are documented by their =///= comments.
+  The script's own functions and those it imports, such as =skadis::board=, are documented by their =///= comments.
 - Key: C-x C-e (keycap-eval-last-expression) :: Evaluate the expression before point in the scope of the whole script and show its value in the echo area; with an active region, evaluate the region.
   A tree shows as its value at the origin and the bounds fitted to it, such as =tree: -5 at the origin; x -5.2 to 5.2, ...=.
 - Key: C-c C-n (keycap-increase-number) :: Add 1 to the digit before point in the number at point, or to its last digit when point is not after one of its digits; with a numeric prefix, add that many.
