@@ -1589,7 +1589,9 @@ figure.example .example-pic {
   border-left: 1px solid var(--border);
 }
 
+/* Its frame is twice as large. */
 figure.example .example-pic img {
+  width: 240px;
   margin: 0;
   border: none;
   border-radius: 0;
@@ -1627,7 +1629,6 @@ figure.example.wide .example-pic {
 }
 
 figure.example.wide .example-pic img {
-  width: 240px;
   margin: 0 auto;
 }
 
@@ -1644,7 +1645,6 @@ figure.example.wide .example-pic img {
   }
 
   figure.example .example-pic img {
-    width: 240px;
     margin: 0 auto;
   }
 }

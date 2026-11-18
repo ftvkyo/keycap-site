@@ -257,11 +257,46 @@ the name they are published under, and their bytes.")
 (add-hook 'org-export-before-processing-functions #'fms-name-headings)
 
 (defun fms-link-images (html _backend _info)
-  "Make every image in HTML a link to itself: screenshots shrink to fit the page."
-  (replace-regexp-in-string "<img src=\"\\([^\"]+\\)\"\\([^>]*\\)>"
-                            "<a href=\"\\1\"><img src=\"\\1\"\\2></a>" html t))
+  "Make every image in HTML but an example's a link to itself: screenshots shrink to fit the page."
+  (replace-regexp-in-string
+   "\\(<div class=\"example-pic\">[ \t\n]*\\)?<img src=\"\\([^\"]+\\)\"[^>]*>"
+   (lambda (match)
+     (if (match-beginning 1)
+         match
+       (format "<a href=\"%s\">%s</a>" (match-string 2 match) match)))
+   html t t))
 
 (add-to-list 'org-export-filter-final-output-functions #'fms-link-images)
+
+(defun fms-png-size (file)
+  "The width and height of the PNG FILE, from its header."
+  (with-temp-buffer
+    (set-buffer-multibyte nil)
+    (insert-file-contents-literally file nil 0 24)
+    (unless (string-prefix-p "\211PNG" (buffer-string))
+      (error "%s is not a PNG" file))
+    (cl-flet ((u32 (at) (seq-reduce (lambda (n byte) (+ (* n 256) byte))
+                                    (buffer-substring (1+ at) (+ at 5)) 0)))
+      (list (u32 16) (u32 20)))))
+
+(defun fms-size-pictures (html _backend info)
+  "Give each picture in HTML its size, so the page does not move as they load.
+All but the first load lazily, the first early.  The pictures are PNG
+files beside the page INFO exports."
+  (let ((directory (file-name-directory (expand-file-name (fms-page info) fms-public)))
+        (first t))
+    (replace-regexp-in-string
+     "<img src=\"\\([^\"]+\\)\""
+     (lambda (img)
+       (pcase-let ((`(,width ,height)
+                    (save-match-data (fms-png-size (expand-file-name (match-string 1 img) directory)))))
+         (format "%s width=\"%d\" height=\"%d\" %s" img width height
+                 (if first
+                     (progn (setq first nil) "fetchpriority=\"high\"")
+                   "loading=\"lazy\""))))
+     html t t)))
+
+(add-to-list 'org-export-filter-final-output-functions #'fms-size-pictures)
 
 (defconst fms-code-columns 32
   "The longest code in text that is kept on one line; longer code may wrap.
@@ -1381,15 +1416,6 @@ signatures is of the class sig too."
 (add-to-list 'org-export-filter-final-output-functions #'fms-manual-mark-kinds)
 
 (add-to-list 'org-export-filter-final-output-functions #'fms-manual-anchors)
-
-(defun fms-manual-size-pictures (html _backend _info)
-  "Give each example box's picture in HTML the size it is shown at, loading lazily."
-  (replace-regexp-in-string
-   "<div class=\"example-pic\">\\s-*<img "
-   "<div class=\"example-pic\"><img width=\"240\" height=\"180\" loading=\"lazy\" "
-   html t t))
-
-(add-to-list 'org-export-filter-final-output-functions #'fms-manual-size-pictures)
 
 (defun fms-manual-link (target title chapter)
   "An Org link to TARGET, a heading's (ID CHAPTER-ID), titled TITLE, from the page CHAPTER."
