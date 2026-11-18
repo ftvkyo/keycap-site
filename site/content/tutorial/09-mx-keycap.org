@@ -25,7 +25,8 @@ let o = #{
     pad_squareness: 0.5,
 };
 
-draw(squircle(o.base / 2.0, o.base_squareness).difference(squircle(o.pad / 2.0, o.pad_squareness)));
+draw(squircle(o.base / 2.0, o.base_squareness)
+    .difference(squircle(o.pad / 2.0, o.pad_squareness)));
 #+end_src
 
 The base of the cap, at the bottom, is an 18 mm squircle that is almost a square; the pad at the top is a 13 mm one that is much rounder.
@@ -62,14 +63,16 @@ const ROW = 1;                  // 1 top, 4 home, 6 bottom, 7 thumb
 o += ROWS[ROW - 1];
 o.dish_depth = 0.75;            // from the rim down to the dish's middle
 
-/// Moves a shape from the origin to `dz` above the pad's middle, tilted with the pad.
+/// Moves a shape from the origin to `dz` above the pad's middle,
+/// tilted with the pad.
 fn on_pad(shape, o, dz) {
     shape.rotate_y(o.angle).move([o.offset, 0.0, o.height + dz])
 }
 
 draw(union(
     squircle(o.base / 2.0, o.base_squareness).extrude(0.4),
-    on_pad(squircle(o.pad / 2.0, o.pad_squareness).extrude(0.4), o, o.dish_depth / 2.0)
+    on_pad(squircle(o.pad / 2.0, o.pad_squareness).extrude(0.4),
+           o, o.dish_depth / 2.0)
 ));
 #+end_src
 
@@ -94,7 +97,8 @@ It takes the outline as a 2D shape that changes from slice to slice, and works o
 #+begin_src keycap :model mx :alt A solid cap, shaded: an almost square base rising into a rounder top, cut flat and tilted
 // --- Side ---
 
-/// The side, from the base at z = 0 up to the rim, where the pad's plane cuts it.
+/// The side, from the base at z = 0 up to the rim,
+/// where the pad's plane cuts it.
 fn side(o) {
     // The slice's outline: the base's and the pad's radii, blended.
     let s = clamp(z, 0.0, 1.0);
@@ -102,9 +106,11 @@ fn side(o) {
     let pad = squircle_ray(x, y, o.pad_squareness);
     let base = squircle_ray(x, y, o.base_squareness);
     let t = square(square(s));
-    let outline = polar_outline(size * lerp(base.r, pad.r, t),
-                                size * lerp(base.r * base.slope, pad.r * pad.slope, t));
-    outline.loft_tilted([o.offset, 0.0, o.height + o.dish_depth * 0.5], o.angle)
+    let r = size * lerp(base.r, pad.r, t);
+    let dr = size * lerp(base.r * base.slope, pad.r * pad.slope, t);
+    let outline = polar_outline(r, dr);
+    let rim = [o.offset, 0.0, o.height + o.dish_depth * 0.5];
+    outline.loft_tilted(rim, o.angle)
 }
 
 draw(side(o).intersection(-z));
@@ -154,7 +160,8 @@ fn dish(o) {
     let k = clamp((hypot(u, y) / pad.r - o.dish_flat) / span, 0.0, 1.0);
     let depth = o.dish_depth * cos(tilt);
     let rise = depth * (1.0 - cos(PI * k)) * 0.5;
-    let slope = depth * PI * 0.5 / span * sin(PI * k) * sqrt(1.0 + square(pad.slope)) / pad.r;
+    let slope = depth * PI * 0.5 / span * sin(PI * k)
+        * sqrt(1.0 + square(pad.slope)) / pad.r;
     (w - rise) / sqrt(1.0 + square(slope))
 }
 
@@ -249,7 +256,8 @@ let ribs = union(rect([SUPPORT, o.base]), rect([o.base, SUPPORT]))
 let spread = o.base - WALL * 6.0;
 let posts = [];
 for i in 0..ROW {
-    posts.push(circle(0.75).move([-o.base / 2.0 + WALL, -spread / 2.0 + spread / 6.0 * i]));
+    posts.push(circle(0.75)
+        .move([-o.base / 2.0 + WALL, -spread / 2.0 + spread / 6.0 * i]));
 }
 let markers = union(posts).extrude([0.0, top]);
 
@@ -279,7 +287,8 @@ const LEGEND_DEPTH = 0.4;
 let letters = text(LEGEND, #{size: 8.0, halign: "center", valign: "center"})
     .rotate_z(90.0)
     .extrude([-1.0, 2.0]);
-let engraved = cap.engrave(on_pad(letters, o, -o.dish_depth / 2.0), -dish(o), LEGEND_DEPTH);
+let engraved = cap.engrave(on_pad(letters, o, -o.dish_depth / 2.0),
+                           -dish(o), LEGEND_DEPTH);
 draw(engraved);
 #+end_src
 
@@ -303,7 +312,7 @@ v4 sinks half of a flattened ellipsoid into the middle of the dish; a legend the
 #+begin_src keycap :model mx :camera "0 50" :alt The cap from +X and above, a small bump in the middle of the dish instead of the letter
 // --- Homing dot ---
 
-const DOT = true;               // a bump in the dish's middle, instead of the legend
+const DOT = true;               // a bump in the dish's middle, not the legend
 
 let dot = on_pad(ellipsoid([0.75, 0.75, 1.0 / 3.0]), o, -o.dish_depth / 2.0);
 let key = if DOT { union(cap, dot) } else { engraved };
