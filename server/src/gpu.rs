@@ -396,7 +396,8 @@ impl Device {
             voxels
         };
         if let Some(shapes) = self.shapes.as_mut() {
-            shapes.cost = Some(cost.refit(slowest, volume([w, h], view.depth)));
+            let tiled = [w, h] != [width, height];
+            shapes.cost = Some(cost.refit(slowest, volume([w, h], view.depth), tiled));
         }
 
         let depth: Vec<u32> = voxels.iter().map(|v| v.z).collect();
@@ -582,19 +583,21 @@ impl Device {
 /// nothing take a long time per voxel, as every voxel is evaluated.
 ///
 /// Tiles are (voxels, seconds).  A small tile, such as a frame while the
-/// camera is dragged, takes mostly latency, so the line is fitted through
-/// two tiles of sizes far apart, and keeps its latency only until there
-/// are two.
+/// camera is dragged, takes mostly latency, and its time varies by more
+/// than its voxels' share of it, so small tiles only tell the latency: the
+/// line goes through the latest large tile, and the latest small one
+/// tilts it.
 #[derive(Clone, Copy, Debug)]
 struct Cost {
     /// Seconds
     latency: f64,
     /// Seconds
     per_voxel: f64,
-    /// The tile the line was last fitted to
-    last: (f64, f64),
-    /// The latest tile at least twice or at most half the size of `last`
-    other: Option<(f64, f64)>,
+    /// The latest tile at least half the size of the one before, or of a
+    /// tiled frame, so that one slow frame does not tile every later one
+    large: (f64, f64),
+    /// The latest tile under half the size of `large`
+    small: Option<(f64, f64)>,
 }
 
 impl Cost {
@@ -604,20 +607,21 @@ impl Cost {
         Cost {
             latency: 0.0,
             per_voxel: tile.1 / tile.0,
-            last: tile,
-            other: None,
+            large: tile,
+            small: None,
         }
     }
 
-    /// The line through two tiles of different sizes, `b` the later.
-    fn through(a: (f64, f64), b: (f64, f64)) -> Cost {
-        let (small, large) = if a.0 < b.0 { (a, b) } else { (b, a) };
-        let per_voxel = ((large.1 - small.1) / (large.0 - small.0)).max(0.0);
+    /// The line through a `large` tile, tilted by a `small` one but
+    /// keeping both terms at least zero
+    fn through(small: (f64, f64), large: (f64, f64)) -> Cost {
+        let slope = (large.1 - small.1) / (large.0 - small.0);
+        let per_voxel = slope.max(0.0).min(large.1 / large.0);
         Cost {
-            latency: (small.1 - per_voxel * small.0).max(0.0),
+            latency: large.1 - per_voxel * large.0,
             per_voxel,
-            last: b,
-            other: Some(a),
+            large,
+            small: Some(small),
         }
     }
 
@@ -627,19 +631,21 @@ impl Cost {
     }
 
     /// Fitted again to a tile of `voxels` that took `took`, the slowest of
-    /// a frame, so the densest.
-    fn refit(&self, took: Duration, voxels: f64) -> Cost {
+    /// a frame, so the densest, and whether the frame was `tiled`.
+    fn refit(&self, took: Duration, voxels: f64, tiled: bool) -> Cost {
         let tile = (voxels, took.as_secs_f64());
-        let apart = |other: &(f64, f64)| other.0 >= 2.0 * voxels || 2.0 * other.0 <= voxels;
-        match Some(self.last).filter(apart).or(self.other.filter(apart)) {
-            Some(other) => Cost::through(other, tile),
+        if !tiled && 2.0 * voxels < self.large.0 {
+            return Cost::through(tile, self.large);
+        }
+        match self.small.filter(|small| 2.0 * small.0 <= voxels) {
+            Some(small) => Cost::through(small, tile),
             None => {
                 let latency = self.latency.min(tile.1);
                 Cost {
                     latency,
                     per_voxel: (tile.1 - latency) / voxels,
-                    last: tile,
-                    other: None,
+                    large: tile,
+                    small: None,
                 }
             }
         }
@@ -712,11 +718,57 @@ mod test {
 
     /// A GPU whose tiles take `latency`, then the rest of `full` for an
     /// 800x600 frame, in seconds
-    fn gpu(latency: f64, full: f64) -> impl Fn(&View3) -> (f64, f64) {
-        move |view| {
-            let voxels = volume([view.width, view.height], view.depth);
-            let share = voxels / volume([800, 600], 800);
-            (voxels, latency + (full - latency) * share)
+    fn gpu(latency: f64, full: f64) -> impl Fn(f64) -> f64 {
+        move |voxels| latency + (full - latency) * voxels / volume([800, 600], 800)
+    }
+
+    /// The tile side `cost` plans for `view`, and the cost after the frame,
+    /// whose tiles take `jitter` times what `took` says
+    fn frame(cost: Cost, view: &View3, took: impl Fn(f64) -> f64, jitter: f64) -> (u32, Cost) {
+        let side = cost.side(Duration::from_millis(400), view);
+        let [w, h] = [side.min(view.width), side.min(view.height)];
+        let voxels = volume([w, h], view.depth);
+        let seconds = Duration::from_secs_f64(jitter * took(voxels));
+        let tiled = [w, h] != [view.width, view.height];
+        (side, cost.refit(seconds, voxels, tiled))
+    }
+
+    /// The cost `measure` finds, from two tiles in the middle of `view`
+    fn measured(took: impl Fn(f64) -> f64, view: &View3) -> Cost {
+        let tile = |side| volume([side; 2], view.depth);
+        let (small, large) = (tile(MIN_TILE), tile(8 * MIN_TILE));
+        Cost::through((small, took(small)), (large, took(large)))
+    }
+
+    /// A drag's frames, from half the full resolution down to a quarter
+    /// and up again, take their latency give or take half of it, and the
+    /// full frame after them is planned as if there had been none.
+    #[test]
+    fn a_drag_leaves_the_full_frame_as_it_was() {
+        let full = view(1600, 1200);
+        let shares = [
+            (0.5, 4),
+            (0.37, 1),
+            (0.31, 10),
+            (0.25, 20),
+            (0.28, 5),
+            (0.32, 5),
+        ];
+        let jitter = [1.0, 1.5, 0.7, 1.2, 0.9, 1.4, 0.6, 1.1];
+        for (latency, seconds) in [(0.035, 0.04), (0.05, 0.1), (0.05, 0.6)] {
+            let took = gpu(latency, seconds);
+            let (_, opened) = frame(measured(&took, &full), &full, &took, 1.0);
+            let (fresh, _) = frame(opened, &full, &took, 1.0);
+            let mut cost = opened;
+            let drag = shares
+                .iter()
+                .flat_map(|&(share, n)| std::iter::repeat_n(share, n));
+            for (share, jitter) in drag.zip(jitter.iter().cycle()) {
+                let size = |side| (f64::from(side) * share).round() as u32;
+                let view = view(size(full.width), size(full.height));
+                cost = frame(cost, &view, &took, *jitter).1;
+            }
+            assert_eq!(frame(cost, &full, &took, 1.0).0, fresh, "{seconds} s");
         }
     }
 
@@ -726,13 +778,14 @@ mod test {
         let (full, small) = (view(800, 600), view(200, 150));
         for (latency, seconds) in [(0.03, 0.09), (0.05, 0.25)] {
             let took = gpu(latency, seconds);
-            let mut cost = Cost::linear(took(&view(MIN_TILE, MIN_TILE)));
+            let tile = volume([MIN_TILE; 2], MIN_TILE);
+            let mut cost = Cost::linear((tile, took(tile)));
             for view in [&full, &full].into_iter().chain([&small; 30]) {
-                let (voxels, seconds) = took(view);
-                cost = cost.refit(Duration::from_secs_f64(seconds), voxels);
+                let voxels = volume([view.width, view.height], view.depth);
+                cost = cost.refit(Duration::from_secs_f64(took(voxels)), voxels, false);
             }
             assert_eq!(cost.side(budget, &full), 800);
-            let predicted = cost.of(took(&full).0);
+            let predicted = cost.of(volume([800, 600], 800));
             assert!(
                 (predicted - seconds).abs() < 0.01,
                 "{predicted} s for {seconds} s"
@@ -741,10 +794,13 @@ mod test {
     }
 
     #[test]
-    fn sizes_too_close_keep_the_latency() {
-        let cost = Cost::through((4000.0, 0.02), (8000.0, 0.03));
-        let refit = cost.refit(Duration::from_secs_f64(0.04), 5000.0);
-        assert_eq!(refit.latency, cost.latency);
-        assert!(refit.other.is_none());
+    fn a_tiled_frame_forgets_a_slow_one() {
+        let took = gpu(0.05, 0.25);
+        let full = view(800, 600);
+        let small = measured(&took, &full).small.unwrap();
+        let slow = Cost::through(small, (volume([800, 600], 800), 1.0));
+        let (side, cost) = frame(slow, &full, &took, 1.0);
+        assert!(side < 800);
+        assert_eq!(frame(cost, &full, &took, 1.0).0, 800);
     }
 }
