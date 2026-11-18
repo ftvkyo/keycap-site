@@ -737,6 +737,41 @@ mod test {
         }
     }
 
+    /// `smooth_difference` and `smooth_intersection` are fidget's `blend`
+    /// turned inside out, with the cutters blended into one first.
+    #[test]
+    fn smooth_cuts_are_inverted_blends() {
+        // Every multiple of 0.5 from -12 to 12.
+        let steps: Vec<f32> = (-24..=24).map(|i| i as f32 * 0.5).collect();
+        let mut points = vec![];
+        for &x in &steps {
+            for &y in &steps {
+                for &z in &steps {
+                    points.push([x, y, z]);
+                }
+            }
+        }
+        let shapes = "let a = cuboid([16, 16, 10]); \
+                      let b = sphere(8).move([0, 0, 8]); \
+                      let c = cylinder(3, 20).rotate_x(90).move([0, 0, 5]);";
+        for (source, blended) in [
+            (
+                "a.smooth_difference([b, c], 4)",
+                "inverse(blend(inverse(a), blend(b, c, 4), 4))",
+            ),
+            (
+                "a.smooth_intersection([b, c], 4)",
+                "inverse(blend(blend(inverse(a), inverse(b), 4), inverse(c), 4))",
+            ),
+        ] {
+            let ours = grad_at(&format!("{{ {shapes} {source} }}"), &points);
+            let theirs = grad_at(&format!("{{ {shapes} {blended} }}"), &points);
+            for ((p, g), h) in points.iter().zip(ours).zip(theirs) {
+                assert!((g.v - h.v).abs() < 1e-5, "{source} at {p:?}: {g:?}, {h:?}");
+            }
+        }
+    }
+
     /// fidget meshes and shades with gradients: a NaN one makes the mesher
     /// guess a vertex and the renderer a normal, and a zero one on the
     /// surface breaks the mesher.

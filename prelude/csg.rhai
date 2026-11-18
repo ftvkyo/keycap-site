@@ -538,7 +538,7 @@ fn _chamfer_intersection(parts, c) {
 /// - Field: a bound where the shapes' fields are exact or bounds, whether `k` varies or not.
 /// - About 10 operations a shape; a varying width evaluates the shapes twice.
 ///
-/// See also: `union_round`, `smooth_intersection`, `smooth_difference`.
+/// See also: `union_round`, `smooth_intersection`, `smooth_difference`, `blend`.
 ///
 /// References:
 /// - Inigo Quilez, [Smooth minimum](https://iquilezles.org/articles/smin/)
@@ -583,13 +583,14 @@ fn smooth_union(shapes, k) {
 ///   - `normalize`: `false` skips the correction of a varying width: twice as fast, but offsets and shells of a varying blend come out uneven
 ///
 /// The edges are rounded off as `smooth_union` fills joints.
+/// With the default `kind`, it is the inverse of the `blend` of the shapes' inverses.
 /// Where two surfaces meet at right angles, the blend reaches `k` along each.
 ///
 /// Notes:
 /// - Field: a bound where the shapes' fields are exact or bounds.
 /// - An array is the shapes to intersect, not their union, unlike in most functions that take shapes.
 ///
-/// See also: `intersection_round`, `smooth_union`, `smooth_difference`.
+/// See also: `intersection_round`, `smooth_union`, `smooth_difference`, `blend`.
 ///
 /// References:
 /// - Inigo Quilez, [Smooth minimum](https://iquilezles.org/articles/smin/)
@@ -636,6 +637,7 @@ fn smooth_intersection(shapes, k) {
 ///   - `normalize`: `false` skips the correction of a varying width: twice as fast, but offsets and shells of a varying blend come out uneven
 ///
 /// The cutters are blended into each other first, so an edge between two of them is rounded off too.
+/// With the default `kind`, it is `inverse(blend(inverse(body), cutter, k))`, where `cutter` is the cutters blended into one by `blend`.
 /// A cusp, where a cut only touches the body's surface, is rounded as well.
 /// Slivers thinner than about `k` between surfaces that run close together are eaten away.
 ///
@@ -644,7 +646,7 @@ fn smooth_intersection(shapes, k) {
 /// Notes:
 /// - Field: a bound where the shapes' fields are exact or bounds.
 ///
-/// See also: `difference_round`, `smooth_union`, `smooth_intersection`.
+/// See also: `difference_round`, `smooth_union`, `smooth_intersection`, `blend`.
 ///
 /// References:
 /// - Inigo Quilez, [Smooth minimum](https://iquilezles.org/articles/smin/)

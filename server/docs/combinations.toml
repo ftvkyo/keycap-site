@@ -107,7 +107,7 @@ By position, all three come, in this order.
 Notes:
 - Field: a bound.
 
-See also: `union_round`, which makes a circular fillet, and `smooth_union`.
+See also: `union_round`, which makes a circular fillet, `smooth_union`, `smooth_difference`, `smooth_intersection`.
 
 References:
 - Inigo Quilez, [Smooth minimum](https://iquilezles.org/articles/smin/)
