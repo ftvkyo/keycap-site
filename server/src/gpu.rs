@@ -113,7 +113,7 @@ struct Shapes {
     /// The union, or each shape when their colours differ
     tapes: Vec<RenderShape>,
     /// How long their tiles take, once measured
-    cost: Option<Cost>,
+    costs: Costs,
 }
 
 impl Gpu {
@@ -306,7 +306,7 @@ impl Device {
             scene: scene.id,
             orientation,
             tapes,
-            cost: None,
+            costs: Costs::default(),
         });
         Ok(())
     }
@@ -351,12 +351,13 @@ impl Device {
         let background = cpu::to_rgb(request.background);
         self.upload(scene, Orientation::Solid(bounds))?;
         let (width, height) = (view.width, view.height);
-        let cost = match self.shapes.as_ref().and_then(|s| s.cost) {
+        let size = [width, height, view.depth];
+        let cost = match self.shapes.as_ref().and_then(|s| s.costs.of(size)) {
             Some(cost) => cost,
             None => {
                 let cost = self.measure(view)?;
                 if let Some(shapes) = self.shapes.as_mut() {
-                    shapes.cost = Some(cost);
+                    shapes.costs.insert(size, cost);
                 }
                 cost
             }
@@ -397,7 +398,8 @@ impl Device {
         };
         if let Some(shapes) = self.shapes.as_mut() {
             let tiled = [w, h] != [width, height];
-            shapes.cost = Some(cost.refit(slowest, volume([w, h], view.depth), tiled));
+            let cost = cost.refit(slowest, volume([w, h], view.depth), tiled);
+            shapes.costs.insert(size, cost);
         }
 
         let depth: Vec<u32> = voxels.iter().map(|v| v.z).collect();
@@ -666,6 +668,40 @@ impl Cost {
     }
 }
 
+/// The costs of tiles in frames of each size, as width, height and depth,
+/// for the latest few sizes.  A camera drag's small frames thus leave the
+/// full frames' cost as it was.
+#[derive(Default)]
+struct Costs {
+    sizes: Vec<([u32; 3], Cost)>,
+}
+
+impl Costs {
+    /// The most sizes kept: a drag's, the full frame's and room to spare
+    const SIZES: usize = 16;
+
+    /// The cost in frames of `size`, or else of the size nearest it
+    fn of(&self, size: [u32; 3]) -> Option<Cost> {
+        let voxels = |[w, h, depth]: [u32; 3]| volume([w, h], depth);
+        let apart = |other: [u32; 3]| (voxels(other) / voxels(size)).ln().abs();
+        let nearest = self
+            .sizes
+            .iter()
+            .min_by(|a, b| apart(a.0).total_cmp(&apart(b.0)));
+        nearest.map(|&(_, cost)| cost)
+    }
+
+    /// Keeps `cost` for frames of `size`, dropping the oldest size when
+    /// there are too many.
+    fn insert(&mut self, size: [u32; 3], cost: Cost) {
+        self.sizes.retain(|&(other, _)| other != size);
+        if self.sizes.len() == Costs::SIZES {
+            self.sizes.remove(0);
+        }
+        self.sizes.push((size, cost));
+    }
+}
+
 fn volume(size: [u32; 2], depth: u32) -> f64 {
     f64::from(size[0]) * f64::from(size[1]) * f64::from(depth)
 }
@@ -722,15 +758,18 @@ mod test {
         move |voxels| latency + (full - latency) * voxels / volume([800, 600], 800)
     }
 
-    /// The tile side `cost` plans for `view`, and the cost after the frame,
-    /// whose tiles take `jitter` times what `took` says
-    fn frame(cost: Cost, view: &View3, took: impl Fn(f64) -> f64, jitter: f64) -> (u32, Cost) {
+    /// The tile side planned for `view` from `costs`, after which they
+    /// learn that its tiles took `jitter` times what `took` says
+    fn frame(costs: &mut Costs, view: &View3, took: impl Fn(f64) -> f64, jitter: f64) -> u32 {
+        let size = [view.width, view.height, view.depth];
+        let cost = costs.of(size).unwrap_or_else(|| measured(&took, view));
         let side = cost.side(Duration::from_millis(400), view);
         let [w, h] = [side.min(view.width), side.min(view.height)];
         let voxels = volume([w, h], view.depth);
         let seconds = Duration::from_secs_f64(jitter * took(voxels));
         let tiled = [w, h] != [view.width, view.height];
-        (side, cost.refit(seconds, voxels, tiled))
+        costs.insert(size, cost.refit(seconds, voxels, tiled));
+        side
     }
 
     /// The cost `measure` finds, from two tiles in the middle of `view`
@@ -757,18 +796,23 @@ mod test {
         let jitter = [1.0, 1.5, 0.7, 1.2, 0.9, 1.4, 0.6, 1.1];
         for (latency, seconds) in [(0.035, 0.04), (0.05, 0.1), (0.05, 0.6)] {
             let took = gpu(latency, seconds);
-            let (_, opened) = frame(measured(&took, &full), &full, &took, 1.0);
-            let (fresh, _) = frame(opened, &full, &took, 1.0);
-            let mut cost = opened;
+            let mut fresh = Costs::default();
+            frame(&mut fresh, &full, &took, 1.0);
+            let mut costs = Costs::default();
+            frame(&mut costs, &full, &took, 1.0);
             let drag = shares
                 .iter()
                 .flat_map(|&(share, n)| std::iter::repeat_n(share, n));
             for (share, jitter) in drag.zip(jitter.iter().cycle()) {
                 let size = |side| (f64::from(side) * share).round() as u32;
                 let view = view(size(full.width), size(full.height));
-                cost = frame(cost, &view, &took, *jitter).1;
+                frame(&mut costs, &view, &took, *jitter);
             }
-            assert_eq!(frame(cost, &full, &took, 1.0).0, fresh, "{seconds} s");
+            assert_eq!(
+                frame(&mut costs, &full, &took, 1.0),
+                frame(&mut fresh, &full, &took, 1.0),
+                "{seconds} s"
+            );
         }
     }
 
@@ -799,8 +843,9 @@ mod test {
         let full = view(800, 600);
         let small = measured(&took, &full).small.unwrap();
         let slow = Cost::through(small, (volume([800, 600], 800), 1.0));
-        let (side, cost) = frame(slow, &full, &took, 1.0);
-        assert!(side < 800);
-        assert_eq!(frame(cost, &full, &took, 1.0).0, 800);
+        let mut costs = Costs::default();
+        costs.insert([800, 600, 800], slow);
+        assert!(frame(&mut costs, &full, &took, 1.0) < 800);
+        assert_eq!(frame(&mut costs, &full, &took, 1.0), 800);
     }
 }
