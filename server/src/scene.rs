@@ -268,7 +268,10 @@ mod test {
         "star(5, [10, 4])",
         "polygon([[0, 0], [8, 0], [8, 4], [0, 8]])",
         "polygon([[0, 0], [0, 8], [8, 4], [8, 0]])",
+        "polygon([[0, 0], [0, 8], [8, 4], [8, 0]], #{convex: false})",
         "rounded_polygon([[-6, -6], [6, -6], [0, 6]], 1)",
+        "rounded_polygon([[-6, -6], [6, -6], [0, 6]], 1, #{convex: false})",
+        "rounded_polygon([[-6, -6, 0], [6, -6, 2], [0, 6]], 1)",
         "rounded_polygon([[-6, -6], [6, -6, 0], [6, 6], [0, 0], [-6, 6]], 1, #{concave: 2})",
         "rounded_polygon([[-6, -4], [6, -4, #{arc: 5}], [6, 4], [-6, 4, #{arc: -5}]], 1)",
         "rounded_polygon([[6, 0, #{arc: 6}], [-6, 0, #{arc: 6}]], 0)",
@@ -832,6 +835,303 @@ mod test {
             let (_, result) = engine.run(source, None, &Overrides::new());
             let error = result.expect_err(source);
             assert_eq!(error.message, message, "{source}");
+        }
+    }
+
+    /// The convex polygons that `polygon` and `rounded_polygon` build from
+    /// their corners have the general field's values, to a millionth of
+    /// their size, and intervals that hold them: random polygons either
+    /// way round, regular ones, rounded alike or corner by corner, flat
+    /// and extruded.  The lattice spans twice the polygon's box, and rings
+    /// round every corner and lines beside every edge reach in to a
+    /// thousandth of its size.
+    #[test]
+    fn convex_polygons_keep_the_general_field() {
+        use fidget::types::Interval;
+        use rand::rngs::StdRng;
+        use rand::{RngExt, SeedableRng};
+
+        let prelude = Path::new(env!("CARGO_MANIFEST_DIR")).join("../prelude");
+        let mut engine = Engine::new(Some(&prelude));
+        let mut rng = StdRng::seed_from_u64(7);
+        let tau = std::f64::consts::TAU;
+        // Each case's corners, and a rounded one's radius and the radii of
+        // the corners that have their own
+        let mut cases: Vec<(Vec<[f64; 2]>, Option<(f64, Vec<Option<f64>>)>)> = vec![];
+        let fits = |p: &[[f64; 2]], w: &[f64]| {
+            // The largest scale of the radii `w` whose arcs fit on every edge
+            let n = p.len();
+            let reach = |i: usize| {
+                let (a, b, c) = (p[(i + n - 1) % n], p[i], p[(i + 1) % n]);
+                let (d1, d2) = ([b[0] - a[0], b[1] - a[1]], [c[0] - b[0], c[1] - b[1]]);
+                let turn = (d1[0] * d2[1] - d1[1] * d2[0]).atan2(d1[0] * d2[0] + d1[1] * d2[1]);
+                w[i] * (turn.abs() / 2.0).tan()
+            };
+            (0..n)
+                .map(|i| {
+                    let b = p[(i + 1) % n];
+                    let l = (b[0] - p[i][0]).hypot(b[1] - p[i][1]);
+                    l / (reach(i) + reach((i + 1) % n))
+                })
+                .fold(f64::INFINITY, f64::min)
+        };
+        for i in 0..48 {
+            let n = rng.random_range(3..=12);
+            let (a, b) = (rng.random_range(3.0..20.0), rng.random_range(0.3..1.0));
+            let (turn, centre) = (
+                rng.random_range(0.0..tau),
+                [rng.random_range(-10.0..10.0), rng.random_range(-10.0..10.0)],
+            );
+            // Angles round an ellipse, at least 0.1 apart
+            let mut angles: Vec<f64> = vec![];
+            while angles.len() < n {
+                let t = rng.random_range(0.0..tau);
+                let gap = |u: &f64| ((t - u).rem_euclid(tau)).min((u - t).rem_euclid(tau));
+                if angles.iter().all(|u| gap(u) > 0.1) {
+                    angles.push(t);
+                }
+            }
+            angles.sort_by(f64::total_cmp);
+            let mut p: Vec<[f64; 2]> = angles
+                .iter()
+                .map(|t| {
+                    let (u, v) = (a * t.cos(), a * b * t.sin());
+                    [
+                        centre[0] + u * turn.cos() - v * turn.sin(),
+                        centre[1] + u * turn.sin() + v * turn.cos(),
+                    ]
+                })
+                .collect();
+            if i % 2 == 1 {
+                p.reverse();
+            }
+            let round = match i % 3 {
+                0 => None,
+                1 => {
+                    let r = rng.random_range(0.1..0.95) * fits(&p, &vec![1.0; n]);
+                    Some((r, vec![None; n]))
+                }
+                _ => {
+                    // A corner of its own radius, sharp a quarter of the
+                    // time, or one of half the scale
+                    let own: Vec<bool> = (0..n).map(|_| rng.random_bool(0.7)).collect();
+                    let w: Vec<f64> = own
+                        .iter()
+                        .map(|&own| match own {
+                            false => 0.5,
+                            true if rng.random_bool(0.25) => 0.0,
+                            true => rng.random_range(0.2..1.0),
+                        })
+                        .collect();
+                    let scale = rng.random_range(0.1..0.95) * fits(&p, &w);
+                    let own = own
+                        .iter()
+                        .zip(&w)
+                        .map(|(own, w)| own.then_some(w * scale))
+                        .collect();
+                    Some((scale * 0.5, own))
+                }
+            };
+            cases.push((p, round));
+        }
+        for n in (3..=12).chain([64]) {
+            let p: Vec<[f64; 2]> = (0..n)
+                .map(|i| {
+                    let t = tau * i as f64 / n as f64;
+                    [10.0 * t.cos(), 10.0 * t.sin()]
+                })
+                .collect();
+            cases.push((p.clone(), None));
+            cases.push((p, Some((1.0, vec![None; n]))));
+        }
+
+        for (i, (p, round)) in cases.iter().enumerate() {
+            let n = p.len();
+            let points = p
+                .iter()
+                .enumerate()
+                .map(|(j, c)| match round {
+                    Some((_, own)) if own[j].is_some() => {
+                        format!("[{}, {}, {}]", c[0], c[1], own[j].unwrap())
+                    }
+                    _ => format!("[{}, {}]", c[0], c[1]),
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            let (call, r) = match round {
+                None => (format!("polygon([{points}]"), "0.0".to_string()),
+                Some((r, _)) => (format!("rounded_polygon([{points}], {r}"), r.to_string()),
+            };
+            let probe = format!(r#"type_of(_convex_corners(_outline([{points}], "test"), {r}))"#);
+            let (_, result) = engine.run(&probe, None, &Overrides::new());
+            assert_eq!(
+                result.expect("runs").to_string(),
+                "array",
+                "not convex: {call})"
+            );
+            // Every third case extruded, its rims rounded where its corners are
+            let extruded = i % 3 == 2;
+            let (fast, general) = if extruded {
+                (
+                    format!("{call}).extrude(6, #{{round: 0.5}})"),
+                    format!("{call}, #{{convex: false}}).extrude(6, #{{round: 0.5}})"),
+                )
+            } else {
+                (format!("{call})"), format!("{call}, #{{convex: false}})"))
+            };
+            let lo = p
+                .iter()
+                .fold([f64::INFINITY; 2], |m, c| [m[0].min(c[0]), m[1].min(c[1])]);
+            let hi = p.iter().fold([f64::NEG_INFINITY; 2], |m, c| {
+                [m[0].max(c[0]), m[1].max(c[1])]
+            });
+            let size = (hi[0] - lo[0]).max(hi[1] - lo[1]);
+            let zs: &[f64] = if extruded {
+                &[-1.0, 0.2, 3.0, 5.9, 6.5]
+            } else {
+                &[0.0]
+            };
+            let mut flat: Vec<[f64; 2]> = vec![];
+            for a in 0..=48 {
+                for b in 0..=48 {
+                    let (u, v) = (a as f64 / 48.0 * 2.0 - 0.5, b as f64 / 48.0 * 2.0 - 0.5);
+                    flat.push([lo[0] + u * (hi[0] - lo[0]), lo[1] + v * (hi[1] - lo[1])]);
+                }
+            }
+            for j in 0..n {
+                let (c, d) = (p[j], p[(j + 1) % n]);
+                for rho in [1e-3, 1e-2, 0.1, 0.5] {
+                    for k in 0..24 {
+                        let t = tau * k as f64 / 24.0;
+                        flat.push([c[0] + rho * size * t.cos(), c[1] + rho * size * t.sin()]);
+                    }
+                }
+                let l = (d[0] - c[0]).hypot(d[1] - c[1]);
+                let normal = [(d[1] - c[1]) / l, (c[0] - d[0]) / l];
+                for f in [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99] {
+                    for h in [-0.1, -1e-2, -1e-3, 0.0, 1e-3, 1e-2, 0.1] {
+                        let at = [c[0] + f * (d[0] - c[0]), c[1] + f * (d[1] - c[1])];
+                        flat.push([at[0] + h * size * normal[0], at[1] + h * size * normal[1]]);
+                    }
+                }
+            }
+            let lattice: Vec<[f32; 3]> = flat
+                .iter()
+                .flat_map(|q| {
+                    zs.iter()
+                        .map(move |z| [q[0] as f32, q[1] as f32, *z as f32])
+                })
+                .collect();
+            let (want, got) = (grad_at(&general, &lattice), grad_at(&fast, &lattice));
+            for ((q, w), g) in lattice.iter().zip(&want).zip(&got) {
+                assert!(
+                    (w.v - g.v).abs() <= 1e-6 * size as f32,
+                    "{fast} at {q:?}: {} for {}",
+                    g.v,
+                    w.v
+                );
+            }
+            // Boxes of every size from a hundredth of the polygon's to all
+            // of the lattice, each holding the values at points within it
+            let (run, result) = engine.run(&format!("draw({fast});"), None, &Overrides::new());
+            if let Err(error) = result {
+                panic!("{fast}: {}", error.message);
+            }
+            let shape = jit(&run.drawn[0].tree).expect("compiles");
+            let tape = shape.interval_tape(Default::default());
+            let mut eval = JitShape::new_interval_eval();
+            let mut boxes = vec![];
+            let mut inside: Vec<[f32; 3]> = vec![];
+            for _ in 0..64 {
+                let w = size * rng.random_range(0.01f64..2.0);
+                let corner = [
+                    rng.random_range(lo[0] - 0.5 * size..hi[0] + 0.5 * size),
+                    rng.random_range(lo[1] - 0.5 * size..hi[1] + 0.5 * size),
+                    if extruded {
+                        rng.random_range(-2.0..7.0)
+                    } else {
+                        0.0
+                    },
+                ];
+                let span =
+                    |axis: usize| Interval::new(corner[axis] as f32, (corner[axis] + w) as f32);
+                let (bound, _) = eval
+                    .eval(&tape, span(0), span(1), span(2))
+                    .expect("evaluates");
+                boxes.push(bound);
+                for k in 0..27 {
+                    let f = [k % 3, k / 3 % 3, k / 9].map(|e| e as f64 * 0.5);
+                    inside.push([0, 1, 2].map(|axis| (corner[axis] + f[axis] * w) as f32));
+                }
+            }
+            let slack = 1e-6 * size as f32;
+            for ((q, g), bound) in inside
+                .iter()
+                .zip(grad_at(&fast, &inside))
+                .zip(boxes.iter().flat_map(|b| [b; 27]))
+            {
+                assert!(
+                    bound.lower() - slack <= g.v && g.v <= bound.upper() + slack,
+                    "{fast} at {q:?}: {} outside {bound:?}",
+                    g.v
+                );
+            }
+        }
+    }
+
+    /// Outlines that are not one strictly convex loop of straight edges,
+    /// nearly so, or whose arcs do not fit with room to spare, keep the
+    /// general field.
+    #[test]
+    fn only_convex_polygons_take_their_corners_field() {
+        let prelude = Path::new(env!("CARGO_MANIFEST_DIR")).join("../prelude");
+        let mut engine = Engine::new(Some(&prelude));
+        let cases = [
+            ("[[0, 0], [10, 0], [10, 10], [0, 10]]", 0.0, true),
+            ("[[0, 0], [0, 10], [10, 10], [10, 0]]", 0.0, true),
+            // A point on an edge, nearly on one, nearly on another point
+            ("[[0, 0], [5, 0], [10, 0], [10, 10], [0, 10]]", 0.0, false),
+            (
+                "[[0, 0], [5, 1e-6], [10, 0], [10, 10], [0, 10]]",
+                0.0,
+                false,
+            ),
+            (
+                "[[0, 0], [10, 0], [10, 1e-7], [10, 10], [0, 10]]",
+                0.0,
+                false,
+            ),
+            // Concave, crossing itself, a star that turns left throughout
+            ("[[0, 0], [10, 0], [5, 2], [10, 10], [0, 10]]", 0.0, false),
+            ("[[0, 0], [10, 10], [10, 0], [0, 10]]", 0.0, false),
+            (
+                "[[0, 10], [5.9, -8.1], [-9.5, 3.1], [9.5, 3.1], [-5.9, -8.1]]",
+                0.0,
+                false,
+            ),
+            // An arc, two loops
+            (
+                "[[0, 0], [10, 0, #{arc: 8}], [10, 10], [0, 10]]",
+                0.0,
+                false,
+            ),
+            (
+                "[[[0, 0], [10, 0], [10, 10], [0, 10]], [[20, 0], [30, 0], [30, 10]]]",
+                0.0,
+                false,
+            ),
+            // Arcs that fit, that just fill the top, that do not fit, a
+            // negative radius
+            ("[[0, 0], [20, 0], [11, 8], [9, 8]]", 1.0, true),
+            ("[[-6, -4], [6, -4], [6, 4], [-6, 4]]", 4.0, false),
+            ("[[0, 0], [20, 0], [11, 8], [9, 8]]", 3.0, false),
+            ("[[0, 0], [10, 0, -1], [10, 10], [0, 10]]", 1.0, false),
+        ];
+        for (points, r, convex) in cases {
+            let probe = format!(r#"type_of(_convex_corners(_outline({points}, "test"), {r:?}))"#);
+            let (_, result) = engine.run(&probe, None, &Overrides::new());
+            let value = result.unwrap_or_else(|error| panic!("{points}: {}", error.message));
+            assert_eq!(value.to_string() == "array", convex, "{points}, {r}");
         }
     }
 

@@ -825,13 +825,15 @@ fn _anchor_points(shape, opts, corners, what) {
     _anchor(shape, _opt(opts, "anchor", ()), lo, hi, what)
 }
 
-/// polygon(points: Outline): Shape
+/// polygon(points: Outline, opts: #{ convex?: bool } = #{}): Shape
 /// type Outline = Point[] | Point[][]
 /// type Point = Vec2 | [number, number, #{ arc: number }]
 ///
 /// Polygon through a list of points, its corners sharp.
 ///
 /// - `points`: the corners, each `[x, y]`; or a list of such lists, the loops of an outline with several parts or holes, as `polygon_clip` gives them
+/// - `opts`:
+///   - `convex`: `false` keeps a convex polygon on the general field
 ///
 /// The points go in order round the outline, either way round, and the last joins back to the first.
 /// The outline must not cross itself.
@@ -840,9 +842,12 @@ fn _anchor_points(shape, opts, corners, what) {
 /// A point `[x, y, #{arc: r}]` makes the edge to the next point an arc, as in `rounded_polygon`.
 /// Such an outline is a `rounded_polygon` with every corner sharp.
 ///
+/// A single loop of straight edges that turns the same way at every corner, with no two points together and no three in a line, is convex.
+/// Its field is then built corner by corner: the same values, to rounding, in half the operations, and several times faster to render.
+///
 /// Notes:
 /// - Field: exact.
-/// - About 40 operations a point.
+/// - About 40 operations a point, about 20 for a convex polygon.
 ///
 /// See also: `rounded_polygon`, `polygon_clip`, `miter_offset`, `regular_polygon_points`.
 ///
@@ -860,12 +865,21 @@ fn _anchor_points(shape, opts, corners, what) {
 /// polygon([outer, inner])
 /// ```
 fn polygon(points) {
+    polygon(points, #{})
+}
+
+fn polygon(points, opts) {
+    _opts(opts, ["convex"], "polygon");
     let loops = _outline(points, "polygon");
     if loops.some(|ring| ring.some(|w| type_of(w.k) != "()")) {
         throw "polygon: a corner's radius is for rounded_polygon";
     }
     if loops.some(|ring| ring.some(|w| type_of(w.arc) != "()")) {
-        return rounded_polygon(points, 0.0);
+        return rounded_polygon(points, 0.0, opts);
+    }
+    let corners = if _opt(opts, "convex", true) { _convex_corners(loops, 0.0) } else { () };
+    if type_of(corners) != "()" {
+        return _convex_field(corners);
     }
     // Inigo Quilez's sdPolygon: the nearest edge gives the distance, the
     // parity of edge crossings to the right of the point gives the sign;
@@ -908,7 +922,7 @@ fn polygon(points) {
     max(_signed_sqrt(d, s, line), _box_bound(lo, hi))
 }
 
-/// rounded_polygon(points: Outline, r: number, opts: #{ concave?: number } = #{}): Shape
+/// rounded_polygon(points: Outline, r: number, opts: #{ concave?: number, convex?: bool } = #{}): Shape
 /// type Outline = Point[] | Point[][]
 /// type Point = Vec2 | [number, number, number] | [number, number, #{ arc?: number, round?: number }]
 ///
@@ -918,6 +932,7 @@ fn polygon(points) {
 /// - `r`: the radius of the convex corners
 /// - `opts`:
 ///   - `concave`: the radius of the concave corners, `r` unless given
+///   - `convex`: `false` keeps a convex polygon on the general field
 ///
 /// Each corner is an arc tangent to its two edges.
 /// `[x, y, 0]` keeps a corner sharp, and an `r` of 0 keeps every convex one sharp.
@@ -932,9 +947,12 @@ fn polygon(points) {
 /// One arc then joins the edges either side, as an opening or a closing does.
 /// Where they turn opposite ways, it throws, naming the edge.
 ///
+/// A polygon that `polygon` takes as convex, its arcs fitting on every edge with room to spare, is rounded corner by corner.
+/// Its field is then the same values, to rounding, in a quarter of the operations, and several times faster to render.
+///
 /// Notes:
 /// - Field: exact.
-/// - About 90 operations a corner, 60 a sharp one, and 5 more where the edge after it is an arc.
+/// - About 90 operations a corner, 60 a sharp one, and 5 more where the edge after it is an arc; about 20 a corner for a convex polygon.
 ///
 /// See also: `polygon`, `polygon_clip`, `offset`.
 ///
@@ -966,12 +984,115 @@ fn rounded_polygon(points, r) {
 }
 
 fn rounded_polygon(points, r, opts) {
-    _opts(opts, ["concave"], "rounded_polygon");
+    _opts(opts, ["concave", "convex"], "rounded_polygon");
     let r = _num(r, "rounded_polygon: r");
     let concave = _num(_opt(opts, "concave", r), "rounded_polygon: concave");
-    let loops = _outline(points, "rounded_polygon").map(|ring| _rounded_loop(ring, r, concave));
+    let loops = _outline(points, "rounded_polygon");
+    let corners = if _opt(opts, "convex", true) { _convex_corners(loops, r) } else { () };
+    if type_of(corners) != "()" {
+        return _convex_field(corners);
+    }
+    let loops = loops.map(|ring| _rounded_loop(ring, r, concave));
     let box = _pieces_box(loops);
     max(_outline_field(loops), _box_bound(box[0], box[1]))
+}
+
+// The corners of an outline that is one strictly convex loop of straight
+// edges, each `#{p, k}`, its point and radius, `r` unless it has its own;
+// `()` for any other outline.  Every turn, edge and the room an edge
+// leaves between its arcs must clear a millionth of the outline's size,
+// so a nearly degenerate outline, or one whose arcs do not fit, keeps the
+// general field.  A loop that turns left at every corner and a full turn
+// in all is simple.
+fn _convex_corners(loops, r) {
+    if loops.len() != 1 || loops[0].some(|w| type_of(w.arc) != "()") {
+        return ();
+    }
+    let ring = loops[0];
+    let n = ring.len();
+    if n < 3 {
+        return ();
+    }
+    let lo = ring[0].p;
+    let hi = lo;
+    for w in ring {
+        lo = [min(lo[0], w.p[0]), min(lo[1], w.p[1])];
+        hi = [max(hi[0], w.p[0]), max(hi[1], w.p[1])];
+    }
+    let eps = 1e-6 * max(hi[0] - lo[0], hi[1] - lo[1]);
+    let corners = [];
+    let turning = 0.0;
+    for i in 0..n {
+        let a = ring[(i + n - 1) % n].p;
+        let b = ring[i].p;
+        let c = ring[(i + 1) % n].p;
+        let d1 = [b[0] - a[0], b[1] - a[1]];
+        let d2 = [c[0] - b[0], c[1] - b[1]];
+        let l1 = norm(d1);
+        let l2 = norm(d2);
+        if l2 <= eps {
+            return ();
+        }
+        let sine = cross(d1, d2) / (l1 * l2);
+        let cosine = dot(d1, d2) / (l1 * l2);
+        if sine <= 1e-6 {
+            return ();
+        }
+        turning += atan(sine, cosine);
+        let k = if type_of(ring[i].k) == "()" { r } else { ring[i].k };
+        if k < 0.0 {
+            return ();
+        }
+        // How far along each edge the corner's arc reaches.
+        corners.push(#{p: b, k: k, reach: k * sine / (1.0 + cosine), l: l2});
+    }
+    if abs(turning - 2.0 * PI) > 1e-6 {
+        return ();
+    }
+    for i in 0..n {
+        if corners[i].reach + corners[(i + 1) % n].reach > corners[i].l - eps {
+            return ();
+        }
+    }
+    corners.map(|c| #{p: c.p, k: c.k})
+}
+
+// The exact field of a convex polygon from its corners, anticlockwise:
+// the largest of its corners' wedges, as each wedge holds the polygon and
+// the nearest corner's or edge's wedge is as far as the polygon.  Outside
+// a wedge, between its sides' normals, its apex is nearest; elsewhere the
+// nearer side's line.  The apex is never nearer than the lines, so `max`
+// with them, against a constant far below elsewhere, chooses it and keeps
+// their interval as the wedge's lower bound.  A corner of radius `k` is
+// the wedge with its sides moved in by `k`, grown by `k`.
+fn _convex_field(corners) {
+    let n = corners.len();
+    let normals = [];
+    let lines = [];
+    for i in 0..n {
+        let a = corners[i].p;
+        let b = corners[(i + 1) % n].p;
+        let l = _dist(a, b);
+        let u = [(b[1] - a[1]) / l, (a[0] - b[0]) / l];
+        normals.push(u);
+        lines.push(x * u[0] + y * u[1] - (a[0] * u[0] + a[1] * u[1]));
+    }
+    let d = ();
+    for i in 0..n {
+        let n1 = normals[(i + n - 1) % n];
+        let n2 = normals[i];
+        let c = n1[0] * n2[0] + n1[1] * n2[1];
+        let k = corners[i].k;
+        let p = corners[i].p;
+        let v = [p[0] - k * (n1[0] + n2[0]) / (1.0 + c), p[1] - k * (n1[1] + n2[1]) / (1.0 + c)];
+        let a = if k == 0.0 { lines[(i + n - 1) % n] } else { lines[(i + n - 1) % n] + k };
+        let b = if k == 0.0 { lines[i] } else { lines[i] + k };
+        let cone = min(a - c * b, b - c * a);
+        let wedge = max(max(a, b), or(and(_less(0.0, cone), hypot(x - v[0], y - v[1])), -1e30));
+        let wedge = if k == 0.0 { wedge } else { wedge - k };
+        d = if type_of(d) == "()" { wedge } else { max(d, wedge) };
+    }
+    d
 }
 
 // The pieces of one loop of a rounded outline, in order: each corner's
