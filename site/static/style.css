@@ -1435,6 +1435,18 @@ dt.sig code.sig .p {
   white-space: pre;
 }
 
+/* A type in a signature links to its term in Concepts, its colour the
+   type's until hovered. */
+code.sig a.type,
+code.sig a.type:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+code.sig a.type:hover {
+  text-decoration: underline;
+}
+
 /* On a phone, smaller, so that a parameter fits beside the name; one
    longer than the line breaks too. */
 @media (max-width: 36rem) {
@@ -1472,17 +1484,17 @@ dd.entry dl.org-dl dl.org-dl {
   margin: 0.3rem 0 0;
 }
 
-/* Reading signatures' types and notation: each term beside what it
+/* The types and the notation of signatures: each term beside what it
    means, in two columns, as the legend below them.  A term as long as a
    sentence wraps rather than take the line. */
 @media (min-width: 36rem) {
-  #outline-container-reading-signatures dl.org-dl {
+  :is(#outline-container-types, #outline-container-reading-signatures) dl.org-dl {
     display: grid;
     grid-template-columns: fit-content(16rem) minmax(0, 1fr);
     gap: 0.35rem 1rem;
   }
 
-  #outline-container-reading-signatures dl.org-dl > dd {
+  :is(#outline-container-types, #outline-container-reading-signatures) dl.org-dl > dd {
     margin: 0;
   }
 }

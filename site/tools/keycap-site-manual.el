@@ -26,7 +26,8 @@
 ;; Each entry is beside a strip in the colour of its kind, what it makes,
 ;; as the file that describes it declares it, and starts with that and
 ;; where it comes from as a label; its section's mark has the colour too.
-;; Reading signatures ends with their legend.
+;; Reading signatures ends with their legend.  A type in a signature links
+;; to its term in the Types list of Concepts, which says what is a type.
 ;;
 ;; Loaded by publish.el, on top of its page frame.
 
@@ -79,6 +80,39 @@
     "")
    "</dl>\n")
   "What the strips and labels of the reference's entries mean, for Reading signatures.")
+
+(defvar keycap-site-manual-types nil
+  "The types the manual's Types section lists, as (NAME . PAGE), PAGE its chapter's.")
+
+(defun keycap-site-manual-read-types ()
+  "The types the Types section of the manual in the current buffer lists, as (NAME . PAGE).
+Each is a term of its list, or one of the names a term lists."
+  (when-let* ((heading (org-find-property "CUSTOM_ID" "types")))
+    (save-excursion
+      (goto-char heading)
+      (let ((page (cdr (keycap-site-manual-section)))
+            (end (save-excursion (org-end-of-subtree t t)))
+            types)
+        (while (re-search-forward "^- \\(=[^=\n]+=\\(?:, =[^=\n]+=\\)*\\) ::" end t)
+          (dolist (name (split-string (match-string-no-properties 1) "[=, ]+" t))
+            (push (cons name page) types)))
+        (nreverse types)))))
+
+(defun keycap-site-manual-type-anchors (html _backend _info)
+  "Give each name a term of the Types section in HTML lists its anchor, type-NAME."
+  (if-let* ((start (string-search "<section id=\"outline-container-types\"" html))
+            (end (string-search "</section>" html start)))
+      (concat (substring html 0 start)
+              (replace-regexp-in-string
+               "<dt>\\(?:<code>[^<]+</code>\\(?:, \\)?\\)+</dt>"
+               (lambda (dt)
+                 (replace-regexp-in-string "<code>\\([^<]+\\)</code>" "<code id=\"type-\\1\">\\1</code>"
+                                           dt t))
+               (substring html start end) t t)
+              (substring html end))
+    html))
+
+(add-to-list 'org-export-filter-final-output-functions #'keycap-site-manual-type-anchors)
 
 
 ;; --- Examples ---
@@ -277,8 +311,9 @@ Their pictures are MODEL, MODEL-2 and on; END is a marker."
   "NAME's signatures and types as keycap sets them out, as HTML on one line.
 Each line is a span, its indentation and keycap's `wrap-prefix' as
 properties, and a parameter's text of the class p, so that a line too
-long for the page wraps at a parameter, the rest as far in as that.  Nil
-when it has none."
+long for the page wraps at a parameter, the rest as far in as that.  A
+type of `keycap-site-manual-types' is a link to it.  Nil when it has
+none."
   (when-let* ((entry (keycap-site-manual-entry name))
               (signatures (alist-get 'signatures entry)))
     (concat "<code class=\"sig\">"
@@ -289,9 +324,17 @@ when it has none."
                              (format "<span style=\"--indent: %d; --hang: %d\">%s</span>"
                                      (- (length line) (length text))
                                      (length (get-text-property 0 'wrap-prefix line))
-                                     (ob-keycap-html
-                                      text (lambda (i)
-                                             (and (get-text-property i 'keycap-parameter text) '("p"))))))))
+                                     (replace-regexp-in-string
+                                      "<span class=\"hl-\\(?:keycap-tree-\\)?type[^\"]*\">\\([^<]+\\)</span>"
+                                      (lambda (span)
+                                        (if-let* ((page (cdr (assoc (match-string 1 span) keycap-site-manual-types))))
+                                            (format "<a class=\"type\" href=\"%s.html#type-%s\">%s</a>"
+                                                    page (match-string 1 span) span)
+                                          span))
+                                      (ob-keycap-html
+                                       text (lambda (i)
+                                              (and (get-text-property i 'keycap-parameter text) '("p"))))
+                                      t t)))))
                        (split-string (keycap-set-out-signatures signatures (alist-get 'types entry)) "\n")
                        "")
             "</code>")))
@@ -578,6 +621,7 @@ CHAPTERS are every page's (ID TITLE), TARGETS every heading's (TITLE ID CHAPTER-
       (keycap-reference-expand 'html keycap-site-manual-docs)
       (delay-mode-hooks (org-mode))
       (keycap-site-name-headings nil)
+      (setq keycap-site-manual-types (keycap-site-manual-read-types))
       ;; The legend of the entries' strips ends Reading signatures.
       (when-let* ((heading (org-find-property "CUSTOM_ID" "reading-signatures")))
         (save-excursion
