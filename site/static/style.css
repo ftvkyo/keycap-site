@@ -379,12 +379,12 @@ button.copy[data-state] {
 .hl-keyword { color: var(--hl-keyword); }
 .hl-function-name, .hl-function-call { color: var(--hl-function); }
 .hl-string, .hl-doc { color: var(--hl-string); }
-.hl-constant, .hl-number { color: var(--hl-constant); }
+.hl-constant, .hl-number, .hl-nix-constant { color: var(--hl-constant); }
 .hl-builtin { color: var(--hl-builtin); }
 .hl-type { color: var(--hl-type); }
 /* Tree and Shape in signatures: values that may vary over space. */
 .hl-keycap-tree-type { color: var(--hl-type); font-style: italic; }
-.hl-property-name, .hl-property-use { color: var(--hl-property); }
+.hl-property-name, .hl-property-use, .hl-nix-attribute { color: var(--hl-property); }
 .hl-comment, .hl-comment-delimiter { color: var(--hl-comment); font-style: italic; }
 .hl-operator { color: var(--hl-operator); }
 .hl-variable-name { color: var(--strong); }

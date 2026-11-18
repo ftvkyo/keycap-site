@@ -27,9 +27,11 @@ let
     keycap-server = (import sources.keycap).server;
   };
 
-  # Code blocks are highlighted by rhai-ts-mode, with its patched grammar.
+  # Code blocks are highlighted by rhai-ts-mode, with its patched grammar,
+  # and the install page's Nix by nix-mode.
   emacs = epkgs.emacsWithPackages [
     epkgs.htmlize
+    epkgs.nix-mode
     keycap
   ];
 

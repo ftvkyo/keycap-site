@@ -31,8 +31,10 @@
 ;; through htmlize's CSS classes, so the site and Emacs agree on what is a
 ;; keyword; keycap-mode knows fidget's functions once it has listed them.
 ;; Signatures are coloured by keycap-signature-mode, as C-c C-d colours them.
+;; Nix is coloured by nix-mode.
 
 (require 'keycap)
+(require 'nix-mode)
 (keycap--names 'keycap)
 (add-to-list 'org-src-lang-modes '("rhai" . rhai-ts))
 (add-to-list 'org-src-lang-modes '("keycap" . keycap))
