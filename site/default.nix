@@ -10,9 +10,23 @@
 }:
 
 let
-  sources = import ./npins;
-  pkgs = import sources.nixpkgs { };
+  pins = import ./npins;
+  pkgs = import pins.nixpkgs { };
   inherit (pkgs) lib;
+
+  # A pin overridden by a local checkout, NPINS_OVERRIDE_keycap=../keycap,
+  # is copied to the store without its Git history or Cargo's build tree.
+  sources = builtins.mapAttrs (
+    _: pin:
+    if lib.isStorePath pin then
+      pin
+    else
+      lib.cleanSourceWith {
+        src = pin.outPath;
+        filter =
+          path: type: baseNameOf path != ".git" && !(type == "directory" && baseNameOf path == "target");
+      }
+  ) (removeAttrs pins [ "__functor" ]);
 
   ##########
   # Inputs #
