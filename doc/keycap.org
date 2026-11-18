@@ -887,7 +887,7 @@ The types are:
 - =number= :: a number that is known when the script runs, such as a count or a size
 - =Tree= :: a number, or an expression of ~x~, ~y~ and ~z~ whose value differs from point to point; given only numbers, a function that returns a =Tree= returns a number, unless its entry says otherwise
 - =Shape= :: a =Tree= read as a solid, below 0 inside and above 0 outside
-- =Vec2=, =Vec3= :: =[x, y]= and =[x, y, z]=, of numbers
+- =Vec2=, =Vec3= :: =[x, y]= and =[x, y, z]=, of numbers; =[x, y]= stands for a =Vec3= with z = 0, or 1 for a scale or a count, but a 3D size needs all three
 - =Axis=, =Plane= :: fidget's axes and planes, see ~rotate~ and ~reflect~
 - =Ease= :: an easing, =string | ((t: Tree) => Tree)=: a name that ~ease~ takes, such as ="in_out_sine"=, or a function of =t= from 0 to 1
 - =Height= :: =number | [number, number]=: a height centred on z = 0, or =[z0, z1]=, from =z0= up to =z1=

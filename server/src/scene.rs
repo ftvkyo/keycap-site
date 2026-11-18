@@ -772,6 +772,69 @@ mod test {
         }
     }
 
+    /// A 2D vector where a 3D one is expected has z = 0: a point of a
+    /// prelude function, an anchor in its options, a native built-in's
+    /// argument and a center in its map, and a vector beside a 3D one.  A
+    /// vector of another length is an error that shows it.
+    #[test]
+    fn two_d_vectors_stand_for_3d_ones_with_z_0() {
+        let steps: Vec<f32> = (-6..=6).map(|i| i as f32).collect();
+        let mut points = vec![];
+        for &x in &steps {
+            for &y in &steps {
+                for &z in &steps {
+                    points.push([x, y, z]);
+                }
+            }
+        }
+        for (two, three) in [
+            (
+                "capsule([-4, 0], [4, 2], 2)",
+                "capsule([-4, 0, 0], [4, 2, 0], 2)",
+            ),
+            (
+                "cuboid([10, 6, 4], #{anchor: [1, -1]})",
+                "cuboid([10, 6, 4], #{anchor: [1, -1, 0]})",
+            ),
+            ("sphere(3).move([1, 2])", "sphere(3).move([1, 2, 0])"),
+            (
+                "sphere(#{radius: 3, center: [1, 2]})",
+                "sphere(#{radius: 3, center: [1, 2, 0]})",
+            ),
+        ] {
+            let ours = grad_at(two, &points);
+            let theirs = grad_at(three, &points);
+            for ((p, g), h) in points.iter().zip(ours).zip(theirs) {
+                assert!((g.v - h.v).abs() < 1e-6, "{two} at {p:?}: {g:?}, {h:?}");
+            }
+        }
+
+        let prelude = Path::new(env!("CARGO_MANIFEST_DIR")).join("../prelude");
+        let mut engine = Engine::new(Some(&prelude));
+        for (source, expected) in [
+            ("cross([1, 0, 0], [0, 1])", "[0.0, 0.0, 1.0]"),
+            ("bezier_point([[0, 0], [2, 2, 2]], 0.5)", "[1.0, 1.0, 1.0]"),
+        ] {
+            let (_, result) = engine.run(source, None, &Overrides::new());
+            let value = result.unwrap_or_else(|error| panic!("{source}: {}", error.message));
+            assert_eq!(value.to_string(), expected, "{source}");
+        }
+        for (source, message) in [
+            (
+                "cuboid([1, 2, 3, 4])",
+                "cuboid: size must be a number, [x, y] or [x, y, z], got [1, 2, 3, 4]",
+            ),
+            (
+                "capsule([1], [0, 0], 1)",
+                "capsule: a must be a number, [x, y] or [x, y, z], got [1]",
+            ),
+        ] {
+            let (_, result) = engine.run(source, None, &Overrides::new());
+            let error = result.expect_err(source);
+            assert_eq!(error.message, message, "{source}");
+        }
+    }
+
     /// fidget meshes and shades with gradients: a NaN one makes the mesher
     /// guess a vertex and the renderer a normal, and a zero one on the
     /// surface breaks the mesher.

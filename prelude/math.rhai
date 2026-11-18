@@ -36,7 +36,7 @@ fn _vec2(v, what) {
     } else if t == "Vec2" || t == "Vec3" {
         [v.x, v.y]
     } else {
-        throw `${what} must be a number or [x, y], got ${t}`;
+        throw `${what} must be a number or [x, y], got ${_got(v)}`;
     }
 }
 
@@ -55,8 +55,13 @@ fn _vec3(v, what, z_default) {
     } else if t == "Vec3" {
         [v.x, v.y, v.z]
     } else {
-        throw `${what} must be a number, [x, y] or [x, y, z], got ${t}`;
+        throw `${what} must be a number, [x, y] or [x, y, z], got ${_got(v)}`;
     }
+}
+
+// `v` for an error message: an array as it is, anything else by its type.
+fn _got(v) {
+    if type_of(v) == "array" { `${v}` } else { type_of(v) }
 }
 
 // A number of copies: an integer, 1 or more.
@@ -767,12 +772,17 @@ fn dot(a, b) {
 fn cross(a, b) {
     let a = _array(a, "cross: a");
     let b = _array(b, "cross: b");
+    if a.len() == 2 && b.len() == 3 {
+        a.push(0.0);
+    } else if a.len() == 3 && b.len() == 2 {
+        b.push(0.0);
+    }
     if a.len() == 2 && b.len() == 2 {
         a[0] * b[1] - a[1] * b[0]
     } else if a.len() == 3 && b.len() == 3 {
         [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
     } else {
-        throw `cross: a and b must both be [x, y] or both [x, y, z], got ${a} and ${b}`;
+        throw `cross: a and b must be [x, y] or [x, y, z], got ${a} and ${b}`;
     }
 }
 

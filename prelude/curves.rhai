@@ -61,8 +61,8 @@ fn bezier_point(points, t) {
     if p.len() < 2 {
         throw `bezier_point: needs at least 2 points, got ${p.len()}`;
     }
-    let first = type_of(points[0]);
-    let dims = if first == "Vec2" || (first == "array" && points[0].len() == 2) { 2 } else { 3 };
+    let two = points.all(|q| type_of(q) == "Vec2" || (type_of(q) == "array" && q.len() == 2));
+    let dims = if two { 2 } else { 3 };
     let q = _casteljau(p, t)[0];
     let last = q[q.len() - 1];
     last.extract(0, dims)
