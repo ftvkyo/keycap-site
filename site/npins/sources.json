@@ -8,9 +8,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "e6405f13b3d499bb539fddec9adf63b6122250e3",
+      "revision": "8700209a4aa895423983178fd602d34a67c6c0c0",
       "url": null,
-      "hash": "sha256-jHYuY+pghig7nIJUOKjE0o5oxiEQ62DqOjA8RZ0+J6M="
+      "hash": "sha256-skJs9SG8og0TXdDkuKSA8/YC0JRKpg3vJDlCcfpLU68="
     },
     "keycap-designs": {
       "type": "Git",
@@ -20,9 +20,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "9859925bfacb539280480d31484726fb5c7d6186",
+      "revision": "582de4d0ce8fb5fb3e24ebf1f83694c351d478d8",
       "url": null,
-      "hash": "sha256-USbZVtqSwMJTwvy1r5v0G2+AmA1xkigsjt86ZY1yY5Y="
+      "hash": "sha256-J1oOGBh+kDlGioQMI2Iht4Yw8c1wJ5iFooE1JsMFKuU="
     },
     "nixpkgs": {
       "type": "Channel",
@@ -51,9 +51,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "600ba270f6cd593f96e2141490be6b76da220585",
+      "revision": "307e8392a3a9c39586dcf906dbddbbc0378e3195",
       "url": null,
-      "hash": "sha256-lOCNBER+ILanHNL8OMNIvIngdo+wbKcs5fGRDYuoMbM="
+      "hash": "sha256-0L6GvoUcH5eejf30cev0koA9W/D02yUU0fHntjnwfcQ="
     }
   },
   "version": 7
