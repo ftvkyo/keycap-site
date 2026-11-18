@@ -1,26 +1,32 @@
 #+title: Install
 #+description: Installing keycap, with Nix or without.
 
-#+review: reviewed 2026-11-17
+#+review: draft
 
-keycap consists of two Emacs packages and a server program that they start.
-With Nix, all three come as one package; without Nix, you build the server with Rust.
+keycap consists of two Emacs packages, keycap and rhai-ts-mode, and keycap-server, a program keycap starts for each script.
+With Nix, all three come as one package; without Nix, Emacs installs the packages and cargo builds the server.
 
 * Requirements
 
 - Emacs 30.1 or later, built with tree-sitter (most distributions' builds are).
 - Linux on x86-64 or AArch64, since fidget compiles shapes to machine code for these.
-  macOS should work too, as fidget supports it, but I haven't tested it.
+  macOS should work too without Nix, as fidget supports it, but I haven't tested it.
 - Optionally, a GPU with Vulkan; without one, rendering uses all CPU cores instead.
+- Without Nix: git, a C compiler, Rust 1.95 or later, and the Liberation Sans font, which =text()= draws in unless a script names another.
+  For the GPU, the server also needs the Vulkan loader, =libvulkan.so.1=.
 
-* Getting the code
+* Try it with Nix
 
-keycap and rhai-ts-mode live in two repositories:
+To run keycap without changing your configuration, build an Emacs with it and run that:
 
 #+begin_src sh
 git clone https://tangled.org/rei.gay/keycap
-git clone https://tangled.org/rei.gay/rhai-ts-mode
+nix-build keycap/default.nix -A emacs
+./result/bin/emacs keycap/examples/knob.keycap
 #+end_src
+
+The first build compiles the server, which takes a few minutes.
+The knob's script opens in =keycap-mode=, and =C-c C-c= renders it beside the script.
 
 * With Nix
 
@@ -48,79 +54,100 @@ Errors are marked by Flymake, so turn it on for them:
 (add-hook 'keycap-mode-hook #'flymake-mode)
 #+end_src
 
-To try it without changing your configuration, build an Emacs with it and run that:
-
-#+begin_src sh
-nix-build keycap/default.nix -A emacs
-./result/bin/emacs keycap/examples/knob.keycap
-#+end_src
+To check it, save [[file:examples/knob.keycap][knob.keycap]], open it and press =C-c C-c=: the knob appears beside the script.
+=M-x keycap-version= names keycap's version and the server's, which are the same.
 
 * Without Nix
 
-** The server
-
-Build it with Rust 1.95 or later:
-
-#+begin_src sh
-cargo build --release --manifest-path keycap/server/Cargo.toml
-#+end_src
-
-Then put =keycap/server/target/release/keycap-server= on your =PATH=, or tell keycap where it is (see below).
-=text()= draws in Liberation Sans unless a script names another font, so have it installed.
-
 ** The Emacs packages
 
+Evaluate these once, in =*scratch*= or with =M-:=, rhai-ts-mode first, since keycap needs it:
+
 #+begin_src emacs-lisp
-(add-to-list 'load-path "~/src/rhai-ts-mode")
-(add-to-list 'load-path "~/src/keycap")
-(require 'keycap)
-(add-hook 'keycap-mode-hook #'flymake-mode)
-;; Only if keycap-server is not on PATH:
-(setq keycap-server-program "~/src/keycap/server/target/release/keycap-server")
+(package-vc-install "https://tangled.org/rei.gay/rhai-ts-mode" nil 'Git)
+(package-vc-install "https://tangled.org/rei.gay/keycap" nil 'Git)
 #+end_src
 
-The prelude is found next to =keycap.el=, so there is nothing to set for it.
-
-** The grammar
-
-=M-x rhai-ts-mode-install-grammar= fetches and builds the Rhai grammar.
-This is the unpatched upstream grammar, and it shows floats written as =3.=, =0b= and =0o= numbers, and nested comments as errors.
-The Nix package builds the patched one, which is in rhai-ts-mode's =grammar/=.
-
-** The manual
-
-The manual is =doc/keycap.org=, but its reference is generated from the code.
-=just manual keycap.org= in =keycap/= writes the whole manual as Org, which =C-c C-e i i= exports to Info.
-The recipe takes its Emacs from Nix; without Nix, read the manual [[file:manual/index.html][here]].
-
-* Two dialects
-
-A script's extension says which functions it can use:
-
-- =.keycap= :: fidget's functions and shapes, plus keycap's own: the prelude, =text=, =svg=, =bounds= and =resolution=.
-  The tutorial and almost all the examples are written in it.
-- =.fidget= :: fidget's own API only, which is what fidget's viewer and CLI run, so the script works there unchanged.
-  Calling one of keycap's functions is an error that says so.
-
-The [[file:gallery/spacer.html][spacer]] is a =.fidget= example.
-
-* Configuration
-
-You don't have to configure anything.
-These are the settings you might want to change:
-
-- =keycap-server-threads= :: how many CPU cores a preview may use; nil (the default) means all of them.
-- =keycap-preview-backend= :: =gpu= or =cpu=; the GPU is used if there is one.
-- =keycap-export-resolution= :: cells per millimetre of exported meshes, for scripts that don't set it.
-- =keycap-export-tolerance= :: how far a simplified export may be from the surface; nil means a tenth of a cell.
-
-With =use-package=:
+Emacs can't tell from a tangled URL that the repository is git, hence ='Git=.
+Errors are marked by Flymake, so turn it on for them in your init file:
 
 #+begin_src emacs-lisp
+(add-hook 'keycap-mode-hook #'flymake-mode)
+#+end_src
+
+Or, with =use-package=, put this in your init file instead, and the next start installs both:
+
+#+begin_src emacs-lisp
+(use-package rhai-ts-mode
+  :vc (:url "https://tangled.org/rei.gay/rhai-ts-mode" :rev :newest))
+
 (use-package keycap
-  :mode ("\\.\\(?:keycap\\|fidget\\)\\'" . keycap-mode)
+  :vc (:url "https://tangled.org/rei.gay/keycap" :rev :newest)
   :hook (keycap-mode . flymake-mode))
 #+end_src
 
-=.rhai= files open in =rhai-ts-mode=.
-To use a Rhai file as a script, run =M-x keycap-mode= in it, or add a =-*- mode: keycap -*-= line.
+Without =:rev :newest=, =use-package= installs the commit that last changed the package's version, which is the first one.
+Either way, each package is a git checkout in =~/.emacs.d/elpa/= (or =~/.config/emacs/elpa/=, if your configuration lives there), and =.keycap= and =.fidget= files open in =keycap-mode=.
+
+** The server
+
+Build it from the keycap checkout:
+
+#+begin_src sh
+cargo install --locked --path ~/.emacs.d/elpa/keycap/server
+#+end_src
+
+This takes a few minutes and puts =keycap-server= in =~/.cargo/bin=; =--locked= keeps the dependencies at the versions keycap was tested with.
+The build stays in the checkout's =server/target=, almost 1 GB, which makes the next one quick.
+
+An Emacs started from a desktop launcher may not have =~/.cargo/bin= on =exec-path=, where keycap looks for the server; naming it works however Emacs starts:
+
+#+begin_src emacs-lisp
+(setq keycap-server-program "~/.cargo/bin/keycap-server")
+#+end_src
+
+** The grammar
+
+=M-x rhai-ts-mode-install-grammar= fetches tree-sitter-rhai and builds it with your C compiler, into =~/.emacs.d/tree-sitter/=.
+From the next start, =.rhai= files open in =rhai-ts-mode=.
+
+This is the upstream grammar; the patched one in rhai-ts-mode's =grammar/= is built by the Nix package only.
+Upstream marks floats written as =3.= and nested block comments as errors, and misreads =0b= and =0o= numbers without one: =0b101= is =0= followed by =b101=.
+
+** Checking it
+
+Open =~/.emacs.d/elpa/keycap/examples/knob.keycap= and press =C-c C-c=: the knob appears beside the script.
+=M-x keycap-version= names keycap's version and the server's, which are the same unless one was updated without the other.
+
+* The manual
+
+With Nix, the manual is in Info: =M-x keycap-guide=, or =keycap= in =C-h i=.
+Without Nix, =M-x keycap-guide= opens =doc/keycap.org=, which has no reference chapters, as they are written from the server's documentation when the Nix package is built; the whole manual is [[file:manual/index.org][on this site]].
+=C-c C-d= on a name shows its documentation either way.
+
+Nothing needs configuring; the user options are in the manual's [[file:manual/editing-and-previewing.html#customization][Customization]], and how =.keycap= and =.fidget= scripts differ is in [[file:manual/writing-models.html#dialects][Dialects]].
+
+* Troubleshooting
+
+- =No keycap-server found: install keycap-server (…), or set ‘keycap-server-program’= :: Emacs didn't find the server on =exec-path=; set =keycap-server-program= to its full path, as in [[*The server][The server]].
+- =Cannot activate tree-sitter, because language grammar for rhai is unavailable= :: The grammar isn't installed; run =M-x rhai-ts-mode-install-grammar=.
+- =requires rustc 1.95=, from cargo :: The Rust toolchain is too old; =rustup update= updates it.
+- =text: no default font; Liberation Sans is not installed, so give a font= :: Install Liberation Sans, or name a font in the =text= call.
+- The preview's header line says =CPU= and =(no GPU)= :: The server found no Vulkan device: without Nix, check that the Vulkan loader and your GPU's Vulkan driver are installed.
+  The manual's [[file:manual/troubleshooting.html#preview-problems][Preview problems]] has the other reasons the CPU renders.
+
+* Updating
+
+- With Nix, rebuild: =main.tar.gz= is fetched again once Nix's copy is an hour old (=tarball-ttl=), and a pinned commit moves when you change it.
+- Without Nix, =M-x package-vc-upgrade-all=, then the same =cargo install= again, so that the server matches the package.
+
+* Uninstalling
+
+- With Nix, remove the package from the list and rebuild.
+- Without Nix, =M-x package-delete= keycap, then rhai-ts-mode; keycap's checkout takes the server's build with it.
+  Then remove the server and the grammar:
+
+  #+begin_src sh
+  cargo uninstall keycap-server
+  rm ~/.emacs.d/tree-sitter/libtree-sitter-rhai.so
+  #+end_src
