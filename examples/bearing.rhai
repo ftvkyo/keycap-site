@@ -48,8 +48,7 @@ fn bearing(o) {
     let base = rect([wall_w, h]).move([(d_in + wall_w) / 2, 0]);
     let groove = rect([g * 3, g * 2]).rotate_z(45).intersection(rect([g * 2, g * 3])).move([d / 2, h / 4]);
     let gaps = union([
-        groove,
-        groove.reflect_y(),
+        groove.symmetric_y(),
         rect([gap_inner_w, h / 2]).move([d / 2 - g + gap_inner_w / 2, 0]),
         rect([gap_outer_w, h / 2]).move([d / 2 + g - gap_outer_w / 2, h / 2]),
         rect([gap_outer_w, h / 2]).move([d / 2 + g - gap_outer_w / 2, -h / 2]),
@@ -86,12 +85,7 @@ fn bearing(o) {
 
     let cutters = if "cutters" in o { o.cutters } else { [] };
     let cut = |half, cutter| {
-        let at = cutter.move([(d_in - jr) / 2, 0, jh]);
-        let all = [];
-        for k in 0..jn {
-            all.push(at.rotate_z(360.0 * k / jn));
-        }
-        half.difference(union(all))
+        half.difference(cutter.move([(d_in - jr) / 2, 0, jh]).polar_array(jn))
     };
     let inner_top = if cutters.len() > 0 { cut.call(half, cutters[0]) } else { half };
     let inner_bottom = if cutters.len() > 1 { cut.call(half, cutters[1]) } else { half };
@@ -117,7 +111,7 @@ fn bearing(o) {
         .difference(sphere(cage_ball_r).move([d / 2, 0, h / 4]).repeat_polar(n));
 
     let ball = sphere(o.ball_diameter / 2).move([d / 2, 0, h / 4]);
-    let balls = union(ball, ball.reflect_z()).repeat_polar(n);
+    let balls = ball.symmetric_z().repeat_polar(n);
 
     #{
         outer: revolve(profile.intersection(outer)),

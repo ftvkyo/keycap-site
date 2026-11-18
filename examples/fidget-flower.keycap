@@ -140,12 +140,11 @@ fn housing_top() {
     let ht = global::HOUSING_THICKNESS;
     let h = t / 2 + ht - global::INTERFACE_JOINER_HEIGHT;
     let w = ht - t / 32;
-    let spoke = cuboid([w, w, d / 4]).move([0, t / 2 - ht, d / 12 + d / 8]).rotate_x(90);
-    let spokes = [];
-    for k in 0..6 {
-        spokes.push(spoke.rotate_z(60 * k));
-    }
-    let hub = union(cylinder(d / 8, [0, h]), union(spokes)).difference(cylinder(d / 12, [-1, h + 1]));
+    let spokes = cuboid([w, w, d / 4])
+        .move([0, t / 2 - ht, d / 12 + d / 8])
+        .rotate_x(90)
+        .polar_array(6);
+    let hub = union(cylinder(d / 8, [0, h]), spokes).difference(cylinder(d / 12, [-1, h + 1]));
     union(
         housing().difference(cylinder(d * 9 / 32, t * 33 / 32)),
         hub.move([0, 0, global::INTERFACE_JOINER_HEIGHT]),
@@ -208,11 +207,7 @@ if PART == "all" {
     // The petals swirl out of their wedges of the circle, so they are copies
     // rather than a fold.
     let one = union(petal(), gear()).rotate_y(90).move([HOUSING_DIAMETER / 2, 0, 0]);
-    let petals = [];
-    for k in 0..HOUSING_PETAL_COUNT {
-        petals.push(one.rotate_z(360.0 * k / HOUSING_PETAL_COUNT));
-    }
-    draw(union(petals));
+    draw(one.polar_array(HOUSING_PETAL_COUNT));
 } else if PART == "petal" {
     draw(union(petal(), gear()));
 } else if PART == "housing-top" {

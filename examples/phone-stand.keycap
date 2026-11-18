@@ -86,10 +86,8 @@ fn base() {
     let p = global::POCKET_WIDTH / 2;
     let front = global::POCKET_BACK - global::POCKET_DEPTH;
     let whole = profile();
-    let wall = grown(whole, p, w);
     union(
-        wall,
-        wall.reflect_x(),
+        grown(whole, p, w).symmetric_x(),
         grown(profile_between(-global::DEPTH, front), -p, p),
         grown(profile_between(global::POCKET_BACK, global::DEPTH), -p, p),
     )

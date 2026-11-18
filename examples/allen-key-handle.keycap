@@ -49,7 +49,8 @@ fn handle_profile() {
 fn key_hole_profile() {
     let r = global::KEY_R + global::KEY_GAP;
     let f = 1.515;
-    let diamond = polygon([[r * SQRT_2, 0], [0, r * SQRT_2], [-r * SQRT_2, 0], [0, -r * SQRT_2]])
+    let diamond = rect(r * 2.0)
+        .rotate_z(45)
         .intersection(rect([r * SQRT_2, r * 2.2]));
     let a = r * f * FRAC_1_SQRT_2;
     let b = r * 4.0 * FRAC_1_SQRT_2;
@@ -89,7 +90,7 @@ fn screw_loop() {
 fn screw_hole() {
     let half = global::SCREW_LENGTH / 2.0;
     let cap = cone([global::SCREW_CAP_R, global::SCREW_CAP_R + global::SCREW_CAP], [half, half + global::SCREW_CAP]);
-    union(cylinder(global::SCREW_R, global::SCREW_LENGTH + global::SCREW_CAP), cap, cap.reflect_z())
+    union(cylinder(global::SCREW_R, global::SCREW_LENGTH + global::SCREW_CAP), cap.symmetric_z())
 }
 
 // The key's hole, along the key: down the bar, round its bend, along the

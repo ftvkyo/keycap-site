@@ -43,10 +43,10 @@ const T = 0.25;
 
 // --- Axis ---
 
-// The axis, or with `t` its hole: a hexagonal prism, a frustum either side
-// of the bearing's middle that locks the inner shell's halves, and a bicone
-// at each end with a pin's hole through it, all cut to a bar as thick as
-// the prism across its flats.
+// The axis, or with `hole` its hole: a hexagonal prism, a frustum either
+// side of the bearing's middle that locks the inner shell's halves, and a
+// bicone at each end with a pin's hole through it, all cut to a bar as
+// thick as the prism across its flats.
 fn axis(hole) {
     let r = global::AXIS_R;
     let t = if hole { global::T } else { 0.0 };
@@ -66,10 +66,10 @@ fn axis(hole) {
     let tip = regular_polygon(6, r + t).revolve().rotate_x(90).move([0, 0, tip_z]);
     let pin = cylinder(1.5, r * 2).rotate_x(90).move([0, 0, tip_z]);
     let length = global::HEIGHT + global::AXIS_E * 2 - r * 2;
-    let ends = union(lock, tip);
-    union([cylinder(r + t, length, #{sides: 6}), ends, ends.reflect_z()])
-        .difference(union(pin, pin.reflect_z()))
+    union([cylinder(r + t, length, #{sides: 6}), lock, tip])
+        .difference(pin)
         .intersection(cuboid([global::DIAMETER / 2, r * cosd(30) * 2, global::HEIGHT + global::AXIS_E * 2]))
+        .symmetric_z()
 }
 
 // --- Magnets ---
@@ -96,13 +96,10 @@ fn all_magnets(hole) {
     } else {
         magnet(false)
     };
-    let pair = union(magnet(hole).move([2, 0, 0]), inner.move([-4, 0, 0]))
-        .move([(global::DIAMETER - 10) / 2, 0, 0]);
-    let all = [];
-    for k in 0..global::MAGNETS {
-        all.push(pair.rotate_z(60 + 360.0 * k / global::MAGNETS));
-    }
-    union(all)
+    union(magnet(hole).move([2, 0, 0]), inner.move([-4, 0, 0]))
+        .move([(global::DIAMETER - 10) / 2, 0, 0])
+        .rotate_z(60)
+        .polar_array(global::MAGNETS)
 }
 
 // --- Bearing ---

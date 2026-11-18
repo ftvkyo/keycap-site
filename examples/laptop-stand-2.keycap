@@ -153,8 +153,7 @@ fn joint(angle) {
     let cap_z = (pin_h + global::JOINT_CAP_H) / 2;
     let pin = union(
         cylinder(t / 2, pin_h + global::E),
-        cylinder(t, global::JOINT_CAP_H).move([0, 0, cap_z]),
-        cylinder(t, global::JOINT_CAP_H).move([0, 0, -cap_z]),
+        cylinder(t, global::JOINT_CAP_H).move([0, 0, cap_z]).symmetric_z(),
     );
     let arm_z = (global::HALFJOINT_H + global::NOZ) / 2;
     let top = joint_attachment().move([0, 0, arm_z]).rotate_z(angle);
