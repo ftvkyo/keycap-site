@@ -12,11 +12,16 @@
   org,
   keycap-server ? callPackage ./server/package.nix { },
 }:
+let
+  # keycap, its server and its prelude are one version, which keycap.el's
+  # header says too.
+  inherit ((lib.importTOML ./server/Cargo.toml).package) version;
+in
 # melpaBuild installs under site-lisp/elpa, where package.el activates it:
 # its autoloads hold the `.keycap' and `.fidget' associations.
 melpaBuild {
   pname = "keycap";
-  version = "0.1";
+  inherit version;
 
   src = lib.fileset.toSource {
     root = ./.;

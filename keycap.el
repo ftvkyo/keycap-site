@@ -4,7 +4,7 @@
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; Author: Rei Stepanenko <rei@ftvkyo.me>
-;; Version: 0.1
+;; Version: 0.1.0
 ;; Package-Requires: ((emacs "30.1") (rhai-ts-mode "0.1"))
 ;; Keywords: languages, tools
 ;; URL: https://tangled.org/rei.gay/keycap
@@ -58,6 +58,9 @@
 (defconst keycap--directory
   (file-name-directory (or load-file-name buffer-file-name))
   "Where the package is installed.")
+
+(defconst keycap--version (package-get-version)
+  "The package's version.")
 
 
 ;; --- Customization ---

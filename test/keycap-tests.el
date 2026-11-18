@@ -12,6 +12,7 @@
 
 (require 'ert)
 (require 'flymake)
+(require 'lisp-mnt)
 (require 'keycap)
 (require 'keycap-preview)
 
@@ -952,6 +953,15 @@ it runs the hooks that stop its server and kill its preview."
       (dolist (start (list #'keycap--server (lambda () (keycap--fetch-docs 'keycap))))
         (should (string-match-p "keycap-server-program"
                                 (cadr (should-error (funcall start) :type 'user-error))))))))
+
+(ert-deftest keycap-test-version ()
+  ;; keycap.el's header agrees with Cargo.toml, which the package is built with.
+  (should (equal (lm-version (expand-file-name "../keycap.el" keycap-test-examples))
+                 keycap--version))
+  (with-temp-buffer
+    (insert-file-contents (expand-file-name "../server/Cargo.toml" keycap-test-examples))
+    (should (re-search-forward "^version = \"\\(.*\\)\"$"))
+    (should (equal (match-string 1) keycap--version))))
 
 (ert-deftest keycap-test-dialect ()
   (let* ((directory (make-temp-file "keycap-test-" t))
