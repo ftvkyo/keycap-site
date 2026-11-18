@@ -4,7 +4,7 @@
 # For `epkgs.callPackage`, with `rhai-ts-mode` the package from its own repository.
 {
   lib,
-  trivialBuild,
+  melpaBuild,
   callPackage,
   rhai-ts-mode,
   # ELPA's Org, for the manual: Emacs 30.2's Org 9.7.11 cuts Texinfo
@@ -12,7 +12,9 @@
   org,
   keycap-server ? callPackage ./server/package.nix { },
 }:
-trivialBuild {
+# melpaBuild installs under site-lisp/elpa, where package.el activates it:
+# its autoloads hold the `.keycap' and `.fidget' associations.
+melpaBuild {
   pname = "keycap";
   version = "0.1";
 
@@ -43,7 +45,8 @@ trivialBuild {
   # The manual, from Org to Info, its reference written from the server's
   # docs first.
   postBuild = ''
-    emacs --batch -L ${org}/share/emacs/site-lisp/elpa/org-${org.version} -L . \
+    emacs --batch -f package-activate-all \
+      -L ${org}/share/emacs/site-lisp/elpa/org-${org.version} -L . \
       -l doc/keycap-reference.el \
       --eval '(keycap-reference-write "doc/keycap.org" "keycap.org" (quote texinfo))'
     emacs --batch -L ${org}/share/emacs/site-lisp/elpa/org-${org.version} keycap.org \
@@ -53,13 +56,9 @@ trivialBuild {
     makeinfo --no-split --output=keycap.info keycap.texi
   '';
 
-  # The manual, and the autoloads trivialBuild does not write: without them
-  # `.keycap' and `.fidget' files open in keycap-mode only once it is loaded.
   postInstall = ''
     install -Dm644 keycap.info $out/share/info/keycap.info
     install-info $out/share/info/keycap.info $out/share/info/dir
-    emacs --batch --eval \
-      "(loaddefs-generate \"$LISPDIR\" \"$LISPDIR/keycap-autoloads.el\")"
   '';
 
   passthru.server = keycap-server;
