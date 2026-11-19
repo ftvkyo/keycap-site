@@ -1277,6 +1277,25 @@ of the bounds."
     (with-current-buffer keycap--preview-source
       (keycap-export-2d file kerf slice bounds))))
 
+(defun keycap-preview-export-resin (file &optional printer)
+  "Slice the model into FILE within the preview's bounds.
+See `keycap-export-resin'; PRINTER as there."
+  (interactive (with-current-buffer keycap--preview-source (keycap--export-resin-arguments))
+               keycap-preview-mode)
+  (let ((bounds keycap--preview-bounds))
+    (with-current-buffer keycap--preview-source
+      (keycap-export-resin file printer bounds))))
+
+(defun keycap-preview-export-resin-layer (file z &optional printer)
+  "Export the resin layer through Z to FILE; see `keycap-export-resin-layer'.
+Interactively, Z is the slice shown across Z.  PRINTER as there."
+  (interactive (with-current-buffer keycap--preview-source
+                 (keycap--export-resin-layer-arguments))
+               keycap-preview-mode)
+  (let ((bounds keycap--preview-bounds))
+    (with-current-buffer keycap--preview-source
+      (keycap-export-resin-layer file z printer bounds))))
+
 (defun keycap-preview-keyboard-quit ()
   "Cancel the script's export if one runs; otherwise, `keyboard-quit'."
   (interactive nil keycap-preview-mode)
@@ -1498,6 +1517,8 @@ toward you, right takes its right edge away."
             "---"
             ["Export STL..." keycap-preview-export-stl]
             ["Export 2D..." keycap-preview-export-2d]
+            ["Export Resin Print..." keycap-preview-export-resin]
+            ["Export Resin Layer..." keycap-preview-export-resin-layer]
             ["Cancel Export" keycap-preview-keyboard-quit
              :active (buffer-local-value 'keycap--export keycap--preview-source)]
             "---"

@@ -1679,6 +1679,75 @@ it runs the hooks that stop its server and kill its preview."
         (delete-file file)))))
 
 
+;; --- Resin ---
+
+(defun keycap-test-export-resin-request (command &rest arguments)
+  "The request COMMAND sends for ARGUMENTS, the script loaded."
+  (let (sent)
+    (cl-letf (((symbol-function 'keycap--load)
+               (lambda (callback) (funcall callback '((loaded . t)))))
+              ((symbol-function 'keycap--request)
+               (lambda (request _callback) (setq sent request) 1))
+              ((symbol-function 'run-with-timer) #'ignore)
+              ((symbol-function 'message) #'ignore))
+      (apply command arguments)
+      (setq keycap--export nil))
+    sent))
+
+(ert-deftest keycap-test-export-resin-arguments ()
+  (with-temp-buffer
+    (let ((keycap-resin-printer "prusa-sl1s")
+          (default-directory "/models/"))
+      (let ((request (keycap-test-export-resin-request #'keycap-export-resin "/models/part.sl1")))
+        (should (equal (alist-get 'op request) "resin"))
+        (should (equal (alist-get 'output request) "/models/part.sl1"))
+        (should (equal (alist-get 'printer request) "prusa-sl1s"))
+        (should (equal (alist-get 'bounds request) "script"))
+        (should-not (assq 'z request)))
+      (let ((request (keycap-test-export-resin-request
+                      #'keycap-export-resin-layer "/models/layer.png" 2.5 "printers/mine.toml" 'fitted)))
+        (should (equal (alist-get 'printer request) "/models/printers/mine.toml"))
+        (should (equal (alist-get 'bounds request) "fitted"))
+        (should (equal (alist-get 'z request) 2.5))))))
+
+(ert-deftest keycap-test-export-resin-status ()
+  (with-temp-buffer
+    (let (shown)
+      (setq keycap--export (list 1 "/models/part.sl1" (- (float-time) 2.2) nil nil))
+      (keycap--exported "/models/part.sl1" '((progress . "layers")))
+      (should (equal (keycap--export-status) "part.sl1: slicing, 2 s"))
+      (cl-letf (((symbol-function 'message)
+                 (lambda (format &rest args) (setq shown (apply #'format format args)))))
+        (keycap--exported "/models/part.sl1"
+                          '((layers . 200) (layer_height . 0.05) (volume . 523.6) (ms . 1430)))
+        (should (equal shown "Exported /models/part.sl1: 200 layers of 0.05, 0.5 ml, in 1.4 s"))
+        (keycap--exported "/models/layer.png"
+                          '((bottom . 1.25) (layer_height . 0.05) (ms . 20)))
+        (should (equal shown "Exported /models/layer.png: the layer from 1.250 to 1.300 in 0.0 s"))))))
+
+(ert-deftest keycap-test-server-export-resin ()
+  (skip-unless keycap-test-server)
+  (let ((file (make-temp-file "keycap-test-" nil ".sl1")))
+    (unwind-protect
+        (keycap-test-with-script "draw(sphere(#{center: [0, 0, 5], radius: 5}));\n"
+          (delete-file file)
+          (let (done)
+            (cl-letf (((symbol-function 'message)
+                       (lambda (format &rest args)
+                         (setq done (apply #'format format args)))))
+              (keycap-export-resin file "prusa-sl1s")
+              (keycap-test-wait (lambda () (and done (not (string-suffix-p "..." done))))))
+            (should (string-match-p "\\`Exported .*: 2[0-9][0-9] layers of 0.05, 0.5 ml" done)))
+          (with-temp-buffer
+            (set-buffer-multibyte nil)
+            (insert-file-contents-literally file)
+            ;; A zip, its settings after the layers
+            (should (string-prefix-p "PK\3\4" (buffer-string)))
+            (should (search-forward "numFast = " nil t))))
+      (when (file-exists-p file)
+        (delete-file file)))))
+
+
 ;; --- Preview ---
 
 (defun keycap-test-frame-size (preview)

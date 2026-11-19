@@ -43,6 +43,8 @@
 ;;   laser cutting
 ;; - `keycap-export-print' -- 3MF for FDM slicers, with the layers traced
 ;;   from the field
+;; - `keycap-export-resin' -- layers for resin printers, sampled from the
+;;   field
 ;; - `keycap-eval-last-expression', `keycap-guide'
 
 ;;; Code:
@@ -139,6 +141,16 @@ to take the others, then the least and the most of the others."
   "The slicer `keycap-export-print' opens its 3MF in, or nil for none.
 A program that takes the file as its argument, such as \"orca-slicer\"."
   :type '(choice (const :tag "None" nil) (string :tag "Program")))
+
+(defconst keycap--resin-printers
+  '("prusa-sl1s" "creality-halot-sky" "creality-halot-mage-pro")
+  "The resin printers the server knows by name.")
+
+(defcustom keycap-resin-printer "prusa-sl1s"
+  "The resin printer `keycap-export-resin' prints for.
+One the server knows by name, or a TOML file that describes one."
+  :type `(choice ,@(mapcar (lambda (name) `(const ,name)) keycap--resin-printers)
+                 (file :tag "Profile" :must-match t)))
 
 
 ;; --- Server ---
@@ -1287,6 +1299,10 @@ simplifies to, once it does.")
         (message "Exporting %s cancelled; it is as it was" name))
        ((alist-get 'error reply)
         (message "Exporting failed: %s" (alist-get 'error reply)))
+       ((alist-get 'volume reply)
+        (message "Exported %s: %d layers of %g, %.1f ml, in %.1f s" name
+                 (alist-get 'layers reply) (alist-get 'layer_height reply)
+                 (/ (alist-get 'volume reply) 1000.0) (/ (alist-get 'ms reply) 1000.0)))
        ((alist-get 'layers reply)
         (message "Exported %s: %d layers on %d triangles in %.1f s" name
                  (alist-get 'layers reply) triangles (/ (alist-get 'ms reply) 1000.0)))
@@ -1296,6 +1312,11 @@ simplifies to, once it does.")
                      ""
                    (format " (of %d, within %.2g)" meshed (alist-get 'tolerance reply)))
                  (/ (alist-get 'ms reply) 1000.0)))
+       ((alist-get 'bottom reply)
+        (let ((bottom (alist-get 'bottom reply)))
+          (message "Exported %s: the layer from %.3f to %.3f in %.1f s" name
+                   bottom (+ bottom (alist-get 'layer_height reply))
+                   (/ (alist-get 'ms reply) 1000.0))))
        (t
         (message "Exported %s: %d outlines, %d lines and %d arcs in %.1f s" name
                  (alist-get 'outlines reply) (alist-get 'lines reply) (alist-get 'arcs reply)
@@ -1445,6 +1466,58 @@ cancels it."
      (lambda (file)
        (make-process :name "keycap-slicer" :command (list keycap-print-slicer file)
                      :buffer nil :noquery t)))))
+
+(defun keycap--read-printer ()
+  "Read a resin printer, as `keycap-resin-printer' takes one."
+  (completing-read (format-prompt "Printer, or a .toml file" keycap-resin-printer)
+                   keycap--resin-printers nil nil nil nil keycap-resin-printer))
+
+(defun keycap--resin-request (printer bounds)
+  "The fields of a `resin' request for PRINTER and BOUNDS, nil for defaults."
+  (let ((printer (or printer keycap-resin-printer)))
+    `((op . "resin")
+      (printer . ,(if (string-suffix-p ".toml" printer) (expand-file-name printer) printer))
+      (bounds . ,(symbol-name (or bounds (keycap--export-bounds)))))))
+
+(defun keycap--export-resin-arguments ()
+  "Read a file, and with a prefix, a printer, for `keycap-export-resin'."
+  (list (keycap--export-file ".sl1" "Export resin print")
+        (when current-prefix-arg
+          (keycap--read-printer))))
+
+(defun keycap-export-resin (file &optional printer bounds)
+  "Slice the script into FILE, a print for a resin printer, without a mesh.
+FILE is an SL1 archive: a PNG for each layer, sampled from the shapes'
+fields, as PrusaSlicer writes them; UVtools converts it for other
+printers.  PRINTER, a name or a file as `keycap-resin-printer' takes it,
+defaults to that; interactively, a prefix argument asks for it.  BOUNDS,
+`script' or `fitted', defaults to the preview's.  The model stands in the
+middle of the display, its lowest layer on the plate, without supports.
+
+The export runs as `keycap-export-stl' does; \\[keycap-export-cancel]
+cancels it."
+  (interactive (keycap--export-resin-arguments) keycap-mode)
+  (keycap--start-export file nil (keycap--resin-request printer bounds)))
+
+(defun keycap--export-resin-layer-arguments ()
+  "Read a file, a height, and with a prefix, a printer, for exporting a layer."
+  (let ((slice (and (buffer-live-p keycap--preview)
+                    (with-current-buffer keycap--preview
+                      (keycap--preview-slice-shown)))))
+    (list (keycap--export-file "-layer.png" "Export resin layer")
+          (pcase slice
+            (`(z ,offset nil) offset)
+            (_ (read-number "Height of the layer: ")))
+          (when current-prefix-arg
+            (keycap--read-printer)))))
+
+(defun keycap-export-resin-layer (file z &optional printer bounds)
+  "Write the layer of the resin print through height Z to FILE, a PNG.
+It is the image `keycap-export-resin' would have the printer show for
+PRINTER and BOUNDS.  Interactively, Z is the height of the slice the
+preview shows across Z, or else read."
+  (interactive (keycap--export-resin-layer-arguments) keycap-mode)
+  (keycap--start-export file nil `(,@(keycap--resin-request printer bounds) (z . ,z))))
 
 (defun keycap-exporting-p ()
   "Non-nil while an export of the script runs."
@@ -1686,6 +1759,7 @@ undoes as one change.  Off a number, the click does what it would."
   "C-c C-v" #'keycap-preview-cycle-view
   "C-c C-e" #'keycap-export-stl
   "C-c C-l" #'keycap-export-2d
+  "C-c C-r" #'keycap-export-resin
   "C-c C-k" #'keycap-export-cancel
   "C-c C-d" #'keycap-describe
   "C-c C-n" #'keycap-increase-number
@@ -1712,6 +1786,8 @@ undoes as one change.  Off a number, the click does what it would."
     ["Export STL..." keycap-export-stl]
     ["Export 2D..." keycap-export-2d]
     ["Export for Printing..." keycap-export-print]
+    ["Export Resin Print..." keycap-export-resin]
+    ["Export Resin Layer..." keycap-export-resin-layer]
     ["Cancel Export" keycap-export-cancel :active keycap--export]))
 
 (defun keycap-context-menu (menu click)
