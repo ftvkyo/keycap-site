@@ -310,6 +310,75 @@ fn _span_frame(middle) {
     [abs(y * c - x * s), x * c + y * s]
 }
 
+// --- Angles that narrow ---
+//
+// fidget's `sin`, `cos` and `atan2` of a coordinate cost a libm call per
+// point on the CPU, and on the GPU their intervals are the whole range, so
+// near a shape that uses them no region is seen to be empty or full.  Here
+// the sine and cosine are polynomials, within 1e-8, and angles come from
+// `atan`, whose intervals narrow on both.
+
+// sin(a) of a tree in radians, or a number's own.
+fn _sin_poly(a) {
+    if _is_number(a) {
+        return sin(a.to_float());
+    }
+    _cos_sin(a)[1]
+}
+
+// cos(a), as `_sin_poly`.
+fn _cos_poly(a) {
+    if _is_number(a) {
+        return cos(a.to_float());
+    }
+    _cos_sin(a)[0]
+}
+
+// [cos(a), sin(a)] of a tree: polynomials of a quarter of `a` within a
+// turn of 0, even of degree 14 and odd of degree 13, doubled twice.  A
+// region's interval narrows with the quarter angle's, which wraps only two
+// turns of `a` from 0 and every four turns on.  The clamps change nothing
+// but tell interval arithmetic the ranges.
+fn _cos_sin(a) {
+    let q = _within_turn(a * 0.25);
+    let q2 = q * q;
+    let c = clamp(_polynomial(q2, [1.0, -0.4999999893933199, 0.04166664485759613, -0.0013888738509871628, 2.4796748955130693e-5, -2.747622257629286e-7, 2.016079824421957e-9, -8.415649022034409e-12]), -1.0, 1.0);
+    let s = clamp(q * _polynomial(q2, [0.9999999939032687, -0.1666666438430214, 0.008333308602038193, -1.984008669962717e-4, 2.752818752123354e-6, -2.4665845532734206e-8, 1.341416856065898e-10]), -1.0, 1.0);
+    _doubled(_doubled([c, s]))
+}
+
+// [cos(2 a), sin(2 a)] from `cs`, [cos(a), sin(a)].
+fn _doubled(cs) {
+    [cs[0] * cs[0] - cs[1] * cs[1], 2.0 * cs[0] * cs[1]]
+}
+
+// `a` less the whole turns nearest it, from -PI to PI.
+fn _within_turn(a) {
+    clamp(a - TAU * round(a / TAU), -PI, PI)
+}
+
+// c[0] + c[1] s + c[2] s^2 + ..., by Horner's rule.
+fn _polynomial(s, c) {
+    let p = c[c.len() - 1];
+    for i in range(c.len() - 2, -1, -1) {
+        p = c[i] + s * p;
+    }
+    p
+}
+
+// atan2(y, x) of trees, 0 on the Z axis as `_atan2`.  In the first
+// quadrant it is PI / 4 and the `atan` of the turn from the diagonal, with
+// no octants to tell apart; flags 0 or 1 flip it into the point's quadrant
+// by scaling rather than choosing, so that a region on one side of an axis
+// keeps its interval, and one across it has the hull of both sides.
+fn _atan2_narrow(y, x) {
+    let ax = abs(x);
+    let ay = abs(y);
+    let a = FRAC_PI_4 + atan((ay - ax) / max(ay + ax, 1e-30));
+    let a = FRAC_PI_2 + (a - FRAC_PI_2) * (1.0 - 2.0 * _less(x, 0.0));
+    and(x * x + y * y, a * (1.0 - 2.0 * _less(y, 0.0)))
+}
+
 // --- Outlines by direction ---
 
 /// polar_outline(r: Tree, dr: Tree): Shape

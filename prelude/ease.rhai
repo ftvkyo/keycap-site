@@ -30,7 +30,7 @@
 /// ```
 fn ease_in_sine(t) {
     let t = clamp(_float(t), 0.0, 1.0);
-    1.0 - cos(t * FRAC_PI_2)
+    1.0 - _cos_poly(t * FRAC_PI_2)
 }
 
 /// ease_out_sine(t: Tree): Tree
@@ -52,7 +52,7 @@ fn ease_in_sine(t) {
 /// ```
 fn ease_out_sine(t) {
     let t = clamp(_float(t), 0.0, 1.0);
-    sin(t * FRAC_PI_2)
+    _sin_poly(t * FRAC_PI_2)
 }
 
 /// ease_in_out_sine(t: Tree): Tree
@@ -74,7 +74,7 @@ fn ease_out_sine(t) {
 /// ```
 fn ease_in_out_sine(t) {
     let t = clamp(_float(t), 0.0, 1.0);
-    (1.0 - cos(t * PI)) * 0.5
+    (1.0 - _cos_poly(t * PI)) * 0.5
 }
 
 // --- Arcsine ---
@@ -378,7 +378,7 @@ fn ease_in_out_pow(n) {
 /// ```
 fn ease_in_elastic(t) {
     let t = clamp(_float(t), 0.0, 1.0);
-    let v = -exp((10.0 * t - 10.0) * LN_2) * sin((t * 10.0 - 10.75) * (TAU / 3.0));
+    let v = -exp((10.0 * t - 10.0) * LN_2) * _sin_poly((t * 10.0 - 10.75) * (TAU / 3.0));
     _ease_ends(t, v)
 }
 
@@ -401,7 +401,7 @@ fn ease_in_elastic(t) {
 /// ```
 fn ease_out_elastic(t) {
     let t = clamp(_float(t), 0.0, 1.0);
-    let v = exp(-10.0 * t * LN_2) * sin((t * 10.0 - 0.75) * (TAU / 3.0)) + 1.0;
+    let v = exp(-10.0 * t * LN_2) * _sin_poly((t * 10.0 - 0.75) * (TAU / 3.0)) + 1.0;
     _ease_ends(t, v)
 }
 
@@ -424,7 +424,7 @@ fn ease_out_elastic(t) {
 /// ```
 fn ease_in_out_elastic(t) {
     let t = clamp(_float(t), 0.0, 1.0);
-    let w = sin((20.0 * t - 11.125) * (TAU / 4.5)) * 0.5;
+    let w = _sin_poly((20.0 * t - 11.125) * (TAU / 4.5)) * 0.5;
     let low = -exp((20.0 * t - 10.0) * LN_2) * w;
     let high = exp((10.0 - 20.0 * t) * LN_2) * w + 1.0;
     _ease_ends(t, _select_less(t, 0.5, low, high))
