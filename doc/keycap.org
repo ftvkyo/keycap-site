@@ -213,7 +213,7 @@ The keys come in families: the digits point the camera, or the slice in 2D views
 - Key: <double-mouse-1> (keycap-preview-mouse-goto-shape) :: Go to the ~draw~ of the shape under the mouse, in the script or the file it imports; in 2D views, of the shape the mouse is in, or the nearest one.
 - Key: <down-mouse-3> :: The preview's menu: views, cameras or slices, bounds, backend and exports.
 - Key: b (keycap-preview-toggle-bounds) :: Switch between the script's bounds and the bounds fitted to the model.
-- Key: G (keycap-preview-toggle-backend) :: Switch between rendering on the GPU and on the CPU.
+- Key: G (keycap-preview-toggle-backend) :: Render on the other of the GPU and the CPU than the frame was rendered on, or, once switched, where it is sooner again.
 - Key: e (keycap-preview-export-stl) :: Export, within the bounds the preview shows.
 - Key: l (keycap-preview-export-2d) :: Export the outlines on the slice the 2D views show, tilted or not, for laser cutting, within the bounds the preview shows.
 - Key: C-g (keycap-preview-keyboard-quit) :: Cancel the export that runs; without one, quit as usual.
@@ -351,7 +351,8 @@ Cut acrylic only if it is cast acrylic (PMMA), extract the fumes of every job, a
 - User Option: keycap-export-kerf :: The width a laser burns away along a cut, half of which 2D exports grow the shapes to cut by; 0 by default.
 - User Option: keycap-preview-view :: The view a 3D model opens in: ~shaded~, ~heightmap~, ~sdf~ or ~mono~.
 - User Option: keycap-preview-bounds :: ~script~ or ~fitted~: which bounds the preview shows first.
-- User Option: keycap-preview-backend :: ~gpu~ or ~cpu~.
+- User Option: keycap-preview-backend :: ~auto~, the default, ~gpu~ or ~cpu~.
+  ~auto~ renders a 3D frame on whichever of the GPU and the CPU the frames before it say is sooner: a laptop's GPU is often slower than its CPU, and any GPU is on shapes whose intervals tell it little.
 - User Option: keycap-preview-projection :: ~orthographic~ or ~perspective~.
 - User Option: keycap-preview-output-lines :: Lines of ~print~ output shown below the image, at most.
 - User Option: keycap-preview-drag-resolution :: The share of the full resolution a camera drag's frames start at and never exceed, 0.5 by default; the frame the drag ends on is in full.
@@ -1934,8 +1935,8 @@ fidget evaluates the tree over boxes of space with interval arithmetic and skips
   =max= with a cylinder, box or torus that contains it changes no value, but lets fitted bounds find it and renders skip the space around it.
 - ~bezier_stroke~ costs about 150 operations per piece of curve, but boxes around the pieces let a render skip the ones far from each region: =feather.keycap='s two hundred barbs load in three seconds and render in about one.
 - A large, loose bounding region wastes work; set ~bounds~ when the fitted region is too large, or when an unbounded axis leaves it guessing.
-- The GPU renders shaded views fastest; =G= switches to the CPU when it does not.
-  It renders a slow frame in tiles, each well short of the time after which the driver resets the GPU.
+- The preview renders where it is sooner, on the GPU or the CPU; =G= overrides it.
+  The GPU renders a slow frame in tiles, each well short of the time after which the driver resets the GPU, and shorter still while an edit or a drag makes frames that the next replaces.
 - Export time grows with the surface area times the resolution squared: try a part at 5 cells per mm, then export it at the default 10, or at 20 for fine details.
   The memory does too, which makes a long thin part, such as =feather.keycap=, cheap at a resolution that a vase of the same size could not afford.
 - A script stops after 20 million operations, which only an endless loop reaches.
@@ -2037,7 +2038,7 @@ A line that reads =// keycap: no-prefer=, anywhere in the file, silences them, f
   Clamp such a value to the range it has anyway (=clamp(v, -1.0, 1.0)=), take ~sqrt~ of =max(v, 0.0)=, keep a divisor that is positive away from 0 (=max(d, 1e-6)=), or set ~bounds~.
 - A shape is cut off :: It pokes out of the script's ~bounds~; Flymake warns at its ~draw~.
 - The preview is slow :: See [[*Performance]]; the header line shows the render time and backend.
-- The header line says CPU and a reason :: The GPU was asked for, and the CPU rendered instead: there is no GPU, a shape needs more registers than the GPU has, the shapes are too slow for the GPU even in small tiles, or the GPU failed on this scene (its device was lost, or it hung), which keeps the scene on the CPU until the script is evaluated again.
+- The header line says CPU and a reason :: The GPU was asked for, or was the sooner, and the CPU rendered instead: there is no GPU, a shape needs more registers than the GPU has, the shapes are too slow for the GPU even in small tiles, or the GPU failed on this scene (its device was lost, or it hung), which keeps the scene on the CPU until the script is evaluated again.
   Shapes are too slow for the GPU when interval arithmetic tells nothing about them, so that every voxel is evaluated; see [[*Bounds]].
 - Nothing is drawn :: The script ran, but drew nothing, or drew empty space (a ~difference~ that removed everything, an ~intersection~ of disjoint shapes); the sdf view shows where the field is negative.
   The header line says =nothing in view= when no pixel shows a shape, and =nothing on this slice= in the 2D views.

@@ -55,9 +55,11 @@ Without a `bounds' call in the script, the fitted ones stand in."
   :type '(choice (const script) (const fitted))
   :group 'keycap)
 
-(defcustom keycap-preview-backend 'gpu
-  "Where the preview renders; without a GPU, the CPU stands in."
-  :type '(choice (const gpu) (const cpu))
+(defcustom keycap-preview-backend 'auto
+  "Where the preview renders: `auto', `gpu' or `cpu'.
+`auto' renders a 3D frame on whichever of the GPU and the CPU the frames
+before it say is sooner.  Without a GPU, the CPU stands in."
+  :type '(choice (const auto) (const gpu) (const cpu))
   :group 'keycap)
 
 (defcustom keycap-preview-projection 'orthographic
@@ -739,13 +741,20 @@ is a button."
                            ((>= ms 1000) (format "%.1f s" (/ ms 1000.0)))
                            ((>= ms 10) (format "%.0f ms" ms))
                            (t (format "%.1f ms" ms))))
-                        (if (equal (alist-get 'backend frame) (symbol-name keycap--preview-backend))
-                            ""
-                          (format " (%s)" (or (alist-get 'fallback frame) "no GPU"))))
+                        (cond
+                         ((eq keycap--preview-backend 'auto)
+                          (if-let* ((fallback (alist-get 'fallback frame)))
+                              (format " (%s)" fallback)
+                            ""))
+                         ((equal (alist-get 'backend frame) (symbol-name keycap--preview-backend))
+                          "")
+                         (t (format " (%s)" (or (alist-get 'fallback frame) "no GPU")))))
                 #'keycap-preview-toggle-backend
-                (if (eq keycap--preview-backend 'gpu)
-                    "mouse-1: render on the CPU"
-                  "mouse-1: render on the GPU")))
+                (cond
+                 ((not (eq keycap--preview-backend 'auto))
+                  "mouse-1: render where it is sooner")
+                 ((equal (alist-get 'backend frame) "gpu") "mouse-1: render on the CPU")
+                 (t "mouse-1: render on the GPU"))))
              (when (and keycap--preview-rendering
                         (> (- (float-time) keycap--preview-render-start) 0.25))
                "Rendering")
@@ -1223,9 +1232,16 @@ and outside); the last two show a slice."
   (keycap--preview-render))
 
 (defun keycap-preview-toggle-backend ()
-  "Switch between rendering on the GPU and on the CPU."
+  "Render on the other of the GPU and the CPU, or where it is sooner again.
+Rendering where it is sooner, the preview renders on the one its frame
+was not rendered on; otherwise, it goes back to rendering where it is
+sooner."
   (interactive nil keycap-preview-mode)
-  (setq keycap--preview-backend (if (eq keycap--preview-backend 'gpu) 'cpu 'gpu))
+  (setq keycap--preview-backend
+        (cond
+         ((not (eq keycap--preview-backend 'auto)) 'auto)
+         ((equal (alist-get 'backend keycap--preview-frame) "gpu") 'cpu)
+         (t 'gpu)))
   (keycap--preview-render))
 
 (defun keycap-preview-export-stl (file &optional resolution)
@@ -1468,8 +1484,9 @@ toward you, right takes its right edge away."
           '("---"
             ["Fitted Bounds" keycap-preview-toggle-bounds
              :style toggle :selected (eq keycap--preview-bounds 'fitted)]
-            ["Render on the GPU" keycap-preview-toggle-backend
-             :style toggle :selected (eq keycap--preview-backend 'gpu)]
+            ["Render Where Sooner" keycap-preview-toggle-backend
+             :style toggle :selected (eq keycap--preview-backend 'auto)
+             :help "On whichever of the GPU and the CPU renders the model sooner"]
             "---"
             ["Export STL..." keycap-preview-export-stl]
             ["Export 2D..." keycap-preview-export-2d]

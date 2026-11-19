@@ -689,6 +689,17 @@ it runs the hooks that stop its server and kill its preview."
                            "  ·  fitted bounds 6.2 × 6 × ∞  ·  CPU 1.2 s (no GPU)")))
     (push '(fallback . "the GPU's device was lost") keycap--preview-frame)
     (should (string-suffix-p "CPU 1.2 s (the GPU's device was lost)" (keycap-preview-header)))
+    ;; Rendering where it is sooner, only a fallback is worth a note.
+    (setq keycap--preview-backend 'auto)
+    (should (string-suffix-p "CPU 1.2 s (the GPU's device was lost)" (keycap-preview-header)))
+    (setq keycap--preview-frame (assq-delete-all 'fallback keycap--preview-frame))
+    (should (string-suffix-p "CPU 1.2 s" (keycap-preview-header)))
+    (cl-letf (((symbol-function 'keycap--preview-render) #'ignore))
+      (keycap-preview-toggle-backend)
+      (should (eq keycap--preview-backend 'gpu))
+      (keycap-preview-toggle-backend)
+      (should (eq keycap--preview-backend 'auto)))
+    (setq keycap--preview-backend 'gpu)
     (setq keycap--preview-report
           '((loaded . t)
             (bounds (fitted (lower -3.1 -3 nil) (upper 3.1 3 nil))
@@ -1022,7 +1033,7 @@ it runs the hooks that stop its server and kill its preview."
       (keycap-preview-toggle-bounds)
       (should (eq keycap--preview-bounds 'fitted))
       (keycap-preview-toggle-backend)
-      (should (eq keycap--preview-backend 'cpu))
+      (should (eq keycap--preview-backend 'auto))
       ;; Each view has a key of its own.
       (pcase-dolist (`(,key . ,view) '(("m" . mono) ("z" . heightmap) ("d" . sdf) ("s" . shaded)))
         (funcall (keymap-lookup keycap-preview-mode-map key))
