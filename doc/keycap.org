@@ -507,7 +507,7 @@ The sdf view shows how exact a field is: on an exact field the lines are evenly 
 Rhai has integers and floats, and keeps them apart:
 
 - =5 / 2= is =2=, an integer division; write =5.0 / 2= or =5 * 0.5=
-- =-7 % 3= is =-1= for numbers, but =x % 3= at x = -7 is =2=: fidget's remainder on trees is never negative
+- =-7 % 3= is =-1= for numbers, but =x % 3= at x = -7 is =2=: fidget's remainder on trees is never negative, and ~mod~ is that for numbers too
 - math functions give a number of numbers, integers too, and a tree of a tree: ~sqrt(2)~ is a number, ~sqrt(x)~ a tree
 - ~compare~, ~and~, ~or~, ~not~, ~mix~ and ~rand~ are fidget's alone: given only numbers, they return a tree or fail
 

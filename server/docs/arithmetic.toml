@@ -104,7 +104,7 @@ The remainder of `a` divided by `b`.
 - `a`, `b`: numbers or trees
 
 With a tree on either side, it is the Euclidean remainder: from 0 up to `b`, for a negative `a` too.
-Between two numbers, it is Rhai's remainder, which has the sign of `a`.
+Between two numbers, it is Rhai's remainder, which has the sign of `a`; `mod` is Euclidean for both.
 
 A remainder of a coordinate repeats space: every cell `b` wide maps onto the first one.
 A shape evaluated at such a coordinate repeats without end.
@@ -112,7 +112,7 @@ A shape evaluated at such a coordinate repeats without end.
 Notes:
 - Field: the shape's, as long as the shape stays inside its cell with some margin.
 
-See also: `repeat_x`, `repeat`, `repeat_grid`.
+See also: `mod`, `repeat_x`, `repeat`, `repeat_grid`.
 
 References:
 - [Euclidean division, Wikipedia](https://en.wikipedia.org/wiki/Euclidean_division)

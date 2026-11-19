@@ -412,6 +412,27 @@ fn clamp(v, lo, hi) {
     min(max(_float(v), _float(lo)), _float(hi))
 }
 
+/// saturate(v: Tree): Tree
+///
+/// Limits `v` to the range from 0 to 1.
+///
+/// - `v`: the value
+///
+/// It is `clamp(v, 0, 1)`.
+///
+/// Notes:
+/// - Named as in HLSL, Direct3D's shading language.
+///
+/// See also: `clamp`, `linstep`.
+///
+/// Example: a plate whose top edge rises 10 mm over 20 mm from x = 0, flat on either side.
+/// ```
+/// rect([60, 30]).intersection(y - 10 * saturate(x / 20))
+/// ```
+fn saturate(v) {
+    clamp(v, 0.0, 1.0)
+}
+
 /// lerp(a: Tree | Tree[], b: Tree | Tree[], t: Tree): Tree | Tree[]
 ///
 /// Linear interpolation, lerp for short: the value `t` of the way from `a` to `b`.
@@ -450,6 +471,63 @@ fn lerp(a, b, t) {
         return out;
     }
     a + (b - a) * t
+}
+
+/// rescale(v: Tree, from: [Tree, Tree], to: [Tree, Tree]): Tree
+///
+/// `v` carried from one range to another: from `from[0]` to `to[0]`, from `from[1]` to `to[1]`, and in between and beyond along the same line.
+///
+/// - `v`: the value
+/// - `from`: `[a, b]`, the range `v` comes from, `a != b`
+/// - `to`: `[c, d]`, the range it goes to
+///
+/// It is `lerp(c, d, (v - a) / (b - a))`, not clamped.
+/// `lerp(c, d, linstep(a, b, v))` is the same, clamped to the range from `c` to `d`.
+///
+/// Notes:
+/// - Often called `map` or `remap` elsewhere; fidget's `remap` moves a shape's coordinates instead.
+///
+/// See also: `lerp`, `linstep`.
+///
+/// Example: a cone whose radius goes from 10 at z = 0 to 2 at z = 20. [view: camera front]
+/// ```
+/// let r = rescale(z, [0, 20], [10, 2]);
+/// normalize_z(hypot(x, y) - r)
+///     .intersection(slab([0, 20]))
+/// ```
+fn rescale(v, from, to) {
+    let from = _pair(from, "rescale: from");
+    let to = _pair(to, "rescale: to");
+    lerp(to[0], to[1], (_float(v) - from[0]) / (from[1] - from[0]))
+}
+
+/// step(edge: Tree, v: Tree): Tree
+///
+/// A sudden step from 0 to 1 as `v` reaches `edge`.
+///
+/// - `edge`: where it steps
+/// - `v`: the value
+///
+/// The result is 0 where `v` is below `edge`, and 1 elsewhere.
+/// On trees, its gradient is 0, as `compare`'s is.
+///
+/// Notes:
+/// - The same as `step` in GLSL, the OpenGL Shading Language.
+///
+/// See also: `linstep`, `smoothstep`, `compare`.
+///
+/// Example: a post of radius 6 below z = 10 and of radius 3 above.
+/// ```
+/// let r = lerp(6, 3, step(10, z));
+/// (hypot(x, y) - r).intersection(slab([0, 20]))
+/// ```
+fn step(edge, v) {
+    if _is_number(edge) && _is_number(v) {
+        if v < edge { 0.0 } else { 1.0 }
+    } else {
+        // `compare` plus 1 is 0 below `edge`, and 1 or 2 elsewhere.
+        min(compare(_float(v), _float(edge)) + 1.0, 1.0)
+    }
 }
 
 /// linstep(e0: number, e1: number, v: Tree): Tree
@@ -503,6 +581,62 @@ fn linstep(e0, e1, v) {
 fn smoothstep(e0, e1, v) {
     let t = clamp((_float(v) - e0) / _float(e1 - e0), 0.0, 1.0);
     t * t * (3.0 - 2.0 * t)
+}
+
+/// fract(v: Tree): Tree
+///
+/// The fractional part of `v`: `v - floor(v)`, from 0 up to 1, for a negative `v` too.
+///
+/// - `v`: the value
+///
+/// A fractional part of a coordinate rises from 0 to 1 across every cell 1 wide, for a pattern that repeats.
+///
+/// Notes:
+/// - Field: a step at every integer, as for `floor`.
+/// - The same as `fract` in GLSL; Rhai's own `fraction` has the sign of `v`.
+///
+/// See also: `floor`, `mod`.
+///
+/// Example: a plate with a sawtooth edge, its teeth 8 mm apart.
+/// ```
+/// rect([40, 20]).intersection(y - 4 * fract(x / 8))
+/// ```
+fn fract(v) {
+    let v = _float(v);
+    v - floor(v)
+}
+
+/// mod(a: Tree, b: Tree): Tree
+///
+/// The remainder of `a` divided by `b`, from 0 up to `abs(b)`, for a negative `a` or `b` too.
+///
+/// - `a`: the value
+/// - `b`: the divisor, not 0
+///
+/// It is the Euclidean remainder, which `%` gives on trees.
+/// Between two numbers `%` is Rhai's, which has the sign of `a`, so `-7 % 3` is -1, but `mod(-7, 3)` is 2.
+///
+/// Notes:
+/// - GLSL's `mod` has the sign of `b`; the two agree for a positive `b`.
+///
+/// See also: `%`, `fract`.
+///
+/// References:
+/// - [Euclidean division, Wikipedia](https://en.wikipedia.org/wiki/Euclidean_division)
+///
+/// Example: the remainder of -7 divided by 3.
+/// ```
+/// mod(-7, 3)
+/// ```
+fn mod(a, b) {
+    let a = _float(a);
+    let b = _float(b);
+    if _is_number(a) && _is_number(b) {
+        let r = a % b;
+        if r < 0.0 { r + abs(b) } else { r }
+    } else {
+        a % b
+    }
 }
 
 /// hypot(a: Tree, b: Tree): Tree

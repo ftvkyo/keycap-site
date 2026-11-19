@@ -41,7 +41,7 @@ On a tree, it is `compare(a, 0)`, whose gradient is 0.
 Notes:
 - NaN (not a number) gives NaN on a tree, and is an error in Rhai's `sign`.
 
-See also: `abs`, `compare`.
+See also: `abs`, `compare`, `step`.
 
 Example: a plate whose top edge steps up and down by 3, with the sign of a wave.
 ```
