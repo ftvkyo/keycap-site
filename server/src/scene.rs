@@ -127,6 +127,33 @@ impl Scene {
         Ok(Scene { fitted, ..scene })
     }
 
+    /// Whether this scene is what a script that draws `drawn` in `bounds`
+    /// at `resolution` shows.
+    pub fn draws(&self, drawn: &[Drawn], bounds: Option<Box3>, resolution: Option<f64>) -> bool {
+        let same =
+            |(a, b): (&Drawn, &Drawn)| a.color == b.color && a.role == b.role && a.tree == b.tree;
+        self.bounds == bounds
+            && self.resolution == resolution
+            && self.drawn.len() == drawn.len()
+            && self.drawn.iter().zip(drawn).all(same)
+    }
+
+    /// This scene, compiled as it is, drawn by `drawn`, which it `draws`,
+    /// from other places in the script.
+    pub fn redrawn(&self, drawn: Vec<Drawn>) -> Scene {
+        let tilted = self.tilted.lock().ok().and_then(|tilted| tilted.clone());
+        Scene {
+            id: self.id,
+            drawn,
+            bounds: self.bounds,
+            resolution: self.resolution,
+            fitted: self.fitted,
+            union: self.union.clone(),
+            compiled: self.compiled.clone(),
+            tilted: Mutex::new(tilted),
+        }
+    }
+
     pub fn has_colors(&self) -> bool {
         self.drawn.iter().any(|d| d.color.is_some())
     }

@@ -57,8 +57,9 @@
 //! `{"id", "op": "load", "source", "path", "dialect", "overrides"}`:
 //! evaluates the script and keeps what it draws as the scene; `path` is
 //! the script's file or null, `dialect` `keycap` (the default) or
-//! `fidget`.  On failure the previous scene stays loaded; a new one
-//! cancels the renders read before the load, which show the old one.
+//! `fidget`.  On failure the previous scene stays loaded; a new one, of
+//! other shapes, cancels the renders read before the load, which show the
+//! old one.
 //!
 //! `overrides`, `{"NAME": VALUE}` and optional, runs the script with other
 //! values for its top-level constants, such as one design's variants: each
@@ -79,6 +80,9 @@
 //!   shapes are unbounded on that side, and `loose` says why the fitted
 //!   bounds may be far looser than the shapes, or miss sides they have
 //! - `resolution`: the script's `resolution(n)` or null
+//! - `scene`: a number for the scene, the last load's when the script
+//!   draws the same shapes, so that their frames need not be rendered
+//!   again
 //! - `functions`: the functions the script defines, and those of the
 //!   modules it imports under a name, as `docs` lists the others, under
 //!   the names the script calls them by (`keycap::body`), `source`
@@ -146,8 +150,8 @@
 //! bounded side as far as the widest bounded axis is wide, or 20 when
 //! none is; unbounded on both, it is that wide, centred on 0.  Each pixel
 //! shows what lies at its centre; on a tilted slice, `probe` reads it in
-//! the model's own coordinates.  The reply has the `backend` and `bounds`
-//! used, `ms`, `scale`,
+//! the model's own coordinates.  The reply has the `backend`, `bounds` and
+//! `scene` used, `ms`, `scale`,
 //! the world units a pixel spans at the focus, `empty`, whether no pixel
 //! shows the inside of a shape, and `fallback`, why a frame asked of the
 //! GPU was rendered on the CPU.

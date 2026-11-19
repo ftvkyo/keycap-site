@@ -990,6 +990,28 @@ fn a_new_scene_cancels_the_render_of_the_old_one() {
 }
 
 #[test]
+fn an_edit_that_draws_the_same_keeps_the_scene() {
+    let dir = scratch("same-scene");
+    let (mut server, model) = slow_server();
+    let first = server.load(&model, None);
+    let slow = json!({
+        "op": "render", "output": dir.join("slow.ppm"), "width": 300, "height": 300,
+        "backend": "cpu",
+    });
+    let render = server.send(slow);
+    let edited = server.load(&format!("// A comment\n\n{model}"), None);
+    assert_eq!(edited["scene"], first["scene"], "{edited}");
+    let line = |reply: &Value| reply["shapes"][0]["line"].as_i64().unwrap_or_default();
+    assert_eq!(line(&edited), line(&first) + 2, "{edited}");
+    let reply = server.reply();
+    assert_eq!(reply["id"], render);
+    assert_eq!(reply["scene"], first["scene"], "{reply}");
+
+    let other = server.load(&model.replace("- 25", "- 24"), None);
+    assert_ne!(other["scene"], first["scene"], "{other}");
+}
+
+#[test]
 fn a_render_waits_for_the_loads_before_it() {
     let dir = scratch("render-after-load");
     let mut server = Server::start(&[]);

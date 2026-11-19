@@ -291,6 +291,8 @@ impl Server {
 
     fn load(&mut self, script: Script) -> Reply {
         let start = Instant::now();
+        let current = self.shared.scene();
+        let current_id = current.as_ref().map(|scene| scene.id);
         let engine = self.engine_mut(script.dialect);
         let (run, result) = engine.run(&script.source, script.path.as_deref(), &script.overrides);
         let mut diagnostics: Vec<Diagnostic> = vec![];
@@ -302,16 +304,25 @@ impl Server {
                 diagnostics.push(error);
                 None
             }
-            Ok(_) => match Scene::new(run.drawn, run.bounds, run.resolution) {
-                Ok(scene) => Some(scene),
-                Err(error) => {
-                    diagnostics.push(Diagnostic::error(
-                        Location::start(),
-                        format!("cannot compile the shapes: {error}"),
-                    ));
-                    None
+            Ok(_) => {
+                // An edit that changes nothing drawn, such as a comment's,
+                // keeps the scene as it is compiled, and its frames.
+                let kept = current.filter(|c| c.draws(&run.drawn, run.bounds, run.resolution));
+                let scene = match kept {
+                    Some(current) => Ok(current.redrawn(run.drawn)),
+                    None => Scene::new(run.drawn, run.bounds, run.resolution),
+                };
+                match scene {
+                    Ok(scene) => Some(scene),
+                    Err(error) => {
+                        diagnostics.push(Diagnostic::error(
+                            Location::start(),
+                            format!("cannot compile the shapes: {error}"),
+                        ));
+                        None
+                    }
                 }
-            },
+            }
         };
         diagnostics.extend(engine.prelude().problems.iter().cloned());
         if engine.dialect() == Dialect::Keycap {
@@ -367,13 +378,16 @@ impl Server {
                 "loose": loose,
             },
             "resolution": scene.resolution,
+            "scene": scene.id,
             "functions": functions,
             "output": output,
             "files": files,
             "diagnostics": diagnostics,
             "ms": ms(start),
         });
-        self.interrupts.scene_replaced(script.renders_before);
+        if current_id != Some(scene.id) {
+            self.interrupts.scene_replaced(script.renders_before);
+        }
         *lock(&self.shared.scene) = Some(Arc::new(scene));
         reply.into()
     }
@@ -699,12 +713,9 @@ impl Renderer {
             return Ok(Reply::Cancelled);
         };
         render::write_ppm(&request.output, width, height, &rendered.pixels)?;
-        *lock(&self.shared.shown) = Some(Arc::new(Shown {
-            frame: rendered.frame,
-            scene,
-        }));
         let mut reply = json!({
             "backend": rendered.backend,
+            "scene": scene.id,
             "bounds": bounds,
             "ms": ms(start),
             "scale": rendered.scale,
@@ -713,6 +724,10 @@ impl Renderer {
         if let Some(fallback) = rendered.fallback {
             reply["fallback"] = fallback.into();
         }
+        *lock(&self.shared.shown) = Some(Arc::new(Shown {
+            frame: rendered.frame,
+            scene,
+        }));
         Ok(reply.into())
     }
 }
