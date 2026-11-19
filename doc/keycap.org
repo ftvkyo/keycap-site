@@ -98,6 +98,8 @@ After each change, once typing pauses for ~keycap-load-delay~ seconds, it evalua
   With a prefix argument, ask for the resolution too.
 - Key: C-c C-l (keycap-export-2d) :: Trace the drawn shapes' outlines into an SVG or a DXF file for laser cutting; see [[*Exporting for laser cutting]].
   With a prefix argument, ask for the kerf too.
+- Key: C-c C-r (keycap-export-resin) :: Slice the drawn shapes into the layers of a resin print; see [[*Printing in resin]].
+  With a prefix argument, ask for the printer too.
 - Key: C-c C-k (keycap-export-cancel) :: Cancel the export that runs; the file keeps what it had.
 - Key: C-c C-d (keycap-describe) :: Show the documentation of a function or shape, by default the one at point.
   The reference it opens lists everything a script can call, grouped by where it comes from.
@@ -364,6 +366,72 @@ Layers at other heights, after the layer heights change in the slicer, keep the 
 Once written, the 3MF opens in ~keycap-print-slicer~, when set.
 The export runs as an STL export does; the header line shows its progress: sampling, triangulating, simplifying, choosing layer heights, slicing and writing.
 
+** Printing in resin
+:PROPERTIES:
+:DESCRIPTION: Layers for resin printers, straight from the field.
+:END:
+#+cindex: resin printing
+#+cindex: MSLA
+#+cindex: SL1
+#+findex: keycap-export-resin
+#+findex: keycap-export-resin-layer
+
+A resin printer cures a layer at a time, each layer an image on its display.
+=C-c C-r= makes those images from the drawn shapes' fields, without a mesh: each pixel of a layer is sampled half way up it, and is as grey as the share of it the shapes cover, read from the distance to their edge at its centre.
+Edges come out anti-aliased, exactly so where the field is a distance; a field that is only a bound greys its edges unevenly, but never puts a pixel on the wrong side.
+The printer is ~keycap-resin-printer~, or with a prefix argument the one you type.
+
+The file is an SL1 archive, as PrusaSlicer writes for Prusa's SL1 and SL1S: a PNG for each layer, and the printer's settings.
+Those printers print it as it is.
+For others, UVtools converts it into the printer's own format: =UVtoolsCmd convert part.sl1 cxdlp= for most of Creality's Halot printers, or =auto= for the format the printer's profile names.
+Formlabs printers take no layers from elsewhere: PreForm slices them from an STL.
+
+The model's footprint stands in the middle of the display and its lowest layer on the plate; empty layers below and above it are left out.
+Rotate the model in the script to lay it on the plate as it should print.
+keycap adds no supports: a model that needs them goes to PrusaSlicer, Lychee, Chitubox or UVtools as an STL, which add them.
+A hollow part is a ~shell~ in the script, its drain holes a ~difference~; see [[*Shells and hollow parts]].
+
+The export runs as an STL export does, beside everything else and cancelled the same way.
+The header line shows =slicing=, and the echo area tells the result, such as =Exported knob.sl1: 585 layers of 0.05, 41.0 ml, in 1.1 s=.
+Layers are sampled on every core a batch at a time and written as they come, so a print needs little memory however many layers it has.
+=knob.keycap= slices in about a second for the SL1S, and in three for the 8K display of a Halot Mage Pro, where its STL takes five.
+
+=M-x keycap-export-resin-layer= writes one layer as a PNG, the image the printer would show: the one through the slice across Z the preview shows, or at a height you type.
+
+#+cindex: printer profiles
+Printers known by name:
+
+- =prusa-sl1s= :: Prusa SL1S SPEED, with PrusaSlicer's exposures at 0.05 mm.
+- =creality-halot-sky= :: Creality Halot Sky, for =.cxdlp=.
+- =creality-halot-mage-pro= :: Creality Halot Mage Pro, for =.cxdlpv4=.
+
+The Halots' displays, lifts and waits are UVtools' and want checking against the printer, and their exposures are only a starting point for a standard resin.
+
+Another printer is a TOML file, such as:
+#+begin_src toml
+model = "SL1S"
+height = 150
+layer_height = 0.05
+exposure = 1.7
+bottom_exposure = 25
+bottom_layers = 10
+
+[display]
+pixels = [2560, 1620]
+size = [128, 81]
+orientation = "portrait"
+mirror = [true, false]
+#+end_src
+
+- =model= :: The name the printer goes by: an SL1 or SL1S prints only files that name it, =SL1= or =SL1S=, and UVtools converts for the Halot whose code it names, such as =CL-89=.
+- =height= :: The tallest print, in mm.
+- =layer_height= :: In mm.
+- =exposure=, =bottom_exposure= :: Seconds each layer, and each of the first layers, is cured for.
+- =bottom_layers= :: How many layers are cured longer, to hold to the plate; on an SL1, the layers over which the time fades to =exposure=.
+- =notes= :: Lines for UVtools: lifts, waits and speeds, such as ="LiftHeight_6"=, and the format =auto= converts to, such as ="FILEFORMAT_CXDLP"=.
+- =display= :: As PrusaSlicer's printer settings have it: =pixels= and =size=, in mm, along the display's x and y, =orientation=, ="landscape"= (the default) or ="portrait"=, and whether the image is mirrored along x and y.
+  A printer's PrusaSlicer profile, or UVtools' for printers PrusaSlicer has none for, has them as =display_pixels_x=, =display_width=, =display_orientation= and =display_mirror_x=, and so on; mirrored wrong, a print comes out mirrored.
+
 ** Customization
 :PROPERTIES:
 :DESCRIPTION: User options.
@@ -380,6 +448,7 @@ The export runs as an STL export does; the header line shows its progress: sampl
 - User Option: keycap-export-kerf :: The width a laser burns away along a cut, half of which 2D exports grow the shapes to cut by; 0 by default.
 - User Option: keycap-print-layer-heights :: The layer heights of ~keycap-export-print~ in millimetres: the first layer's, which must be the slicer's, then the least and the most of the others; =(0.2 0.08 0.2)= by default.
 - User Option: keycap-print-slicer :: The program ~keycap-export-print~ opens its 3MF in, such as ="orca-slicer"=; ~nil~, the default, for none.
+- User Option: keycap-resin-printer :: The resin printer prints are sliced for: a name the server knows, =prusa-sl1s= by default, or a =.toml= file that describes one.
 - User Option: keycap-preview-view :: The view a 3D model opens in: ~shaded~, ~heightmap~, ~sdf~ or ~mono~.
 - User Option: keycap-preview-bounds :: ~script~ or ~fitted~: which bounds the preview shows first.
 - User Option: keycap-preview-backend :: ~auto~, the default, ~gpu~ or ~cpu~.
