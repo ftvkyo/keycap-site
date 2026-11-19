@@ -883,6 +883,24 @@ it runs the hooks that stop its server and kill its preview."
         (keycap--preview-render)
         (should (equal sent '(300 200 1)))))))
 
+(ert-deftest keycap-test-preview-edit-supersedes ()
+  (keycap-test-with-preview-state
+    (setq-local keycap--preview (current-buffer))
+    (let ((window (selected-window))
+          (keycap--preview-source (current-buffer))
+          (sent 0))
+      (cl-letf (((symbol-function 'get-buffer-window) (lambda (&rest _) window))
+                ((symbol-function 'process-live-p) (lambda (&rest _) t))
+                ((symbol-function 'keycap--preview-redisplay) #'ignore)
+                ((symbol-function 'keycap--preview-send) (lambda (&rest _) (setq sent (1+ sent)))))
+        ;; A camera move waits for the frame in progress; an edit does not.
+        (setq keycap--preview-rendering 1)
+        (keycap-preview-orbit-left)
+        (should (= sent 0))
+        (should keycap--preview-pending)
+        (keycap--preview-loaded keycap--preview-report)
+        (should (= sent 1))))))
+
 (ert-deftest keycap-test-preview-drag-adapt ()
   (let ((keycap-preview-drag-resolution 0.5)
         (keycap-preview-drag-frame-time 0.05))

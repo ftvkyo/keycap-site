@@ -237,7 +237,8 @@ It turns about the middle of the bounds, by the right-hand rule.")
         ;; A 2D script that grew a third dimension would be sliced at its base.
         (unless keycap--preview-offset-chosen
           (setq keycap--preview-offset (keycap--preview-middle keycap--preview-axis)))
-        (keycap--preview-render)
+        ;; The frame in progress shows the script as it was.
+        (keycap--preview-render t)
         (keycap--preview-hint))
       (keycap--preview-redisplay)
       (force-mode-line-update))))
