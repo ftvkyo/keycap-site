@@ -46,7 +46,7 @@ const WRITTEN: [(&str, &str); 13] = [
 /// `math` that are not fidget's, and the categories they go under; in the
 /// fidget dialect, `draw` and `draw_rgb` are fidget's, as its CLI and viewer
 /// register them
-const OWN: [(&str, &str); 8] = [
+const OWN: [(&str, &str); 19] = [
     ("draw", "keycap"),
     ("draw_rgb", "keycap"),
     ("bounds", "keycap"),
@@ -55,6 +55,17 @@ const OWN: [(&str, &str); 8] = [
     ("svg", "keycap: text and SVG"),
     ("**", "keycap: math"),
     ("pow", "keycap: math"),
+    ("sign", "keycap: math"),
+    ("cbrt", "keycap: math"),
+    ("sinh", "keycap: math"),
+    ("cosh", "keycap: math"),
+    ("tanh", "keycap: math"),
+    ("to_degrees", "keycap: math"),
+    ("to_radians", "keycap: math"),
+    ("exp2", "keycap: math"),
+    ("log", "keycap: math"),
+    ("log2", "keycap: math"),
+    ("log10", "keycap: math"),
 ];
 
 /// A file of `docs/`, a section of the reference

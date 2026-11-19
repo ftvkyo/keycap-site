@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MPL-2.0
 
 //! keycap's math, on numbers and trees alike: the number forms that
-//! fidget's bindings lack, and powers.  Their docs are in `docs/math.toml`,
-//! `docs/arithmetic.toml` and `docs/remap.toml`.
+//! fidget's bindings lack, the tree forms that Rhai's functions lack, and
+//! powers.  Their docs are in `docs/math.toml`, `docs/arithmetic.toml` and
+//! `docs/remap.toml`.
 
 use fidget::context::Tree;
 use fidget::rhai::FromDynamic;
 use rhai::{Dynamic, EvalAltResult, NativeCallContext};
 
 type OfNumber = fn(f64) -> f64;
+type OfTree = fn(Tree) -> Tree;
 
 /// fidget's functions of a tree that Rhai has for floats, or not at all,
 /// as functions of a number.
@@ -28,6 +30,32 @@ const NUMBER: [(&str, OfNumber); 13] = [
     ("round", f64::round),
 ];
 
+/// Functions that Rhai has for floats, as functions of a tree.
+const TREE: [(&str, OfNumber, OfTree); 6] = [
+    ("sinh", f64::sinh, |a| (a.exp() - a.neg().exp()) * 0.5),
+    ("cosh", f64::cosh, |a| (a.exp() + a.neg().exp()) * 0.5),
+    // With exp(2a) alone, whose overflow to infinity still gives 1, where
+    // exp(a) and exp(-a) would divide infinity by infinity
+    ("tanh", f64::tanh, |a| 1.0 - 2.0 / ((a * 2.0).exp() + 1.0)),
+    ("log", f64::log10, |a| a.ln() * std::f32::consts::LOG10_E),
+    ("to_degrees", f64::to_degrees, |a| {
+        a * (180.0 / std::f32::consts::PI)
+    }),
+    ("to_radians", f64::to_radians, |a| {
+        a * (std::f32::consts::PI / 180.0)
+    }),
+];
+
+/// Functions that neither has.
+const NEW: [(&str, OfNumber, OfTree); 4] = [
+    ("cbrt", f64::cbrt, |a| {
+        a.compare(0.0) * exp_ln(a.abs(), 1.0 / 3.0)
+    }),
+    ("log2", f64::log2, |a| a.ln() * std::f32::consts::LOG2_E),
+    ("log10", f64::log10, |a| a.ln() * std::f32::consts::LOG10_E),
+    ("exp2", f64::exp2, |a| (a * std::f32::consts::LN_2).exp()),
+];
+
 /// The least base `exp_ln` takes: above 0, so that its logarithm and the
 /// logarithm's interval stay finite.
 const TINY: f32 = 1e-30;
@@ -41,6 +69,23 @@ pub fn register(engine: &mut rhai::Engine) {
     // Rhai has `ceiling`, and no `square`.
     engine.register_fn("ceil", f64::ceil);
     engine.register_fn("square", |a: f64| a * a);
+    for (name, f, tree) in TREE {
+        engine.register_fn(name, move |a: i64| f(a as f64));
+        engine.register_fn(name, move |a: Tree| tree(a));
+    }
+    for (name, f, tree) in NEW {
+        engine.register_fn(name, move |a: i64| f(a as f64));
+        engine.register_fn(name, f);
+        engine.register_fn(name, move |a: Tree| tree(a));
+    }
+    engine.register_fn("atan", |ctx: NativeCallContext, y: Tree, x: Dynamic| {
+        Ok::<_, Box<EvalAltResult>>(y.atan2(Tree::from_dynamic(&ctx, x, None)?))
+    });
+    engine.register_fn("atan", |ctx: NativeCallContext, y: Dynamic, x: Tree| {
+        Ok::<_, Box<EvalAltResult>>(Tree::from_dynamic(&ctx, y, None)?.atan2(x))
+    });
+    // Rhai's `sign` of a number, an integer, stays.
+    engine.register_fn("sign", |a: Tree| a.compare(0.0));
 
     // Rhai's `atan` of two numbers is `atan2`, of floats only.
     for name in ["atan2", "atan"] {
@@ -49,6 +94,26 @@ pub fn register(engine: &mut rhai::Engine) {
         engine.register_fn(name, |y: f64, x: i64| y.atan2(x as f64));
         engine.register_fn(name, |y: i64, x: f64| (y as f64).atan2(x));
     }
+
+    let log = |ctx: NativeCallContext, a: Dynamic, base: Dynamic| {
+        let a = Tree::from_dynamic(&ctx, a, None)?;
+        let ln = match number(&base) {
+            Some(base) => Tree::constant(base.ln() as f32),
+            None => Tree::from_dynamic(&ctx, base, None)?.ln(),
+        };
+        Ok::<_, Box<EvalAltResult>>(a.ln() / ln)
+    };
+    engine.register_fn(
+        "log",
+        move |ctx: NativeCallContext, a: Tree, base: Dynamic| log(ctx, Dynamic::from(a), base),
+    );
+    engine.register_fn(
+        "log",
+        move |ctx: NativeCallContext, a: Dynamic, base: Tree| log(ctx, a, Dynamic::from(base)),
+    );
+    engine.register_fn("log", |a: i64, base: i64| (a as f64).log(base as f64));
+    engine.register_fn("log", |a: f64, base: i64| a.log(base as f64));
+    engine.register_fn("log", |a: i64, base: f64| (a as f64).log(base));
 
     // fidget's takes only trees for coordinates.
     engine.register_fn(
@@ -153,6 +218,7 @@ mod test {
         ("ln({})", &[0.5, 3.0]),
         ("atan2({}, -2)", &[-1.0, 0.0, 3.0]),
         ("atan2(1, {})", &[-1.0, 0.0, 3.0]),
+        ("atan({}, -2)", &[-1.0, 0.0, 3.0]),
         ("pow({}, 3)", &[-2.0, 0.0, 1.5]),
         ("pow({}, -2.0)", &[-2.0, 0.5, 4.0]),
         ("pow({}, 0)", &[-2.0, 0.0, 4.0]),
@@ -164,6 +230,19 @@ mod test {
         ("pow(0.0, {})", &[0.5, 3.0]),
         ("{} ** 3", &[-2.0, 1.5]),
         ("2.5 ** {}", &[-1.0, 2.0]),
+        ("cbrt({})", &[-27.0, -0.001, 0.0, 8.0]),
+        ("sign({})", &[-2.5, 0.0, 3.0]),
+        ("sinh({})", &[-2.0, 0.0, 1.0]),
+        ("cosh({})", &[-2.0, 0.0, 1.0]),
+        ("tanh({})", &[-30.0, -1.0, 0.0, 0.5, 30.0]),
+        ("to_degrees({})", &[-1.0, 3.0]),
+        ("to_radians({})", &[-90.0, 180.0]),
+        ("exp2({})", &[-1.0, 0.0, 10.0]),
+        ("log({})", &[0.1, 1000.0]),
+        ("log({}, 3)", &[1.0, 81.0]),
+        ("log(8, {})", &[2.0, 0.5]),
+        ("log2({})", &[0.25, 8.0]),
+        ("log10({})", &[0.001, 1000.0]),
     ];
 
     fn engine() -> Engine {
@@ -254,6 +333,8 @@ mod test {
         );
         let (_, result) = engine.run("pow(2, -1)", None, &Overrides::new());
         assert!(result.is_err());
+        // Rhai's own `sign` gives an integer.
+        assert_eq!(eval(&mut engine, "sign(-2.5)").as_int(), Ok(-1));
     }
 
     /// A power of a tree by an exponent that is not whole is 0 where the
@@ -274,6 +355,8 @@ mod test {
             ("x ** 1.5", -4.0, 4.0, [0.0, 8.0], false),
             ("x ** x", -1.0, 2.0, [0.0, 4.0], false),
             ("2 ** x", -1.0, 3.0, [0.5, 8.0], false),
+            ("cbrt(x)", -8.0, 27.0, [-2.0, 3.0], false),
+            ("tanh(x)", -100.0, 100.0, [-1.0, 1.0], false),
         ] {
             let t = tree(source, eval(&mut engine, source));
             let interval = over(&t, lo, hi);

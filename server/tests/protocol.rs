@@ -1747,6 +1747,11 @@ fn keycap_math_takes_numbers_and_trees_alike() {
             "Function not found: ** (Tree, i64)",
         ),
         (
+            "move(tanh(x), [-1, 0, 0])",
+            "tree: 0.7616 at the origin",
+            "Function not found: tanh (Tree)",
+        ),
+        (
             "move(sphere(1).remap(x, 0, 0), [1, 0, 0])",
             "tree: 0 at the origin",
             "Function not found: remap",

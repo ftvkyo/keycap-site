@@ -1,5 +1,6 @@
 # fidget's math functions on trees, as of fidget a386417, and keycap's,
-# which the server registers: their number forms, and powers.
+# which the server registers: their number forms, and functions Rhai has
+# for numbers only, or not at all, on trees too.
 
 kind = "math"
 
@@ -27,6 +28,27 @@ abs(circle(10)) - 0.5
 ```
 """
 
+[sign]
+signatures = ["sign(a: Tree): Tree"]
+doc = """
+The sign of `a`: -1 where it is below 0, 0 where it is 0, and 1 where it is above.
+
+- `a`: a number or a tree
+
+Of a number, it is Rhai's own `sign`, an integer.
+On a tree, it is `compare(a, 0)`, whose gradient is 0.
+
+Notes:
+- NaN (not a number) gives NaN on a tree, and is an error in Rhai's `sign`.
+
+See also: `abs`, `compare`.
+
+Example: a plate whose top edge steps up and down by 3, with the sign of a wave.
+```
+rect([60, 20]).intersection(y - 3 * sign(sin(x / 3)))
+```
+"""
+
 [sqrt]
 signatures = ["sqrt(a: Tree): Tree", "sqrt(a: Vec2): Vec2", "sqrt(a: Vec3): Vec3"]
 doc = """
@@ -39,11 +61,31 @@ Of a vector, it is taken component by component.
 Notes:
 - NaN (not a number) below 0.
 
-See also: `square`, `pow`, `hypot`.
+See also: `square`, `cbrt`, `pow`, `hypot`.
 
 Example: a sphere of radius 10, written as its distance from the origin minus 10.
 ```
 sqrt(x * x + y * y + z * z) - 10
+```
+"""
+
+[cbrt]
+signatures = ["cbrt(a: Tree): Tree"]
+doc = """
+The cube root: the number whose cube is `a`.
+
+- `a`: a number or a tree
+
+Unlike `a ** (1.0 / 3)`, it takes a negative `a`: `cbrt(-8)` is -2.
+
+Notes:
+- On a tree, it is the sign of `a` times `exp(ln(abs(a)) / 3)`, and its gradient is 0 where `a` is 0.
+
+See also: `sqrt`, `pow`.
+
+Example: the side of a cube of 1000 cubic mm.
+```
+cbrt(1000)
 ```
 """
 
@@ -78,7 +120,7 @@ Notes:
 - A negative `n` divides by `a`: where an interval of `a` holds 0, that of the power is NaN, and the preview cannot skip the region.
 - An odd `n` is `a` times an even power of it, whose interval is wider than the power's across 0.
 
-See also: `square`, `sqrt`, `exp`, `ease_in_pow`.
+See also: `square`, `sqrt`, `cbrt`, `exp`, `ease_in_pow`.
 
 References:
 - [Exponentiation by squaring, Wikipedia](https://en.wikipedia.org/wiki/Exponentiation_by_squaring)
@@ -152,13 +194,13 @@ See also: `cos`, `asin`, `atan`, `acosd`.
 """
 
 [atan]
-signatures = ["atan(a: Tree): Tree"]
+signatures = ["atan(a: Tree): Tree", "atan(y: Tree, x: Tree): Tree"]
 doc = """
 The arctangent: the angle whose tangent is `a`, in radians from -π/2 to π/2.
 
 - `a`: a number or a tree
 
-For the angle of a point, all the way round, `atan2` takes both coordinates.
+For the angle of a point, all the way round, `atan2(y, x)` takes both coordinates; `atan(y, x)` is the same, as Rhai has it.
 
 See also: `tan`, `atan2`, `atand`.
 """
@@ -184,6 +226,86 @@ max(disc, z - (5 + 5 * atan2(y, x) / PI))
 ```
 """
 
+[sinh]
+signatures = ["sinh(a: Tree): Tree"]
+doc = """
+The hyperbolic sine: `(exp(a) - exp(-a)) / 2`.
+
+- `a`: a number or a tree
+
+See also: `cosh`, `tanh`, `exp`.
+"""
+
+[cosh]
+signatures = ["cosh(a: Tree): Tree"]
+doc = """
+The hyperbolic cosine: `(exp(a) + exp(-a)) / 2`, 1 at 0 and rising on either side.
+
+- `a`: a number or a tree
+
+`c * cosh(x / c)` is a catenary, the curve of a hanging chain.
+
+See also: `sinh`, `tanh`, `exp`.
+
+References:
+- [Catenary, Wikipedia](https://en.wikipedia.org/wiki/Catenary)
+
+Example: a plate with a catenary arch cut through it.
+```
+let arch = y - 30 + 10 * cosh(x / 10);
+rect([60, 30], #{anchor: "front"}).difference(arch)
+```
+"""
+
+[tanh]
+signatures = ["tanh(a: Tree): Tree"]
+doc = """
+The hyperbolic tangent: from -1 to 1, 0 at 0, with a slope of 1 there.
+
+- `a`: a number or a tree
+
+`k * tanh(a / k)` follows `a` near 0 and levels off at -`k` and `k`: a smooth `clamp`.
+
+See also: `clamp`, `sinh`, `cosh`.
+
+Example: a plate whose top edge rises with x near 0 and levels off 5 above and below.
+```
+rect([60, 30]).intersection(y - 5 * tanh(x / 5))
+```
+"""
+
+[to_degrees]
+signatures = ["to_degrees(a: Tree): Tree"]
+doc = """
+An angle in radians, in degrees: `a * 180 / PI`.
+
+- `a`: the angle, in radians, a number or a tree
+
+See also: `to_radians`, `atan2d`.
+
+Example: each point's angle about the Z axis, from -180 to 180 degrees, as `atan2d(y, x)` gives it.
+```
+to_degrees(atan2(y, x))
+```
+"""
+
+[to_radians]
+signatures = ["to_radians(a: Tree): Tree"]
+doc = """
+An angle in degrees, in radians: `a * PI / 180`.
+
+- `a`: the angle, in degrees, a number or a tree
+
+fidget's `sin`, `cos` and `tan` take radians; the prelude's `sind`, `cosd` and `tand` take degrees.
+
+See also: `to_degrees`, `sind`.
+
+Example: a quarter turn, in radians.
+```
+to_radians(90)
+```
+"""
+
 [exp]
 signatures = ["exp(a: Tree): Tree"]
 doc = """
@@ -191,7 +313,17 @@ The exponential function: e, Euler's number, to the power `a`.
 
 - `a`: a number or a tree
 
-See also: `ln`, `pow`, `E`.
+See also: `exp2`, `ln`, `pow`, `E`.
+"""
+
+[exp2]
+signatures = ["exp2(a: Tree): Tree"]
+doc = """
+2 to the power `a`.
+
+- `a`: a number or a tree
+
+See also: `exp`, `log2`, `pow`.
 """
 
 [ln]
@@ -204,7 +336,54 @@ The natural logarithm, to base e.
 Notes:
 - NaN (not a number) below 0, and minus infinity at 0.
 
-See also: `exp`, `LN_2`.
+See also: `exp`, `log`, `log2`, `log10`, `LN_2`.
+"""
+
+[log]
+signatures = ["log(a: Tree): Tree", "log(a: Tree, base: Tree): Tree"]
+doc = """
+The logarithm to base 10, or to `base`.
+
+- `a`: a number or a tree, above 0
+- `base`: the base, above 0 and not 1
+
+`log(a)` is `log10(a)`, as Rhai has it; `ln` is the natural logarithm.
+
+Notes:
+- NaN (not a number) below 0, and minus infinity at 0, as for `ln`.
+
+See also: `ln`, `log2`, `log10`.
+
+Example: how many times 3 goes into 81 as a factor.
+```
+log(81, 3)
+```
+"""
+
+[log2]
+signatures = ["log2(a: Tree): Tree"]
+doc = """
+The logarithm to base 2.
+
+- `a`: a number or a tree, above 0
+
+Notes:
+- NaN (not a number) below 0, and minus infinity at 0, as for `ln`.
+
+See also: `exp2`, `log`, `ln`.
+"""
+
+[log10]
+signatures = ["log10(a: Tree): Tree"]
+doc = """
+The logarithm to base 10.
+
+- `a`: a number or a tree, above 0
+
+Notes:
+- NaN (not a number) below 0, and minus infinity at 0, as for `ln`.
+
+See also: `log`, `ln`.
 """
 
 [floor]
