@@ -174,6 +174,8 @@ until the script settles.")
   "The drag's last frame, as (SHARE . SECONDS), or nil.")
 
 (defvar-local keycap--preview-image nil)
+(defvar-local keycap--preview-frames 0
+  "How many frames the preview asked for, which number their files.")
 (defvar-local keycap--preview-scale nil
   "How much denser than the window the image shown is.")
 (defvar-local keycap--preview-size nil
@@ -216,9 +218,9 @@ It turns about the middle of the bounds, by the right-hand rule.")
   "Non-nil when the slice is tilted."
   (not (and (zerop (car keycap--preview-tilt)) (zerop (cdr keycap--preview-tilt)))))
 
-(defun keycap--preview-frame-file ()
-  "Where the server writes the frame."
-  (expand-file-name "frame.ppm" keycap--preview-directory))
+(defun keycap--preview-frame-file (&optional n)
+  "Where the server writes frame N, or a snapshot's frame."
+  (expand-file-name (if n (format "frame-%d.ppm" n) "frame.ppm") keycap--preview-directory))
 
 (defun keycap--preview-region ()
   "The bounds in use, as (LOWER UPPER), unbounded axes nil, or nil."
@@ -387,18 +389,25 @@ LIVE is non-nil for a frame with fewer pixels, which a newer one soon
 follows."
   (let ((preview (current-buffer))
         (request (append (keycap-preview-request width height) (when live '((live . t)))))
+        ;; A file of its own, which a later frame cannot overwrite while
+        ;; this one is shown
+        (file (keycap--preview-frame-file (setq keycap--preview-frames (1+ keycap--preview-frames))))
         (dragged keycap--preview-dragging)
         id)
+    (setf (alist-get 'output request) file)
     (condition-case error
         (progn
           (setq id (with-current-buffer keycap--preview-source
                      (keycap--request request
                                       (lambda (reply)
-                                        (when (buffer-live-p preview)
-                                          (with-current-buffer preview
-                                            ;; Unless a newer render superseded it
-                                            (when (eql id keycap--preview-rendering)
-                                              (keycap--preview-rendered reply scale dragged live))))))))
+                                        ;; Unless a newer render superseded it
+                                        (if (and (buffer-live-p preview)
+                                                 (eql id (buffer-local-value 'keycap--preview-rendering
+                                                                             preview)))
+                                            (with-current-buffer preview
+                                              (keycap--preview-rendered reply scale dragged live file))
+                                          (when (file-exists-p file)
+                                            (delete-file file)))))))
           (setq keycap--preview-rendering id
                 keycap--preview-live live
                 keycap--preview-pending nil
@@ -416,8 +425,8 @@ follows."
     (with-current-buffer preview
       (force-mode-line-update))))
 
-(defun keycap--preview-rendered (reply scale dragged live)
-  "Show the frame the server's REPLY is about, rendered SCALE times denser.
+(defun keycap--preview-rendered (reply scale dragged live file)
+  "Show the frame in FILE that the server's REPLY is about, SCALE times denser.
 DRAGGED is non-nil for a frame of a drag, LIVE for one with fewer pixels.
 Then render again if needed."
   (setq keycap--preview-rendering nil)
@@ -436,7 +445,7 @@ Then render again if needed."
     (setq keycap--preview-frame reply
           keycap--preview-render-error nil
           keycap--preview-readout nil)
-    (keycap--preview-show scale)
+    (keycap--preview-show scale file)
     ;; The reading was of the last frame; the mouse may still be over this one.
     (when-let* ((keycap--preview-leave-timer)
                 (window (get-buffer-window (current-buffer) t))
@@ -476,17 +485,16 @@ no lower than that."
   (when (and keycap--preview-image (display-images-p))
     (image-flush keycap--preview-image)))
 
-(defun keycap--preview-show (scale)
-  "Show the frame, rendered for a SCALE times denser display."
-  (keycap--preview-flush)
-  (let ((file (keycap--preview-frame-file)))
+(defun keycap--preview-show (scale file)
+  "Show the frame in FILE, rendered for a SCALE times denser display.
+Emacs reads the file as it displays it, rather than here, in the
+process filter; the file of the frame shown before goes."
+  (let ((shown (and keycap--preview-image (image-property keycap--preview-image :file))))
+    (keycap--preview-flush)
     (setq keycap--preview-scale scale
-          keycap--preview-image
-          (create-image (with-temp-buffer
-                          (set-buffer-multibyte nil)
-                          (insert-file-contents-literally file)
-                          (buffer-string))
-                        'pbm t :scale (/ 1.0 scale))))
+          keycap--preview-image (create-image file 'pbm nil :scale (/ 1.0 scale)))
+    (when (and shown (not (equal shown file)) (file-exists-p shown))
+      (delete-file shown)))
   (keycap--preview-redisplay))
 
 (defun keycap--preview-redisplay ()

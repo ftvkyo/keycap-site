@@ -887,7 +887,7 @@ it runs the hooks that stop its server and kill its preview."
         (cl-letf (((symbol-function 'keycap--preview-show) #'ignore)
                   ((symbol-function 'float-time) (lambda (&rest _) 0.4)))
           (setq keycap--preview-render-start 0.0)
-          (keycap--preview-rendered '((ms . 400)) 0.5 t t))
+          (keycap--preview-rendered '((ms . 400)) 0.5 t t "frame-1.ppm"))
         (keycap--preview-render)
         (should (equal sent '(75 50 0.25 t)))
         (setq keycap--preview-dragging nil)
@@ -1630,7 +1630,10 @@ it runs the hooks that stop its server and kill its preview."
 
 (defun keycap-test-frame-size (preview)
   "The width and height in the header of PREVIEW's PPM frame."
-  (let ((file (with-current-buffer preview (keycap--preview-frame-file))))
+  (let ((file (with-current-buffer preview
+                (if keycap--preview-image
+                    (image-property keycap--preview-image :file)
+                  (keycap--preview-frame-file)))))
     (with-temp-buffer
       (insert-file-contents-literally file nil 0 32)
       (should (looking-at "P6\n\\([0-9]+\\) \\([0-9]+\\)\n255\n"))
@@ -1691,7 +1694,10 @@ The preview renders into a 300 by 200 window; batch Emacs has none."
         (keycap--preview-render t)
         (should-not keycap--preview-pending)
         (keycap-test-preview-idle)
-        (should (= shown 1))))))
+        (should (= shown 1))))
+    ;; Only the frame shown keeps its file.
+    (should (equal (directory-files keycap--preview-directory t "\\.ppm\\'")
+                   (list (image-property keycap--preview-image :file))))))
 
 (ert-deftest keycap-test-preview-2d ()
   (skip-unless keycap-test-server)
