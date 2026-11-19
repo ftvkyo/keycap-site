@@ -410,7 +410,7 @@ fn _signed_sqrt(dd, sign, line) {
 /// hypot(x - clamp(x, -10, 10), y) - 3
 /// ```
 fn clamp(v, lo, hi) {
-    min(max(v, lo), hi)
+    min(max(_float(v), _float(lo)), _float(hi))
 }
 
 /// lerp(a: Tree | Tree[], b: Tree | Tree[], t: Tree): Tree | Tree[]
@@ -502,7 +502,7 @@ fn linstep(e0, e1, v) {
 ///     .intersection(max(-z, z - 40))
 /// ```
 fn smoothstep(e0, e1, v) {
-    let t = clamp((v - e0) / _float(e1 - e0), 0.0, 1.0);
+    let t = clamp((_float(v) - e0) / _float(e1 - e0), 0.0, 1.0);
     t * t * (3.0 - 2.0 * t)
 }
 
