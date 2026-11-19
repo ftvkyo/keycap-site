@@ -174,13 +174,26 @@ impl Gpu {
     }
 }
 
+/// The fewest registers a tape takes on the GPU.  fidget-wgpu builds its
+/// interpreter for 8, 16, 32, 64, 128, 192 or 255 registers and runs a tape
+/// on the fewest it fits; on RADV those below 128 run slower, and the one
+/// for 64 up to a hundred times slower.
+const REGISTERS: usize = 65;
+
 fn vm(tree: &Tree) -> Result<VmShape, String> {
-    let mut graph = Graph::new();
-    let node = graph.import(tree);
-    let shape = VmShape::new(&graph, node).map_err(|error| error.to_string())?;
+    let import = |tree: &Tree| {
+        let mut graph = Graph::new();
+        let node = graph.import(tree);
+        VmShape::new(&graph, node).map_err(|error| error.to_string())
+    };
+    let mut shape = import(tree)?;
+    let mut registers = shape.inner().data().slot_count();
+    if registers < REGISTERS {
+        shape = import(&tree.max(held(REGISTERS)))?;
+        registers = shape.inner().data().slot_count();
+    }
     // The GPU's interpreter has no memory slots, so a tape that spills
     // registers into them evaluates to nonsense, and has hung the device.
-    let registers = shape.inner().data().slot_count();
     if registers > usize::from(u8::MAX) {
         return Err(format!(
             "the shape needs {registers} registers, more than the GPU's {}",
@@ -188,6 +201,16 @@ fn vm(tree: &Tree) -> Result<VmShape, String> {
         ));
     }
     Ok(shape)
+}
+
+/// A value below any field that holds `n` values at once, so that a tape
+/// with it takes at least `n` registers; a `max` with it changes no value,
+/// and every tile's tape leaves it out.
+fn held(n: usize) -> Tree {
+    let values: Vec<Tree> = (0..n).map(|i| Tree::x() + i as f32).collect();
+    let sum = values.iter().cloned().reduce(|a, b| a + b);
+    let squares = values.iter().map(Tree::square).reduce(|a, b| a + b);
+    (sum.expect("n > 0") + squares.expect("n > 0")).min(-1e30f32)
 }
 
 impl Device {
@@ -781,6 +804,25 @@ mod test {
         let tile = |side| volume([side; 2], view.depth);
         let (small, large) = (tile(MIN_TILE), tile(8 * MIN_TILE));
         Cost::through((small, took(small)), (large, took(large)))
+    }
+
+    /// A small shape takes the GPU's registers for 128 and keeps its
+    /// values.
+    #[test]
+    fn small_tapes_are_held_to_the_fast_registers() {
+        let sphere = (Tree::x().square() + Tree::y().square() + Tree::z().square()).sqrt() - 1.0f32;
+        let shape = vm(&sphere).expect("it compiles");
+        assert!(shape.inner().data().slot_count() >= REGISTERS);
+        let tape = shape.point_tape(Default::default());
+        let mut eval = VmShape::new_point_eval();
+        for (p, expected) in [
+            ([0.0, 0.0, 0.0], -1.0),
+            ([3.0, 0.0, 0.0], 2.0),
+            ([0.0, -2.0, 0.0], 1.0),
+        ] {
+            let (v, _) = eval.eval(&tape, p[0], p[1], p[2]).expect("it evaluates");
+            assert_eq!(v, expected);
+        }
     }
 
     /// A drag's frames, from half the full resolution down to a quarter
