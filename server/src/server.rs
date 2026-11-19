@@ -22,7 +22,7 @@ use serde_json::{Map, Value, json};
 use crate::bounds::{self, Box3, Fitted};
 use crate::camera::{self, View2, View3};
 use crate::diagnostic::{Diagnostic, Location};
-use crate::gpu::Gpu;
+use crate::gpu::{BySize, Gpu};
 use crate::prefer;
 use crate::protocol::{
     self, Axis, Backend, BoundsChoice, Eval, Export, Incoming, Interrupts, Op, Probe, Render,
@@ -140,6 +140,8 @@ struct Server {
 /// The render thread's
 struct Renderer {
     gpu: Gpu,
+    /// The seconds the CPU's latest 3D frames took, of whatever scene
+    cpu: BySize<f64>,
     interrupts: Interrupts,
     shared: Arc<Shared>,
 }
@@ -167,6 +169,7 @@ pub fn run(prelude: Option<&Path>, threads: Option<usize>, budget: Duration) {
             mesh::lower_priority(render::NICE);
             let mut renderer = Renderer {
                 gpu: Gpu::new(budget),
+                cpu: BySize::default(),
                 interrupts,
                 shared,
             };
@@ -684,10 +687,10 @@ impl Renderer {
         }
 
         let scene = self.shared.scene().ok_or("no script is loaded")?;
-        let gpu = &mut self.gpu;
+        let (gpu, cpu) = (&mut self.gpu, &mut self.cpu);
         let (region, bounds) = scene.region(request.bounds);
         let rendered = if request.view.is_3d() {
-            render3(&scene, gpu, &request, (&region, bounds), &cancel)?
+            render3(&scene, (gpu, cpu), &request, (&region, bounds), &cancel)?
         } else {
             render2(&scene, gpu, &request, &region, &cancel)?
         };
@@ -726,28 +729,51 @@ fn lock<T>(mutex: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
 }
 
 /// A 3D frame of `region`, the region of `bounds`, on the GPU when asked
-/// and possible; `None` once cancelled.
+/// and possible, or when it is the sooner and asked to choose; `None` once
+/// cancelled.  `cpu` keeps how long the CPU's frames took.
 fn render3(
     scene: &Scene,
-    gpu: &mut Gpu,
+    (gpu, cpu): (&mut Gpu, &mut BySize<f64>),
     request: &Render,
     (region, bounds): (&Box3, BoundsChoice),
     cancel: &CancelToken,
 ) -> Result<Option<Rendered>, String> {
     let view = camera::view3(region, &request.camera, request.width, request.height);
     let (kind, background) = (request.view, request.background);
-    let on_gpu = (request.backend == Backend::Gpu).then(|| {
+    let size = [view.width, view.height, view.depth];
+    let on_gpu = |gpu: &mut Gpu| {
         gpu.run(scene.id, |device| {
             device.render3(scene, bounds, &view, request, cancel)
         })
-    });
+    };
+    let on_gpu = match request.backend {
+        Backend::Cpu => None,
+        Backend::Gpu => Some(on_gpu(gpu)),
+        Backend::Auto => {
+            // A GPU far slower than the CPU on the scenes before is not
+            // measured again, which would keep it and the desktop busy.
+            let known = gpu.run(scene.id, |d| Ok(d.known3(&view, request)));
+            let expected = match known {
+                Ok(Some(seconds)) if cpu_sooner(cpu, size, seconds / FAR) => Ok(seconds),
+                _ => gpu.run(scene.id, |d| d.expect3(scene, bounds, &view, request)),
+            };
+            match expected {
+                Ok(seconds) if cpu_sooner(cpu, size, seconds) => None,
+                Ok(_) => Some(on_gpu(gpu)),
+                Err(why) => Some(Err(why)),
+            }
+        }
+    };
     let (frame, backend, fallback) = match on_gpu {
         Some(Ok(frame)) => (frame, Backend::Gpu, None),
-        other => (
-            render::render3(scene, bounds, &view, kind, background, cancel)?,
-            Backend::Cpu,
-            other.and_then(Result::err),
-        ),
+        other => {
+            let start = Instant::now();
+            let frame = render::render3(scene, bounds, &view, kind, background, cancel)?;
+            if frame.is_some() {
+                cpu.insert(size, start.elapsed().as_secs_f64());
+            }
+            (frame, Backend::Cpu, other.and_then(Result::err))
+        }
     };
     let Some(frame) = frame else {
         return Ok(None);
@@ -765,8 +791,8 @@ fn render3(
     }))
 }
 
-/// A 2D frame of `region`, on the GPU when asked and possible; `None` once
-/// cancelled.
+/// A 2D frame of `region`, on the GPU when asked, or asked to choose, and
+/// possible; `None` once cancelled.
 fn render2(
     scene: &Scene,
     gpu: &mut Gpu,
@@ -776,7 +802,7 @@ fn render2(
 ) -> Result<Option<Rendered>, String> {
     let (width, height, kind) = (request.width, request.height, request.view);
     let view = camera::view2(region, &request.camera, &request.slice, width, height);
-    let on_gpu = (request.backend == Backend::Gpu).then(|| {
+    let on_gpu = (request.backend != Backend::Cpu).then(|| {
         gpu.run(scene.id, |device| {
             device.field2(scene, &view, kind, width, height)
         })
@@ -804,6 +830,25 @@ fn render2(
         },
         empty: !field.distance.iter().any(|p| p.inside()),
     }))
+}
+
+/// GPU frames expected to take longer than this many seconds are tried on
+/// the CPU, until it has rendered one of their size
+const SLOW: f64 = 0.25;
+
+/// How many times sooner than the GPU the CPU is far sooner
+const FAR: f64 = 4.0;
+
+/// Whether the CPU would render a 3D frame of `size` sooner than the GPU,
+/// which expects to take `gpu` seconds: when the CPU's latest frame of the
+/// size nearest, scaled to this one's pixels, took less, though of another
+/// scene, as an edit changes little.
+fn cpu_sooner(cpu: &BySize<f64>, size: [u32; 3], gpu: f64) -> bool {
+    let pixels = |[w, h, _]: [u32; 3]| f64::from(w) * f64::from(h);
+    match cpu.nearest(size) {
+        Some((nearest, seconds)) => seconds * pixels(size) / pixels(nearest) < gpu,
+        None => gpu > SLOW,
+    }
 }
 
 fn output(run: &Run) -> Vec<String> {
@@ -947,5 +992,23 @@ fn literal(value: &Dynamic) -> String {
         )
     } else {
         format!("{value:?}")
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn the_cpu_is_sooner_once_it_was() {
+        let mut cpu = BySize::default();
+        assert!(!cpu_sooner(&cpu, [800, 600, 800], 0.1));
+        assert!(cpu_sooner(&cpu, [800, 600, 800], 1.0));
+        cpu.insert([800, 600, 800], 0.4);
+        assert!(!cpu_sooner(&cpu, [800, 600, 800], 0.3));
+        assert!(cpu_sooner(&cpu, [800, 600, 800], 0.5));
+        // A quarter of the pixels, a quarter of the time
+        assert!(cpu_sooner(&cpu, [400, 300, 400], 0.15));
+        assert!(!cpu_sooner(&cpu, [400, 300, 400], 0.05));
     }
 }

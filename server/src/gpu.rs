@@ -370,21 +370,58 @@ impl Device {
         Ok(())
     }
 
-    /// Renders a 3D view of the shapes cut to the region of `bounds`, in
-    /// `request`'s view and background, or `None` once `cancel` fires.  The
-    /// GPU finds the surfaces, and their occlusion when the frame is one
-    /// tile, unless it is to be `reproducible`; they are lit as the CPU's
-    /// are.  A `live` frame goes in shorter submissions.
-    pub fn render3(
+    /// The seconds a 3D frame of the shapes cut to the region of `bounds`
+    /// is expected to take, measuring their tiles if need be.
+    pub fn expect3(
         &mut self,
         scene: &Scene,
         bounds: BoundsChoice,
         view: &View3,
         request: &Render,
-        cancel: &CancelToken,
-    ) -> Result<Option<Frame3>, String> {
-        let (kind, reproducible) = (request.view, request.reproducible);
-        let background = cpu::to_rgb(request.background);
+    ) -> Result<f64, String> {
+        let (cost, _) = self.plan3(scene, bounds, view, request)?;
+        Ok(self.seconds3(&cost, view, request))
+    }
+
+    /// The seconds a 3D frame is expected to take from the tile costs
+    /// known, of these shapes or the ones before them, without measuring.
+    pub fn known3(&self, view: &View3, request: &Render) -> Option<f64> {
+        let size = [view.width, view.height, view.depth];
+        let cost = self.shapes.as_ref()?.costs.of(size)?;
+        Some(self.seconds3(&cost, view, request))
+    }
+
+    /// The seconds a 3D frame takes at `cost`, in the tiles it goes in.
+    fn seconds3(&self, cost: &Cost, view: &View3, request: &Render) -> f64 {
+        let [w, h] = self.tile3_size(cost, view, request);
+        let tiles = view.width.div_ceil(w) * view.height.div_ceil(h);
+        f64::from(tiles) * cost.of(volume([w, h], view.depth))
+    }
+
+    /// The size of a 3D frame's tiles at `cost`.  A `live` frame goes in
+    /// shorter submissions.
+    fn tile3_size(&self, cost: &Cost, view: &View3, request: &Render) -> [u32; 2] {
+        // Shorter, but not so short that their latency is most of their
+        // time, as on a GPU busy with others' work
+        let budget = if request.live {
+            let latency = Duration::from_secs_f64(2.0 * cost.latency);
+            (self.budget / LIVE).max(latency).min(self.budget)
+        } else {
+            self.budget
+        };
+        let side = cost.side(budget, view);
+        [side.min(view.width), side.min(view.height)]
+    }
+
+    /// The cost of tiles of a 3D frame, measured if need be, and their
+    /// size; an error for shapes too slow for the GPU.
+    fn plan3(
+        &mut self,
+        scene: &Scene,
+        bounds: BoundsChoice,
+        view: &View3,
+        request: &Render,
+    ) -> Result<(Cost, [u32; 2]), String> {
         self.upload(scene, Orientation::Solid(bounds))?;
         let (width, height) = (view.width, view.height);
         let size = [width, height, view.depth];
@@ -409,16 +446,26 @@ impl Device {
                 smallest * 1e3
             ));
         }
-        // Shorter, but not so short that their latency is most of their
-        // time, as on a GPU busy with others' work
-        let budget = if request.live {
-            let latency = Duration::from_secs_f64(2.0 * cost.latency);
-            (self.budget / LIVE).max(latency).min(self.budget)
-        } else {
-            self.budget
-        };
-        let side = cost.side(budget, view);
-        let [w, h] = [side.min(width), side.min(height)];
+        Ok((cost, self.tile3_size(&cost, view, request)))
+    }
+
+    /// Renders a 3D view of the shapes cut to the region of `bounds`, in
+    /// `request`'s view and background, or `None` once `cancel` fires.  The
+    /// GPU finds the surfaces, and their occlusion when the frame is one
+    /// tile, unless it is to be `reproducible`; they are lit as the CPU's
+    /// are.
+    pub fn render3(
+        &mut self,
+        scene: &Scene,
+        bounds: BoundsChoice,
+        view: &View3,
+        request: &Render,
+        cancel: &CancelToken,
+    ) -> Result<Option<Frame3>, String> {
+        let (kind, reproducible) = (request.view, request.reproducible);
+        let background = cpu::to_rgb(request.background);
+        let (width, height) = (view.width, view.height);
+        let (cost, [w, h]) = self.plan3(scene, bounds, view, request)?;
         let mut slowest = Duration::ZERO;
         let voxels = if [w, h] == [width, height] {
             let (voxels, took) = self.tile3(view, [0, 0], [w, h])?;
@@ -449,7 +496,7 @@ impl Device {
             // they tell the latency, as a small frame's do.
             let tiled = [w, h] != [width, height] && !request.live;
             let cost = cost.refit(slowest, volume([w, h], view.depth), tiled);
-            shapes.costs.insert(size, cost);
+            shapes.costs.insert([width, height, view.depth], cost);
         }
 
         let depth: Vec<u32> = voxels.iter().map(|v| v.z).collect();
@@ -731,55 +778,60 @@ impl Cost {
     }
 }
 
-/// The costs of tiles in frames of each size, as width, height and depth,
-/// for the latest few sizes.  A camera drag's small frames thus leave the
-/// full frames' cost as it was.
-#[derive(Default)]
-struct Costs {
-    sizes: Vec<([u32; 3], Cost)>,
+/// What frames of each size cost, as width, height and depth, for the
+/// latest few sizes.  A camera drag's small frames thus leave the full
+/// frames' cost as it was.
+pub struct BySize<T> {
+    sizes: Vec<([u32; 3], T)>,
 }
 
-impl Costs {
+/// The costs of tiles in frames of each size
+type Costs = BySize<Cost>;
+
+impl<T> Default for BySize<T> {
+    fn default() -> Self {
+        BySize { sizes: vec![] }
+    }
+}
+
+impl<T: Copy> BySize<T> {
     /// The most sizes kept: a drag's, the full frame's and room to spare
     const SIZES: usize = 16;
 
-    /// The cost in frames of `size`, or else of the size nearest it
-    fn of(&self, size: [u32; 3]) -> Option<Cost> {
+    /// The size nearest `size` that has a cost, and that cost
+    pub fn nearest(&self, size: [u32; 3]) -> Option<([u32; 3], T)> {
         let voxels = |[w, h, depth]: [u32; 3]| volume([w, h], depth);
         let apart = |other: [u32; 3]| (voxels(other) / voxels(size)).ln().abs();
         let nearest = self
             .sizes
             .iter()
             .min_by(|a, b| apart(a.0).total_cmp(&apart(b.0)));
-        nearest.map(|&(_, cost)| cost)
+        nearest.copied()
     }
 
-    /// The costs as those of the shapes before the next ones
-    fn earlier(self) -> Costs {
-        let sizes = self.sizes.into_iter();
-        Costs {
-            sizes: sizes
-                .map(|(size, cost)| {
-                    (
-                        size,
-                        Cost {
-                            earlier: true,
-                            ..cost
-                        },
-                    )
-                })
-                .collect(),
-        }
+    /// The cost of frames of `size`, or else of the size nearest it
+    fn of(&self, size: [u32; 3]) -> Option<T> {
+        self.nearest(size).map(|(_, cost)| cost)
     }
 
     /// Keeps `cost` for frames of `size`, dropping the oldest size when
     /// there are too many.
-    fn insert(&mut self, size: [u32; 3], cost: Cost) {
+    pub fn insert(&mut self, size: [u32; 3], cost: T) {
         self.sizes.retain(|&(other, _)| other != size);
-        if self.sizes.len() == Costs::SIZES {
+        if self.sizes.len() == Self::SIZES {
             self.sizes.remove(0);
         }
         self.sizes.push((size, cost));
+    }
+}
+
+impl Costs {
+    /// The costs as those of the shapes before the next ones
+    fn earlier(mut self) -> Costs {
+        for (_, cost) in &mut self.sizes {
+            cost.earlier = true;
+        }
+        self
     }
 }
 

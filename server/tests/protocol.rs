@@ -1148,6 +1148,31 @@ fn gpu_frames_too_slow_for_it_go_to_the_cpu() {
     }
 }
 
+/// Asked to choose, the server renders where the frame is sooner, without
+/// calling it a fallback.
+#[test]
+fn auto_frames_go_where_they_render_sooner() {
+    if std::env::var("KEYCAP_SERVER_TEST_GPU").as_deref() != Ok("1") {
+        return;
+    }
+    let dir = scratch("auto");
+    let mut server = Server::start(&[]);
+    server.load("draw(sphere(1));\n", None);
+    let output = dir.join("frame.ppm");
+    let cpu = server.render(&output, json!({}));
+    let cpu_pixels = read_ppm(&output).2;
+    for _ in 0..3 {
+        let reply = server.render(&output, json!({"backend": "auto"}));
+        assert!(reply.get("fallback").is_none(), "{reply}");
+        let differing = cpu_pixels
+            .iter()
+            .zip(&read_ppm(&output).2)
+            .filter(|(a, b)| (0..3).any(|i| a[i].abs_diff(b[i]) > 24))
+            .count();
+        assert!(differing < cpu_pixels.len() / 50, "{reply}, {cpu}");
+    }
+}
+
 // --- mesh ---
 
 /// An export read before stdin closed is still answered, as a CLI that

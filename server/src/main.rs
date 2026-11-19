@@ -112,9 +112,13 @@
 //!   halfspace does) and `mono` (inside or outside) slice it in 2D
 //! - `bounds`: `script` or `fitted`, the region shown; `script` falls back
 //!   to `fitted` when the script sets none
-//! - `backend`: `gpu` or `cpu`; `gpu` falls back to `cpu` without a usable
-//!   adapter, for shapes the GPU cannot evaluate, and for a frame that lost
-//!   the GPU's device, and so does every later frame of that scene
+//! - `backend`: `gpu`, `cpu` or `auto`; `gpu` falls back to `cpu` without a
+//!   usable adapter, for shapes the GPU cannot evaluate, and for a frame
+//!   that lost the GPU's device, and so does every later frame of that
+//!   scene.  `auto` renders a 3D frame on the CPU when its latest frame of
+//!   about that size, of whatever scene, took less than the GPU expects
+//!   this one to, or before it has one, when the GPU expects to take more
+//!   than a quarter of a second; otherwise as `gpu`
 //! - `reproducible`: whether a `gpu` frame is to be the same bytes in every
 //!   run, as `cpu` frames are; its ambient occlusion then comes from the
 //!   CPU, which is slower.  False by default: the GPU finds it from samples

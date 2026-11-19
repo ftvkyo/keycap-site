@@ -188,6 +188,8 @@ pub enum Backend {
     #[default]
     Gpu,
     Cpu,
+    /// Whichever renders the frame sooner
+    Auto,
 }
 
 #[derive(Deserialize, Clone, Copy, Debug)]
