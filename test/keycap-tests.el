@@ -870,18 +870,56 @@ it runs the hooks that stop its server and kill its preview."
         (setq keycap--preview-dragging t
               keycap--preview-drag-share 0.5)
         (keycap--preview-render)
-        (should (equal sent '(150 100 0.5)))
+        (should (equal sent '(150 100 0.5 t)))
         ;; A frame far slower than `keycap-preview-drag-frame-time'
         ;; makes the next one smaller.
         (cl-letf (((symbol-function 'keycap--preview-show) #'ignore)
                   ((symbol-function 'float-time) (lambda (&rest _) 0.4)))
           (setq keycap--preview-render-start 0.0)
-          (keycap--preview-rendered '((ms . 400)) 0.5 t))
+          (keycap--preview-rendered '((ms . 400)) 0.5 t t))
         (keycap--preview-render)
-        (should (equal sent '(75 50 0.25)))
+        (should (equal sent '(75 50 0.25 t)))
         (setq keycap--preview-dragging nil)
         (keycap--preview-render)
-        (should (equal sent '(300 200 1)))))))
+        (should (equal sent '(300 200 1 nil)))))))
+
+(ert-deftest keycap-test-preview-edit-resolution ()
+  (keycap-test-with-preview-state
+    (setq-local keycap--preview (current-buffer))
+    (let ((window (selected-window))
+          (keycap--preview-source (current-buffer))
+          (keycap-preview-drag-resolution 0.5)
+          sent)
+      (cl-letf (((symbol-function 'get-buffer-window) (lambda (&rest _) window))
+                ((symbol-function 'window-body-width) (lambda (&rest _) 300))
+                ((symbol-function 'window-body-height) (lambda (&rest _) 200))
+                ((symbol-function 'window-pixel-height) (lambda (&rest _) 0))
+                ((symbol-function 'frame-scale-factor) (lambda (&rest _) 1))
+                ((symbol-function 'process-live-p) (lambda (&rest _) t))
+                ((symbol-function 'keycap--preview-redisplay) #'ignore)
+                ((symbol-function 'keycap--preview-send)
+                 (lambda (&rest args)
+                   (setq sent args
+                         keycap--preview-live (nth 3 args)))))
+        ;; Quick frames follow edits in full.
+        (setq keycap--preview-full-ms 50)
+        (keycap--preview-loaded keycap--preview-report)
+        (should (equal sent '(300 200 1 nil)))
+        ;; Slow ones in a quarter of the pixels, then in full once the
+        ;; script settles.
+        (setq keycap--preview-full-ms 900)
+        (keycap--preview-loaded keycap--preview-report)
+        (should (equal sent '(150 100 0.5 t)))
+        (cancel-timer keycap--preview-settle-timer)
+        (keycap--preview-settled (current-buffer))
+        (should (equal sent '(300 200 1 nil)))
+        ;; A frame in full needs none again.
+        (setq sent nil)
+        (keycap--preview-settled (current-buffer))
+        (should-not sent)
+        ;; Nor does a camera move have fewer pixels.
+        (keycap-preview-orbit-left)
+        (should (equal sent '(300 200 1 nil)))))))
 
 (ert-deftest keycap-test-preview-edit-supersedes ()
   (keycap-test-with-preview-state

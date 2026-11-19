@@ -355,6 +355,7 @@ Cut acrylic only if it is cast acrylic (PMMA), extract the fumes of every job, a
 - User Option: keycap-preview-projection :: ~orthographic~ or ~perspective~.
 - User Option: keycap-preview-output-lines :: Lines of ~print~ output shown below the image, at most.
 - User Option: keycap-preview-drag-resolution :: The share of the full resolution a camera drag's frames start at and never exceed, 0.5 by default; the frame the drag ends on is in full.
+  When a frame in full takes more than a fifth of a second, an edit renders at this share too, and in full once the script has not changed for a second.
 - User Option: keycap-preview-drag-frame-time :: Seconds a frame should take while the mouse drags the camera, 0.05 by default.
   Slower frames have fewer pixels, down to a quarter of the full resolution each way, or to the share below which they rendered no sooner; ~nil~ keeps a drag at ~keycap-preview-drag-resolution~.
 - User Option: keycap-preview-probe-interval :: Seconds between two readings of the field under the mouse.

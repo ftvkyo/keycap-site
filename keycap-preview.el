@@ -74,7 +74,9 @@ Without a `bounds' call in the script, the fitted ones stand in."
   "The share of the full resolution a camera drag's frames start at.
 Fewer pixels render sooner and follow the mouse more closely; as the
 drag goes on, the share follows `keycap-preview-drag-frame-time', never
-above this.  The frame the drag ends on is in full."
+above this.  The frame the drag ends on is in full.  Edits of a script
+whose frames are slow render at this share too, then in full once the
+script settles."
   :type 'number
   :group 'keycap)
 
@@ -106,6 +108,14 @@ nil keeps every frame of a drag at that share."
 
 (defconst keycap--preview-drag-least 0.25
   "The least share of the full resolution a drag's frames go down to.")
+
+(defconst keycap--preview-edit-ms 200
+  "Milliseconds a frame in full may take for an edit to render in full at once.
+After a slower one, an edit renders at `keycap-preview-drag-resolution'
+until the script settles.")
+
+(defconst keycap--preview-settle 1.0
+  "Seconds without an edit after which the preview renders in full.")
 
 (defconst keycap--preview-cameras
   '((front -90 0) (right 0 0) (top -90 90) (iso -60 30))
@@ -143,6 +153,12 @@ nil keeps every frame of a drag at that share."
 (defvar-local keycap--preview-render-start nil)
 (defvar-local keycap--preview-sent-scene nil
   "The server and scene of the last render sent, as (PROCESS . SCENE).")
+(defvar-local keycap--preview-live nil
+  "Non-nil when the last render sent has fewer pixels, as a drag's or an edit's.")
+(defvar-local keycap--preview-full-ms nil
+  "The milliseconds the last frame in full took.")
+(defvar-local keycap--preview-settle-timer nil
+  "While the script changes, the timer that renders it in full once it settles.")
 (defvar-local keycap--preview-pending nil
   "Non-nil when the preview needs another render once this one is done.")
 
@@ -243,7 +259,7 @@ It turns about the middle of the bounds, by the right-hand rule.")
         ;; edit changed nothing drawn.
         (unless (and (alist-get 'scene reply)
                      (equal (keycap--preview-scene reply) keycap--preview-sent-scene))
-          (keycap--preview-render t))
+          (keycap--preview-edited))
         (keycap--preview-hint))
       (keycap--preview-redisplay)
       (force-mode-line-update))))
@@ -287,10 +303,39 @@ cut off at the bottom meanwhile is better than two renders."
                     (* (length (keycap--preview-output-shown))
                        (window-default-line-height window)))))))
 
-(defun keycap--preview-render (&optional now)
+(defun keycap--preview-edited ()
+  "Render the edited script at once, and in full once it settles.
+A script whose frames are slow renders its edits with fewer pixels."
+  (when keycap--preview-settle-timer
+    (cancel-timer keycap--preview-settle-timer))
+  (setq keycap--preview-settle-timer
+        (run-with-timer keycap--preview-settle nil #'keycap--preview-settled (current-buffer)))
+  (keycap--preview-render t t))
+
+(defun keycap--preview-settled (preview)
+  "Render PREVIEW, whose script settled, in full, unless it is already."
+  (when (buffer-live-p preview)
+    (with-current-buffer preview
+      (setq keycap--preview-settle-timer nil)
+      (when keycap--preview-live
+        (keycap--preview-render)))))
+
+(defun keycap--preview-share (edited)
+  "The share of the full resolution the next frame has each way.
+EDITED is non-nil for the frame of an edit."
+  (cond
+   (keycap--preview-dragging keycap--preview-drag-share)
+   ((and edited
+         keycap--preview-full-ms
+         (> keycap--preview-full-ms keycap--preview-edit-ms))
+    keycap-preview-drag-resolution)
+   (t 1)))
+
+(defun keycap--preview-render (&optional now edited)
   "Render the model into the preview, or once it is in a window.
 While a render runs, this waits for it, then renders what is current;
-with NOW, it renders at once, and the server drops the render that runs."
+with NOW, it renders at once, and the server drops the render that runs.
+EDITED is non-nil for the frame of an edit."
   (let ((window (get-buffer-window (current-buffer) t)))
     (cond
      ((not keycap--preview-report))
@@ -302,12 +347,12 @@ with NOW, it renders at once, and the server drops the render that runs."
      ((not window) (setq keycap--preview-size nil))
      ((and keycap--preview-rendering (not now)) (setq keycap--preview-pending t))
      (t
-      (let ((scale (* (frame-scale-factor (window-frame window))
-                      (if keycap--preview-dragging keycap--preview-drag-share 1)))
-            (size (keycap--preview-image-size window)))
+      (let* ((share (keycap--preview-share edited))
+             (scale (* (frame-scale-factor (window-frame window)) share))
+             (size (keycap--preview-image-size window)))
         (setq keycap--preview-size (keycap--preview-window-size window))
         (keycap--preview-send (round (* scale (car size))) (round (* scale (cdr size)))
-                              scale))))
+                              scale (< share 1)))))
     (force-mode-line-update)))
 
 (defun keycap-preview-request (width height)
@@ -334,10 +379,12 @@ with NOW, it renders at once, and the server drops the render that runs."
   (vconcat (or (color-name-to-rgb (face-background 'default nil t))
                '(0 0 0))))
 
-(defun keycap--preview-send (width height scale)
-  "Ask the server for a WIDTH by HEIGHT frame, to show SCALE times denser."
+(defun keycap--preview-send (width height scale live)
+  "Ask the server for a WIDTH by HEIGHT frame, to show SCALE times denser.
+LIVE is non-nil for a frame with fewer pixels, which a newer one soon
+follows."
   (let ((preview (current-buffer))
-        (request (keycap-preview-request width height))
+        (request (append (keycap-preview-request width height) (when live '((live . t)))))
         (dragged keycap--preview-dragging)
         id)
     (condition-case error
@@ -349,8 +396,9 @@ with NOW, it renders at once, and the server drops the render that runs."
                                           (with-current-buffer preview
                                             ;; Unless a newer render superseded it
                                             (when (eql id keycap--preview-rendering)
-                                              (keycap--preview-rendered reply scale dragged))))))))
+                                              (keycap--preview-rendered reply scale dragged live))))))))
           (setq keycap--preview-rendering id
+                keycap--preview-live live
                 keycap--preview-pending nil
                 keycap--preview-render-start (float-time)
                 keycap--preview-sent-scene (keycap--preview-scene keycap--preview-report))
@@ -366,9 +414,10 @@ with NOW, it renders at once, and the server drops the render that runs."
     (with-current-buffer preview
       (force-mode-line-update))))
 
-(defun keycap--preview-rendered (reply scale dragged)
+(defun keycap--preview-rendered (reply scale dragged live)
   "Show the frame the server's REPLY is about, rendered SCALE times denser.
-DRAGGED is non-nil for a frame of a drag.  Then render again if needed."
+DRAGGED is non-nil for a frame of a drag, LIVE for one with fewer pixels.
+Then render again if needed."
   (setq keycap--preview-rendering nil)
   (cond
    ;; Neither shows the scene it was sent for, which an edit then renders.
@@ -380,6 +429,8 @@ DRAGGED is non-nil for a frame of a drag.  Then render again if needed."
    (t
     (when dragged
       (keycap--preview-drag-adapt (- (float-time) keycap--preview-render-start)))
+    (unless live
+      (setq keycap--preview-full-ms (alist-get 'ms reply)))
     (setq keycap--preview-frame reply
           keycap--preview-render-error nil
           keycap--preview-readout nil)
@@ -767,8 +818,9 @@ its own."
   (when (buffer-live-p keycap--preview-source)
     (with-current-buffer keycap--preview-source
       (remove-hook 'keycap--load-functions #'keycap--preview-loaded t)))
-  (when keycap--preview-leave-timer
-    (cancel-timer keycap--preview-leave-timer))
+  (dolist (timer (list keycap--preview-leave-timer keycap--preview-settle-timer))
+    (when timer
+      (cancel-timer timer)))
   (keycap--preview-flush)
   (when keycap--preview-directory
     (delete-directory keycap--preview-directory t)))
@@ -862,6 +914,7 @@ SCRIPT is a script buffer, the current one by default."
         (and keycap--preview-frame
              (not keycap--preview-rendering)
              (not keycap--preview-pending)
+             (not (and keycap--preview-live keycap--preview-settle-timer))
              (not (buffer-local-value 'keycap--load-waiting script))
              (not (buffer-local-value 'keycap--load-timer script)))))))
 
