@@ -1008,7 +1008,7 @@ Moves, rotations and reflections keep a field exact.
 :DESCRIPTION: Variables, operators and functions on trees.
 :END:
 
-fidget adds these to Rhai.
+fidget adds these to Rhai, and keycap the number forms of fidget's functions and the tree forms of Rhai's.
 Most work on both numbers and trees, and return a tree when an argument is a tree; see [[*Numbers and trees]].
 Signatures and their types are explained in [[*Concepts]].
 
@@ -1036,10 +1036,19 @@ Signatures and their types are explained in [[*Concepts]].
 
 ** Math functions
 :PROPERTIES:
-:DESCRIPTION: abs, sqrt, trigonometry and rounding.
+:DESCRIPTION: abs, powers, trigonometry, logarithms and rounding.
 :END:
+#+cindex: math
+#+cindex: powers
 
-Each takes a number or a tree, and gives a number of numbers, integers too, and a tree of a tree.
+Every math function, here and among the prelude's [[*Math helpers]], takes numbers and trees alike: of numbers it gives a number, and of a tree a tree.
+fidget's functions take trees, Rhai's take numbers, and keycap adds what either lacks; a =.fidget= script has only theirs.
+
+- Angles are in radians: ~sin~, ~atan2~ and the others; the prelude's ~sind~, ~atan2d~ and the others take degrees, and ~to_degrees~ and ~to_radians~ convert.
+- ~%~ has the sign of =a= between numbers, and is never negative on trees; ~mod~ is never negative on either.
+- ~pow~ and =**= take any base with a whole exponent, and a base above 0 with any other; at 0 and below, a tree's power is then 0, and a number's below 0 NaN.
+- ~log~ is to base 10, as Rhai has it; ~ln~ is the natural logarithm.
+- Where a function is undefined, as ~sqrt~ and ~ln~ are below 0, its interval is NaN, and so is that of a division by an interval that holds 0; the preview then cannot skip such regions as empty.
 
 #+keycap-reference: server/docs/math.toml
 
@@ -1271,7 +1280,7 @@ sphere(10).shell(1).intersection(z)
 
 ** Math helpers
 :PROPERTIES:
-:DESCRIPTION: clamp, lerp, linstep, smoothstep, hypot, degrees and vectors.
+:DESCRIPTION: clamp, lerp, steps, fract, mod, hypot, degrees and vectors.
 :END:
 
 #+keycap-reference: prelude/math.rhai
