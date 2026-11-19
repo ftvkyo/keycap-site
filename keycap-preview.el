@@ -141,6 +141,8 @@ nil keeps every frame of a drag at that share."
 (defvar-local keycap--preview-rendering nil
   "While a render runs, the id of its request.")
 (defvar-local keycap--preview-render-start nil)
+(defvar-local keycap--preview-sent-scene nil
+  "The server and scene of the last render sent, as (PROCESS . SCENE).")
 (defvar-local keycap--preview-pending nil
   "Non-nil when the preview needs another render once this one is done.")
 
@@ -237,11 +239,19 @@ It turns about the middle of the bounds, by the right-hand rule.")
         ;; A 2D script that grew a third dimension would be sliced at its base.
         (unless keycap--preview-offset-chosen
           (setq keycap--preview-offset (keycap--preview-middle keycap--preview-axis)))
-        ;; The frame in progress shows the script as it was.
-        (keycap--preview-render t)
+        ;; The frame in progress shows the script as it was, unless the
+        ;; edit changed nothing drawn.
+        (unless (and (alist-get 'scene reply)
+                     (equal (keycap--preview-scene reply) keycap--preview-sent-scene))
+          (keycap--preview-render t))
         (keycap--preview-hint))
       (keycap--preview-redisplay)
       (force-mode-line-update))))
+
+(defun keycap--preview-scene (report)
+  "The server and scene of the `load' REPORT, as (PROCESS . SCENE)."
+  (cons (buffer-local-value 'keycap--server keycap--preview-source)
+        (alist-get 'scene report)))
 
 (defun keycap--preview-set-view (view)
   "Show VIEW; from 3D to 2D, slice through the middle of the bounds."
@@ -329,7 +339,8 @@ with NOW, it renders at once, and the server drops the render that runs."
                                               (keycap--preview-rendered reply scale dragged))))))))
           (setq keycap--preview-rendering id
                 keycap--preview-pending nil
-                keycap--preview-render-start (float-time))
+                keycap--preview-render-start (float-time)
+                keycap--preview-sent-scene (keycap--preview-scene keycap--preview-report))
           ;; Quick renders would only flicker in the header line.
           (run-with-timer 0.3 nil #'keycap--preview-update preview))
       (error
@@ -347,9 +358,12 @@ with NOW, it renders at once, and the server drops the render that runs."
 DRAGGED is non-nil for a frame of a drag.  Then render again if needed."
   (setq keycap--preview-rendering nil)
   (cond
-   ((alist-get 'cancelled reply))
+   ;; Neither shows the scene it was sent for, which an edit then renders.
+   ((alist-get 'cancelled reply)
+    (setq keycap--preview-sent-scene nil))
    ((alist-get 'error reply)
-    (setq keycap--preview-render-error (propertize (alist-get 'error reply) 'face 'error)))
+    (setq keycap--preview-sent-scene nil
+          keycap--preview-render-error (propertize (alist-get 'error reply) 'face 'error)))
    (t
     (when dragged
       (keycap--preview-drag-adapt (- (float-time) keycap--preview-render-start)))

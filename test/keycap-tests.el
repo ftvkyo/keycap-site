@@ -899,7 +899,13 @@ it runs the hooks that stop its server and kill its preview."
         (should (= sent 0))
         (should keycap--preview-pending)
         (keycap--preview-loaded keycap--preview-report)
-        (should (= sent 1))))))
+        (should (= sent 1))
+        ;; An edit that changes nothing drawn keeps the frame.
+        (setq keycap--preview-sent-scene (cons nil 4))
+        (keycap--preview-loaded (cons '(scene . 4) keycap--preview-report))
+        (should (= sent 1))
+        (keycap--preview-loaded (cons '(scene . 5) keycap--preview-report))
+        (should (= sent 2))))))
 
 (ert-deftest keycap-test-preview-drag-adapt ()
   (let ((keycap-preview-drag-resolution 0.5)
