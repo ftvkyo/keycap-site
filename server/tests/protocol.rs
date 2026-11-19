@@ -550,6 +550,17 @@ fn shapes_past_the_bounds_warn() {
 }
 
 #[test]
+fn shapes_unbounded_on_one_side_past_the_bounds_load() {
+    let mut server = with_prelude();
+    // Fitted bounds unbounded below on one axis, and above the script's on
+    // another, once made an inverted interval of the part past a side.
+    let source = "bounds([-30, -30, -30], [30, 30, 30]);\n\
+                  draw(sphere(1).move([0, 59, 0]).repeat_polar(40, 17));\n";
+    let reply = server.load(source, None);
+    assert_eq!(reply["loaded"], true, "{reply}");
+}
+
+#[test]
 fn unbounded_and_empty_shapes_warn() {
     let dir = scratch("unbounded");
     let mut server = Server::start(&[]);

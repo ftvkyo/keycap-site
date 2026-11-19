@@ -617,9 +617,17 @@ pub fn sides_outside(shape: &JitShape, fitted: &Fitted, region: &Box3) -> Vec<&'
                 let (lower, upper) = if j == i {
                     (edge.min(side), edge.max(side))
                 } else {
+                    // An unbounded side reaches the region's, or a region's
+                    // width past the bounded side where that lies beyond it.
+                    let width = size[j].abs();
+                    let (l, u) = (fitted.lower[j], fitted.upper[j]);
                     (
-                        fitted.lower[j].unwrap_or(region.lower[j]),
-                        fitted.upper[j].unwrap_or(region.upper[j]),
+                        l.unwrap_or_else(|| {
+                            u.map_or(region.lower[j], |u| region.lower[j].min(u - width))
+                        }),
+                        u.unwrap_or_else(|| {
+                            l.map_or(region.upper[j], |l| region.upper[j].max(l + width))
+                        }),
                     )
                 };
                 Interval::new(lower as f32, upper as f32)
