@@ -15,10 +15,12 @@ rec {
   # An Emacs with the package, for the tests.
   emacs = epkgs.emacsWithPackages [ package ];
 
-  # cargo and rustc for the server, with the Vulkan loader its GPU rendering opens.
+  # cargo and rustc for the server, with the Vulkan loader its GPU rendering opens, and Python
+  # for its fuzzer.
   serverShell = pkgs.mkShell {
     packages = [
       pkgs.cargo
+      pkgs.python3
       pkgs.rustc
     ];
     LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.vulkan-loader ];

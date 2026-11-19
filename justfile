@@ -24,3 +24,11 @@ server-build:
 # Run the server's test suite against the working tree.
 server-test *ARGS:
     nix-shell -A serverShell default.nix --run 'cargo test --release --manifest-path server/Cargo.toml {{ ARGS }}'
+
+# Measure what each shape and function costs, into server/target/fuzz/costs.md.
+costs *ARGS: server-build
+    nix-shell -A serverShell default.nix --run 'python3 server/fuzz costs {{ ARGS }}'
+
+# Load random programs, valid or each with a mistake, and shrink what misbehaves to a repro.
+fuzz *ARGS: server-build
+    nix-shell -A serverShell default.nix --run 'python3 server/fuzz fuzz {{ ARGS }}'
