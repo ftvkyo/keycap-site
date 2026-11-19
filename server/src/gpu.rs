@@ -180,8 +180,12 @@ fn vm(tree: &Tree) -> Result<VmShape, String> {
     let shape = VmShape::new(&graph, node).map_err(|error| error.to_string())?;
     // The GPU's interpreter has no memory slots, so a tape that spills
     // registers into them evaluates to nonsense, and has hung the device.
-    if shape.inner().data().slot_count() > usize::from(u8::MAX) {
-        return Err("the shape needs more registers than the GPU has".into());
+    let registers = shape.inner().data().slot_count();
+    if registers > usize::from(u8::MAX) {
+        return Err(format!(
+            "the shape needs {registers} registers, more than the GPU's {}",
+            u8::MAX
+        ));
     }
     Ok(shape)
 }
