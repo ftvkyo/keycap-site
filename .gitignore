@@ -1,2 +1,5 @@
 # nix-build output symlink.
 /result
+
+# The Orca plugin's bytecode, when run in place.
+/orca/__pycache__
