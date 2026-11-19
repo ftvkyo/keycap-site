@@ -239,6 +239,14 @@
 //! "module"}`: `file` its path in keycap's repository, `kind` what its
 //! functions make, `names` its entries in order, and `module` a module's
 //! name.  Every entry the reference has carries its `file` and `kind`.
+//!
+//! ## `stats`
+//!
+//! `{"id", "op": "stats"}`: the size of the loaded shapes' union as fidget
+//! compiles it, for measuring what shapes cost.  The reply has `nodes`,
+//! the operations of its graph, `tape`, those of its evaluation tape,
+//! `registers`, the slots the tape needs (the GPU has 255), `choices`, its
+//! `min` and `max` operations, and `ms`.
 
 mod arcs;
 mod bounds;

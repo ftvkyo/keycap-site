@@ -11,11 +11,12 @@ use std::sync::{Arc, Mutex, PoisonError, mpsc};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
-use fidget::context::Tree;
+use fidget::context::{Context, Tree};
 use fidget::eval::{Function, TracingEvaluator};
 use fidget::jit::{JitFunction, JitShape};
 use fidget::render::{CancelToken, ThreadPool};
 use fidget::shape::{ShapeTape, ShapeTracingEval};
+use fidget::vm::VmShape;
 use rhai::Dynamic;
 use serde_json::{Map, Value, json};
 
@@ -250,6 +251,7 @@ impl Server {
             Op::Cancel(cancel) => Ok(json!({ "stopped": cancel.stopped }).into()),
             Op::Eval(eval) => Ok(self.eval(eval)),
             Op::Docs(request) => Ok(self.docs(request.dialect)),
+            Op::Stats => self.stats(),
         };
         reply.unwrap_or_else(Reply::Failed)
     }
@@ -670,6 +672,25 @@ impl Server {
             self.docs.insert(dialect, docs);
         }
         self.docs[&dialect].clone().into()
+    }
+
+    // --- stats ---
+
+    fn stats(&self) -> Result<Reply, String> {
+        let scene = self.scene()?;
+        let start = Instant::now();
+        let mut context = Context::new();
+        let node = context.import(&scene.union);
+        let shape = VmShape::new(&context, node).map_err(|error| error.to_string())?;
+        let data = shape.inner().data();
+        Ok(json!({
+            "nodes": context.len(),
+            "tape": data.len(),
+            "registers": data.slot_count(),
+            "choices": data.choice_count(),
+            "ms": ms(start),
+        })
+        .into())
     }
 }
 

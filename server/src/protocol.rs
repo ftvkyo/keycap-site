@@ -38,6 +38,7 @@ pub enum Op {
     Cancel(Cancel),
     Eval(Eval),
     Docs(Docs),
+    Stats,
 }
 
 #[derive(Deserialize)]

@@ -365,6 +365,22 @@ fn a_failed_load_keeps_the_scene() {
 }
 
 #[test]
+fn stats_count_the_union() {
+    let mut server = Server::start(&[]);
+    let reply = server.request(json!({"op": "stats"}));
+    assert_eq!(reply["error"], "no script is loaded", "{reply}");
+    server.load("draw(sphere(1));\n", None);
+    let one = server.request(json!({"op": "stats"}));
+    assert_eq!(one["choices"], 0, "{one}");
+    server.load("draw(sphere(1));\ndraw(sphere([2, 0, 0], 1));\n", None);
+    let two = server.request(json!({"op": "stats"}));
+    assert_eq!(two["choices"], 1, "{two}");
+    for key in ["nodes", "tape", "registers"] {
+        assert!(two[key].as_u64() > one[key].as_u64(), "{key}: {one} {two}");
+    }
+}
+
+#[test]
 fn shapes_colours_bounds_resolution_and_output() {
     let mut server = Server::start(&[]);
     let source = "bounds([-2, -2, -2], [2, 2, 2]);\n\
