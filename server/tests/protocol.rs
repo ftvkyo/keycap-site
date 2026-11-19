@@ -1682,6 +1682,268 @@ fn draw_roles() {
     }
 }
 
+// --- resin ---
+
+/// A printer of 400 by 300 pixels of 0.1 mm and layers of 0.5 mm, its
+/// display as `display` sets it.
+fn printer(dir: &Path, display: &str) -> PathBuf {
+    let path = dir.join("printer.toml");
+    std::fs::write(
+        &path,
+        format!(
+            "model = \"Test\"\nheight = 50\nlayer_height = 0.5\n\
+             exposure = 2\nbottom_exposure = 20\nbottom_layers = 3\n\
+             [display]\npixels = [400, 300]\nsize = [40, 30]\n{display}"
+        ),
+    )
+    .unwrap();
+    path
+}
+
+/// A greyscale PNG's width, height and pixels.
+fn read_png(data: &[u8]) -> (usize, usize, Vec<u8>) {
+    let mut reader = png::Decoder::new(std::io::Cursor::new(data))
+        .read_info()
+        .expect("a PNG");
+    let mut pixels = vec![0; reader.output_buffer_size().unwrap()];
+    let info = reader.next_frame(&mut pixels).expect("a PNG");
+    assert_eq!(info.color_type, png::ColorType::Grayscale);
+    (info.width as usize, info.height as usize, pixels)
+}
+
+/// A zip's files, by name, as its central directory lists them.
+fn read_zip(path: &Path) -> Vec<(String, Vec<u8>)> {
+    let zip = std::fs::read(path).expect("the archive exists");
+    let u16_at = |i: usize| u16::from_le_bytes([zip[i], zip[i + 1]]) as usize;
+    let u32_at = |i: usize| u32::from_le_bytes(zip[i..i + 4].try_into().unwrap()) as usize;
+    let end = zip.len() - 22;
+    let mut at = u32_at(end + 16);
+    (0..u16_at(end + 10))
+        .map(|_| {
+            let (size, name, local) = (u32_at(at + 24), u16_at(at + 28), u32_at(at + 42));
+            let named = String::from_utf8(zip[at + 46..at + 46 + name].to_vec()).unwrap();
+            at += 46 + name;
+            let data = local + 30 + u16_at(local + 26);
+            (named, zip[data..data + size].to_vec())
+        })
+        .collect()
+}
+
+/// The area each layer of the print `output` fills, in mm² at 0.1 mm
+/// pixels, and its config.ini.
+fn layer_areas(output: &Path) -> (Vec<f64>, String) {
+    let files = read_zip(output);
+    let config = files
+        .iter()
+        .find(|(name, _)| name == "config.ini")
+        .map(|(_, data)| String::from_utf8(data.clone()).unwrap())
+        .expect("a config.ini");
+    let areas = files
+        .iter()
+        .filter(|(name, _)| name.ends_with(".png"))
+        .enumerate()
+        .map(|(k, (name, data))| {
+            assert_eq!(name, &format!("part{k:05}.png"));
+            let (width, height, pixels) = read_png(data);
+            assert_eq!((width, height), (400, 300));
+            pixels.iter().map(|&p| f64::from(p) / 255.0).sum::<f64>() * 0.01
+        })
+        .collect();
+    (areas, config)
+}
+
+/// Each layer of a sphere and of a box covers the area its slice half way
+/// up the layer has, the pixels its edges cross grey by the share they
+/// cover.
+#[test]
+fn resin_layers_cover_their_slices() {
+    let dir = scratch("resin");
+    let output = dir.join("part.sl1");
+    let printer = printer(&dir, "");
+    let mut server = Server::start(&[]);
+    server.load(
+        "bounds([-8, -8, 0], [8, 8, 10]);\ndraw(sphere(5).move([0.37, -0.21, 5]));\n",
+        None,
+    );
+    let reply = server.request(json!({"op": "resin", "output": output, "printer": printer}));
+    assert_eq!(reply["layers"], 20, "{reply}");
+    let slice = |k: usize| {
+        let z = 0.25 + 0.5 * k as f64 - 5.0;
+        std::f64::consts::PI * (25.0 - z * z)
+    };
+    let volume: f64 = (0..20).map(|k| slice(k) * 0.5).sum();
+    assert!(
+        close(reply["volume"].as_f64().unwrap(), volume, 0.1),
+        "{reply}"
+    );
+    let stages: Vec<&Value> = server
+        .progress
+        .iter()
+        .filter(|p| p["id"] == reply["id"])
+        .map(|p| &p["progress"])
+        .collect();
+    assert_eq!(stages, ["layers"]);
+    let (areas, config) = layer_areas(&output);
+    assert_eq!(areas.len(), 20);
+    for (k, area) in areas.iter().enumerate() {
+        let slice = slice(k);
+        assert!(
+            close(*area, slice, 0.002 * slice + 0.02),
+            "layer {k}: {area} for {slice}"
+        );
+    }
+    for line in [
+        "jobDir = part",
+        "numFast = 20",
+        "numFade = 3",
+        "expTime = 2",
+    ] {
+        assert!(config.lines().any(|l| l == line), "{line} in {config}");
+    }
+
+    // Sides across pixels, the box's not on their edges
+    server.load(
+        "draw(rectangle([-5.03, -4.97], [4.98, 5.04]).extrude_z(0, 3));\n",
+        None,
+    );
+    let reply = server.request(json!({"op": "resin", "output": output, "printer": printer}));
+    assert_eq!(reply["layers"], 6, "{reply}");
+    let (areas, _) = layer_areas(&output);
+    for area in areas {
+        assert!(close(area, 10.01 * 10.01, 0.01), "{area}");
+    }
+}
+
+/// The centre of the pixels a layer image fills, as (column, row).
+fn filled_centre(pixels: &[u8], width: usize) -> (f64, f64) {
+    let (mut sum, mut total) = ((0.0, 0.0), 0.0);
+    for (i, &p) in pixels.iter().enumerate() {
+        let p = f64::from(p);
+        sum.0 += p * (i % width) as f64;
+        sum.1 += p * (i / width) as f64;
+        total += p;
+    }
+    (sum.0 / total, sum.1 / total)
+}
+
+/// A layer image is the display as PrusaSlicer draws it: from above, the
+/// model's x to the right and y up, unless the display turns or mirrors it.
+#[test]
+fn resin_layers_lie_as_the_display_shows_them() {
+    let dir = scratch("resin-layer");
+    let output = dir.join("layer.png");
+    let mut server = Server::start(&[]);
+    // A block, and a peg beside it along +x, in the middle of the display
+    server.load(
+        "bounds([0, 0, 0], [14, 10, 4]);\n\
+         draw(union(rectangle([0, 0], [10, 10]), rectangle([10, 0], [14, 4])).extrude_z(0, 4));\n",
+        None,
+    );
+    // Where the area's centre lies from the bounds' centre
+    let off = (692.0 / 116.0 - 7.0, 532.0 / 116.0 - 5.0);
+    for (display, right, down) in [
+        ("", (1.0, 0.0), (0.0, -1.0)),
+        ("mirror = [true, false]", (-1.0, 0.0), (0.0, -1.0)),
+        ("mirror = [false, true]", (1.0, 0.0), (0.0, 1.0)),
+        (
+            "orientation = \"portrait\"\nmirror = [true, false]",
+            (0.0, 1.0),
+            (-1.0, 0.0),
+        ),
+    ] {
+        let printer = printer(&dir, display);
+        let reply = server.request(json!({
+            "op": "resin", "output": output, "printer": printer, "z": 1.2,
+        }));
+        assert_eq!(reply["bottom"], 1.0, "{reply}");
+        let (width, height, pixels) = read_png(&std::fs::read(&output).unwrap());
+        let portrait = display.contains("portrait");
+        assert_eq!(
+            (width, height),
+            if portrait { (300, 400) } else { (400, 300) }
+        );
+        let (column, row) = filled_centre(&pixels, width);
+        let dx = (column + 0.5 - width as f64 / 2.0) / 10.0;
+        let dy = (row + 0.5 - height as f64 / 2.0) / 10.0;
+        let expected = (
+            off.0 * right.0 + off.1 * right.1,
+            off.0 * down.0 + off.1 * down.1,
+        );
+        assert!(
+            close(dx, expected.0, 0.01) && close(dy, expected.1, 0.01),
+            "{display}: ({dx}, {dy}) for {expected:?}"
+        );
+    }
+}
+
+#[test]
+fn resin_prints_fit_their_printer() {
+    let dir = scratch("resin-errors");
+    let output = dir.join("part.sl1");
+    let mut server = Server::start(&[]);
+    server.load("draw(sphere(5).move([0, 0, 5]));\n", None);
+    let error = |server: &mut Server, request: Value| {
+        let mut request = request;
+        request["op"] = "resin".into();
+        request["output"] = json!(output);
+        let reply = server.request(request);
+        reply["error"]
+            .as_str()
+            .unwrap_or_else(|| panic!("{reply}"))
+            .to_owned()
+    };
+    assert!(error(&mut server, json!({"printer": "nope"})).contains("prusa-sl1s"));
+    let printer = printer(&dir, "");
+    assert!(error(&mut server, json!({"printer": printer, "z": 20})).contains("no layer"));
+    server.load("draw(sphere(25));\n", None);
+    assert!(error(&mut server, json!({"printer": printer})).contains("display"));
+    assert!(!output.exists());
+
+    // The printers keycap knows
+    server.load("draw(sphere(5).move([0, 0, 5]));\n", None);
+    let layer = dir.join("layer.png");
+    for (name, size) in [
+        ("prusa-sl1s", (1620, 2560)),
+        ("creality-halot-sky", (3840, 2400)),
+        ("creality-halot-mage-pro", (7680, 4320)),
+    ] {
+        let reply = server.request(json!({
+            "op": "resin", "output": layer, "printer": name, "z": 5,
+        }));
+        assert!(reply.get("bottom").is_some(), "{reply}");
+        let (width, height, _) = read_png(&std::fs::read(&layer).unwrap());
+        assert_eq!((width, height), size);
+    }
+}
+
+#[test]
+fn resin_prints_cancel() {
+    let dir = scratch("resin-cancel");
+    let output = dir.join("part.sl1");
+    std::fs::write(&output, "an earlier print").unwrap();
+    let mut server = Server::start(&[]);
+    // A gyroid in a ball 100 across: two thousand layers of 8K
+    server.load(
+        "let g = sin(x) * cos(y) + sin(y) * cos(z) + sin(z) * cos(x);\n\
+         draw(max(sphere(50).move([0, 0, 50]), abs(g) - 0.2));\n",
+        None,
+    );
+    let print = server.send(json!({
+        "op": "resin", "output": output, "printer": "creality-halot-mage-pro",
+    }));
+    let cancel = server.send(json!({"op": "cancel"}));
+    let replies = [server.reply(), server.reply()];
+    let reply_to = |id: i64| {
+        replies
+            .iter()
+            .find(|r| r["id"] == id)
+            .unwrap_or_else(|| panic!("no reply to {id}: {replies:?}"))
+    };
+    assert_eq!(reply_to(cancel)["stopped"], true);
+    assert_eq!(reply_to(print)["cancelled"], true);
+    assert_eq!(std::fs::read(&output).unwrap(), b"an earlier print");
+}
+
 // --- eval ---
 
 #[test]

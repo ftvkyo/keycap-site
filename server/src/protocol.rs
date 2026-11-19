@@ -37,6 +37,7 @@ pub enum Op {
     Trace(Trace),
     Layers(Layers),
     Print(Print),
+    Resin(Resin),
     Cancel(Cancel),
     Eval(Eval),
     Docs(Docs),
@@ -181,6 +182,21 @@ pub struct Print {
 
 fn default_name() -> String {
     "keycap".into()
+}
+
+#[derive(Deserialize)]
+pub struct Resin {
+    pub output: PathBuf,
+    /// A printer known by name, or a TOML file describing one
+    pub printer: String,
+    #[serde(default)]
+    pub bounds: BoundsChoice,
+    /// The height of the one layer to write, as a PNG, rather than the
+    /// whole print
+    pub z: Option<f64>,
+    /// As `Mesh`'s
+    #[serde(skip)]
+    pub export: Export,
 }
 
 #[derive(Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -481,6 +497,7 @@ pub fn read_requests(
                 Op::Trace(trace) => trace.export = interrupts.new_export(),
                 Op::Layers(layers) => layers.export = interrupts.new_export(),
                 Op::Print(print) => print.export = interrupts.new_export(),
+                Op::Resin(resin) => resin.export = interrupts.new_export(),
                 Op::Cancel(cancel) => cancel.stopped = interrupts.cancel_export(),
                 _ => {}
             }

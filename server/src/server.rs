@@ -32,7 +32,7 @@ use crate::protocol::{
 use crate::render;
 use crate::scene::{self, Orientation, Scene};
 use crate::script::{self, Dialect, Engine, Run};
-use crate::{contour, docs, drawing, layers, mesh, printing};
+use crate::{contour, docs, drawing, layers, mesh, printing, resin};
 
 /// The largest image side, well past any screen.
 const MAX_SIDE: u32 = 16384;
@@ -267,6 +267,11 @@ impl Server {
             Op::Print(request) => {
                 let generation = request.export.generation;
                 let reply = self.print(id, request);
+                self.unless_started(generation, reply)
+            }
+            Op::Resin(request) => {
+                let generation = request.export.generation;
+                let reply = self.resin(id, request);
                 self.unless_started(generation, reply)
             }
             Op::Cancel(cancel) => Ok(json!({ "stopped": cancel.stopped }).into()),
@@ -755,6 +760,56 @@ impl Server {
                     "triangles": exported.triangles,
                     "layers": exported.layers,
                     "points": exported.points,
+                    "bounds": used,
+                    "ms": ms(start),
+                })
+            }))
+        })
+    }
+
+    // --- resin ---
+
+    fn resin(&mut self, id: i64, request: protocol::Resin) -> Result<Reply, String> {
+        let start = Instant::now();
+        let protocol::Resin {
+            output,
+            printer,
+            bounds,
+            z,
+            export,
+        } = request;
+        if export.cancel.is_cancelled() {
+            return Ok(Reply::Cancelled);
+        }
+        let scene = self.scene()?;
+        if scene.drawn.is_empty() {
+            return Err("the script draws nothing".into());
+        }
+        if z.is_some_and(|z| !z.is_finite()) {
+            return Err("the layer's height must be finite".into());
+        }
+        let printer = resin::Printer::load(&printer)?;
+        let (region, used) = scene.region(bounds);
+        let plan = resin::Plan::new(&printer, &region, scene.fitted.as_ref())?;
+        let shape = scene.compiled(Orientation::Solid(used))?.union.clone();
+        self.start_export(id, export, 0.0, move |job| {
+            let Some(z) = z else {
+                let printed = resin::print(&shape, &plan, &printer, &output, job)?;
+                return Ok(printed.map(|printed| {
+                    json!({
+                        "layers": printed.layers,
+                        "layer_height": plan.layer_height,
+                        "volume": printed.volume,
+                        "bounds": used,
+                        "ms": ms(start),
+                    })
+                }));
+            };
+            let bottom = resin::layer(&shape, &plan, z, &output, job)?;
+            Ok(bottom.map(|bottom| {
+                json!({
+                    "bottom": bottom,
+                    "layer_height": plan.layer_height,
                     "bounds": used,
                     "ms": ms(start),
                 })

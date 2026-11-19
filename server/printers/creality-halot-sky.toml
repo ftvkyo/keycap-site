@@ -1,0 +1,27 @@
+# Creality Halot Sky (CL-89), its display, lifts and waits as UVtools'
+# PrusaSlicer profile has them; check them against the printer.  Its
+# exposures are a starting point for a standard resin at 0.05 mm; take
+# the resin's own, or a calibration print's.
+#
+# The printer reads .cxdlp: `UVtoolsCmd convert print.sl1 auto` makes one
+# for the printer whose CL- code the model names.
+
+model = "CL-89"
+height = 200
+layer_height = 0.05
+exposure = 2.5
+bottom_exposure = 40
+bottom_layers = 6
+notes = [
+    "FILEFORMAT_CXDLP",
+    "WaitTimeBeforeCure_2",
+    "BottomLiftHeight_7",
+    "LiftHeight_6",
+    "BottomLiftSpeed_80",
+    "LiftSpeed_80",
+    "RetractSpeed_150",
+]
+
+[display]
+pixels = [3840, 2400]
+size = [192, 120]

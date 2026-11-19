@@ -21,6 +21,7 @@ rustPlatform.buildRustPackage {
     fileset = lib.fileset.unions [
       ./Cargo.toml
       ./Cargo.lock
+      ./printers
       ./src
       ./docs
       ./tests
@@ -29,7 +30,7 @@ rustPlatform.buildRustPackage {
   };
   sourceRoot = "source/server";
 
-  cargoHash = "sha256-dqAvS3DysqE4IlyVdnhjCD5Zv4cW0bpkI5EHF1VggSI=";
+  cargoHash = "sha256-d9doPrj5Cue9LRyGPmKZRzeRb5BwNvAmDj5eOVhKBgQ=";
 
   # text()'s default font, OpenSCAD's, built into the binary.
   env.KEYCAP_SERVER_FONT = "${liberation_ttf}/share/fonts/truetype/LiberationSans-Regular.ttf";

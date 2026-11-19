@@ -9,8 +9,8 @@
 //! other requests in theirs, so that a `load` or a `probe` never waits for
 //! a frame; a render shows the scene of the loads before it.  A newer
 //! `render` cancels an older one still waiting or running, and the
-//! exports, `mesh`, `trace`, `layers` and `print`, answer once done,
-//! running beside the other requests.  stderr carries logs only.
+//! exports, `mesh`, `trace`, `layers`, `print` and `resin`, answer once
+//! done, running beside the other requests.  stderr carries logs only.
 //!
 //! It renders on half as many threads as there are cores, and exports on
 //! one per core, both at a lower priority, exports the lower; `--threads N`
@@ -241,6 +241,22 @@
 //! does, its stages `octree`, `triangles`, `simplifying`, `heights`,
 //! `layers` and `writing`.  The reply has `triangles`, `layers`, `points`,
 //! `bounds` and `ms`.
+//! ## `resin`
+//!
+//! `{"id", "op": "resin", "output", "printer", "bounds", "z"}` writes the
+//! layers of a resin print of the shapes' union, cut to the region, as a
+//! Prusa SL1 archive: a greyscale PNG per layer, each pixel the share of it
+//! inside the shapes, sampled half way up the layer, and `config.ini` and
+//! `prusaslicer.ini`.  `printer` is a printer the server knows by name,
+//! `prusa-sl1s`, `creality-halot-sky` or `creality-halot-mage-pro`, or
+//! the path of a `.toml` file
+//! describing one.  The footprint of the shapes within the region is in
+//! the middle of the display, and the print starts at its bottom; empty
+//! layers below and above the shapes are left out.  With `z`, it writes
+//! only the layer through that height, as a PNG.  It runs as `mesh` does,
+//! its one stage `layers`.  The reply has `layers`, `layer_height`,
+//! `volume`, in cubic units, `bounds` and `ms`, or with `z`, `bottom`,
+//! the height the layer starts at, `layer_height`, `bounds` and `ms`.
 //!
 //! ## `cancel`
 //!
@@ -307,14 +323,17 @@ mod printing;
 mod protocol;
 mod render;
 mod reproject;
+mod resin;
 mod scene;
 mod script;
 mod server;
 mod shade;
 mod simplify;
+mod sl1;
 mod ssao;
 mod svg;
 mod text;
+mod zip;
 
 use std::path::PathBuf;
 use std::time::Duration;

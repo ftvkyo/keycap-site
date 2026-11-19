@@ -18,6 +18,7 @@ fidget = { git = "https://github.com/mkeeter/fidget", rev = "a386417c31f7289027e
     "shapes",
     "wgpu",
 ] }
+crc32fast = "1.5"
 facet = { version = "0.46", features = ["reflect", "doc"] }
 flate2 = "1"
 harfrust = "0.15"
@@ -26,6 +27,7 @@ i_overlay = "9.1"
 kurbo = "0.13"
 libc = "0.2"
 nalgebra = "0.35"
+png = "0.18"
 pollster = "1"
 rand = "0.10"
 rayon = "1"

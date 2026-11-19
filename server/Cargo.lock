@@ -1153,6 +1153,7 @@ dependencies = [
 name = "keycap-server"
 version = "0.1.0"
 dependencies = [
+ "crc32fast",
  "facet",
  "fidget",
  "flate2",
@@ -1162,6 +1163,7 @@ dependencies = [
  "kurbo",
  "libc",
  "nalgebra",
+ "png",
  "pollster",
  "rand",
  "rayon",

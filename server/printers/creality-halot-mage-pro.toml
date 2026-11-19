@@ -1,0 +1,28 @@
+# Creality Halot Mage Pro (CL-103), its display, lifts and waits as
+# UVtools' PrusaSlicer profile has them; check them against the printer.
+# Its exposures are a starting point for a standard resin at 0.05 mm; take
+# the resin's own, or a calibration print's.
+#
+# The printer reads .cxdlpv4: `UVtoolsCmd convert print.sl1 auto` makes one
+# for the printer whose CL- code the model names.
+
+model = "CL-103"
+height = 230
+layer_height = 0.05
+exposure = 2
+bottom_exposure = 30
+bottom_layers = 6
+notes = [
+    "FILEFORMAT_CXDLPV4",
+    "WaitTimeBeforeCure_2",
+    "BottomLiftHeight_7",
+    "LiftHeight_6",
+    "BottomLiftSpeed_80",
+    "LiftSpeed_80",
+    "RetractSpeed_150",
+]
+
+[display]
+pixels = [7680, 4320]
+size = [228.096, 128.304]
+mirror = [true, false]

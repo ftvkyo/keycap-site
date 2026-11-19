@@ -1,0 +1,15 @@
+# Prusa SL1S SPEED, as PrusaSlicer 2.9's profile has it, with its
+# exposures for Prusa's resins at 0.05 mm.
+
+model = "SL1S"
+height = 150
+layer_height = 0.05
+exposure = 1.7
+bottom_exposure = 25
+bottom_layers = 10
+
+[display]
+pixels = [2560, 1620]
+size = [128, 81]
+orientation = "portrait"
+mirror = [true, false]

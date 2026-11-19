@@ -67,7 +67,8 @@ pub enum Stage {
     Grid,
     /// Tracing their outlines on the grid
     Contours,
-    /// Tracing a stack of layers for printing
+    /// Tracing a stack of layers for printing, or sampling a resin
+    /// print's and writing them
     Layers,
     /// Finding the slopes the layers' heights follow
     Heights,
