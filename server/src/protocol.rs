@@ -48,6 +48,10 @@ pub struct Script {
     pub dialect: Dialect,
     #[serde(default)]
     pub overrides: Overrides,
+    /// Set by the reader: the newest render read before it, which shows
+    /// the scene this load replaces
+    #[serde(skip)]
+    pub renders_before: u64,
 }
 
 #[derive(Deserialize)]
@@ -286,6 +290,10 @@ struct Renders {
     latest: u64,
     /// The token of the render in progress
     running: CancelToken,
+    /// The render in progress
+    running_generation: u64,
+    /// Renders up to this generation show a scene that a load replaced
+    stale: u64,
     /// The loads read so far
     loads_read: u64,
     /// The loads done, one way or another
@@ -362,8 +370,20 @@ impl Interrupts {
     }
 
     /// Called by the reader for each load.
-    fn new_load(&self) {
-        self.renders().loads_read += 1;
+    fn new_load(&self, script: &mut Script) {
+        let mut renders = self.renders();
+        renders.loads_read += 1;
+        script.renders_before = renders.latest;
+    }
+
+    /// Called before a load's new scene replaces the one that the renders
+    /// up to `renders_before` show: cancels them.
+    pub fn scene_replaced(&self, renders_before: u64) {
+        let mut renders = self.renders();
+        renders.stale = renders.stale.max(renders_before);
+        if renders.running_generation <= renders.stale {
+            renders.running.cancel();
+        }
     }
 
     /// Called once a load is done, one way or another.
@@ -378,11 +398,12 @@ impl Interrupts {
     pub fn start_render(&self, render: &Render) -> Option<CancelToken> {
         let mut renders = self.renders();
         loop {
-            if renders.latest != render.generation {
+            if renders.latest != render.generation || render.generation <= renders.stale {
                 return None;
             }
             if renders.loads_done >= render.after_loads {
                 renders.running = CancelToken::new();
+                renders.running_generation = render.generation;
                 return Some(renders.running.clone());
             }
             renders = self
@@ -412,7 +433,7 @@ pub fn read_requests(
         if let Incoming::Request(Request { op, .. }) = &mut incoming {
             match op {
                 Op::Render(render) => interrupts.supersede(render),
-                Op::Load(_) => interrupts.new_load(),
+                Op::Load(script) => interrupts.new_load(script),
                 Op::Mesh(mesh) => mesh.export = interrupts.new_export(),
                 Op::Trace(trace) => trace.export = interrupts.new_export(),
                 Op::Cancel(cancel) => cancel.stopped = interrupts.cancel_export(),

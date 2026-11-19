@@ -369,6 +369,7 @@ impl Server {
             "diagnostics": diagnostics,
             "ms": ms(start),
         });
+        self.interrupts.scene_replaced(script.renders_before);
         *lock(&self.shared.scene) = Some(Arc::new(scene));
         reply.into()
     }

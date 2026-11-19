@@ -56,7 +56,8 @@
 //! `{"id", "op": "load", "source", "path", "dialect", "overrides"}`:
 //! evaluates the script and keeps what it draws as the scene; `path` is
 //! the script's file or null, `dialect` `keycap` (the default) or
-//! `fidget`.  On failure the previous scene stays loaded.
+//! `fidget`.  On failure the previous scene stays loaded; a new one
+//! cancels the renders read before the load, which show the old one.
 //!
 //! `overrides`, `{"NAME": VALUE}` and optional, runs the script with other
 //! values for its top-level constants, such as one design's variants: each

@@ -967,6 +967,29 @@ fn loads_do_not_wait_for_renders() {
 }
 
 #[test]
+fn a_new_scene_cancels_the_render_of_the_old_one() {
+    let dir = scratch("load-cancels");
+    let (mut server, model) = slow_server();
+    let slow = json!({
+        "op": "render", "output": dir.join("slow.ppm"), "width": 300, "height": 300,
+        "backend": "cpu",
+    });
+    let render = server.send(slow.clone());
+    server.load("draw(sphere(1));\n", None);
+    let reply = server.reply();
+    assert_eq!(reply["id"], render);
+    assert_eq!(reply["cancelled"], true, "{reply}");
+
+    // A load that fails keeps the scene, and its frame.
+    server.load(&model, None);
+    let render = server.send(slow);
+    server.load("draw(sphere(1)", None);
+    let reply = server.reply();
+    assert_eq!(reply["id"], render);
+    assert!(reply.get("ms").is_some(), "{reply}");
+}
+
+#[test]
 fn a_render_waits_for_the_loads_before_it() {
     let dir = scratch("render-after-load");
     let mut server = Server::start(&[]);
