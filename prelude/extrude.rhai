@@ -192,8 +192,8 @@ fn _scheduled(d, t, opts, what, u, v, w) {
     }
     let pu = u - m[0];
     let pv = v - m[1];
-    let c = cos(a);
-    let s = sin(a);
+    let c = _cos_poly(a);
+    let s = _sin_poly(a);
     remap(d, (pu * c + pv * s) / k, (pv * c - pu * s) / k, w) * k
 }
 
@@ -254,8 +254,8 @@ fn twist(shape, angle) {
         throw `twist: angle must be a tree, the turn at each point, such as ${angle} * z for ${angle} degrees per unit of height`;
     }
     let a = _field(angle, "twist: angle") * (PI / 180.0);
-    let c = cos(a);
-    let s = sin(a);
+    let c = _cos_poly(a);
+    let s = _sin_poly(a);
     remap(_tree(shape), x * c + y * s, y * c - x * s, z)
 }
 

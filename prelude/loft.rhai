@@ -139,8 +139,8 @@ fn loft(slices) {
 fn _loft_field(profile, k, a, move, bottom, top) {
     let px = x - move[0];
     let py = y - move[1];
-    let c = cos(a);
-    let s = sin(a);
+    let c = _cos_poly(a);
+    let s = _sin_poly(a);
     let f = remap(profile, (px * c + py * s) / k, (py * c - px * s) / k, z) * k;
     _corner(normalize_z(f), max(bottom - z, z - top))
 }
