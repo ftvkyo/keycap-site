@@ -1625,6 +1625,59 @@ it runs the hooks that stop its server and kill its preview."
       (when (file-exists-p file)
         (delete-file file)))))
 
+(ert-deftest keycap-test-export-print ()
+  (let ((buffer (generate-new-buffer "part.keycap")))
+    (unwind-protect
+        (with-current-buffer buffer
+          (let ((keycap-print-layer-heights '(0.25 0.1 0.3))
+                (keycap-print-slicer "orca-slicer")
+                sent reply opened shown)
+            (cl-letf (((symbol-function 'keycap--load)
+                       (lambda (callback) (funcall callback '((loaded . t)))))
+                      ((symbol-function 'keycap--request)
+                       (lambda (request callback) (setq sent request reply callback) 1))
+                      ((symbol-function 'run-with-timer) #'ignore)
+                      ((symbol-function 'cancel-timer) #'ignore)
+                      ((symbol-function 'make-process)
+                       (lambda (&rest arguments) (setq opened (plist-get arguments :command))))
+                      ((symbol-function 'message)
+                       (lambda (format &rest args) (setq shown (apply #'format format args)))))
+              (keycap-export-print "/models/part.3mf")
+              (should (equal (alist-get 'op sent) "print"))
+              (should (equal (alist-get 'name sent) "part"))
+              (should (equal (alist-get 'layer_heights sent) [0.25 0.1 0.3]))
+              (should (equal (alist-get 'bounds sent) "script"))
+              (funcall reply '((progress . "layers")))
+              (should (equal (keycap--export-status) "part.3mf: slicing, 0 s"))
+              (should-not opened)
+              (funcall reply '((triangles . 900) (layers . 50) (points . 4000) (ms . 1500)))
+              (should (equal shown "Exported /models/part.3mf: 50 layers on 900 triangles in 1.5 s"))
+              (should (equal opened '("orca-slicer" "/models/part.3mf"))))))
+      (kill-buffer buffer))))
+
+(ert-deftest keycap-test-server-export-print ()
+  (skip-unless keycap-test-server)
+  (let ((file (make-temp-file "keycap-test-" nil ".3mf")))
+    (unwind-protect
+        (keycap-test-with-script "draw(sphere(#{center: [0, 0, 0], radius: 2}));
+"
+          (delete-file file)
+          (let ((keycap-print-slicer nil)
+                done)
+            (cl-letf (((symbol-function 'message)
+                       (lambda (format &rest args)
+                         (setq done (apply #'format format args)))))
+              (keycap-export-print file 'fitted)
+              (keycap-test-wait (lambda () (and done (not (string-suffix-p "..." done))))))
+            (should (string-match-p "\\`Exported .*: [0-9]+ layers on [0-9]+ triangles" done)))
+          (with-temp-buffer
+            (set-buffer-multibyte nil)
+            (insert-file-contents-literally file)
+            (should (string-prefix-p "PK\3\4" (buffer-string)))
+            (should (search-forward "Metadata/keycap_layers.json" nil t))))
+      (when (file-exists-p file)
+        (delete-file file)))))
+
 
 ;; --- Preview ---
 

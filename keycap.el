@@ -41,6 +41,8 @@
 ;;   mouse with the shifted wheel; the preview follows
 ;; - `keycap-export-stl' and `keycap-export-2d' -- meshes, and outlines for
 ;;   laser cutting
+;; - `keycap-export-print' -- 3MF for FDM slicers, with the layers traced
+;;   from the field
 ;; - `keycap-eval-last-expression', `keycap-guide'
 
 ;;; Code:
@@ -126,6 +128,17 @@ every point traced."
 2D exports grow the shapes drawn to cut by half of it, so that parts
 come out to size."
   :type 'number)
+
+(defcustom keycap-print-layer-heights '(0.2 0.08 0.2)
+  "The layer heights of `keycap-export-print', in millimetres.
+The first layer's, which must be the slicer's first layer height for it
+to take the others, then the least and the most of the others."
+  :type '(list (number :tag "First") (number :tag "Least") (number :tag "Most")))
+
+(defcustom keycap-print-slicer nil
+  "The slicer `keycap-export-print' opens its 3MF in, or nil for none.
+A program that takes the file as its argument, such as \"orca-slicer\"."
+  :type '(choice (const :tag "None" nil) (string :tag "Program")))
 
 
 ;; --- Server ---
@@ -1238,6 +1251,7 @@ simplifies to, once it does.")
 (defconst keycap--export-stages
   '(("octree" . "sampling") ("triangles" . "triangulating")
     ("grid" . "sampling") ("contours" . "tracing")
+    ("heights" . "choosing layer heights") ("layers" . "slicing")
     ("simplifying" . "simplifying") ("writing" . "writing"))
   "The stages an export reports, and what they are called.")
 
@@ -1273,6 +1287,9 @@ simplifies to, once it does.")
         (message "Exporting %s cancelled; it is as it was" name))
        ((alist-get 'error reply)
         (message "Exporting failed: %s" (alist-get 'error reply)))
+       ((alist-get 'layers reply)
+        (message "Exported %s: %d layers on %d triangles in %.1f s" name
+                 (alist-get 'layers reply) triangles (/ (alist-get 'ms reply) 1000.0)))
        (triangles
         (message "Exported %s: %d triangles%s in %.1f s" name triangles
                  (if (eql triangles meshed)
@@ -1303,10 +1320,11 @@ simplifies to, once it does.")
            (buffer-local-value 'keycap--preview-bounds keycap--preview))
       'script))
 
-(defun keycap--start-export (file resolution request)
+(defun keycap--start-export (file resolution request &optional done)
   "Export the script to FILE by REQUEST, an alist with the request's `op'.
 The request gets the output FILE, the RESOLUTION, else the script's, else
-`keycap-export-resolution', and `keycap-export-tolerance'."
+`keycap-export-resolution', and `keycap-export-tolerance'.  DONE, if
+non-nil, is called with FILE once it is written."
   (when keycap--export
     (user-error "%s exports already; %s cancels it"
                 (file-name-nondirectory (nth 1 keycap--export))
@@ -1333,7 +1351,9 @@ The request gets the output FILE, the RESOLUTION, else the script's, else
                             (cancel-timer timer))
                           (when (buffer-live-p source)
                             (with-current-buffer source
-                              (keycap--exported file reply)))))
+                              (keycap--exported file reply)))
+                          (when (and done (alist-get 'ms reply))
+                            (funcall done file))))
                        file (float-time) nil nil)
                  timer (run-with-timer 1 1 #'keycap--export-tick source)))
          (keycap--export-tick source))))))
@@ -1401,6 +1421,30 @@ cancels it."
                          (offset . ,offset)
                          ,@(when tilt
                              `((tilt . ,(vector (car tilt) (cdr tilt))))))))))))))
+
+(defun keycap-export-print (file &optional bounds)
+  "Export the script to the 3MF FILE, for FDM slicers.
+The part is a coarse mesh, for placing, seams and painting in the
+slicer, with layers as thick as `keycap-print-layer-heights' allow and
+the slopes they cross ask for, as a profile PrusaSlicer and OrcaSlicer
+take.  The layers themselves, traced from the field on a grid of the
+script's `resolution', else `keycap-export-resolution', are in the 3MF
+too, where OrcaSlicer's plugin `orca/keycap_layers.py' slices by them.
+BOUNDS, `script' or `fitted', defaults to the preview's.  Once written,
+the 3MF opens in `keycap-print-slicer', if set.
+
+The export runs as `keycap-export-stl' does; \\[keycap-export-cancel]
+cancels it."
+  (interactive (list (keycap--export-file ".3mf" "Export 3MF")) keycap-mode)
+  (keycap--start-export
+   file nil
+   `((op . "print") (bounds . ,(symbol-name (or bounds (keycap--export-bounds))))
+     (name . ,(file-name-base (or buffer-file-name (buffer-name))))
+     (layer_heights . ,(vconcat keycap-print-layer-heights)))
+   (when keycap-print-slicer
+     (lambda (file)
+       (make-process :name "keycap-slicer" :command (list keycap-print-slicer file)
+                     :buffer nil :noquery t)))))
 
 (defun keycap-exporting-p ()
   "Non-nil while an export of the script runs."
@@ -1667,6 +1711,7 @@ undoes as one change.  Off a number, the click does what it would."
     "---"
     ["Export STL..." keycap-export-stl]
     ["Export 2D..." keycap-export-2d]
+    ["Export for Printing..." keycap-export-print]
     ["Cancel Export" keycap-export-cancel :active keycap--export]))
 
 (defun keycap-context-menu (menu click)

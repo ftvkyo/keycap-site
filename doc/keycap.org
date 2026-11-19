@@ -335,6 +335,35 @@ keycap knows shapes, not materials.
 Never laser-cut PVC or vinyl, and don't cut polycarbonate or unidentified plastics: ask your makerspace, or read the material's safety data sheet.
 Cut acrylic only if it is cast acrylic (PMMA), extract the fumes of every job, and don't leave a laser running unattended.
 
+** Exporting for 3D printing
+:PROPERTIES:
+:DESCRIPTION: 3MF with layer heights and layers for FDM slicers.
+:END:
+#+cindex: export, 3MF
+#+cindex: 3MF
+#+cindex: 3D printing
+#+cindex: layer heights
+#+cindex: OrcaSlicer
+#+cindex: PrusaSlicer
+#+findex: keycap-export-print
+
+~keycap-export-print~ writes a 3MF for FDM slicers such as PrusaSlicer and OrcaSlicer.
+Its mesh is deliberately coarse, 128 cells across within 0.02 mm, since slicers only place, preview and paint it, and find seams on it.
+The part stands on the bed, centred, and is named after the script.
+
+The layers are as thick as the slopes they cross allow: walls, and slopes of 45° or steeper, take the thickest, and a surface nearer level takes thinner ones, down to the least, as OrcaSlicer's adaptive layer heights have it.
+The slopes come from the field rather than the mesh's facets, and the 3MF carries the result as the layer height profile both slicers read, so that they slice the part that way without further ado.
+~keycap-print-layer-heights~ sets the first layer's height and the range of the others, 0.2, and 0.08 to 0.2 mm by default.
+The first must be the slicer's first layer height, or the slicer drops the profile for its own layer height.
+
+The 3MF also holds the layers themselves, traced from the field at the heights the slicer will cut them, as 2D exports trace outlines: every point on the surface, on a grid of the script's ~resolution~, else ~keycap-export-resolution~.
+OrcaSlicer 2.5's plugin =orca/keycap_layers.py=, in keycap's repository, slices by them instead of the mesh, so that walls and infill follow the model, not its facets.
+Side-load it in Orca's plugins dialog and pick it as the process's slicing pipeline plugin.
+Layers at other heights, after the layer heights change in the slicer, keep the mesh's slices.
+
+Once written, the 3MF opens in ~keycap-print-slicer~, when set.
+The export runs as an STL export does; the header line shows its progress: sampling, triangulating, simplifying, choosing layer heights, slicing and writing.
+
 ** Customization
 :PROPERTIES:
 :DESCRIPTION: User options.
@@ -349,6 +378,8 @@ Cut acrylic only if it is cast acrylic (PMMA), extract the fumes of every job, a
 - User Option: keycap-export-resolution :: Cells per unit for export when the script sets no ~resolution~: of the mesh, or of the grid outlines are traced on.
 - User Option: keycap-export-tolerance :: How far, in units, an exported mesh or outline may stray from the surface as it is simplified; ~nil~, the default, is a tenth of a cell, and 0 keeps every triangle and every point traced.
 - User Option: keycap-export-kerf :: The width a laser burns away along a cut, half of which 2D exports grow the shapes to cut by; 0 by default.
+- User Option: keycap-print-layer-heights :: The layer heights of ~keycap-export-print~ in millimetres: the first layer's, which must be the slicer's, then the least and the most of the others; =(0.2 0.08 0.2)= by default.
+- User Option: keycap-print-slicer :: The program ~keycap-export-print~ opens its 3MF in, such as ="orca-slicer"=; ~nil~, the default, for none.
 - User Option: keycap-preview-view :: The view a 3D model opens in: ~shaded~, ~heightmap~, ~sdf~ or ~mono~.
 - User Option: keycap-preview-bounds :: ~script~ or ~fitted~: which bounds the preview shows first.
 - User Option: keycap-preview-backend :: ~auto~, the default, ~gpu~ or ~cpu~.
