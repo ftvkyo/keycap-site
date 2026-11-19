@@ -18,8 +18,8 @@ The shape evaluated at other coordinates: `x`, `y` and `z` in its tree replaced 
 Every transform is a remap.
 The shape moves the opposite way to its coordinates: `s.remap(x - 5, y, z)` is `s` moved 5 along +X.
 
-Each coordinate must be a tree: a number is an error, `Function not found`.
-A constant coordinate is written as a tree, such as `0.0 * x`.
+A coordinate may be a number: `s.remap(x, y, 0)` is the slice of `s` at z = 0, at every Z.
+In a `.fidget` script it must be a tree, such as `0.0 * x`.
 
 Notes:
 - Field: a distance stays a distance under a rigid motion, a move, turn or mirror; a scale or a bend changes the field's slope.

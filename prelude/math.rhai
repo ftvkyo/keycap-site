@@ -9,9 +9,8 @@
 
 // --- Argument coercion ---
 
-// Rhai integers turn into trees in fidget's math functions (`sqrt(4)` is a
-// Tree) and divide as integers (`5 / 2` is 2), so dimensions become floats
-// before any arithmetic on them.
+// Rhai integers divide as integers (`5 / 2` is 2), so dimensions become
+// floats before any arithmetic on them.
 fn _num(v, what) {
     let t = type_of(v);
     if t == "i64" || t == "f64" {
@@ -634,7 +633,7 @@ fn tand(a) {
 /// asind(3.0 / 10)
 /// ```
 fn asind(v) {
-    asin(_float(v)) * (180.0 / PI)
+    asin(v) * (180.0 / PI)
 }
 
 /// acosd(v: Tree): Tree
@@ -650,7 +649,7 @@ fn asind(v) {
 /// acosd((4 * 4 + 5 * 5 - 6 * 6) / (2.0 * 4 * 5))
 /// ```
 fn acosd(v) {
-    acos(_float(v)) * (180.0 / PI)
+    acos(v) * (180.0 / PI)
 }
 
 /// atand(v: Tree): Tree
@@ -666,7 +665,7 @@ fn acosd(v) {
 /// atand(3.0 / 4)
 /// ```
 fn atand(v) {
-    atan(_float(v)) * (180.0 / PI)
+    atan(v) * (180.0 / PI)
 }
 
 /// atan2d(y: Tree, x: Tree): Tree
@@ -687,11 +686,7 @@ fn atand(v) {
 /// atan2d(1, -1)
 /// ```
 fn atan2d(y, x) {
-    let y = _float(y);
-    let x = _float(x);
-    // Rhai's `atan` of two numbers is theirs; fidget's `atan2` needs a tree.
-    let a = if _is_number(y) && _is_number(x) { atan(y, x) } else { atan2(y, x) };
-    a * (180.0 / PI)
+    atan2(y, x) * (180.0 / PI)
 }
 
 // The sine of `a` degrees, a number: exact where it is a whole number or a

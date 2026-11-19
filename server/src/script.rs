@@ -21,6 +21,7 @@ use serde_json::Value;
 
 use crate::bounds::Box3;
 use crate::diagnostic::{self, Diagnostic, Location, Severity};
+use crate::math;
 use crate::svg;
 use crate::text::{self, Fonts};
 
@@ -214,6 +215,7 @@ impl Engine {
         let (mut rhai, run, operations) = engine(Dialect::Keycap, modules);
         register_api(&mut rhai, &run);
         register_outlines(&mut rhai, &run);
+        math::register(&mut rhai);
         let prelude = match prelude {
             Some(dir) => Prelude::load(&mut rhai, dir),
             None => Prelude::default(),

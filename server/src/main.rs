@@ -232,6 +232,7 @@ mod diagnostic;
 mod docs;
 mod drawing;
 mod gpu;
+mod math;
 mod mesh;
 mod outline;
 mod prefer;

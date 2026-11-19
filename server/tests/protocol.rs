@@ -1680,9 +1680,9 @@ fn the_fidget_dialect_names_keycaps_extensions() {
     );
 }
 
-/// A `.fidget` script means the same as a `.keycap` one: the prelude adds
-/// names and overloads, and wraps a fidget or Rhai built-in (`hypot`) only
-/// to take trees as well, never changing what a call of it does.
+/// A `.fidget` script means the same as a `.keycap` one: keycap adds names
+/// and overloads, and wraps a fidget or Rhai built-in (`hypot`) only to
+/// take trees or numbers as well, never changing the value of a call of it.
 #[test]
 fn fidget_calls_mean_the_same_in_the_keycap_dialect() {
     let mut server = with_prelude();
@@ -1712,6 +1712,48 @@ fn fidget_calls_mean_the_same_in_the_keycap_dialect() {
         let fidget = eval("fidget", &expression);
         assert!(fidget.is_string(), "{expression}: {fidget}");
         assert_eq!(eval("keycap", &expression), fidget, "{expression}");
+    }
+}
+
+/// keycap's math takes numbers where fidget's takes only trees, or turns
+/// integers into trees, and trees where Rhai's takes only numbers; a
+/// `.fidget` script keeps fidget's and Rhai's own.
+#[test]
+fn keycap_math_takes_numbers_and_trees_alike() {
+    let mut server = with_prelude();
+    let mut eval = |dialect: &str, expression: &str| {
+        let reply = server.request(json!({
+            "op": "eval", "source": "", "path": null, "dialect": dialect, "expression": expression,
+        }));
+        let value = reply["value"].as_str().map(str::to_owned);
+        value.unwrap_or_else(|| {
+            diagnostic(&reply)["message"]
+                .as_str()
+                .unwrap_or("")
+                .to_owned()
+        })
+    };
+    for (expression, keycap, fidget) in [
+        ("sqrt(4)", "2.0", "tree: 2 at the origin"),
+        ("square(3.0)", "9.0", "tree: 9 at the origin"),
+        (
+            "atan2(0.0, 1.0)",
+            "0.0",
+            "Function not found: atan2 (f64, f64)",
+        ),
+        (
+            "move(sphere(1).remap(x, 0, 0), [1, 0, 0])",
+            "tree: 0 at the origin",
+            "Function not found: remap",
+        ),
+    ] {
+        let got = eval("keycap", expression);
+        assert!(got.starts_with(keycap), "{expression}: {got}");
+        let got = eval("fidget", expression);
+        assert!(
+            got.starts_with(fidget),
+            "{expression} in fidget's dialect: {got}"
+        );
     }
 }
 

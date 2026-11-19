@@ -508,11 +508,11 @@ Rhai has integers and floats, and keeps them apart:
 
 - =5 / 2= is =2=, an integer division; write =5.0 / 2= or =5 * 0.5=
 - =-7 % 3= is =-1= for numbers, but =x % 3= at x = -7 is =2=: fidget's remainder on trees is never negative
-- fidget's math functions take anything and return a tree, but Rhai's own take only floats, so ~sqrt(2.0)~ is a number and ~sqrt(2)~ a tree, as is ~sin(1)~
-- ~square~ and ~rand~ always return trees
+- math functions give a number of numbers, integers too, and a tree of a tree: ~sqrt(2)~ is a number, ~sqrt(x)~ a tree
+- ~compare~, ~and~, ~or~, ~not~, ~mix~ and ~rand~ are fidget's alone: given only numbers, they return a tree or fail
 
 A tree where a shape wants a number fails with =shape does not have an argument of type Tree=.
-Write float literals in arithmetic that must stay a number: ~sin(30.0 * PI / 180.0)~.
+In a =.fidget= script, fidget's math functions turn an integer into a tree, so write ~sqrt(2.0)~ there.
 The prelude's functions take integers anywhere, and convert them.
 
 Trees are 32-bit floats inside, and script arithmetic on numbers is 64-bit.
@@ -1039,7 +1039,7 @@ Signatures and their types are explained in [[*Concepts]].
 :DESCRIPTION: abs, sqrt, trigonometry and rounding.
 :END:
 
-Each takes a number or a tree; on an integer, or on anything Rhai lacks a float version of, it returns a tree.
+Each takes a number or a tree, and gives a number of numbers, integers too, and a tree of a tree.
 
 #+keycap-reference: server/docs/math.toml
 

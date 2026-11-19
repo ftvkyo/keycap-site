@@ -1,4 +1,5 @@
-# fidget's math functions on trees, as of fidget a386417.
+# fidget's math functions on trees, as of fidget a386417, and their
+# number forms, which keycap's server registers.
 
 kind = "math"
 
@@ -33,8 +34,6 @@ The square root.
 
 - `a`: a number, a tree or a vector
 
-Of a float, it is Rhai's own `sqrt`, a number.
-Of an integer, it is a tree, which fidget's shapes do not take for a number.
 Of a vector, it is taken component by component.
 
 Notes:
@@ -55,8 +54,6 @@ doc = """
 
 - `a`: a number or a tree
 
-It is a tree even of a number; `a * a` gives a number.
-
 See also: `sqrt`.
 
 Example: an ellipse 40 by 20, from its implicit equation.
@@ -71,9 +68,6 @@ doc = """
 The sine of an angle in radians.
 
 - `a`: the angle, a number or a tree
-
-Of a float, it is Rhai's own `sin`, a number.
-Of an integer, it is a tree, which fidget's shapes do not take for a number.
 
 See also: `cos`, `tan`, `asin`, `sind`, `PI`.
 
@@ -91,9 +85,6 @@ The cosine of an angle in radians.
 
 - `a`: the angle, a number or a tree
 
-Of a float, it is Rhai's own `cos`, a number.
-Of an integer, it is a tree, which fidget's shapes do not take for a number.
-
 See also: `sin`, `tan`, `acos`, `cosd`, `PI`.
 """
 
@@ -104,9 +95,6 @@ The tangent of an angle in radians.
 
 - `a`: the angle, a number or a tree
 
-Of a float, it is Rhai's own `tan`, a number.
-Of an integer, it is a tree, which fidget's shapes do not take for a number.
-
 See also: `sin`, `cos`, `atan`, `tand`, `PI`.
 """
 
@@ -116,9 +104,6 @@ doc = """
 The arcsine: the angle whose sine is `a`, in radians from -π/2 to π/2.
 
 - `a`: a number or a tree, from -1 to 1
-
-Of a float, it is Rhai's own `asin`, a number.
-Of an integer, it is a tree, which fidget's shapes do not take for a number.
 
 Notes:
 - NaN (not a number) outside -1 to 1.
@@ -133,9 +118,6 @@ The arccosine: the angle whose cosine is `a`, in radians from 0 to π.
 
 - `a`: a number or a tree, from -1 to 1
 
-Of a float, it is Rhai's own `acos`, a number.
-Of an integer, it is a tree, which fidget's shapes do not take for a number.
-
 Notes:
 - NaN (not a number) outside -1 to 1.
 
@@ -149,9 +131,6 @@ The arctangent: the angle whose tangent is `a`, in radians from -π/2 to π/2.
 
 - `a`: a number or a tree
 
-Of a float, it is Rhai's own `atan`, a number.
-Of an integer, it is a tree, which fidget's shapes do not take for a number.
-
 For the angle of a point, all the way round, `atan2` takes both coordinates.
 
 See also: `tan`, `atan2`, `atand`.
@@ -163,9 +142,6 @@ doc = """
 The two-argument arctangent: the angle of the point (`x`, `y`) from +X, in radians from -π to π.
 
 - `y`, `x`: the point's coordinates, `y` first
-
-At least one of `y` and `x` must be a tree: of two numbers it is an error, `Function not found`.
-For two numbers, Rhai's `atan(y, x)` gives the same angle, as a number.
 
 The angle jumps from π to -π across -X.
 
@@ -188,9 +164,6 @@ The exponential function: e, Euler's number, to the power `a`.
 
 - `a`: a number or a tree
 
-Of a float, it is Rhai's own `exp`, a number.
-Of an integer, it is a tree, which fidget's shapes do not take for a number.
-
 See also: `ln`, `E`.
 """
 
@@ -200,9 +173,6 @@ doc = """
 The natural logarithm, to base e.
 
 - `a`: a number or a tree, above 0
-
-Of a float, it is Rhai's own `ln`, a number.
-Of an integer, it is a tree, which fidget's shapes do not take for a number.
 
 Notes:
 - NaN (not a number) below 0, and minus infinity at 0.
@@ -216,9 +186,6 @@ doc = """
 The largest integer not above `a`.
 
 - `a`: a number or a tree
-
-Of a float, it is Rhai's own `floor`, a number.
-Of an integer, it is a tree.
 
 A floor of a coordinate numbers the cells of a grid, for a pattern that changes from cell to cell.
 
@@ -244,9 +211,6 @@ The ceiling: the smallest integer not below `a`.
 
 - `a`: a number or a tree
 
-It is a tree even of a float, unlike `floor` and `round`, as Rhai has no float `ceil`.
-Rhai's own `ceiling` gives a number.
-
 Notes:
 - Field: a step at every integer, as for `floor`.
 
@@ -255,9 +219,9 @@ See also: `floor`, `round`.
 References:
 - [Floor and ceiling functions, Wikipedia](https://en.wikipedia.org/wiki/Floor_and_ceiling_functions)
 
-Example: a number of 8 mm cells that covers 30 mm, from Rhai's `ceiling`, as `ceil` would give a tree.
+Example: the number of 8 mm cells that covers 30 mm.
 ```
-ceiling(30.0 / 8.0)
+ceil(30.0 / 8)
 ```
 """
 
@@ -267,9 +231,6 @@ doc = """
 The nearest integer to `a`, halves away from 0.
 
 - `a`: a number or a tree
-
-Of a float, it is Rhai's own `round`, a number.
-Of an integer, it is a tree.
 
 `x - s * round(x / s)` folds X into cells `s` wide, centred on the multiples of `s`, for a shape repeated along X.
 
