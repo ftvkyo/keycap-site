@@ -66,6 +66,8 @@ pub enum Stage {
     Grid,
     /// Tracing their outlines on the grid
     Contours,
+    /// Tracing a stack of layers for printing
+    Layers,
     Simplifying,
     Writing,
 }
@@ -77,6 +79,7 @@ impl Stage {
             Stage::Triangles => "triangles",
             Stage::Grid => "grid",
             Stage::Contours => "contours",
+            Stage::Layers => "layers",
             Stage::Simplifying => "simplifying",
             Stage::Writing => "writing",
         }

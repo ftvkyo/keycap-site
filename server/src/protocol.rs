@@ -35,6 +35,7 @@ pub enum Op {
     Probe(Probe),
     Mesh(Mesh),
     Trace(Trace),
+    Layers(Layers),
     Cancel(Cancel),
     Eval(Eval),
     Docs(Docs),
@@ -140,6 +141,22 @@ pub struct Trace {
     /// grow by
     #[serde(default)]
     pub kerf: f64,
+    /// As `Mesh`'s
+    #[serde(skip)]
+    pub export: Export,
+}
+
+#[derive(Deserialize)]
+pub struct Layers {
+    /// Where to write the layers as JSON; they are in the reply without
+    pub output: Option<PathBuf>,
+    #[serde(default)]
+    pub bounds: BoundsChoice,
+    /// The heights to trace at, else those of layers `layer_height`
+    /// thick across the region
+    pub z: Option<Vec<f64>>,
+    pub layer_height: Option<f64>,
+    pub resolution: Option<f64>,
     /// As `Mesh`'s
     #[serde(skip)]
     pub export: Export,
@@ -441,6 +458,7 @@ pub fn read_requests(
                 Op::Load(script) => interrupts.new_load(script),
                 Op::Mesh(mesh) => mesh.export = interrupts.new_export(),
                 Op::Trace(trace) => trace.export = interrupts.new_export(),
+                Op::Layers(layers) => layers.export = interrupts.new_export(),
                 Op::Cancel(cancel) => cancel.stopped = interrupts.cancel_export(),
                 _ => {}
             }

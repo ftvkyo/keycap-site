@@ -1550,6 +1550,60 @@ fn trace_errors() {
     assert_eq!(std::fs::read(&output).unwrap(), b"an earlier drawing");
 }
 
+// --- layers ---
+
+/// A cylinder with a hole across it is a ring on each layer below the
+/// hole and two half rings on each layer through it, every point on the
+/// surface; written as JSON, or in the reply.
+#[test]
+fn layers_of_a_solid() {
+    let dir = scratch("layers");
+    let output = dir.join("layers.json");
+    let mut server = with_prelude();
+    let loaded = server.load(
+        "let tube = cylinder(5, [0, 10]).difference(cylinder(2, [-1, 11]));\n\
+         let bore = cylinder(1, [-8, 8]).rotate_x(90).move([0, 0, 7]);\n\
+         draw(tube.difference(bore));\n",
+        None,
+    );
+    assert_eq!(loaded["loaded"], true, "{loaded}");
+    let reply = server.request(json!({
+        "op": "layers", "z": [3.05, 7.0], "bounds": "fitted", "resolution": 10,
+    }));
+    let layers = reply["layers"].as_array().expect("the layers");
+    let shapes: Vec<usize> = layers
+        .iter()
+        .map(|l| l["shapes"].as_array().map_or(0, Vec::len))
+        .collect();
+    assert_eq!(shapes, [1, 2], "{reply}");
+    let ring = layers[0]["shapes"][0].as_array().expect("a ring");
+    assert_eq!(ring.len(), 2);
+    for (contour, r) in ring.iter().zip([5.0, 2.0]) {
+        let flat: Vec<f64> = contour
+            .as_array()
+            .expect("points")
+            .iter()
+            .filter_map(Value::as_f64)
+            .collect();
+        for p in flat.chunks(2) {
+            assert!(close(p[0].hypot(p[1]), r, 1e-3), "{p:?} off {r}");
+        }
+    }
+
+    let reply = server.request(json!({
+        "op": "layers", "output": output, "layer_height": 0.5, "bounds": "fitted",
+        "resolution": 10,
+    }));
+    let text = std::fs::read_to_string(&output).expect("the layers exist");
+    let written: Value = serde_json::from_str(&text).expect("JSON");
+    let count = written["layers"].as_array().map_or(0, Vec::len);
+    assert_eq!(reply["layers"], count, "{reply}");
+    // The fitted bounds reach past the cylinder's 10 by a few percent.
+    assert!((20..=23).contains(&count), "{count}");
+    let bottom = written["layers"][0]["z"].as_f64().unwrap_or_default() - 0.25;
+    assert!((-0.4..-0.2).contains(&bottom), "{bottom}");
+}
+
 #[test]
 fn draw_roles() {
     let mut server = Server::start(&[]);

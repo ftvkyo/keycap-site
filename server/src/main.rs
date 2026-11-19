@@ -8,9 +8,9 @@
 //! JSON line on stdout.  Renders are answered in their order, and the
 //! other requests in theirs, so that a `load` or a `probe` never waits for
 //! a frame; a render shows the scene of the loads before it.  A newer
-//! `render` cancels an older one still waiting or running, and `mesh` and
-//! `trace` answer once their export, running beside the other requests,
-//! is done.  stderr carries logs only.
+//! `render` cancels an older one still waiting or running, and `mesh`,
+//! `trace` and `layers` answer once their export, running beside the
+//! other requests, is done.  stderr carries logs only.
 //!
 //! It renders on half as many threads as there are cores, and exports on
 //! one per core, both at a lower priority, exports the lower; `--threads N`
@@ -174,7 +174,7 @@
 //! `tolerance`, in units, of the mesher's surface, a tenth of a cell when
 //! it is null, unsimplified when it is 0.  The scene as loaded then is
 //! exported on threads of its own, at a lower priority, while later
-//! requests are answered; a newer `mesh` or `trace` cancels it, and one
+//! requests are answered; a newer export cancels it, and one
 //! that would take more memory than is free stops with an error.  As it
 //! goes, it reports each stage on a line of its own, `{"id", "progress"}`,
 //! `progress` one of `octree` (sampling the shapes, most of the time),
@@ -199,6 +199,23 @@
 //! `mesh` does, its stages `grid`, `contours` and `simplifying` for each
 //! role in turn, then `writing`.  The reply has `outlines`, `lines`,
 //! `arcs`, `tolerance`, `bounds`, `slice` and `ms`.
+//!
+//! ## `layers`
+//!
+//! `{"id", "op": "layers", "output", "bounds", "z", "layer_height",
+//! "resolution"}` traces the outlines of the shapes' union, cut to the
+//! region, on level planes, as a slicer cuts a mesh into layers: at each
+//! height of `z`, else at the middles of layers `layer_height` thick from
+//! the bottom of the region up.  Each plane is traced as `trace` traces
+//! one, its points on the surface, unsimplified.  A layer is `{"z",
+//! "shapes"}`, each shape a list of contours, the outline first,
+//! counterclockwise, then its holes, clockwise, and each contour its
+//! points' coordinates in one flat list, `[x0, y0, x1, y1, ...]`, in
+//! millimetres.  With `output`, they are written there as JSON,
+//! `{"unit": "mm", "layers"}`; without, the reply has them as `layers`.
+//! It runs as `mesh` does, its stages `layers` and `writing`.  The reply
+//! has `layers` (their number with `output`), `outlines`, `points`,
+//! `bounds` and `ms`.
 //!
 //! ## `cancel`
 //!
@@ -256,6 +273,7 @@ mod diagnostic;
 mod docs;
 mod drawing;
 mod gpu;
+mod layers;
 mod math;
 mod mesh;
 mod outline;

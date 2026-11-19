@@ -32,7 +32,7 @@ use crate::protocol::{
 use crate::render;
 use crate::scene::{self, Orientation, Scene};
 use crate::script::{self, Dialect, Engine, Run};
-use crate::{contour, docs, drawing, mesh};
+use crate::{contour, docs, drawing, layers, mesh};
 
 /// The largest image side, well past any screen.
 const MAX_SIDE: u32 = 16384;
@@ -228,6 +228,17 @@ fn ms(start: Instant) -> f64 {
     (start.elapsed().as_secs_f64() * 1e4).round() / 10.0
 }
 
+/// The cells of a 2D export's grid over the rectangle from `lower` to
+/// `upper`: 1/`resolution` across, else [`DEFAULT_CELLS`] across its
+/// longer side.
+fn grid_cell(resolution: Option<f64>, lower: [f64; 2], upper: [f64; 2]) -> Result<f64, String> {
+    match resolution {
+        Some(resolution) if resolution.is_finite() && resolution > 0.0 => Ok(1.0 / resolution),
+        Some(resolution) => Err(format!("resolution must be positive, not {resolution}")),
+        None => Ok((upper[0] - lower[0]).max(upper[1] - lower[1]) / DEFAULT_CELLS),
+    }
+}
+
 impl Server {
     fn handle(&mut self, id: i64, op: Op) -> Reply {
         let reply = match op {
@@ -246,6 +257,11 @@ impl Server {
             Op::Trace(request) => {
                 let generation = request.export.generation;
                 let reply = self.trace(id, request);
+                self.unless_started(generation, reply)
+            }
+            Op::Layers(request) => {
+                let generation = request.export.generation;
+                let reply = self.layers(id, request);
                 self.unless_started(generation, reply)
             }
             Op::Cancel(cancel) => Ok(json!({ "stopped": cancel.stopped }).into()),
@@ -597,13 +613,7 @@ impl Server {
         let size = camera::plane_size(&region, &slice);
         let lower = [center[i] - size[0] / 2.0, center[j] - size[1] / 2.0];
         let upper = [center[i] + size[0] / 2.0, center[j] + size[1] / 2.0];
-        let cell = match resolution.or(scene.resolution) {
-            Some(resolution) if resolution.is_finite() && resolution > 0.0 => 1.0 / resolution,
-            Some(resolution) => {
-                return Err(format!("resolution must be positive, not {resolution}"));
-            }
-            None => (upper[0] - lower[0]).max(upper[1] - lower[1]) / DEFAULT_CELLS,
-        };
+        let cell = grid_cell(resolution.or(scene.resolution), lower, upper)?;
         let grid = contour::Grid::new(lower, upper, cell)?;
         let tolerance = match tolerance {
             Some(tolerance) if tolerance.is_finite() && tolerance >= 0.0 => tolerance,
@@ -634,6 +644,69 @@ impl Server {
                     "ms": ms(start),
                 })
             }))
+        })
+    }
+
+    // --- layers ---
+
+    fn layers(&mut self, id: i64, request: protocol::Layers) -> Result<Reply, String> {
+        let start = Instant::now();
+        let protocol::Layers {
+            output,
+            bounds,
+            z,
+            layer_height,
+            resolution,
+            export,
+        } = request;
+        if export.cancel.is_cancelled() {
+            return Ok(Reply::Cancelled);
+        }
+        let scene = self.scene()?;
+        if scene.drawn.is_empty() {
+            return Err("the script draws nothing".into());
+        }
+        let (region, used) = scene.region(bounds);
+        let zs = match (z, layer_height) {
+            (Some(zs), _) if zs.iter().all(|z| z.is_finite()) => zs,
+            (Some(_), _) => return Err("every z must be finite".into()),
+            (None, Some(h)) if h.is_finite() && h > 0.0 => {
+                layers::uniform(region.lower[2], region.upper[2], h)
+            }
+            (None, Some(h)) => return Err(format!("layer_height must be positive, not {h}")),
+            (None, None) => return Err("give the heights as z, or a layer_height".into()),
+        };
+        let footprint = [region.lower, region.upper].map(|c| [c[0], c[1]]);
+        let cell = grid_cell(resolution.or(scene.resolution), footprint[0], footprint[1])?;
+        let grid = contour::Grid::new(footprint[0], footprint[1], cell)?;
+        let shape = scene.compiled(Orientation::Solid(used))?.union.clone();
+        self.start_export(id, export, 0.0, move |job| {
+            let Some(stack) = layers::slice(&shape, &grid, &zs, job)? else {
+                return Ok(None);
+            };
+            let contours = stack.iter().flat_map(|l| l.shapes.iter().flatten());
+            let mut reply = json!({
+                "outlines": contours.clone().count(),
+                "points": contours.map(Vec::len).sum::<usize>(),
+                "bounds": used,
+            });
+            match output {
+                Some(output) => {
+                    (job.progress)(mesh::Stage::Writing);
+                    render::write_atomically(&output, |file| layers::write_json(file, &stack))?;
+                    reply["layers"] = stack.len().into();
+                }
+                None => {
+                    let each = stack.iter().map(|layer| {
+                        let shapes = layers::shapes_json(&layer.shapes);
+                        let shapes: Value = serde_json::from_str(&shapes).expect("JSON");
+                        json!({ "z": layer.z, "shapes": shapes })
+                    });
+                    reply["layers"] = each.collect();
+                }
+            }
+            reply["ms"] = ms(start).into();
+            Ok(Some(reply))
         })
     }
 
