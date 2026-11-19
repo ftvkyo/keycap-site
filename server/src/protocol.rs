@@ -85,6 +85,8 @@ pub struct Render {
     #[serde(default)]
     pub reproducible: bool,
     #[serde(default)]
+    pub live: bool,
+    #[serde(default)]
     pub camera: Camera,
     #[serde(default)]
     pub slice: Slice,

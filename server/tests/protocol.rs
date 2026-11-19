@@ -1096,26 +1096,31 @@ fn gpu_frames_in_tiles_match_the_cpu() {
         let reply = server.load(&source, None);
         assert_eq!(reply["loaded"], true, "{reply}");
         for view in ["shaded", "heightmap"] {
-            let mut render = |backend: &str| {
-                let output = dir.join(format!("{view}-{backend}-{budget}.ppm"));
-                let size = json!({"view": view, "backend": backend, "width": 1000, "height": 800});
+            let mut render = |backend: &str, live: bool| {
+                let output = dir.join(format!("{view}-{backend}-{budget}-{live}.ppm"));
+                let size = json!({
+                    "view": view, "backend": backend, "width": 1000, "height": 800, "live": live,
+                });
                 let reply = server.render(&output, size);
                 assert_eq!(reply["backend"], backend, "{reply}");
                 read_ppm(&output).2
             };
-            let cpu = render("cpu");
-            // The first frame measures the tiles, the second is cut into them.
-            render("gpu");
-            let gpu = render("gpu");
-            let differing = cpu
-                .iter()
-                .zip(&gpu)
-                .filter(|(a, b)| (0..3).any(|i| a[i].abs_diff(b[i]) > 24))
-                .count();
-            assert!(
-                differing < cpu.len() / 50,
-                "{view}, {budget} ms: {differing} pixels differ"
-            );
+            let cpu = render("cpu", false);
+            // The first frame measures the tiles, the second is cut into them;
+            // a live frame's tiles are smaller.
+            render("gpu", false);
+            for live in [false, true] {
+                let gpu = render("gpu", live);
+                let differing = cpu
+                    .iter()
+                    .zip(&gpu)
+                    .filter(|(a, b)| (0..3).any(|i| a[i].abs_diff(b[i]) > 24))
+                    .count();
+                assert!(
+                    differing < cpu.len() / 50,
+                    "{view}, {budget} ms, live {live}: {differing} pixels differ"
+                );
+            }
         }
     }
 }

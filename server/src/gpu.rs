@@ -54,6 +54,9 @@ const WATCHDOG: Duration = Duration::from_secs(10);
 /// The smallest tile side, which new shapes are first tried at
 const MIN_TILE: u32 = 32;
 
+/// How much shorter than the budget the submissions of a live frame are
+const LIVE: u32 = 4;
+
 /// How much slower than the shapes before them new shapes may be before
 /// a tile planned from the cost of the old ones risks a reset: such tiles
 /// are planned to take this much less than the budget.
@@ -371,7 +374,7 @@ impl Device {
     /// `request`'s view and background, or `None` once `cancel` fires.  The
     /// GPU finds the surfaces, and their occlusion when the frame is one
     /// tile, unless it is to be `reproducible`; they are lit as the CPU's
-    /// are.
+    /// are.  A `live` frame goes in shorter submissions.
     pub fn render3(
         &mut self,
         scene: &Scene,
@@ -406,7 +409,15 @@ impl Device {
                 smallest * 1e3
             ));
         }
-        let side = cost.side(self.budget, view);
+        // Shorter, but not so short that their latency is most of their
+        // time, as on a GPU busy with others' work
+        let budget = if request.live {
+            let latency = Duration::from_secs_f64(2.0 * cost.latency);
+            (self.budget / LIVE).max(latency).min(self.budget)
+        } else {
+            self.budget
+        };
+        let side = cost.side(budget, view);
         let [w, h] = [side.min(width), side.min(height)];
         let mut slowest = Duration::ZERO;
         let voxels = if [w, h] == [width, height] {
@@ -434,7 +445,9 @@ impl Device {
             voxels
         };
         if let Some(shapes) = self.shapes.as_mut() {
-            let tiled = [w, h] != [width, height];
+            // A live frame's tiles are smaller than the budget allows, so
+            // they tell the latency, as a small frame's do.
+            let tiled = [w, h] != [width, height] && !request.live;
             let cost = cost.refit(slowest, volume([w, h], view.depth), tiled);
             shapes.costs.insert(size, cost);
         }

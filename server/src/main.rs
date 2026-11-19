@@ -119,6 +119,10 @@
 //!   run, as `cpu` frames are; its ambient occlusion then comes from the
 //!   CPU, which is slower.  False by default: the GPU finds it from samples
 //!   drawn once per run, so frames do not flicker within one
+//! - `live`: whether a newer frame soon follows, as while the camera is
+//!   dragged or the script edited.  A live 3D frame on the GPU goes in
+//!   submissions of a quarter of the budget, so that other programs' frames
+//!   wait less for the GPU.  False by default
 //! - `camera`: `{"azimuth", "elevation", "zoom", "pan", "orthographic"}`;
 //!   degrees, Z up, azimuth 0 looking from +X; zoom 1 fits the region's
 //!   corners as the camera sees them (3D) or its slice (2D) to the image;
