@@ -398,3 +398,26 @@ impl PathSink for Glyph {
         self.path.close_path();
     }
 }
+
+#[cfg(test)]
+mod test {
+    use fidget::context::Context;
+    use fidget::vm::VmShape;
+
+    use super::*;
+
+    /// A line of text, its glyphs repeated, leaves most of the GPU's 255
+    /// registers free.
+    #[test]
+    fn a_line_fits_the_gpus_registers() {
+        let line = "The quick brown fox jumps over the lazy dog";
+        let options = Options::new(None).expect("the defaults are options");
+        let (tree, _) =
+            text(&Fonts::default(), line, &options, Path::new(".")).expect("it lays out");
+        let mut context = Context::new();
+        let node = context.import(&tree);
+        let shape = VmShape::new(&context, node).expect("it compiles");
+        let registers = shape.inner().data().slot_count();
+        assert!(registers < 128, "{registers} registers");
+    }
+}

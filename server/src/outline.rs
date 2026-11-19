@@ -11,6 +11,12 @@
 //! out the ones that cannot matter to a region, so that the tapes fidget
 //! simplifies for a tile keep only the edges near it, and a region away
 //! from the edges is seen to be inside or outside without them.
+//!
+//! fidget's tape keeps a node that two places use in a register from the
+//! first to the last, and the GPU has 255 registers.  So the distances and
+//! the winding number share no node but the coordinates, and each box takes
+//! nodes of its own from those, so that the same glyph twice, or two
+//! glyphs at the same height, share none either.
 
 use fidget::context::Tree;
 use i_overlay::core::fill_rule::FillRule;
@@ -135,6 +141,24 @@ impl Axes {
         Axes { u, v }
     }
 
+    /// The axes moved to `centre`, as the part there measures distances in
+    /// them.  Parts lie side by side along `v`, so `u` takes in a 0 made
+    /// from `v` there, by a comparison that always comes out the same: `u`
+    /// less a height alone would be one node for every part at that height.
+    fn moved(&self, centre: Point) -> Axes {
+        let v = self.v.clone() - centre[1] as f32;
+        let zero = v.compare(1e30f32) + 1.0f32;
+        let u = self.u.clone() + zero - centre[0] as f32;
+        Axes::new(u, v)
+    }
+
+    /// `u` as the part at `centre` counts windings in it: exactly `u`, with
+    /// a 0 as `moved`'s from a node of `v` that is not `moved`'s.
+    fn own_u(&self, centre: Point) -> Tree {
+        let near = Tree::constant(centre[1] as f32) - self.v.clone();
+        self.u.clone() + (near.compare(1e30f32) + 1.0f32)
+    }
+
     /// 1 between `lo` and `hi` across the rays, half that on either, 0
     /// past them, so that a ray through a corner counts it once.
     fn across(&self, lo: f64, hi: f64) -> Tree {
@@ -164,14 +188,14 @@ impl Edge {
     /// along it.  The latter is 0 exactly in the edge's span, gradient
     /// included, so near the edge the gradient is the line's, where the
     /// difference between a point and its projection would be rounding
-    /// noise.
-    fn distance2(&self, axes: &Axes) -> Tree {
+    /// noise.  `moved` are the axes moved to `centre`.
+    fn distance2(&self, moved: &Axes, centre: Point) -> Tree {
         let [pu, pv] = self.p;
         let [eu, ev] = self.e;
         let ee = eu * eu + ev * ev;
         let el = ee.sqrt();
-        let wu = axes.u.clone() - pu as f32;
-        let wv = axes.v.clone() - pv as f32;
+        let wu = moved.u.clone() - (pu - centre[0]) as f32;
+        let wv = moved.v.clone() - (pv - centre[1]) as f32;
         let line = wu.clone() * (ev / el) as f32 - wv.clone() * (eu / el) as f32;
         // The nearest point's place along the line, 0 and 1 at the ends
         let t = wu * (eu / ee) as f32 + wv * (ev / ee) as f32;
@@ -215,13 +239,16 @@ struct Bounds {
 
 impl Bounds {
     fn new(axes: &Axes, lower: Point, upper: Point) -> Self {
-        let centre = [0, 1].map(|i| ((lower[i] + upper[i]) * 0.5) as f32);
+        let centre = centre(lower, upper);
+        let moved = axes.moved(centre);
         let half = [0, 1].map(|i| ((upper[i] - lower[i]) * 0.5) as f32);
-        let off_u = (axes.u.clone() - centre[0]).abs() - half[0];
-        let off_v = (axes.v.clone() - centre[1]).abs() - half[1];
+        let off_u = moved.u.abs() - half[0];
+        let off_v = moved.v.abs() - half[1];
+        let between = |a: &Tree, lo: f64, hi: f64| a.compare(lo as f32) - a.compare(hi as f32);
         Bounds {
             distance2: off_u.max(0.0f32).square() + off_v.max(0.0f32).square(),
-            inside: (off_u.compare(0.0f32) - 1.0f32) * (off_v.compare(0.0f32) - 1.0f32),
+            inside: between(&axes.own_u(centre), lower[0], upper[0])
+                * between(&axes.v, lower[1], upper[1]),
         }
     }
 
@@ -232,6 +259,11 @@ impl Bounds {
     fn distance2(&self, distance2: Tree) -> Tree {
         self.distance2.max(distance2)
     }
+}
+
+/// The middle of the box from `lower` to `upper`
+fn centre(lower: Point, upper: Point) -> Point {
+    [0, 1].map(|i| (lower[i] + upper[i]) * 0.5)
 }
 
 /// The part a run of consecutive edges makes, split in halves down to
@@ -249,14 +281,17 @@ fn run(axes: &Axes, edges: &[Edge]) -> Part {
             }
         }
     }
+    let centre = centre(lower, upper);
+    let own = Axes::new(axes.own_u(centre), axes.v.clone());
     let (distance2, winding) = if edges.len() <= LEAF {
+        let moved = axes.moved(centre);
         let distance2 = edges
             .iter()
-            .map(|e| e.distance2(axes))
+            .map(|e| e.distance2(&moved, centre))
             .reduce(|a, b| a.min(b));
         let winding = edges
             .iter()
-            .filter_map(|e| e.winding(axes))
+            .filter_map(|e| e.winding(&own))
             .reduce(|a, b| a + b);
         (
             distance2.expect("a run has edges"),
@@ -273,7 +308,7 @@ fn run(axes: &Axes, edges: &[Edge]) -> Part {
     let (start, end) = (edges[0].p[1], edges[edges.len() - 1].end()[1]);
     if start != end {
         let ahead = Tree::constant(lower[0] as f32)
-            .compare(axes.u.clone())
+            .compare(own.u.clone())
             .max(0.0f32);
         let ends = axes.across(start.min(end), start.max(end)) * (end - start).signum() as f32;
         winding += ahead.and(ends);
