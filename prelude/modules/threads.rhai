@@ -278,7 +278,7 @@ private fn _threads_field(t) {
     let r_maj = t.d * 0.5;
     let r_min = t.d1 * 0.5;
     let r = _hypot(x, y);
-    let w = abs((z - t.pitch * _atan2(y, x) / TAU + p * 0.5) % p - p * 0.5);
+    let w = abs((z - t.pitch * _atan2_narrow(y, x) / TAU + p * 0.5) % p - p * 0.5);
     let w1 = p / 16.0;
     let w2 = p * 3.0 / 8.0;
     // The flank, from (r_maj, w1) to (r_min, w2); `line` is the signed

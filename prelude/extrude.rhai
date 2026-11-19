@@ -328,7 +328,7 @@ fn revolve(shape, angle, opts) {
     let a0 = a[0] * (PI / 180.0);
     let a1 = a[1] * (PI / 180.0);
     let rho = _hypot(x, y);
-    let at = if whole { #{u: rho, a: _atan2(y, x), past: -1.0} } else { _arc_place(a0, a1) };
+    let at = if whole { #{u: rho, a: _atan2_narrow(y, x), past: -1.0} } else { _arc_place(a0, a1) };
     let u = at.u;
     let flat = 0.0;
     if "sides" in opts {
@@ -345,7 +345,7 @@ fn revolve(shape, angle, opts) {
         let sector = (a1 - a0) / facets;
         let b = (at.a - a0) % sector - sector * 0.5;
         let c = cos(sector * 0.5);
-        u = at.u * cos(b) / c;
+        u = at.u * _cos_poly(b) / c;
         // The facets stretch the profile across by 1 / c; past the ends,
         // within a thousandth of a radian, they do no longer.
         flat = (1.0 / (c * c) - 1.0) * clamp(-1000.0 * at.past, 0.0, 1.0);
@@ -464,15 +464,15 @@ fn _arc_place(a0, a1) {
     let half = (a1 - a0) * 0.5;
     let c = cos(m);
     let s = sin(m);
-    let off = _atan2(y * c - x * s, x * c + y * s);
+    let off = _atan2_narrow(y * c - x * s, x * c + y * s);
     let past = abs(off) - half;
     let rho = _hypot(x, y);
     #{
         off: off,
         past: past,
         a: m + clamp(off, -half, half),
-        u: rho * cos(max(past, 0.0)),
-        across: rho * sin(max(past, -FRAC_PI_2)),
+        u: rho * _cos_poly(max(past, 0.0)),
+        across: rho * _sin_poly(max(past, -FRAC_PI_2)),
     }
 }
 

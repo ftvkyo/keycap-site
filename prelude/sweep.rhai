@@ -48,7 +48,7 @@ fn helix(profile, radius, pitch) {
     let r = _hypot(x, y);
     // Height above the helix's nearest turn at this angle; the remainder
     // also joins the turns where atan2 jumps.
-    let w = (z - p * _atan2(y, x) / TAU + abs(p) * 0.5) % abs(p) - abs(p) * 0.5;
+    let w = (z - p * _atan2_narrow(y, x) / TAU + abs(p) * 0.5) % abs(p) - abs(p) * 0.5;
     // The binormal offset is w times the cosine of the helix angle: at the
     // helix's radius on the wire, at the point's own radius off it; their
     // geometric mean is right to second order on both sides, as the law of
@@ -108,7 +108,7 @@ fn bend(shape, r, angle) {
         let m = (a0 + a1) * 0.5;
         let c = cos(m);
         let s = sin(m);
-        let around = m + _atan2(y * c - x * s, x * c + y * s);
+        let around = m + _atan2_narrow(y * c - x * s, x * c + y * s);
         return remap(p, _hypot(x, y) - r, z, r * around);
     }
     let at = _arc_place(a0, a1);
@@ -403,8 +403,8 @@ fn _sweep_piece(piece, section, total, varying) {
                 past = [past[1], past[0]];
             }
             let rho = _hypot(x, y);
-            let start = rho * sin(max(past[0], -FRAC_PI_2));
-            let end = rho * sin(max(past[1], -FRAC_PI_2));
+            let start = rho * _sin_poly(max(past[0], -FRAC_PI_2));
+            let end = rho * _sin_poly(max(past[1], -FRAC_PI_2));
             let ends = _sweep_ends(piece, at.across, start, end);
             let rising = varying || piece.climb != 0.0;
             let f = _sweep_section(section, u, v, t, -piece.climb * da, 0.1 / total, step, ends, rising);

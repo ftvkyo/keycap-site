@@ -341,12 +341,12 @@ fn repeat_polar(shape, n) {
         return repeat_polar(this, shape, n, #{});
     }
     let sector = 2.0 * PI / _count(n, "repeat_polar: n");
-    let a = _atan2(y, x);
+    let a = _atan2_narrow(y, x);
     // The clamp changes nothing but tells interval arithmetic the wedge's
     // limits, so fitted bounds see where the copies end.
     let a = clamp(a - sector * round(a / sector), -0.5 * sector, 0.5 * sector);
     let r = _hypot(x, y);
-    remap(_tree(shape), r * cos(a), r * sin(a), z)
+    remap(_tree(shape), r * _cos_poly(a), r * _sin_poly(a), z)
 }
 
 fn repeat_polar(shape, angle, n, opts) {
@@ -357,7 +357,7 @@ fn repeat_polar(shape, angle, n, opts) {
     // Angles from the arc's middle, so that the arc's ends are as far
     // from atan2's cut, behind it, as they can be.
     let mid = if _opt(opts, "center", false) { 0.0 } else { step * c };
-    let a = _atan2(y * cos(mid) - x * sin(mid), x * cos(mid) + y * sin(mid));
+    let a = _atan2_narrow(y * cos(mid) - x * sin(mid), x * cos(mid) + y * sin(mid));
     let k = clamp(round(a / step + c), 0.0, n - 1.0);
     // Past the arc's ends, a point more than a quarter turn from the end
     // copy is turned back to a quarter turn, nearer the copy: the field
@@ -366,7 +366,7 @@ fn repeat_polar(shape, angle, n, opts) {
     let quarter = max(0.5 * PI, 0.5 * abs(step));
     let a = clamp(a - step * (k - c), -quarter, quarter);
     let r = _hypot(x, y);
-    remap(_tree(shape), r * cos(a), r * sin(a), z)
+    remap(_tree(shape), r * _cos_poly(a), r * _sin_poly(a), z)
 }
 
 // Both `repeat_polar(shape, angle, n)` and the method form; see
@@ -480,13 +480,13 @@ fn hex_grid(step, opts) {
 fn kaleidoscope(shape, n) {
     _count(n, "kaleidoscope: n");
     let sector = 2.0 * PI / n;
-    let a = _atan2(y, x);
+    let a = _atan2_narrow(y, x);
     // Folded into the wedge from -180 / n to 180 / n degrees, then
     // mirrored into its upper half.  The clamp changes nothing but tells
     // interval arithmetic the wedge's limits.
     let a = clamp(abs(a - sector * round(a / sector)), 0.0, 0.5 * sector);
     let r = _hypot(x, y);
-    remap(_tree(shape), r * cos(a), r * sin(a), z)
+    remap(_tree(shape), r * _cos_poly(a), r * _sin_poly(a), z)
 }
 
 // --- Recursion ---

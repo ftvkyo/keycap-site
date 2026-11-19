@@ -106,7 +106,7 @@ fn involute_gear(teeth, m, opts) {
     let r = _hypot(x, y);
     let sector = TAU / teeth;
     // Fold every tooth onto the one on +X, and its two flanks onto one.
-    let a = abs((_atan2(y, x) + sector * 0.5) % sector - sector * 0.5);
+    let a = abs((_atan2_narrow(y, x) + sector * 0.5) % sector - sector * 0.5);
     // The involute's polar angle at radius r: tan(alpha) - alpha, alpha the
     // pressure angle there; 0 at and below the base circle, where the flank
     // continues radially, and where `sqrt` and `acos` have no gradient.

@@ -240,7 +240,7 @@ fn cone(r, h, opts) {
             throw `cone: sides must be an integer of at least 3, got ${n}`;
         }
         let an = PI / n;
-        qx = qx * cos(_atan2(y, x) % (2.0 * an) - an);
+        qx = qx * _cos_poly(_atan2_narrow(y, x) % (2.0 * an) - an);
         r1 = r1 * cos(an);
         r2 = r2 * cos(an);
     }

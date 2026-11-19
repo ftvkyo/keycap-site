@@ -421,7 +421,7 @@ fn polar_outline(r) {
     if type_of(r) != "Fn" {
         throw `polar_outline: r must be a function of the angle, or come with its derivative dr, got ${type_of(r)}`;
     }
-    let a = _atan2(y, x) * (180.0 / PI);
+    let a = _atan2_narrow(y, x) * (180.0 / PI);
     let h = 0.1;
     let r0 = _float(r.call(a));
     polar_outline(r0, (_float(r.call(a + h)) - r0) / (h * PI / 180.0))
@@ -482,8 +482,8 @@ fn polygon_ray(n, r) {
     let an = PI / n;
     // The angle from the middle of the nearest side, whose distance from
     // the centre is the apothem.
-    let b = (_atan2(y, x) + 2.0 * PI) % (2.0 * an) - an;
-    #{r: r * cos(an) / cos(b), slope: tan(b)}
+    let b = (_atan2_narrow(y, x) + 2.0 * PI) % (2.0 * an) - an;
+    #{r: r * cos(an) / _cos_poly(b), slope: _sin_poly(b) / _cos_poly(b)}
 }
 
 /// star_ray(n: number, r: [Tree, Tree]): Ray
@@ -518,13 +518,13 @@ fn star_ray(n, r) {
     let an = PI / n;
     // As `star` folds the plane: the angle from the nearest inner corner,
     // whose edge runs to the point at `an`.
-    let b = (_atan2(y, x) + 2.0 * PI) % (2.0 * an) - an;
+    let b = (_atan2_narrow(y, x) + 2.0 * PI) % (2.0 * an) - an;
     let c = abs(b);
     let ex = r[0] * cos(an) - r[1];
     let ey = r[0] * sin(an);
-    let across = ey * cos(c) - ex * sin(c);
+    let across = ey * _cos_poly(c) - ex * _sin_poly(c);
     // The fold turns the slope over on one side of each inner corner.
-    #{r: ey * r[1] / across, slope: compare(b, 0.0) * (ey * sin(c) + ex * cos(c)) / across}
+    #{r: ey * r[1] / across, slope: compare(b, 0.0) * (ey * _sin_poly(c) + ex * _cos_poly(c)) / across}
 }
 
 /// squircle_ray(u: Tree, v: Tree, s: number): Ray
@@ -678,10 +678,10 @@ fn regular_polygon(n, r, opts) {
         _vary(|k| _rounded_star(n, r, r * cos(an), k, 0.0), k, opts)
     } else {
         // Fold the plane into half a sector, then measure to that half-edge.
-        let b = _atan2(y, x) % (2.0 * an) - an;
+        let b = _atan2_narrow(y, x) % (2.0 * an) - an;
         let l = _hypot(x, y);
-        let px = l * cos(b) - r * cos(an);
-        let py = l * abs(sin(b)) - r * sin(an);
+        let px = l * _cos_poly(b) - r * cos(an);
+        let py = l * abs(_sin_poly(b)) - r * sin(an);
         let py = py + clamp(-py, 0.0, r * sin(an));
         _signed_sqrt(square(px) + square(py), compare(px, 0.0), px)
     };
@@ -767,9 +767,9 @@ fn star(n, r, opts) {
         // Fold the plane into the half sector between an inner corner (on
         // +X after the fold) and a point, then measure to the edge between
         // them; the origin's side of that edge is inside.
-        let c = abs(_atan2(y, x) % (2.0 * an) - an);
-        let wx = l * cos(c) - ri;
-        let wy = l * sin(c);
+        let c = abs(_atan2_narrow(y, x) % (2.0 * an) - an);
+        let wx = l * _cos_poly(c) - ri;
+        let wy = l * _sin_poly(c);
         let ex = ro * cos(an) - ri;
         let ey = ro * sin(an);
         let el = _hypot(ex, ey);
@@ -837,10 +837,10 @@ fn hexagon_af(af, opts) {
 // of the edge and the arc on the point's side.
 fn _rounded_star(n, ro, ri, kp, ki) {
     let an = PI / n;
-    let c = abs(_atan2(y, x) % (2.0 * an) - an);
+    let c = abs(_atan2_narrow(y, x) % (2.0 * an) - an);
     let l = _hypot(x, y);
-    let wx = l * cos(c);
-    let wy = l * sin(c);
+    let wx = l * _cos_poly(c);
+    let wy = l * _sin_poly(c);
     let px = ro * cos(an);
     let py = ro * sin(an);
     let el = _hypot(px - ri, py);
