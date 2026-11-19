@@ -530,7 +530,7 @@ fn step(edge, v) {
     }
 }
 
-/// linstep(e0: number, e1: number, v: Tree): Tree
+/// linstep(e0: Tree, e1: Tree, v: Tree): Tree
 ///
 /// A straight step from 0 to 1 as `v` goes from edge `e0` to edge `e1`.
 ///
@@ -552,7 +552,7 @@ fn linstep(e0, e1, v) {
     clamp((_float(v) - e0) / _float(e1 - e0), 0.0, 1.0)
 }
 
-/// smoothstep(e0: number, e1: number, v: Tree): Tree
+/// smoothstep(e0: Tree, e1: Tree, v: Tree): Tree
 ///
 /// A smooth step from 0 to 1 as `v` goes from edge `e0` to edge `e1`.
 ///
@@ -845,13 +845,11 @@ fn _sind(a) {
 
 // --- Vectors ---
 
-/// dot(a: number[], b: number[]): number
+/// dot(a: Tree[], b: Tree[]): Tree
 ///
 /// The dot product of two vectors of the same length.
 ///
 /// - `a`, `b`: the vectors
-///
-/// The components may be trees too, which gives a tree.
 ///
 /// See also: `cross`, `norm`.
 ///
@@ -915,7 +913,7 @@ fn cross(a, b) {
     }
 }
 
-/// norm(v: number[]): number
+/// norm(v: Tree[]): Tree
 ///
 /// The length of a vector.
 ///
@@ -931,7 +929,7 @@ fn norm(v) {
     sqrt(dot(v, v))
 }
 
-/// normalize(v: number[]): number[]
+/// normalize(v: Tree[]): Tree[]
 ///
 /// A vector scaled to length 1: its direction.
 ///
