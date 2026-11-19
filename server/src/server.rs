@@ -164,6 +164,7 @@ pub fn run(prelude: Option<&Path>, threads: Option<usize>, budget: Duration) {
     let renderer = std::thread::spawn({
         let (interrupts, shared, replies) = (interrupts.clone(), shared.clone(), replies.clone());
         move || {
+            mesh::lower_priority(render::NICE);
             let mut renderer = Renderer {
                 gpu: Gpu::new(budget),
                 interrupts,

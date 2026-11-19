@@ -12,11 +12,12 @@
 //! `trace` answer once their export, running beside the other requests,
 //! is done.  stderr carries logs only.
 //!
-//! It renders on as many threads as there are cores, and exports on as
-//! many more; `--threads N` makes that N each, so that a shared machine
-//! keeps cores for others.  A 3D frame on the GPU goes in tiles, each a
-//! submission of about `--gpu-budget MS` at most (400 by default), as
-//! drivers reset a GPU whose work runs for seconds.
+//! It renders on half as many threads as there are cores, and exports on
+//! one per core, both at a lower priority, exports the lower; `--threads N`
+//! makes that N each, so that a shared machine keeps cores for others.  A
+//! 3D frame on the GPU goes in tiles, each a submission of about
+//! `--gpu-budget MS` at most (400 by default), as drivers reset a GPU
+//! whose work runs for seconds.
 //!
 //! Scripts are Rhai in one of two dialects.  `keycap`, the default, is
 //! fidget's bindings (`fidget::rhai`) plus:
@@ -286,13 +287,8 @@ fn main() {
             _ => fail(&format!("unexpected argument {arg:?}")),
         }
     }
-    // Frames, bounds and the rest run on rayon's global pool.
-    if let Some(threads) = threads
-        && let Err(error) = rayon::ThreadPoolBuilder::new()
-            .num_threads(threads)
-            .build_global()
-    {
-        fail(&format!("cannot start {threads} threads: {error}"));
+    if let Err(error) = render::pool(threads) {
+        fail(&error);
     }
     server::run(prelude.as_deref(), threads, budget);
 }

@@ -16,11 +16,28 @@ use rayon::prelude::*;
 use crate::camera::{View2, View3};
 use crate::protocol::{BoundsChoice, View};
 use crate::scene::{self, Compiled, Orientation, Scene};
-use crate::{shade, ssao};
+use crate::{mesh, shade, ssao};
 
 pub type Rgb = [u8; 3];
 
+/// Frames run on rayon's global pool, which `pool` sets up.
 const THREADS: Option<&ThreadPool> = Some(&ThreadPool::Global);
+
+/// The nice value of the threads that render
+pub const NICE: i32 = 5;
+
+/// Sets up the threads frames run on: `threads`, or half the cores, so that
+/// the rest stay free for the editor and the desktop, at a lower priority.
+pub fn pool(threads: Option<usize>) -> Result<(), String> {
+    let half = std::thread::available_parallelism().map_or(1, |n| n.get().div_ceil(2));
+    let threads = threads.unwrap_or(half);
+    rayon::ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .thread_name(|i| format!("keycap-render-{i}"))
+        .start_handler(|_| mesh::lower_priority(NICE))
+        .build_global()
+        .map_err(|error| format!("cannot start {threads} threads: {error}"))
+}
 
 /// Whether the shapes differ in colour or role, so that each is rendered
 /// alone; otherwise their union stands in for them, in the first one's

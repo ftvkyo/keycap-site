@@ -95,9 +95,12 @@ instead.  A value is a number, a string, t or nil, or a vector of them.")
   :type '(choice (const :tag "None" nil) directory))
 
 (defcustom keycap-server-threads nil
-  "Threads each server renders on, and exports on, or nil for one per core.
-On a machine shared with other work, a few keep the rest of its cores free."
-  :type '(choice (const :tag "One per core" nil) (natnum :tag "Threads")))
+  "Threads each server renders on, and exports on, or nil for the default.
+By default, it renders on half the cores and exports on every core, at
+a lower priority than other programs.  On a machine shared with other
+work, a few keep the rest of its cores free."
+  :type '(choice (const :tag "Half the cores to render, every core to export" nil)
+                 (natnum :tag "Threads")))
 
 (defcustom keycap-load-delay 0.3
   "Seconds after a change to the script until the preview follows."

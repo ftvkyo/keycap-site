@@ -343,7 +343,7 @@ Cut acrylic only if it is cast acrylic (PMMA), extract the fumes of every job, a
 
 - User Option: keycap-server-program :: The ~keycap-server~ executable.
 - User Option: keycap-prelude-directory :: The directory whose =.rhai= files every script can call without importing them; the package's prelude by default.
-- User Option: keycap-server-threads :: The threads each ~keycap-server~ renders on, and as many again that it exports on; ~nil~, the default, is one per core.
+- User Option: keycap-server-threads :: The threads each ~keycap-server~ renders on, and as many again that it exports on; ~nil~, the default, is half the cores to render on and every core to export on, both at a lower priority than other programs.
   On a machine shared with other work, a few keep the rest of its cores free.
 - User Option: keycap-load-delay :: Seconds of idle time after an edit before the script is evaluated again.
 - User Option: keycap-export-resolution :: Cells per unit for export when the script sets no ~resolution~: of the mesh, or of the grid outlines are traced on.

@@ -2538,6 +2538,30 @@ fn threads_are_capped() {
     }
     assert!(tasks <= 7, "{tasks} threads");
 
+    // Frames give way to the rest of the machine, exports more so.
+    let nice = |name: &str| -> Vec<String> {
+        let tasks = std::fs::read_dir(format!("/proc/{}/task", server.child.id()));
+        let mut nice: Vec<String> = tasks
+            .into_iter()
+            .flatten()
+            .flatten()
+            .filter(|task| {
+                std::fs::read_to_string(task.path().join("comm"))
+                    .is_ok_and(|comm| comm.starts_with(name))
+            })
+            .filter_map(|task| {
+                let stat = std::fs::read_to_string(task.path().join("stat")).ok()?;
+                // The fields after the name, which may hold spaces
+                let fields: Vec<&str> = stat.rsplit_once(')')?.1.split_whitespace().collect();
+                fields.get(16).map(|nice| nice.to_string())
+            })
+            .collect();
+        nice.sort();
+        nice
+    };
+    assert_eq!(nice("keycap-render"), ["5", "5"]);
+    assert_eq!(nice("keycap-export"), ["10", "10"]);
+
     for bad in ["0", "many"] {
         let status = Command::new(env!("CARGO_BIN_EXE_keycap-server"))
             .args(["--threads", bad])

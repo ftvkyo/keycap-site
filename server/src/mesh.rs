@@ -240,26 +240,27 @@ fn resident() -> Option<f64> {
 // --- Threads ---
 
 /// A pool of `threads` threads for exports, or one per core; on Linux
-/// their priority is lowered, so that the preview's frames, on rayon's
-/// global pool, go first while an export runs.
+/// their priority is lowered below that of the preview's frames, which go
+/// first while an export runs.
 pub fn pool(threads: Option<usize>) -> Result<ThreadPool, String> {
     let pool = rayon::ThreadPoolBuilder::new()
         .num_threads(threads.unwrap_or(0))
         .thread_name(|i| format!("keycap-export-{i}"))
-        .start_handler(|_| lower_priority())
+        .start_handler(|_| lower_priority(10))
         .build()
         .map_err(|error| format!("cannot start the export's threads: {error}"))?;
     Ok(ThreadPool::Custom(pool))
 }
 
+/// Gives the calling thread the nice value `nice`, on Linux.
 #[cfg(target_os = "linux")]
-fn lower_priority() {
+pub fn lower_priority(nice: i32) {
     // On Linux the nice value is per thread, and `who` 0 is the calling one.
     // SAFETY: setpriority only reads its arguments.
     unsafe {
-        libc::setpriority(libc::PRIO_PROCESS, 0, 10);
+        libc::setpriority(libc::PRIO_PROCESS, 0, nice);
     }
 }
 
 #[cfg(not(target_os = "linux"))]
-fn lower_priority() {}
+pub fn lower_priority(_nice: i32) {}
