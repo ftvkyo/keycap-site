@@ -19,6 +19,7 @@ fidget = { git = "https://github.com/mkeeter/fidget", rev = "a386417c31f7289027e
     "wgpu",
 ] }
 facet = { version = "0.46", features = ["reflect", "doc"] }
+flate2 = "1"
 harfrust = "0.15"
 heck = "0.5"
 i_overlay = "9.1"

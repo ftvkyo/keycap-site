@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MPL-2.0
 
-//! STL export: the union of the shapes, cut to a region, meshed with
-//! fidget's Manifold Dual Contouring on a pool of its own, the vertices it
-//! leaves off the surface put back, and simplified to a tolerance.
+//! Meshes for export: the union of the shapes, cut to a region, meshed
+//! with fidget's Manifold Dual Contouring on a pool of its own, the
+//! vertices it leaves off the surface put back, and simplified to a
+//! tolerance; written as STL here, and as 3MF by `printing`.
 
 use std::path::Path;
 use std::sync::Arc;
@@ -47,7 +48,7 @@ pub fn default_tolerance(region: &Box3, depth: u8) -> f64 {
 }
 
 /// The side of the octree's cells `depth` deep
-fn cell(region: &Box3, depth: u8) -> f64 {
+pub fn cell(region: &Box3, depth: u8) -> f64 {
     cube_side(region) / 2f64.powi(i32::from(depth))
 }
 
@@ -68,6 +69,8 @@ pub enum Stage {
     Contours,
     /// Tracing a stack of layers for printing
     Layers,
+    /// Finding the slopes the layers' heights follow
+    Heights,
     Simplifying,
     Writing,
 }
@@ -80,6 +83,7 @@ impl Stage {
             Stage::Grid => "grid",
             Stage::Contours => "contours",
             Stage::Layers => "layers",
+            Stage::Heights => "heights",
             Stage::Simplifying => "simplifying",
             Stage::Writing => "writing",
         }

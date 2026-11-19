@@ -8,9 +8,9 @@
 //! JSON line on stdout.  Renders are answered in their order, and the
 //! other requests in theirs, so that a `load` or a `probe` never waits for
 //! a frame; a render shows the scene of the loads before it.  A newer
-//! `render` cancels an older one still waiting or running, and `mesh`,
-//! `trace` and `layers` answer once their export, running beside the
-//! other requests, is done.  stderr carries logs only.
+//! `render` cancels an older one still waiting or running, and the
+//! exports, `mesh`, `trace`, `layers` and `print`, answer once done,
+//! running beside the other requests.  stderr carries logs only.
 //!
 //! It renders on half as many threads as there are cores, and exports on
 //! one per core, both at a lower priority, exports the lower; `--threads N`
@@ -217,6 +217,31 @@
 //! has `layers` (their number with `output`), `outlines`, `points`,
 //! `bounds` and `ms`.
 //!
+//! ## `print`
+//!
+//! `{"id", "op": "print", "output", "bounds", "name", "layer_heights",
+//! "resolution"}` writes a 3MF for FDM slicers of the shapes' union cut
+//! to the region: one object, `name` (`keycap` by default), its mesh
+//! coarse, 128 cells across and simplified to 0.02, standing on z = 0 and
+//! centred in x and y.  `layer_heights`, `[first, least, most]` in
+//! millimetres, are the first layer's height, which the slicer's settings
+//! must match, and the range of the others: each layer is as thick as the
+//! slopes it crosses allow, the most where they are 45° or steeper and
+//! thinner as the surface levels out, as OrcaSlicer's adaptive layer
+//! heights have it.  They are written as the layer height profile that
+//! PrusaSlicer and OrcaSlicer read, `Metadata/Slic3r_PE_layer_heights_profile.txt`
+//! and `Metadata/layer_heights_profile.txt`.  The layers the slicer will
+//! make of it are traced from the field at their middles, as `layers`
+//! traces them, on a grid of the request's `resolution`, else the
+//! script's, else 1024 cells across, and written as
+//! `Metadata/keycap_layers.json`: `{"unit": "mm", "objects": [{"object_id",
+//! "name", "height", "first_layer_height", "hull", "layers"}]}`, `hull`
+//! the convex hull of the mesh's footprint as a flat list, and `layers` as
+//! `layers` writes them, in the 3MF's coordinates.  It runs as `mesh`
+//! does, its stages `octree`, `triangles`, `simplifying`, `heights`,
+//! `layers` and `writing`.  The reply has `triangles`, `layers`, `points`,
+//! `bounds` and `ms`.
+//!
 //! ## `cancel`
 //!
 //! `{"id", "op": "cancel"}` cancels the export waiting or running, as soon
@@ -278,6 +303,7 @@ mod math;
 mod mesh;
 mod outline;
 mod prefer;
+mod printing;
 mod protocol;
 mod render;
 mod reproject;

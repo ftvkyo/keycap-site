@@ -1604,6 +1604,49 @@ fn layers_of_a_solid() {
     assert!((-0.4..-0.2).contains(&bottom), "{bottom}");
 }
 
+// --- print ---
+
+/// A cylinder's walls take the thickest layers all the way up; a dome's
+/// thin towards its top.  The 3MF has the mesh, the profile under both
+/// slicers' names, and the layers.
+#[test]
+fn prints_a_3mf_with_layers() {
+    let dir = scratch("print");
+    let output = dir.join("part.3mf");
+    let mut server = with_prelude();
+    let mut layers = |source: &str| {
+        let loaded = server.load(source, None);
+        assert_eq!(loaded["loaded"], true, "{loaded}");
+        let reply = server.request(json!({
+            "op": "print", "output": output, "bounds": "fitted", "name": "part",
+            "layer_heights": [0.2, 0.08, 0.2], "resolution": 10,
+        }));
+        assert!(
+            reply["triangles"].as_u64().is_some_and(|t| t > 0),
+            "{reply}"
+        );
+        let data = std::fs::read(&output).expect("the 3MF exists");
+        assert!(data.starts_with(b"PK\x03\x04"));
+        for name in [
+            "3D/3dmodel.model",
+            "Metadata/layer_heights_profile.txt",
+            "Metadata/Slic3r_PE_layer_heights_profile.txt",
+            "Metadata/keycap_layers.json",
+        ] {
+            assert!(
+                data.windows(name.len()).any(|w| w == name.as_bytes()),
+                "{name}"
+            );
+        }
+        reply["layers"].as_u64().unwrap_or_default()
+    };
+    assert_eq!(layers("draw(cylinder(5, [0, 10]));\n"), 50);
+    // 25 at 0.2, and more where the dome is nearer level than 45°
+    let dome =
+        layers("draw(sphere(5).intersection(cuboid([20, 20, 10], #{anchor: [0, 0, -1]})));\n");
+    assert!((28..=35).contains(&dome), "{dome}");
+}
+
 #[test]
 fn draw_roles() {
     let mut server = Server::start(&[]);

@@ -36,6 +36,7 @@ pub enum Op {
     Mesh(Mesh),
     Trace(Trace),
     Layers(Layers),
+    Print(Print),
     Cancel(Cancel),
     Eval(Eval),
     Docs(Docs),
@@ -160,6 +161,26 @@ pub struct Layers {
     /// As `Mesh`'s
     #[serde(skip)]
     pub export: Export,
+}
+
+#[derive(Deserialize)]
+pub struct Print {
+    pub output: PathBuf,
+    #[serde(default)]
+    pub bounds: BoundsChoice,
+    /// The part's name in the slicer
+    #[serde(default = "default_name")]
+    pub name: String,
+    /// The first layer's height, then the least and the most of the others
+    pub layer_heights: [f64; 3],
+    pub resolution: Option<f64>,
+    /// As `Mesh`'s
+    #[serde(skip)]
+    pub export: Export,
+}
+
+fn default_name() -> String {
+    "keycap".into()
 }
 
 #[derive(Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -459,6 +480,7 @@ pub fn read_requests(
                 Op::Mesh(mesh) => mesh.export = interrupts.new_export(),
                 Op::Trace(trace) => trace.export = interrupts.new_export(),
                 Op::Layers(layers) => layers.export = interrupts.new_export(),
+                Op::Print(print) => print.export = interrupts.new_export(),
                 Op::Cancel(cancel) => cancel.stopped = interrupts.cancel_export(),
                 _ => {}
             }

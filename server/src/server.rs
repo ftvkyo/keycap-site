@@ -32,7 +32,7 @@ use crate::protocol::{
 use crate::render;
 use crate::scene::{self, Orientation, Scene};
 use crate::script::{self, Dialect, Engine, Run};
-use crate::{contour, docs, drawing, layers, mesh};
+use crate::{contour, docs, drawing, layers, mesh, printing};
 
 /// The largest image side, well past any screen.
 const MAX_SIDE: u32 = 16384;
@@ -262,6 +262,11 @@ impl Server {
             Op::Layers(request) => {
                 let generation = request.export.generation;
                 let reply = self.layers(id, request);
+                self.unless_started(generation, reply)
+            }
+            Op::Print(request) => {
+                let generation = request.export.generation;
+                let reply = self.print(id, request);
                 self.unless_started(generation, reply)
             }
             Op::Cancel(cancel) => Ok(json!({ "stopped": cancel.stopped }).into()),
@@ -707,6 +712,53 @@ impl Server {
             }
             reply["ms"] = ms(start).into();
             Ok(Some(reply))
+        })
+    }
+
+    // --- print ---
+
+    fn print(&mut self, id: i64, request: protocol::Print) -> Result<Reply, String> {
+        let start = Instant::now();
+        let protocol::Print {
+            output,
+            bounds,
+            name,
+            layer_heights: [first, min, max],
+            resolution,
+            export,
+        } = request;
+        if export.cancel.is_cancelled() {
+            return Ok(Reply::Cancelled);
+        }
+        let scene = self.scene()?;
+        if scene.drawn.is_empty() {
+            return Err("the script draws nothing".into());
+        }
+        if !([first, min, max].iter().all(|h| h.is_finite())
+            && 0.0 < min
+            && min <= max
+            && 0.0 < first)
+        {
+            return Err(format!(
+                "layer heights must be positive, the least no more than the most, not {first}, {min}, {max}"
+            ));
+        }
+        let heights = layers::Heights { first, min, max };
+        let (region, used) = scene.region(bounds);
+        let footprint = [region.lower, region.upper].map(|c| [c[0], c[1]]);
+        let cell = grid_cell(resolution.or(scene.resolution), footprint[0], footprint[1])?;
+        let shape = scene.compiled(Orientation::Solid(used))?.union.clone();
+        self.start_export(id, export, printing::MESH_TOLERANCE, move |job| {
+            let exported = printing::export(&shape, &region, cell, &heights, &name, &output, job)?;
+            Ok(exported.map(|exported| {
+                json!({
+                    "triangles": exported.triangles,
+                    "layers": exported.layers,
+                    "points": exported.points,
+                    "bounds": used,
+                    "ms": ms(start),
+                })
+            }))
         })
     }
 

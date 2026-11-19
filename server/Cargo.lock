@@ -1155,6 +1155,7 @@ version = "0.1.0"
 dependencies = [
  "facet",
  "fidget",
+ "flate2",
  "harfrust",
  "heck",
  "i_overlay",
