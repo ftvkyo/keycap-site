@@ -54,6 +54,11 @@ const WATCHDOG: Duration = Duration::from_secs(10);
 /// The smallest tile side, which new shapes are first tried at
 const MIN_TILE: u32 = 32;
 
+/// How much slower than the shapes before them new shapes may be before
+/// a tile planned from the cost of the old ones risks a reset: such tiles
+/// are planned to take this much less than the budget.
+const CAUTION: u32 = 4;
+
 pub struct Gpu {
     state: State,
     /// How long one submission may run
@@ -112,7 +117,8 @@ struct Shapes {
     orientation: Orientation,
     /// The union, or each shape when their colours differ
     tapes: Vec<RenderShape>,
-    /// How long their tiles take, once measured
+    /// How long their tiles take, or those of the shapes before them,
+    /// which an edit usually changes little
     costs: Costs,
 }
 
@@ -314,7 +320,7 @@ impl Device {
         {
             return Ok(());
         }
-        self.shapes = None;
+        let costs = self.shapes.take().map(|s| s.costs.earlier());
         let trees: Vec<Tree> = if shapes_differ(scene) {
             let trees = scene.drawn.iter().map(|d| &d.tree);
             trees.map(|tree| scene.orient(tree, orientation)).collect()
@@ -333,7 +339,7 @@ impl Device {
             scene: scene.id,
             orientation,
             tapes,
-            costs: Costs::default(),
+            costs: costs.unwrap_or_default(),
         });
         Ok(())
     }
@@ -379,10 +385,14 @@ impl Device {
         self.upload(scene, Orientation::Solid(bounds))?;
         let (width, height) = (view.width, view.height);
         let size = [width, height, view.depth];
+        // A frame that the shapes before these would take well within the
+        // budget goes as they did, without measuring.
+        let cautious = (self.budget / CAUTION).as_secs_f64();
+        let frame = volume([width, height], view.depth);
         let cost = match self.shapes.as_ref().and_then(|s| s.costs.of(size)) {
-            Some(cost) => cost,
-            None => {
-                let cost = self.measure(view)?;
+            Some(cost) if !cost.earlier || cost.of(frame) <= cautious => cost,
+            earlier => {
+                let cost = self.measure(view, earlier)?;
                 if let Some(shapes) = self.shapes.as_mut() {
                     shapes.costs.insert(size, cost);
                 }
@@ -455,17 +465,25 @@ impl Device {
         Ok(Some(Frame3 { pixels, depth }))
     }
 
-    /// How long tiles of new shapes take: tiles from the middle of the
-    /// frame, where the shapes likely are, each twice the last's side,
-    /// while the next is expected to stay within the budget and is smaller
-    /// than the frame, or until the whole frame would at the same time per
-    /// voxel as the last.
-    fn measure(&mut self, view: &View3) -> Result<Cost, String> {
+    /// How long tiles of new shapes take, from tiles in the middle of the
+    /// frame, where the shapes likely are.  With the `earlier` cost of the
+    /// shapes before them, one tile, as large as that cost allows with
+    /// caution, tells it.  Otherwise tiles go from the smallest, each twice
+    /// the last's side, while the next is expected to stay within the
+    /// budget and is smaller than the frame, or until the whole frame would
+    /// at the same time per voxel as the last.
+    fn measure(&mut self, view: &View3, earlier: Option<Cost>) -> Result<Cost, String> {
         let (width, height) = (view.width, view.height);
         let budget = self.budget.as_secs_f64();
+        let middle = |[w, h]: [u32; 2]| [(width - w) / 2, (height - h) / 2];
+        if let Some(earlier) = earlier {
+            let side = earlier.side(self.budget / CAUTION, view);
+            let [w, h] = [side.min(width), side.min(height)];
+            let took = self.tile3(view, middle([w, h]), [w, h])?.1;
+            return Ok(earlier.refit(took, volume([w, h], view.depth), true));
+        }
         let mut first = None;
         let mut side = MIN_TILE;
-        let middle = |[w, h]: [u32; 2]| [(width - w) / 2, (height - h) / 2];
         if !self.warm {
             let size = [MIN_TILE.min(width), MIN_TILE.min(height)];
             self.tile3(view, middle(size), size)?;
@@ -627,6 +645,8 @@ struct Cost {
     large: (f64, f64),
     /// The latest tile under half the size of `large`
     small: Option<(f64, f64)>,
+    /// Whether it was measured on the shapes before the ones rendered
+    earlier: bool,
 }
 
 impl Cost {
@@ -638,6 +658,7 @@ impl Cost {
             per_voxel: tile.1 / tile.0,
             large: tile,
             small: None,
+            earlier: false,
         }
     }
 
@@ -651,6 +672,7 @@ impl Cost {
             per_voxel,
             large,
             small: Some(small),
+            earlier: false,
         }
     }
 
@@ -675,6 +697,7 @@ impl Cost {
                     per_voxel: (tile.1 - latency) / voxels,
                     large: tile,
                     small: None,
+                    earlier: false,
                 }
             }
         }
@@ -716,6 +739,24 @@ impl Costs {
             .iter()
             .min_by(|a, b| apart(a.0).total_cmp(&apart(b.0)));
         nearest.map(|&(_, cost)| cost)
+    }
+
+    /// The costs as those of the shapes before the next ones
+    fn earlier(self) -> Costs {
+        let sizes = self.sizes.into_iter();
+        Costs {
+            sizes: sizes
+                .map(|(size, cost)| {
+                    (
+                        size,
+                        Cost {
+                            earlier: true,
+                            ..cost
+                        },
+                    )
+                })
+                .collect(),
+        }
     }
 
     /// Keeps `cost` for frames of `size`, dropping the oldest size when
