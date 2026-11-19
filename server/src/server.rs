@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MPL-2.0
 
-//! The worker: requests in order, against the loaded scene and the last
-//! frame, while an export runs beside it.
+//! The threads that answer requests: the language thread, which loads,
+//! evaluates, probes and starts exports in order, and the render thread,
+//! whose frames are of the scene the loads before them made.
 
 use std::collections::HashMap;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::Path;
-use std::sync::{Arc, mpsc};
+use std::sync::{Arc, Mutex, PoisonError, mpsc};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
@@ -84,6 +85,12 @@ struct Rendered {
     empty: bool,
 }
 
+/// The last frame, and the scene it shows
+struct Shown {
+    frame: Frame,
+    scene: Arc<Scene>,
+}
+
 /// What a probe needs from the last frame.
 enum Frame {
     View3 {
@@ -106,14 +113,20 @@ struct Point {
     eval: ShapeTracingEval<PointEval>,
 }
 
+/// What the language and render threads share
+#[derive(Default)]
+struct Shared {
+    scene: Mutex<Option<Arc<Scene>>>,
+    shown: Mutex<Option<Arc<Shown>>>,
+}
+
+/// The language thread's
 struct Server {
     keycap: Engine,
     fidget: Engine,
-    scene: Option<Scene>,
-    frame: Option<Frame>,
     point: Option<Point>,
-    gpu: Gpu,
     interrupts: Interrupts,
+    shared: Arc<Shared>,
     docs: HashMap<Dialect, Value>,
     replies: Replies,
     /// How many threads exports run on, or one per core
@@ -124,24 +137,63 @@ struct Server {
     exports: Vec<JoinHandle<()>>,
 }
 
+/// The render thread's
+struct Renderer {
+    gpu: Gpu,
+    interrupts: Interrupts,
+    shared: Arc<Shared>,
+}
+
 /// Serves requests until stdin closes; exports run on `threads` threads,
 /// or one per core, and a GPU submission runs for at most about `budget`.
 pub fn run(prelude: Option<&Path>, threads: Option<usize>, budget: Duration) {
-    let (sender, queue) = mpsc::channel();
+    // A thread reads stdin, so that a newer render or export cancels an
+    // older one at once.  Renders go to a thread of their own, so that a
+    // load, completion or probe never waits for a frame; the language
+    // thread answers the rest in order, so that each sees the loads before
+    // it, and a frame waits only for those loads.  Exports run beside both,
+    // each on a thread of its own.
+    let (requests, queue) = mpsc::channel();
+    let (renders, render_queue) = mpsc::channel();
     let interrupts = Interrupts::default();
     let reader = interrupts.clone();
-    std::thread::spawn(move || protocol::read_requests(sender, reader));
+    std::thread::spawn(move || protocol::read_requests(requests, renders, reader));
 
     let replies = Replies::new();
+    let shared = Arc::new(Shared::default());
+    let renderer = std::thread::spawn({
+        let (interrupts, shared, replies) = (interrupts.clone(), shared.clone(), replies.clone());
+        move || {
+            let mut renderer = Renderer {
+                gpu: Gpu::new(budget),
+                interrupts,
+                shared,
+            };
+            let served = catch_unwind(AssertUnwindSafe(|| {
+                for (id, request) in render_queue {
+                    let reply = renderer.render(*request).unwrap_or_else(Reply::Failed);
+                    if let Some(fields) = reply.fields()
+                        && !replies.send(id.into(), fields)
+                    {
+                        break;
+                    }
+                }
+            }));
+            // A panic stops the server, as one on the language thread does,
+            // rather than leave renders unanswered.
+            if served.is_err() {
+                std::process::exit(101);
+            }
+        }
+    });
+
     let keycap = Engine::new(prelude);
     let mut server = Server {
         fidget: Engine::fidget(&keycap),
         keycap,
-        scene: None,
-        frame: None,
         point: None,
-        gpu: Gpu::new(budget),
         interrupts,
+        shared,
         docs: HashMap::new(),
         replies: replies.clone(),
         threads,
@@ -156,9 +208,11 @@ pub fn run(prelude: Option<&Path>, threads: Option<usize>, budget: Duration) {
         if let Some(fields) = reply.fields()
             && !replies.send(id, fields)
         {
-            break;
+            // No one reads the replies, of frames and exports either.
+            return;
         }
     }
+    let _ = renderer.join();
     // An export still running answers before the server exits.
     for export in server.exports {
         let _ = export.join();
@@ -172,8 +226,12 @@ fn ms(start: Instant) -> f64 {
 impl Server {
     fn handle(&mut self, id: i64, op: Op) -> Reply {
         let reply = match op {
-            Op::Load(script) => Ok(self.load(script)),
-            Op::Render(render) => self.render(*render),
+            Op::Load(script) => {
+                let reply = self.load(script);
+                self.interrupts.load_done();
+                Ok(reply)
+            }
+            Op::Render(_) => Err("renders are answered on a thread of their own".into()),
             Op::Probe(probe) => self.probe(probe),
             Op::Mesh(request) => {
                 let generation = request.export.generation;
@@ -219,9 +277,9 @@ impl Server {
         }
     }
 
-    fn scene(&self) -> Result<&Scene, String> {
-        self.scene
-            .as_ref()
+    fn scene(&self) -> Result<Arc<Scene>, String> {
+        self.shared
+            .scene()
             .ok_or_else(|| "no script is loaded".to_owned())
     }
 
@@ -311,69 +369,16 @@ impl Server {
             "diagnostics": diagnostics,
             "ms": ms(start),
         });
-        self.scene = Some(scene);
+        *lock(&self.shared.scene) = Some(Arc::new(scene));
         reply.into()
-    }
-
-    // --- render ---
-
-    fn render(&mut self, request: Render) -> Result<Reply, String> {
-        let Some(cancel) = self.interrupts.start_render(request.generation) else {
-            return Ok(Reply::Cancelled);
-        };
-        let start = Instant::now();
-        let (width, height) = (request.width, request.height);
-        if !(1..=MAX_SIDE).contains(&width) || !(1..=MAX_SIDE).contains(&height) {
-            return Err(format!("the image must be 1 to {MAX_SIDE} pixels a side"));
-        }
-        let camera = request.camera;
-        let numbers = [
-            camera.azimuth,
-            camera.elevation,
-            camera.zoom,
-            camera.pan[0],
-            camera.pan[1],
-        ];
-        if !numbers.iter().all(|n| n.is_finite()) || camera.zoom <= 0.0 {
-            return Err("the camera needs finite numbers and a positive zoom".into());
-        }
-        if !request.slice.is_finite() {
-            return Err("the slice needs a finite offset and tilt".into());
-        }
-
-        let Server {
-            scene, gpu, frame, ..
-        } = self;
-        let scene = scene.as_ref().ok_or("no script is loaded")?;
-        let (region, bounds) = scene.region(request.bounds);
-        let rendered = if request.view.is_3d() {
-            render3(scene, gpu, &request, (&region, bounds), &cancel)?
-        } else {
-            render2(scene, gpu, &request, &region, &cancel)?
-        };
-        // A frame finished after a newer request arrived is no use to it.
-        let Some(rendered) = rendered.filter(|_| !cancel.is_cancelled()) else {
-            return Ok(Reply::Cancelled);
-        };
-        render::write_ppm(&request.output, width, height, &rendered.pixels)?;
-        *frame = Some(rendered.frame);
-        let mut reply = json!({
-            "backend": rendered.backend,
-            "bounds": bounds,
-            "ms": ms(start),
-            "scale": rendered.scale,
-            "empty": rendered.empty,
-        });
-        if let Some(fallback) = rendered.fallback {
-            reply["fallback"] = fallback.into();
-        }
-        Ok(reply.into())
     }
 
     // --- probe ---
 
     fn probe(&mut self, probe: Probe) -> Result<Reply, String> {
-        let frame = self.frame.as_ref().ok_or("nothing is rendered yet")?;
+        let shown = lock(&self.shared.shown).clone();
+        let shown = shown.ok_or("nothing is rendered yet")?;
+        let frame = &shown.frame;
         // The pixel under (x, y), whose centre the frame shows
         let (x, y) = (probe.x.floor(), probe.y.floor());
         let position = match frame {
@@ -401,14 +406,17 @@ impl Server {
         let Some(position) = position else {
             return Ok(json!({ "position": null, "shape": null }).into());
         };
-        let (value, shape) = self.nearest_shape(position)?.unzip();
+        let (value, shape) = self.nearest_shape(&shown.scene, position)?.unzip();
         Ok(json!({ "position": position, "value": value, "shape": shape }).into())
     }
 
     /// The union's value at `p` and the shape it comes from, the one whose
     /// field is lowest there: the shape containing `p`, or nearest it.
-    fn nearest_shape(&mut self, p: [f64; 3]) -> Result<Option<(f64, usize)>, String> {
-        let scene = self.scene.as_ref().ok_or("no script is loaded")?;
+    fn nearest_shape(
+        &mut self,
+        scene: &Scene,
+        p: [f64; 3],
+    ) -> Result<Option<(f64, usize)>, String> {
         if self
             .point
             .as_ref()
@@ -441,7 +449,7 @@ impl Server {
     /// Starts `work`, the request's `export`, on a thread of its own, which
     /// reports its stages, `tolerance` with simplifying, and then replies
     /// with what `work` returns, or as cancelled for `None`, while the
-    /// worker goes on with other requests.
+    /// language thread goes on with other requests.
     fn start_export(
         &mut self,
         id: i64,
@@ -583,7 +591,7 @@ impl Server {
             }
             None => cell / 10.0,
         };
-        let shapes = drawing::shapes(scene, slice, &region, lower, upper, kerf)?;
+        let shapes = drawing::shapes(&scene, slice, &region, lower, upper, kerf)?;
         self.start_export(id, export, tolerance, move |job| {
             let exported = drawing::export(
                 &shapes,
@@ -644,6 +652,75 @@ impl Server {
         }
         self.docs[&dialect].clone().into()
     }
+}
+
+impl Renderer {
+    // --- render ---
+
+    fn render(&mut self, request: Render) -> Result<Reply, String> {
+        let Some(cancel) = self.interrupts.start_render(&request) else {
+            return Ok(Reply::Cancelled);
+        };
+        let start = Instant::now();
+        let (width, height) = (request.width, request.height);
+        if !(1..=MAX_SIDE).contains(&width) || !(1..=MAX_SIDE).contains(&height) {
+            return Err(format!("the image must be 1 to {MAX_SIDE} pixels a side"));
+        }
+        let camera = request.camera;
+        let numbers = [
+            camera.azimuth,
+            camera.elevation,
+            camera.zoom,
+            camera.pan[0],
+            camera.pan[1],
+        ];
+        if !numbers.iter().all(|n| n.is_finite()) || camera.zoom <= 0.0 {
+            return Err("the camera needs finite numbers and a positive zoom".into());
+        }
+        if !request.slice.is_finite() {
+            return Err("the slice needs a finite offset and tilt".into());
+        }
+
+        let scene = self.shared.scene().ok_or("no script is loaded")?;
+        let gpu = &mut self.gpu;
+        let (region, bounds) = scene.region(request.bounds);
+        let rendered = if request.view.is_3d() {
+            render3(&scene, gpu, &request, (&region, bounds), &cancel)?
+        } else {
+            render2(&scene, gpu, &request, &region, &cancel)?
+        };
+        // A frame finished after a newer request arrived is no use to it.
+        let Some(rendered) = rendered.filter(|_| !cancel.is_cancelled()) else {
+            return Ok(Reply::Cancelled);
+        };
+        render::write_ppm(&request.output, width, height, &rendered.pixels)?;
+        *lock(&self.shared.shown) = Some(Arc::new(Shown {
+            frame: rendered.frame,
+            scene,
+        }));
+        let mut reply = json!({
+            "backend": rendered.backend,
+            "bounds": bounds,
+            "ms": ms(start),
+            "scale": rendered.scale,
+            "empty": rendered.empty,
+        });
+        if let Some(fallback) = rendered.fallback {
+            reply["fallback"] = fallback.into();
+        }
+        Ok(reply.into())
+    }
+}
+
+impl Shared {
+    fn scene(&self) -> Option<Arc<Scene>> {
+        lock(&self.scene).clone()
+    }
+}
+
+/// `mutex`'s value, which a panic elsewhere leaves as it was
+fn lock<T>(mutex: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
+    mutex.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
 /// A 3D frame of `region`, the region of `bounds`, on the GPU when asked

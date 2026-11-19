@@ -5,8 +5,10 @@
 //! `keycap-server [--prelude DIR] [--threads N] [--gpu-budget MS]` serves
 //! one script buffer.
 //! It reads one JSON request per line on stdin and answers each with one
-//! JSON line on stdout, in request order, except that a newer `render`
-//! cancels an older one still waiting or running, and that `mesh` and
+//! JSON line on stdout.  Renders are answered in their order, and the
+//! other requests in theirs, so that a `load` or a `probe` never waits for
+//! a frame; a render shows the scene of the loads before it.  A newer
+//! `render` cancels an older one still waiting or running, and `mesh` and
 //! `trace` answer once their export, running beside the other requests,
 //! is done.  stderr carries logs only.
 //!
@@ -142,8 +144,8 @@
 //!
 //! ## `probe`
 //!
-//! `{"id", "op": "probe", "x", "y"}`: the pixel of the last frame at `x`
-//! and `y`, counted from its top left.  The reply has `position`, the point
+//! `{"id", "op": "probe", "x", "y"}`: the pixel of the last frame answered
+//! at `x` and `y`, counted from its top left.  The reply has `position`, the point
 //! at the pixel's centre on the slice or on the surface seen there (null
 //! when there is none), `value`, the field there, and `shape`, the index in
 //! `load`'s `shapes` of the shape whose field is lowest there (null with

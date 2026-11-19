@@ -934,6 +934,57 @@ fn a_newer_render_cancels_older_ones() {
     );
 }
 
+/// The gyroid sphere's frames on one thread take seconds.
+fn slow_server() -> (Server, String) {
+    let mut server = Server::start(&["--threads", "1"]);
+    let model = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/models/gyroid-sphere.rhai"),
+    )
+    .expect("the model exists");
+    server.load(&model, None);
+    (server, model)
+}
+
+#[test]
+fn loads_do_not_wait_for_renders() {
+    let dir = scratch("load-beside-render");
+    let (mut server, _) = slow_server();
+    let slow = json!({
+        "op": "render", "output": dir.join("slow.ppm"), "width": 600, "height": 600,
+        "backend": "cpu",
+    });
+    let render = server.send(slow);
+    let load = server.send(json!({
+        "op": "load", "source": "bounds([-1, -1, -1], [1, 1, 1]);\ndraw(sphere(0.5).move([5, 0, 0]));\n",
+        "path": null,
+    }));
+    let first = server.reply();
+    assert_eq!(first["id"], load, "{first}");
+    assert_eq!(server.reply()["id"], render);
+    // The frame after the load is of its scene, which shows nothing.
+    let frame = server.render(&dir.join("frame.ppm"), json!({}));
+    assert_eq!(frame["empty"], true, "{frame}");
+}
+
+#[test]
+fn a_render_waits_for_the_loads_before_it() {
+    let dir = scratch("render-after-load");
+    let mut server = Server::start(&[]);
+    let model = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/models/gyroid-sphere.rhai"),
+    )
+    .expect("the model exists");
+    let load = server.send(json!({"op": "load", "source": model, "path": null}));
+    let render = server.send(json!({
+        "op": "render", "output": dir.join("frame.ppm"), "width": 60, "height": 60,
+        "backend": "cpu",
+    }));
+    let replies = [server.reply(), server.reply()];
+    assert_eq!(replies[0]["id"], load, "{replies:?}");
+    assert_eq!(replies[1]["id"], render, "{replies:?}");
+    assert_eq!(replies[1]["empty"], false, "{replies:?}");
+}
+
 #[test]
 fn gpu_frames_match_the_cpu() {
     if std::env::var("KEYCAP_SERVER_TEST_GPU").as_deref() != Ok("1") {
@@ -2446,8 +2497,9 @@ fn threads_are_capped() {
     server.render(&dir.join("frame.ppm"), json!({}));
     let reply = server.request(json!({"op": "mesh", "output": dir.join("model.stl")}));
     assert!(reply.get("triangles").is_some(), "{reply}");
-    // The main thread, the reader, and two threads each to render and to
-    // export, once the thread the export replied from is gone
+    // The main thread, the reader, the render thread, and two threads each
+    // to render and to export, once the thread the export replied from is
+    // gone
     let count = || {
         std::fs::read_dir(format!("/proc/{}/task", server.child.id()))
             .map(|tasks| tasks.count())
@@ -2455,13 +2507,13 @@ fn threads_are_capped() {
     };
     let mut tasks = count();
     for _ in 0..20 {
-        if tasks <= 6 {
+        if tasks <= 7 {
             break;
         }
         std::thread::sleep(std::time::Duration::from_millis(50));
         tasks = count();
     }
-    assert!(tasks <= 6, "{tasks} threads");
+    assert!(tasks <= 7, "{tasks} threads");
 
     for bad in ["0", "many"] {
         let status = Command::new(env!("CARGO_BIN_EXE_keycap-server"))

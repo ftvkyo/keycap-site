@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MPL-2.0
 
 //! Requests as they arrive on stdin, the cancellation of stale renders and
-//! of exports, and replies on stdout.
+//! of exports, the order of loads and renders, and replies on stdout.
 
 use std::io::{BufRead, Write};
 use std::path::PathBuf;
 use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex, PoisonError};
+use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 
 use fidget::render::CancelToken;
 use serde::{Deserialize, Serialize};
@@ -90,6 +90,9 @@ pub struct Render {
     /// older one it is stale.
     #[serde(skip)]
     pub generation: u64,
+    /// Set by the reader: the loads read before it, whose scene it shows
+    #[serde(skip)]
+    pub after_loads: u64,
 }
 
 fn default_background() -> [f32; 3] {
@@ -269,11 +272,11 @@ fn parse(line: &str) -> Incoming {
 
 // --- Cancellation ---
 
-/// What the reader tells the worker out of band: that a render went stale,
-/// or that an export is cancelled.
+/// What the reader tells the other threads out of band: that a render went
+/// stale, or that an export is cancelled; and what a render waits for.
 #[derive(Clone, Default)]
 pub struct Interrupts {
-    renders: Arc<Mutex<Renders>>,
+    renders: Arc<(Mutex<Renders>, Condvar)>,
     exports: Arc<Mutex<Exports>>,
 }
 
@@ -283,6 +286,10 @@ struct Renders {
     latest: u64,
     /// The token of the render in progress
     running: CancelToken,
+    /// The loads read so far
+    loads_read: u64,
+    /// The loads done, one way or another
+    loads_done: u64,
 }
 
 #[derive(Default)]
@@ -336,32 +343,66 @@ impl Interrupts {
         }
     }
 
-    /// Called by the reader for each render: cancels whatever render is
-    /// waiting or running, and returns the new one's generation.
-    fn supersede(&self) -> u64 {
-        let mut renders = self.renders.lock().unwrap_or_else(PoisonError::into_inner);
-        renders.latest += 1;
-        renders.running.cancel();
-        renders.latest
+    fn renders(&self) -> MutexGuard<'_, Renders> {
+        self.renders
+            .0
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
     }
 
-    /// Called by the worker before a render: its cancellation token, or
-    /// `None` when a newer render already arrived.
-    pub fn start_render(&self, generation: u64) -> Option<CancelToken> {
-        let mut renders = self.renders.lock().unwrap_or_else(PoisonError::into_inner);
-        if renders.latest != generation {
-            return None;
+    /// Called by the reader for each render: cancels whatever render is
+    /// waiting or running, and numbers the new one.
+    fn supersede(&self, render: &mut Render) {
+        let mut renders = self.renders();
+        renders.latest += 1;
+        renders.running.cancel();
+        render.generation = renders.latest;
+        render.after_loads = renders.loads_read;
+        self.renders.1.notify_all();
+    }
+
+    /// Called by the reader for each load.
+    fn new_load(&self) {
+        self.renders().loads_read += 1;
+    }
+
+    /// Called once a load is done, one way or another.
+    pub fn load_done(&self) {
+        self.renders().loads_done += 1;
+        self.renders.1.notify_all();
+    }
+
+    /// Called by the render thread before a render: waits for the loads
+    /// read before it, then returns its cancellation token, or `None` when
+    /// a newer render arrived meanwhile.
+    pub fn start_render(&self, render: &Render) -> Option<CancelToken> {
+        let mut renders = self.renders();
+        loop {
+            if renders.latest != render.generation {
+                return None;
+            }
+            if renders.loads_done >= render.after_loads {
+                renders.running = CancelToken::new();
+                return Some(renders.running.clone());
+            }
+            renders = self
+                .renders
+                .1
+                .wait(renders)
+                .unwrap_or_else(PoisonError::into_inner);
         }
-        renders.running = CancelToken::new();
-        Some(renders.running.clone())
     }
 }
 
 /// Reads requests from stdin until it closes, numbering renders and
-/// exports and cancelling them as requests arrive rather than when the
-/// worker gets to them.  Requests read before stdin closed are still
-/// answered.
-pub fn read_requests(queue: Sender<Incoming>, interrupts: Interrupts) {
+/// exports and cancelling them as requests arrive rather than when their
+/// thread gets to them, and passing renders to `renders`, the rest to
+/// `requests`.  Requests read before stdin closed are still answered.
+pub fn read_requests(
+    requests: Sender<Incoming>,
+    renders: Sender<(i64, Box<Render>)>,
+    interrupts: Interrupts,
+) {
     for line in std::io::stdin().lock().lines() {
         let Ok(line) = line else { break };
         if line.trim().is_empty() {
@@ -370,14 +411,22 @@ pub fn read_requests(queue: Sender<Incoming>, interrupts: Interrupts) {
         let mut incoming = parse(&line);
         if let Incoming::Request(Request { op, .. }) = &mut incoming {
             match op {
-                Op::Render(render) => render.generation = interrupts.supersede(),
+                Op::Render(render) => interrupts.supersede(render),
+                Op::Load(_) => interrupts.new_load(),
                 Op::Mesh(mesh) => mesh.export = interrupts.new_export(),
                 Op::Trace(trace) => trace.export = interrupts.new_export(),
                 Op::Cancel(cancel) => cancel.stopped = interrupts.cancel_export(),
                 _ => {}
             }
         }
-        if queue.send(incoming).is_err() {
+        let sent = match incoming {
+            Incoming::Request(Request {
+                id,
+                op: Op::Render(render),
+            }) => renders.send((id, render)).is_ok(),
+            incoming => requests.send(incoming).is_ok(),
+        };
+        if !sent {
             break;
         }
     }
@@ -385,8 +434,8 @@ pub fn read_requests(queue: Sender<Incoming>, interrupts: Interrupts) {
 
 // --- Replies ---
 
-/// stdout, shared by the worker and the export running beside it, a line
-/// at a time.
+/// stdout, shared by the threads that answer requests and the export
+/// running beside them, a line at a time.
 #[derive(Clone)]
 pub struct Replies(Arc<Mutex<std::io::Stdout>>);
 
