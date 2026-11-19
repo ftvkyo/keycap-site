@@ -124,3 +124,22 @@ let cells = sphere(3).remap((x + 5) % 10 - 5, y, z);
 max(cells, abs(x) - 30)
 ```
 """
+
+["**"]
+signatures = ["a ** n: Tree"]
+doc = """
+`a` to the power `n`.
+
+- `a`, `n`: numbers or trees
+
+With a tree on either side, the power is a tree, as `pow` describes.
+Between two numbers it is Rhai's own: between two integers an integer, and a negative `n` is an error.
+
+See also: `pow`, `square`.
+
+Example: a solid paraboloid 10 high, its top 40 across.
+```
+let bowl = (x ** 2 + y ** 2) / 40 - z;
+max(bowl, z - 10)
+```
+"""

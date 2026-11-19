@@ -42,16 +42,19 @@ const WRITTEN: [(&str, &str); 13] = [
     ("script", include_str!("../docs/script.toml")),
 ];
 
-/// The functions of the script API registered in `script`, and the
-/// categories they go under; in the fidget dialect, `draw` and `draw_rgb` are
-/// fidget's, as its CLI and viewer register them
-const OWN: [(&str, &str); 6] = [
+/// The functions of the script API registered in `script`, and those of
+/// `math` that are not fidget's, and the categories they go under; in the
+/// fidget dialect, `draw` and `draw_rgb` are fidget's, as its CLI and viewer
+/// register them
+const OWN: [(&str, &str); 8] = [
     ("draw", "keycap"),
     ("draw_rgb", "keycap"),
     ("bounds", "keycap"),
     ("resolution", "keycap"),
     ("text", "keycap: text and SVG"),
     ("svg", "keycap: text and SVG"),
+    ("**", "keycap: math"),
+    ("pow", "keycap: math"),
 ];
 
 /// A file of `docs/`, a section of the reference

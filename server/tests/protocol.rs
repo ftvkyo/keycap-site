@@ -1742,6 +1742,11 @@ fn keycap_math_takes_numbers_and_trees_alike() {
             "Function not found: atan2 (f64, f64)",
         ),
         (
+            "move(x ** 2, [3, 0, 0])",
+            "tree: 9 at the origin",
+            "Function not found: ** (Tree, i64)",
+        ),
+        (
             "move(sphere(1).remap(x, 0, 0), [1, 0, 0])",
             "tree: 0 at the origin",
             "Function not found: remap",

@@ -1,5 +1,5 @@
-# fidget's math functions on trees, as of fidget a386417, and their
-# number forms, which keycap's server registers.
+# fidget's math functions on trees, as of fidget a386417, and keycap's,
+# which the server registers: their number forms, and powers.
 
 kind = "math"
 
@@ -39,7 +39,7 @@ Of a vector, it is taken component by component.
 Notes:
 - NaN (not a number) below 0.
 
-See also: `square`, `hypot`.
+See also: `square`, `pow`, `hypot`.
 
 Example: a sphere of radius 10, written as its distance from the origin minus 10.
 ```
@@ -54,11 +54,38 @@ doc = """
 
 - `a`: a number or a tree
 
-See also: `sqrt`.
+See also: `sqrt`, `pow`.
 
 Example: an ellipse 40 by 20, from its implicit equation.
 ```
 square(x / 20) + square(y / 10) - 1
+```
+"""
+
+[pow]
+signatures = ["pow(a: Tree, n: Tree): Tree"]
+doc = """
+`a` to the power `n`, the same as `a ** n`.
+
+- `a`: the base, a number or a tree
+- `n`: the exponent, a number or a tree
+
+Of two numbers, it is Rhai's `**`: of two integers an integer, and a negative `n` is then an error, so write `2.0 ** -1`.
+On a tree, a whole `n` multiplies `a` by itself, by repeated squaring, and takes any `a`: `x ** 2` is `square(x)`, and `x ** -1` is `1 / x`.
+Any other `n`, or one that is a tree, gives `exp(n * ln(a))`, which takes an `a` above 0: where `a` is 0 or less, the power of a tree is 0, and that of a number below 0 is NaN (not a number).
+
+Notes:
+- A negative `n` divides by `a`: where an interval of `a` holds 0, that of the power is NaN, and the preview cannot skip the region.
+- An odd `n` is `a` times an even power of it, whose interval is wider than the power's across 0.
+
+See also: `square`, `sqrt`, `exp`, `ease_in_pow`.
+
+References:
+- [Exponentiation by squaring, Wikipedia](https://en.wikipedia.org/wiki/Exponentiation_by_squaring)
+
+Example: a squircle 40 across, from its implicit equation.
+```
+(x / 20) ** 4 + (y / 20) ** 4 - 1
 ```
 """
 
@@ -164,7 +191,7 @@ The exponential function: e, Euler's number, to the power `a`.
 
 - `a`: a number or a tree
 
-See also: `ln`, `E`.
+See also: `ln`, `pow`, `E`.
 """
 
 [ln]
