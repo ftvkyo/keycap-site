@@ -12,7 +12,7 @@ use std::thread::JoinHandle;
 use std::time::Duration;
 
 use fidget::jit::JitShape;
-use fidget::mesh::{Octree, Settings};
+use fidget::mesh::{Mesh, Octree, Settings};
 use fidget::render::{CancelToken, ThreadPool};
 
 use crate::bounds::Box3;
@@ -110,6 +110,27 @@ pub fn mesh(
     output: &Path,
     job: &Job,
 ) -> Result<Option<Exported>, String> {
+    let Some((mesh, meshed)) = build(shape, region, depth, tolerance, job)? else {
+        return Ok(None);
+    };
+    (job.progress)(Stage::Writing);
+    render::write_atomically(output, |file| mesh.write_stl(file))?;
+    Ok(Some(Exported {
+        triangles: mesh.triangles.len(),
+        meshed,
+    }))
+}
+
+/// The mesh of `shape`, the union cut to `region`, simplified to within
+/// `tolerance` of the mesher's surface unless that is 0, and the triangles
+/// it had before; `None` once cancelled.
+pub fn build(
+    shape: &JitShape,
+    region: &Box3,
+    depth: u8,
+    tolerance: f64,
+    job: &Job,
+) -> Result<Option<(Mesh, usize)>, String> {
     let shape = scene::bound(shape.clone())?;
 
     // The octree spans the cube around the region, as [-1, 1]³ in its own
@@ -141,7 +162,7 @@ pub fn mesh(
     (job.progress)(Stage::Triangles);
     let mut mesh = octree.walk_dual();
     drop(octree);
-    // An empty STL would only replace a good one.
+    // An empty file would only replace a good one.
     if mesh.triangles.is_empty() {
         return Err("the mesh is empty: no surface within the bounds".into());
     }
@@ -161,12 +182,7 @@ pub fn mesh(
         mesh = simplified;
     }
 
-    (job.progress)(Stage::Writing);
-    render::write_atomically(output, |file| mesh.write_stl(file))?;
-    Ok(Some(Exported {
-        triangles: mesh.triangles.len(),
-        meshed,
-    }))
+    Ok(Some((mesh, meshed)))
 }
 
 // --- Memory ---
