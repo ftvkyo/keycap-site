@@ -159,7 +159,7 @@ nil keeps every frame of a drag at that share."
 (defvar-local keycap--preview-scale nil
   "How much denser than the window the image shown is.")
 (defvar-local keycap--preview-size nil
-  "The window body size, in pixels, of the last render.")
+  "The window size, as `keycap--preview-window-size' has it, of the last render.")
 
 (defvar-local keycap--preview-view nil)
 (defvar-local keycap--preview-view-chosen nil
@@ -266,12 +266,26 @@ It turns about the middle of the bounds, by the right-hand rule.")
   "The lines of output shown below the image."
   (last keycap--preview-output keycap-preview-output-lines))
 
+(defun keycap--preview-window-size (window)
+  "The body size of WINDOW in pixels, as if the echo area had one line.
+It is (WIDTH . HEIGHT).  A message of several lines, such as ElDoc's,
+takes them from the windows above the echo area for a while; a frame
+cut off at the bottom meanwhile is better than two renders."
+  (let ((echo (minibuffer-window (window-frame window))))
+    (cons (window-body-width window t)
+          (+ (window-body-height window t)
+             (if (and (eq (window-frame echo) (window-frame window))
+                      (window-at-side-p window 'bottom))
+                 (max 0 (- (window-pixel-height echo) (window-default-line-height echo)))
+               0)))))
+
 (defun keycap--preview-image-size (window)
   "The size in pixels of the image WINDOW has room for above the output."
-  (cons (window-body-width window t)
-        (max 1 (- (window-body-height window t)
-                  (* (length (keycap--preview-output-shown))
-                     (window-default-line-height window))))))
+  (pcase-let ((`(,width . ,height) (keycap--preview-window-size window)))
+    (cons width
+          (max 1 (- height
+                    (* (length (keycap--preview-output-shown))
+                       (window-default-line-height window)))))))
 
 (defun keycap--preview-render (&optional now)
   "Render the model into the preview, or once it is in a window.
@@ -291,8 +305,7 @@ with NOW, it renders at once, and the server drops the render that runs."
       (let ((scale (* (frame-scale-factor (window-frame window))
                       (if keycap--preview-dragging keycap--preview-drag-share 1)))
             (size (keycap--preview-image-size window)))
-        (setq keycap--preview-size (cons (window-body-width window t)
-                                         (window-body-height window t)))
+        (setq keycap--preview-size (keycap--preview-window-size window))
         (keycap--preview-send (round (* scale (car size))) (round (* scale (cdr size)))
                               scale))))
     (force-mode-line-update)))
@@ -438,8 +451,7 @@ no lower than that."
 (defun keycap--preview-resized (window)
   "Render again when WINDOW, showing the preview, changed its size."
   (with-current-buffer (window-buffer window)
-    (unless (equal keycap--preview-size
-                   (cons (window-body-width window t) (window-body-height window t)))
+    (unless (equal keycap--preview-size (keycap--preview-window-size window))
       (keycap--preview-render))))
 
 

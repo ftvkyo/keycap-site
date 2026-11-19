@@ -907,6 +907,32 @@ it runs the hooks that stop its server and kill its preview."
         (keycap--preview-loaded (cons '(scene . 5) keycap--preview-report))
         (should (= sent 2))))))
 
+(ert-deftest keycap-test-preview-echo-area ()
+  (keycap-test-with-preview-state
+    (let ((window (selected-window))
+          (height 200)
+          (echo 20)
+          (rendered 0))
+      (cl-letf (((symbol-function 'window-buffer) (lambda (&rest _) (current-buffer)))
+                ((symbol-function 'window-body-width) (lambda (&rest _) 300))
+                ((symbol-function 'window-body-height) (lambda (&rest _) height))
+                ((symbol-function 'window-default-line-height) (lambda (&rest _) 20))
+                ((symbol-function 'window-pixel-height) (lambda (&rest _) echo))
+                ((symbol-function 'window-at-side-p) (lambda (&rest _) t))
+                ((symbol-function 'keycap--preview-render)
+                 (lambda (&rest _) (setq rendered (1+ rendered)))))
+        (setq keycap--preview-size (keycap--preview-window-size window))
+        ;; Three lines of ElDoc and back render nothing.
+        (setq height 160 echo 60)
+        (keycap--preview-resized window)
+        (setq height 200 echo 20)
+        (keycap--preview-resized window)
+        (should (= rendered 0))
+        ;; The window itself shrinking does.
+        (setq height 150)
+        (keycap--preview-resized window)
+        (should (= rendered 1))))))
+
 (ert-deftest keycap-test-preview-drag-adapt ()
   (let ((keycap-preview-drag-resolution 0.5)
         (keycap-preview-drag-frame-time 0.05))
