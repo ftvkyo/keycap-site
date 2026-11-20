@@ -1,0 +1,67 @@
+#+title: Text and SVG
+#+description: A name tag with raised letters, then a badge from SVG files.
+
+Text and drawings become 2D shapes in a model: outlines with exact distance fields, the same as any other shape.
+This means you can offset, extrude and round them too.
+
+* Letters
+
+A new script, =tag.keycap=:
+
+#+begin_src keycap :model tag :alt The words keycap as a 2D distance field
+// A name tag: a plate with raised letters.
+
+const SIZE = 8.0;           // letter height
+
+let name = text("keycap",
+    #{size: SIZE, halign: "center", valign: "center"});
+draw(name);
+#+end_src
+
+=text= shapes a line of text with a real font, Liberation Sans unless you name another one.
+=size= is roughly the height of a capital letter.
+
+- =font= :: a font file, an installed font by its family and =:=-separated properties (="JetBrains Mono:style=Bold"=), or ="libfive"=, a font drawn with strokes that renders much faster.
+- =halign=, =valign= :: where the origin is: =left=, =center=, =right=; =baseline=, =center=, =top=, =bottom=.
+- =spacing= :: a factor on the advance of the letters.
+
+* Raised letters
+
+#+begin_src keycap :model tag :alt A rounded plate with raised letters joined to it by a small fillet
+// The plate, and the letters standing on it.
+let plate = rect([44.0, 16.0], #{round: 4.0}).extrude([0, 2]);
+let letters = name.offset(0.2).extrude([2, 3]);
+draw(plate.union_round(letters, 0.4));
+#+end_src
+
+=offset(0.2)= makes the strokes 0.4 mm bolder, so that thin letters still print.
+=union_round= blends the bottom of the letters into the plate.
+Text makes long formulas, with a piece for every curve of every letter, and for now they are too long for the GPU renderer.
+So keycap renders them on the CPU, and the preview's header line says so.
+To engrave the text instead, use =difference=.
+
+* A drawing
+
+The badge in the examples is drawn as strokes, as in Inkscape, and imported:
+
+#+begin_src rhai
+let hexagon = svg("badge-hexagon.svg", #{center: true});
+let petals = svg("badge-petals.svg", #{center: true});
+
+/// A band along the inside of an outline, 1.5 nozzle widths wide.
+fn outline(shape) {
+    shape.difference(shape.offset(-global::N * 1.5)).offset(0.1)
+}
+
+let artwork = union(outline(hexagon).difference(petals), outline(petals));
+#+end_src
+
+#+begin_src keycap :open badge.keycap :exports results :alt The badge: a square pin with six raised petals in a hexagon, beside the bracket that holds it on a strap
+#+end_src
+
+=svg= reads a file next to the script, in millimetres at 96 dpi, with Y pointing up.
+It fills every closed path, whatever its paint; =id= picks one element or one Inkscape layer.
+=outline= turns the filled shapes back into lines exactly two nozzle passes wide, by subtracting an inward offset.
+
+If you keep the SVG open in Inkscape, the preview updates every time you save it.
+The whole badge is in the [[file:../gallery/badge.html][gallery]].

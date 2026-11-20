@@ -1,0 +1,130 @@
+#+title: A first model
+#+description: A knob, typed from scratch: a 2D profile, its distance field, rounding by blending, a revolve.
+
+This part starts from an empty file and makes a knob that can be printed.
+On the way, it shows the preview, the 2D views, completion, and how to change a number without retyping it.
+
+* Open a script
+
+Visit a new file, =knob.keycap=, and press =C-c C-c=.
+The preview opens next to it, and says there is nothing in view yet.
+
+The preview is a side window.
+From now on, it updates every time you stop typing for a moment, so you don't have to save to see a change.
+While a line is half typed, the script has an error, and the preview keeps the last model that worked; [[file:../manual/troubleshooting.html#when-a-script-fails][When a script fails]] in the manual shows what an error looks like.
+
+* A block and two cutters
+
+The knob is a profile, its cross-section, revolved around its axis.
+The profile is a block with two cuts: a waist for the fingers, and a dish on top.
+Type the dimensions, the block and the cutters:
+
+#+begin_src keycap :model knob :alt The block in white, and the cutters in orange: an ellipse at each side for the waist, and a flat one along the top for the dish
+// Knob: a round handle with a dished top and a waist for the fingers.
+
+const D = 60.0;             // handle diameter
+const H = 30.0;             // handle height
+const ROUNDING = 2.0;
+
+// The knob's cross-section before the cuts.
+let block = rect([D, H]).move([0, H / 2]);
+
+// The cutters: the waist on both sides, and the dish.
+let waist = ellipse([D / 6, H / 2]).move([D / 2, H / 2]).symmetric_x();
+let dish = ellipse([D / 2, H / 12]).move([0, H]);
+
+draw(block);
+draw_rgb([waist, dish], 0.95, 0.55, 0.2);
+#+end_src
+
+These are 2D shapes, so the preview shows them from above, as a distance field.
+Every point is shaded by how far it is from the nearest outline, in bands: in the shape's colour inside, and dark grey outside.
+=draw= draws a shape in white, and =draw_rgb= in a colour, its red, green and blue each from 0 to 1.
+
+keycap is built around this.
+A shape is a function rather than a list of triangles: for a given point, it says how far away the surface is, negative inside.
+The script builds it as an expression of =x= and =y=, a /tree/, which keycap evaluates at every point it shows; [[file:../manual/writing-models.html#fields-and-trees][Fields and trees]] in the manual has more.
+Everything else is arithmetic on such functions:
+
+- =move= shifts a shape, and =symmetric_x= reads it at =abs(x)=, so the waist's ellipse on the right is mirrored to the left.
+- =min(a, b)= is the nearer of two surfaces, which gives both shapes: a union, the same as =union(a, b)=.
+
+* Cutting
+
+Replace the =draw= lines with:
+
+#+begin_src keycap :model knob :alt The block with the cutters taken away: sharp cusps where each cut meets the block's corner
+draw(block.difference(union(waist, dish)));
+#+end_src
+
+=difference= takes the cutters away.
+With no shape in colour, the field is blue inside and orange outside, and white where the distance is zero, which is the surface itself.
+
+It works, but both ellipses touch the outer corners of the block, and there are sharp cusps where they meet.
+A knob shouldn't have those.
+
+* Opening it
+
+In OpenSCAD, a profile like this is rounded with =offset(r) offset(-r)=: shrink it, then grow it back, and every convex corner comes back round.
+On a field, the two would just cancel out.
+The closest thing is to combine the shapes smoothly in the first place.
+Replace the =draw= line with:
+
+#+begin_src keycap :model knob :alt The profile with both cuts' edges rounded and the cusps gone
+// The cuts, with every edge they leave rounded.
+let profile = block.smooth_difference([waist, dish], 2.0 * ROUNDING);
+draw(profile);
+#+end_src
+
+- =smooth_difference= takes the cutters away and blends the edges they leave over a width, here twice the rounding radius.
+- The cutters are blended into each other first, so the rim between the waist and the dish is rounded too.
+- =smooth_union= and =smooth_intersection= blend the other two ways of combining shapes.
+
+=C-c C-d= on =smooth_difference= shows its documentation, with what it does at the cusps and how it compares to OpenSCAD's offsets.
+
+* Into three dimensions
+
+Replace the =draw= line again.
+As you type =profile.revo=, completion offers what fits:
+
+#+begin_src keycap :model knob :at "profile.revo|lve" :show completion :alt The profile revolved into a knob, shaded; completion offers revolve and the other names like it
+// The profile spun around the Z axis.
+let handle = profile.revolve();
+draw(handle);
+#+end_src
+
+=revolve= spins the profile around the Z axis: its X becomes the radius and its Y the height.
+The script is now 3D, so the preview shows it shaded.
+
+* Changing your mind
+
+Put point after the =30= of =H = 30.0= and press =C-c C-n= a few times.
+Each press adds one to the digit before point, and the knob grows in the preview; right after a press, =n= and =p= keep nudging without the prefix.
+
+#+begin_src keycap :model knob :at "H = 30|.0" :nudge 3 :alt The knob taller after nudging H; the echo area shows the step
+#+end_src
+
+With point after the =.0=, the step is 0.1 instead, and a numeric prefix multiplies it.
+This is handy for dimensions you are not sure about: you can try a few values instead of guessing.
+
+* Looking at it
+
+With the preview selected:
+
+- =s=, =z=, =d=, =m= :: shaded, depth, distance and inside-or-outside views.
+- =1=, =3=, =7=, =0= :: front, right, top and isometric; in a 2D view, the slice across Y, X or Z.
+- =[=, =]= :: move the slice; a numeric prefix puts it at that coordinate.
+- arrows, =M-= arrows, =+=, =-= :: turn, pan and zoom; dragging and the wheel do the same.
+- =p= :: perspective or orthographic.
+
+The mouse works too: dragging turns the model, the wheel zooms, and with Shift held, the wheel and dragging move the slice through the model.
+The words at the start of the header line are buttons for the views, the cameras and the slices; [[file:03-keyboard-and-mouse.org][part 3]] goes through all of it.
+
+Press =d= and then =1= to see the knob cut in half along Y, with its distance field around it.
+
+#+begin_src keycap :model knob :slice y :probe "0 19" :alt A slice through the knob across Y, with the mouse's position and the distance there in the header
+#+end_src
+
+When the mouse is over the image, the header line shows the point under it and the distance there.
+Slices let you check things you can't see from outside, like wall thickness, holes and clearances.
+Holding Shift and dragging up or down scrubs the slice through the whole knob, which is quicker than stepping with =]=.

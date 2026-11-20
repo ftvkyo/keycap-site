@@ -1,0 +1,119 @@
+#+title: Keyboard and mouse
+#+description: The knob again, worked with the keyboard alone and with a hand on the mouse, and every action with its key and its gesture.
+
+Everything in keycap has a key, and most things can be done with the mouse too.
+This part takes the knob from the last two parts and goes through both ways of working, then lists every action with its key and its gesture.
+Nothing new gets modelled here.
+
+* Two ways to work
+
+With the keyboard alone, the script's window stays selected while you type, and the preview follows on its own.
+The preview's commands that are needed from the script have =C-c= keys: =C-c C-c= shows it, =C-c C-v= switches its view.
+For the rest, =C-x o= moves to the preview, where single keys turn the model, switch views and move the slice, and =C-x o= moves back.
+There, =?= lists the most used keys in the echo area, and in a 2D view, the slice's keys.
+The preview also shows the list by itself, the first time in a session that it shows a 3D view, and the first time it shows a 2D one.
+
+With a hand on the mouse, the keyboard stays in the script and the mouse works on the preview.
+Dragging, the wheel and the header line's buttons leave the keyboard where it is, so you can keep typing while the model turns.
+A click on the preview selects it, for when you want its keys after all.
+
+* The header line
+
+The words at the start of the preview's header line say what it shows, and each of them is a button.
+Clicking =iso= opens the cameras:
+
+#+begin_src keycap :model knob :after "02-fasteners.org" :view shaded :menu camera :alt The camera menu open under the word iso in the preview's header line: front, right, top, isometric, perspective, reset camera, each with its key
+#+end_src
+
+- the view, =shaded= :: the four views, with their keys.
+- the camera, =iso= :: front, right, top and isometric, perspective, and a reset; once the model is turned by hand, the word is its angles, e.g. =-100° 42°=.
+- in a 2D view, the axis and the offset, e.g. =y = 15= :: the axis to slice across; a click on the offset asks for a coordinate, and the wheel over it moves the slice.
+  A tilted slice shows its angles too, e.g. =z ⊥ (30°, 0°) at 15=, and a click on them levels it.
+- the bounds and the backend :: switch between the script's bounds and fitted ones, and between the GPU and the CPU.
+- an error or an export :: a click on an error goes to its line in the script, and one on =Exporting= cancels it.
+
+Hovering a button highlights it and shows a tooltip with what a click does.
+
+* The menus
+
+Right-click the preview for its menu: the views, the cameras (or, in 2D, the slices), the toggles and the exports, each with its key.
+
+#+begin_src keycap :model knob :view shaded :pointer "0.4 0.25" :menu context :alt The preview's context menu open at the mouse, over the knob: go to shape, the four views, the cameras, the toggles and the exports
+#+end_src
+
+On the image, the menu starts with "Go to Shape": it moves to the script, at the =draw= of the shape under the mouse.
+Double-clicking a shape does the same, which helps when a script draws several shapes and you want to know which line made which.
+
+The same menu is in the menu bar as =Preview=, and the script has its own, =Keycap=, with the script's commands and their keys.
+With the menu bar hidden, =F10= opens it.
+With =context-menu-mode= on, right-clicking a name in the script offers its documentation, as =C-c C-d= does.
+
+* Scrubbing a slice
+
+In a 2D view, holding Shift turns the wheel into a slice control: =S-wheel= moves the slice a step, the same step as =[= and =]=, and =M-wheel= moves it ten.
+=S-drag= scrubs through the model: dragging up moves the slice forward, and the window's height covers the whole of the bounds.
+The frames are rendered at half resolution while you drag, and the header line shows where the slice is.
+
+Click the view's word, pick "SDF", then click the axis letter for the slices:
+
+#+begin_src keycap :model knob :slice y :menu slice :alt The slice menu open under the axis letter in the header line: across X, Y and Z, isometric, forward, back, at an offset, level, reset camera
+#+end_src
+
+Pick "Across Z", then scrub up from the bottom: the nut's hexagon, then the round hole for the bolt, then the knob narrowing at its waist and the ring of bumps in the dish.
+It is the quickest way to find the thinnest wall in a part.
+
+* Tilting a slice
+
+A slice cuts a sloping wall slantwise, and the wall looks thicker on it than it is.
+Tilt the slice until it cuts the wall square: =}= and ={= turn it 5° about the image's right, =M-}= and =M-{= about its up, and =C-drag= turns it as if you held it, dragging down bringing its top towards you.
+A numeric prefix sets the angle, =M-3 M-0 }= for 30°.
+
+#+begin_src keycap :model knob :slice "z 15 30 0" :alt The slice across Z tilted 30° about the image's right: an oval cut through the knob, the header reading z ⊥ (30°, 0°) at 15
+#+end_src
+
+The slice turns about the middle of the bounds, keeps its scale, and the offset runs along its tilted normal; the point under the mouse is read in the model's own coordinates.
+=r= levels it where it is, =1=, =3= and =7= slice level across Y, X and Z, and =0= slices through the middle facing the isometric camera, as =0= looks from it in 3D.
+
+* Scrubbing a number
+
+The same gestures work on numbers in the script.
+With the mouse over a digit, =S-wheel= adds or subtracts one step of that digit, and the preview follows; over the =2= of =12= the step is 1, over the =1= it is 10.
+=S-drag= from a digit changes it by a step per column the mouse moves, right to add and left to subtract, and the whole drag is undone with one =C-/=.
+
+#+begin_src keycap :model knob :at "BUMPS = 12|;" :wheel 4 :alt The mouse over the number of bumps after four turns of the shifted wheel: 16 bumps in the preview, the echo area showing the change
+#+end_src
+
+Away from a number, the shifted wheel scrolls sideways and the shifted click opens the font menu, as they do in any buffer.
+
+* Every action
+
+#+attr_html: :class map
+| Action                       | Key                              | Mouse                                                    |
+|------------------------------+----------------------------------+----------------------------------------------------------|
+| Show the preview             | =C-c C-c=                        | =Keycap= menu                                            |
+| Next view                    | =C-c C-v=, =v= in the preview    | header: the view's word                                  |
+| One view                     | =s=, =z=, =d=, =m=               | header: the view's word; right-click                     |
+| Turn the model               | arrows                           | drag                                                     |
+| Move the camera              | =M-= arrows; arrows in 2D        | middle drag; drag in 2D                                  |
+| Zoom                         | =+=, =-=                         | wheel                                                    |
+| Front, right, top, iso       | =1=, =3=, =7=, =0=               | header: the camera's word; right-click                   |
+| Reset the camera and tilt    | =r=                              | header: the camera's word; right-click                   |
+| Perspective                  | =p=                              | header: the camera's word; right-click                   |
+| Slice across X, Y, Z (2D)    | =3=, =1=, =7=                    | header: the axis letter; right-click                     |
+| Slice facing iso (2D)        | =0=                              | header: the axis letter; right-click                     |
+| Move the slice (2D)          | =[=, =]=                         | =S-wheel=, =M-wheel= for ten steps, =S-drag=             |
+| Put the slice somewhere (2D) | =M-3 ]=, =C-u ]=                 | header: click the offset, or the wheel over it           |
+| Tilt the slice (2D)          | ={=, =}=, =M-{=, =M-}=           | =C-drag=; header: click the angles to level it           |
+| Name the most used keys      | =?=                              | right-click                                              |
+| Read the model               | --                               | hover: the point and the distance in the header          |
+| Go to a shape's =draw=       | --                               | double-click the shape; right-click                      |
+| Nudge a number               | =C-c C-n=, =C-c C-p=             | =S-wheel= over a digit                                   |
+| Scrub a number               | --                               | =S-drag= from a digit                                    |
+| Bounds, backend              | =b=, =G=                         | header: their words                                      |
+| Describe a name              | =C-c C-d=                        | right-click it, with =context-menu-mode=                 |
+| Evaluate an expression       | =C-x C-e=                        | =Keycap= menu                                            |
+| Export an STL, a 2D drawing  | =C-c C-e=, =C-c C-l=; =e=, =l=   | =Keycap= menu; right-click the preview                   |
+| Cancel an export             | =C-c C-k=; =C-g=                 | header: =Exporting=                                      |
+| Go to an error               | =M-x flymake-goto-next-error=    | header: the error                                        |
+
+The single keys are the preview's; the =C-c= keys work in the script.

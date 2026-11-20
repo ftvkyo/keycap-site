@@ -1,0 +1,15 @@
+/result
+/result-cache
+/.frame-cache
+/.keycap-server
+/result-print
+/public
+# Written by publish.el from keycap's examples and keycap-designs.
+/content/gallery/
+# Written by publish.el from keycap's manual.
+/content/manual/
+# Written by publish.el from content/field.keycap.
+/content/field.html
+# Linked and written by print/watch.sh.
+/print/pictures
+/print/*.pdf

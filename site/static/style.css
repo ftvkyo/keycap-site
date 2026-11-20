@@ -1,0 +1,1762 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* keycap's site.
+   Ayu Dark, the palette of the desktop keycap was made on, and Ayu
+   Light for light schemes; Maple Mono for headings and code. */
+
+@font-face {
+  font-family: "Maple Mono NL";
+  src: url("fonts/MapleMonoNL-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Maple Mono NL";
+  src: url("fonts/MapleMonoNL-Italic.woff2") format("woff2");
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Maple Mono NL";
+  src: url("fonts/MapleMonoNL-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ===== Palette ===== */
+
+:root {
+  --bg: #0b0e14;
+  --surface: #131721;
+  --border: #202229;
+  --text: #bfbdb6;
+  --strong: #e6e1cf;
+  --muted: #8a9199;
+  --accent: #ff8f40;
+  --link: #59c2ff;
+  --link-visited: #d2a6ff;
+
+  --hl-keyword: #ff8f40;
+  --hl-function: #ffb454;
+  --hl-string: #aad94c;
+  --hl-constant: #d2a6ff;
+  --hl-builtin: #95e6cb;
+  --hl-type: #59c2ff;
+  --hl-property: #39bae6;
+  --hl-comment: #8a9199;
+  --hl-operator: #f29668;
+
+  --kind-2d: #aad94c;
+  --kind-3d: #59c2ff;
+  --kind-extrude: #95e6cb;
+  --kind-csg: #f07178;
+  --kind-transform: #d2a6ff;
+  --kind-pattern: #ffb454;
+  --kind-math: #8a9199;
+  --kind-script: #ff8cbe;
+
+  --mono: "Maple Mono NL", ui-monospace, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #fcfcfc;
+    --surface: #f3f4f5;
+    --border: #e1e4e8;
+    --text: #4a4f54;
+    --strong: #1f2328;
+    --muted: #63686f;
+    --accent: #b35500;
+    --link: #1f6fb5;
+    --link-visited: #7c4fb0;
+
+    --hl-keyword: #a84f00;
+    --hl-function: #845a00;
+    --hl-string: #5b7a00;
+    --hl-constant: #8a55c4;
+    --hl-builtin: #23735c;
+    --hl-type: #1f6fb5;
+    --hl-property: #176a8b;
+    --hl-comment: #676d74;
+    --hl-operator: #af4827;
+
+    --kind-2d: #5b7a00;
+    --kind-3d: #1f6fb5;
+    --kind-extrude: #23735c;
+    --kind-csg: #d33a46;
+    --kind-transform: #8a55c4;
+    --kind-pattern: #8f6600;
+    --kind-math: #6b7178;
+    --kind-script: #b13f74;
+  }
+}
+
+/* ===== Page ===== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  scrollbar-color: var(--border) transparent;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: clamp(16px, 1rem + 0.2vw, 18px);
+  line-height: 1.6;
+}
+
+/* A word longer than the line, such as a design's name or a path,
+   breaks rather than widen the page on a phone. */
+body {
+  margin: 0 auto;
+  max-width: 42rem;
+  padding: 0 1.25rem;
+  overflow-wrap: break-word;
+}
+
+header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  align-items: baseline;
+  padding: 1.5rem 0 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+}
+
+/* :visited too: the global a:visited would otherwise outrank this and
+   colour every page already seen as if it were the current one. */
+header nav a,
+header nav a:visited {
+  color: var(--text);
+  text-decoration: none;
+}
+
+header nav a:hover {
+  color: var(--strong);
+}
+
+header nav a[aria-current="page"] {
+  color: var(--accent);
+}
+
+header nav a.logo {
+  margin-right: auto;
+  padding: 0 0.4rem;
+  background: var(--accent);
+  font-weight: 700;
+}
+
+header nav a.logo,
+header nav a.logo:visited,
+header nav a.logo:hover {
+  color: var(--bg);
+}
+
+/* "IDE" after the name, fainter than it, as in print. */
+.ide {
+  color: var(--muted);
+}
+
+header nav a.logo .ide {
+  color: color-mix(in srgb, var(--bg) 55%, var(--accent));
+}
+
+/* The keyboard's first stop, out of sight until it is reached. */
+a.skip,
+a.skip:visited {
+  position: absolute;
+  top: -3rem;
+  left: 1.25rem;
+  z-index: 4;
+  padding: 0.25rem 0.75rem;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--mono);
+}
+
+a.skip:focus {
+  top: 0.5rem;
+}
+
+main {
+  padding: 1rem 0 3rem;
+}
+
+footer {
+  padding: 1.5rem 0 2.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+footer p {
+  margin: 0.2rem 0;
+}
+
+/* ===== Text ===== */
+
+h1, h2, h3, h4 {
+  color: var(--strong);
+  font-family: var(--mono);
+  font-weight: 700;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+p, li, dd, figcaption {
+  text-wrap: pretty;
+}
+
+h1.title {
+  margin: 1.5rem 0 0.25rem;
+  font-size: 2rem;
+}
+
+p.subtitle {
+  margin: 0 0 2rem;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+h2 {
+  margin-top: 2.5rem;
+  font-size: 1.4rem;
+}
+
+h2::before {
+  content: "// ";
+  color: var(--accent);
+}
+
+h3 {
+  margin-top: 2rem;
+  font-size: 1.1rem;
+}
+
+h4 {
+  font-size: 1rem;
+}
+
+/* Org's self-links on headings stay quiet until hovered. */
+h2 a, h3 a, h4 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a {
+  color: var(--link);
+  text-underline-offset: 0.15em;
+}
+
+/* Only a link inside prose shows that it was followed; the contents,
+   indexes, cards and the other navigation stay one colour. */
+a:visited {
+  color: var(--link);
+}
+
+:is(p, li, dd, blockquote, figcaption) a:not(:is(nav, .card, .contents, .index, dt) *):visited {
+  color: var(--link-visited);
+}
+
+strong, b {
+  color: var(--strong);
+}
+
+code, kbd, samp, pre {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+code, kbd {
+  padding: 0.05em 0.3em;
+  background: var(--surface);
+  border-radius: 3px;
+  color: var(--strong);
+  white-space: nowrap;
+}
+
+/* Marked by publish.el; a break keeps the padding on both sides. */
+code.long {
+  white-space: normal;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+kbd {
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+}
+
+blockquote {
+  margin: 1.5rem 0;
+  padding: 0.25rem 1rem;
+  border-left: 3px solid var(--accent);
+  color: var(--strong);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* ===== Code ===== */
+
+/* Code keeps its lines; one too long for the page scrolls. */
+pre {
+  margin: 1.25rem 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+pre code {
+  padding: 0;
+  background: none;
+}
+
+/* copy.js's button, in a block's corner: quiet until the block is
+   pointed at or the button has focus. */
+.org-src-container {
+  position: relative;
+  /* As wide as its code, beside a float too, so that the button keeps to
+     the code's corner. */
+  display: flow-root;
+  margin: 1.25rem 0;
+}
+
+/* The block's margin is the container's, or the button would sit above
+   the code. */
+.org-src-container > pre {
+  margin: 0;
+}
+
+button.copy {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  padding: 0.1rem 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.org-src-container:hover button.copy,
+button.copy:focus-visible,
+button.copy[data-state] {
+  opacity: 1;
+}
+
+button.copy:hover {
+  border-color: var(--accent);
+  color: var(--strong);
+}
+
+button.copy:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+button.copy[data-state] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* The Clipboard API's fallback copies from a text area out of sight. */
+.copy-scratch {
+  position: fixed;
+  top: 0;
+  left: -100vw;
+  opacity: 0;
+}
+
+.hl-keyword { color: var(--hl-keyword); }
+.hl-function-name, .hl-function-call { color: var(--hl-function); }
+.hl-string, .hl-doc { color: var(--hl-string); }
+.hl-constant, .hl-number, .hl-nix-constant { color: var(--hl-constant); }
+.hl-builtin { color: var(--hl-builtin); }
+.hl-type { color: var(--hl-type); }
+/* Tree and Shape in signatures: values that may vary over space. */
+.hl-keycap-tree-type { color: var(--hl-type); font-style: italic; }
+.hl-property-name, .hl-property-use, .hl-nix-attribute { color: var(--hl-property); }
+.hl-comment, .hl-comment-delimiter { color: var(--hl-comment); font-style: italic; }
+.hl-operator { color: var(--hl-operator); }
+.hl-variable-name { color: var(--strong); }
+.hl-warning, .hl-escape { color: var(--hl-keyword); }
+
+/* ===== Figures ===== */
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.25rem auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+figure {
+  margin: 1.5rem 0;
+}
+
+figcaption {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* ===== Tables ===== */
+
+table {
+  width: 100%;
+  margin: 1.25rem 0;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  display: block;
+  overflow-x: auto;
+}
+
+th, td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: var(--strong);
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+/* A map table, from its first column to the others, is too wide for a
+   phone: there, a row is a block, each cell under the one before it
+   with its column's name, which publish.el copies to it. */
+@media (max-width: 36rem) {
+  table.map thead {
+    display: none;
+  }
+
+  table.map tr {
+    display: block;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  table.map td {
+    display: block;
+    padding: 0.1rem 0;
+    border: none;
+  }
+
+  table.map td:first-child {
+    color: var(--strong);
+  }
+
+  table.map td + td::before {
+    content: attr(data-label) ": ";
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.85em;
+  }
+}
+
+/* ===== Details, lists, contents ===== */
+
+details {
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+summary {
+  cursor: pointer;
+  color: var(--strong);
+  font-family: var(--mono);
+}
+
+details pre {
+  border-left-width: 1px;
+}
+
+dt {
+  color: var(--strong);
+  font-family: var(--mono);
+}
+
+dd {
+  margin: 0 0 0.75rem 1.5rem;
+}
+
+nav#table-of-contents {
+  margin: 1.5rem 0 2rem;
+  padding: 0.5rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.92rem;
+}
+
+nav#table-of-contents h2 {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+nav#table-of-contents h2::before {
+  content: none;
+}
+
+nav#table-of-contents ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+/* The manual's contents are long; on a wide screen they take two columns. */
+@media (min-width: 44rem) {
+  #text-table-of-contents > ul {
+    columns: 2;
+    column-gap: 2rem;
+  }
+
+  #text-table-of-contents > ul > li {
+    break-inside: avoid;
+  }
+}
+
+/* ===== Landing ===== */
+
+/* The field drawn in characters on the front page, its 70 columns no
+   wider than the page: 0.6em is the font's advance.  Its frames are one
+   block behind a window a frame high, 15 lines, moved up a frame at a
+   step; --frames is set with them. */
+pre.field {
+  margin: 1rem 0 2rem;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: min(0.9em, (100vw - 2.5rem) / 70 / 0.6);
+  line-height: 1.15;
+  height: 15lh;
+  overflow: hidden;
+}
+
+/* A loop in 12 s: the box turns half a turn in it, 15 degrees a second. */
+pre.field > span {
+  display: block;
+  animation: field 12s steps(var(--frames)) infinite;
+}
+
+@keyframes field {
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+/* The first frame, still. */
+@media (prefers-reduced-motion: reduce) {
+  pre.field > span {
+    animation: none;
+  }
+}
+
+pre.field .surface {
+  color: var(--accent);
+}
+
+.lead {
+  color: var(--strong);
+  font-size: 1.15rem;
+}
+
+/* Steps of the tutorial: what to type, then what to see. */
+.keys {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ===== Editor frames ===== */
+
+/* A step of the tutorial as keycap shows it in Emacs: the script so far,
+   and its preview beside it.  The faces are Rei's Emacs theme; wider
+   than the text, as two windows need to be.  The images' background is
+   transparent, so the preview takes the frame's.  The code window has
+   80 columns after the fringe and the line numbers' 5.5, and half a
+   column to spare; the preview takes the rest, at least 40%. */
+.ef {
+  --ef-bg: #0b0e14;
+  --ef-fg: #e6e1cf;
+  --ef-strong: #f2f0e7;
+  --ef-faded: #3e4b59;
+  --ef-doc: #bfbdb6;
+  --ef-mode-line: #131721;
+  --ef-mode-line-fg: #e6e1cf;
+  --ef-mode-line-inactive: #06070a;
+  --ef-popup: #131721;
+  --ef-selected: #202229;
+  --ef-key: #3e4b59;
+  --ef-red: #f07178;
+  --ef-orange: #ff8f40;
+  --ef-yellow: #ffb454;
+  --ef-green: #aad94c;
+  --ef-cyan: #95e6cb;
+  --ef-blue: #59c2ff;
+  --ef-magenta: #d2a6ff;
+  --ef-bright-magenta: #ddbcff;
+  --ef-flag-blue: #73deff;
+  --ef-flag-pink-light: #ffe0ed;
+  --ef-flag-pink: #ffb5d5;
+  --ef-flag-pink-dark: #ff8cbe;
+  --ef-d4: #508ea7;
+  --ef-d5: #b5638a;
+  --ef-d6: #b59fa9;
+  --ef-code-width: 86ch;
+
+  display: grid;
+  grid-template-columns: minmax(0, var(--ef-code-width)) minmax(40%, 1fr);
+  gap: 0 2px;
+  width: min(64rem, 100vw - 2rem);
+  margin: 1.5rem 0 1.5rem calc(50% - min(32rem, 50vw - 1rem));
+  background: var(--ef-mode-line);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  color: var(--ef-fg);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: light) {
+  .ef {
+    --ef-bg: #fcfcfc;
+    --ef-fg: #4a4f54;
+    --ef-strong: #1f2328;
+    --ef-faded: #a0a6ad;
+    --ef-doc: #63686f;
+    --ef-mode-line: #e8eaec;
+    --ef-mode-line-fg: #4a4f54;
+    --ef-mode-line-inactive: #f3f4f5;
+    --ef-popup: #eceef0;
+    --ef-selected: #dcdfe3;
+    --ef-key: #c8ccd1;
+    --ef-red: #d33a46;
+    --ef-orange: #b35500;
+    --ef-yellow: #845a00;
+    --ef-green: #5b7a00;
+    --ef-cyan: #23735c;
+    --ef-blue: #1f6fb5;
+    --ef-magenta: #8a55c4;
+    --ef-bright-magenta: #7c4fb0;
+    --ef-flag-blue: #3fb6e0;
+    --ef-flag-pink-light: #f5c6da;
+    --ef-flag-pink: #f19cc0;
+    --ef-flag-pink-dark: #e06c9f;
+    --ef-d4: #2f7f9e;
+    --ef-d5: #b84f80;
+    --ef-d6: #a7738b;
+  }
+}
+
+.ef-window {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--ef-bg);
+}
+
+.ef-tabline,
+.ef-headerline,
+.ef-echo {
+  min-height: 1.5em;
+  padding: 0 0.5rem;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ef-echo {
+  grid-column: 1 / -1;
+  background: var(--ef-bg);
+}
+
+.ef-tab {
+  color: var(--ef-bright-magenta);
+  text-decoration: underline;
+}
+
+/* Lines wrap as Emacs wraps them, character by character. */
+.ef-text {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ef-line {
+  display: grid;
+  grid-template-columns: 1.5ch 3ch 1ch minmax(0, 1fr);
+}
+
+.ef-lc {
+  grid-column: 4;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.ef-ln {
+  color: var(--ef-faded);
+  text-align: right;
+}
+
+.ef-current .ef-ln {
+  color: var(--ef-fg);
+  font-weight: 700;
+}
+
+.ef-fringe-error::before,
+.ef-fringe-warning::before {
+  content: "‼";
+}
+
+.ef-fringe-error { color: var(--ef-red); }
+.ef-fringe-warning { color: var(--ef-yellow); }
+
+.ef-cursor {
+  background: var(--ef-orange);
+  color: var(--ef-bg);
+}
+
+/* Flymake's underlines. */
+.ef .ef-error,
+.ef .ef-warning,
+.ef .ef-note {
+  text-decoration: underline wavy;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 0.2em;
+}
+
+.ef .ef-error { text-decoration-color: var(--ef-red); }
+.ef .ef-warning { text-decoration-color: var(--ef-yellow); }
+.ef .ef-note { text-decoration-color: var(--ef-green); }
+
+.ef .hl-keyword,
+.ef .hl-builtin { color: var(--ef-magenta); font-style: italic; }
+.ef .hl-function-name { color: var(--ef-yellow); font-weight: 700; }
+.ef .hl-function-call,
+.ef .hl-variable-name { color: var(--ef-yellow); }
+.ef .hl-constant { color: var(--ef-yellow); font-weight: 700; }
+.ef .hl-comment,
+.ef .hl-comment-delimiter { color: var(--ef-faded); font-style: italic; }
+.ef .hl-doc { color: var(--ef-doc); font-style: italic; }
+.ef .hl-type { color: var(--ef-blue); }
+.ef .hl-string { color: var(--ef-green); }
+.ef .hl-escape { color: var(--ef-yellow); }
+.ef .hl-number,
+.ef .hl-operator { color: var(--ef-cyan); }
+.ef .hl-property-name,
+.ef .hl-property-use { color: inherit; }
+.ef .hl-warning { color: var(--ef-yellow); font-weight: 700; }
+.ef .hl-error { color: var(--ef-red); font-weight: 700; }
+.ef .hl-eldoc-highlight-function-argument { font-weight: 700; }
+.ef .hl-help-for-help-header { font-weight: 700; }
+.ef .hl-help-argument-name { color: var(--ef-yellow); font-style: italic; }
+.ef .hl-bold { font-weight: 700; }
+.ef .hl-shadow { color: var(--ef-doc); }
+.ef .hl-help-key-binding {
+  padding: 0 0.2em;
+  background: var(--ef-key);
+  color: var(--ef-strong);
+}
+
+.ef .ef-button {
+  color: var(--ef-blue);
+  text-decoration: underline;
+}
+
+/* rainbow-delimiters, in the colours of the transfeminine flag. */
+.ef .ef-d1 { color: var(--ef-flag-blue); }
+.ef .ef-d2 { color: var(--ef-flag-pink-dark); }
+.ef .ef-d3 { color: var(--ef-flag-pink-light); }
+.ef .ef-d4 { color: var(--ef-d4); }
+.ef .ef-d5 { color: var(--ef-d5); }
+.ef .ef-d6 { color: var(--ef-d6); }
+
+/* Corfu's popup, below the completion's start. */
+.ef-anchor {
+  position: relative;
+}
+
+.ef-popup {
+  position: absolute;
+  top: 1.5em;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 12ch;
+  padding: 1px;
+  background: var(--ef-popup);
+  border: 1px solid var(--ef-faded);
+  white-space: pre;
+}
+
+.ef-popup.ef-above {
+  top: auto;
+  bottom: 1.5em;
+}
+
+.ef-candidate {
+  display: flex;
+  gap: 2ch;
+  justify-content: space-between;
+  padding: 0 0.5ch;
+}
+
+.ef-selected {
+  background: var(--ef-selected);
+  font-weight: 700;
+}
+
+.ef-annotation {
+  color: var(--ef-faded);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.ef-image {
+  position: relative;
+  flex: none;
+}
+
+.ef a {
+  display: block;
+}
+
+.ef img {
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+}
+
+/* The mouse over the image. */
+/* The mouse over the image, as a desktop draws it: white, outlined in
+   black, so that it shows on the field's dark bands and light ones in
+   either scheme.  Its tip, 1 of the viewBox's 14 units in, is the spot. */
+.ef-pointer {
+  position: absolute;
+  width: 1.4rem;
+  height: 2rem;
+  margin: -0.1rem 0 0 -0.1rem;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.5));
+}
+
+.ef-pointer svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+}
+
+/* keycap's menus: a header line word's, under it, and the preview's own,
+   at the mouse.  The word that opens one is highlighted, as the mouse
+   over it highlights it in Emacs. */
+.ef-headerline.ef-open {
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+
+.ef .ef-hover {
+  position: relative;
+  background: var(--ef-selected);
+  outline: 1px solid var(--ef-faded);
+}
+
+.ef-context {
+  position: absolute;
+}
+
+.ef-menu {
+  min-width: 22ch;
+  padding: 0.25em 0;
+  font-weight: 400;
+}
+
+.ef-context .ef-menu {
+  top: 0.6rem;
+  left: 0.6rem;
+}
+
+.ef-item {
+  display: grid;
+  grid-template-columns: 2ch 1fr auto;
+  gap: 0 1ch;
+  padding: 0 1ch 0 0.5ch;
+}
+
+.ef-item.ef-disabled {
+  color: var(--ef-faded);
+}
+
+.ef-keys {
+  color: var(--ef-doc);
+}
+
+.ef-radio .ef-mark::before { content: "○"; }
+.ef-radio.ef-on .ef-mark::before { content: "●"; }
+.ef-toggle.ef-on .ef-mark::before { content: "✓"; }
+
+.ef-separator {
+  margin: 0.25em 0;
+  border-top: 1px solid var(--ef-faded);
+}
+
+.ef-pointer {
+  z-index: 3;
+}
+
+.ef-help {
+  grid-column: 1 / -1;
+  height: 21em;
+  border-top: 2px solid var(--ef-mode-line);
+}
+
+.ef-help .ef-text {
+  padding: 0.2em 0.5rem 0;
+}
+
+.ef-help .ef-lc {
+  word-break: normal;
+}
+
+.ef-modeline {
+  display: flex;
+  gap: 1.5ch;
+  align-items: center;
+  min-height: 1.75em;
+  padding-right: 0.5rem;
+  overflow: hidden;
+  background: var(--ef-mode-line);
+  color: var(--ef-mode-line-fg);
+  white-space: nowrap;
+}
+
+.ef-modeline.ef-inactive {
+  padding-left: 0.5rem;
+  background: var(--ef-mode-line-inactive);
+  color: var(--ef-faded);
+}
+
+/* The transfeminine flag Rei's mode line starts with. */
+.ef-flag {
+  width: 3ch;
+  align-self: stretch;
+  background: linear-gradient(var(--ef-flag-blue) 0 14.3%, var(--ef-flag-pink-light) 0 28.6%,
+                              var(--ef-flag-pink) 0 42.9%, var(--ef-flag-pink-dark) 0 57.1%,
+                              var(--ef-flag-pink) 0 71.4%, var(--ef-flag-pink-light) 0 85.7%,
+                              var(--ef-flag-blue) 0);
+}
+
+.ef-buffer,
+.ef-mode {
+  font-weight: 700;
+}
+
+.ef-modeline:not(.ef-inactive) .ef-dir {
+  color: var(--ef-green);
+}
+
+.ef-fill {
+  flex: 1;
+}
+
+.ef-counters {
+  display: flex;
+  gap: 0.8ch;
+}
+
+.ef-error-count { color: var(--ef-red); }
+.ef-warning-count { color: var(--ef-yellow); }
+.ef-note-count { color: var(--ef-green); }
+
+/* Flymake's ⓘ, which Maple Mono lacks. */
+.ef-i {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 0.15em;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.8em;
+  line-height: 1;
+  text-align: center;
+}
+
+@media (max-width: 40rem) {
+  .ef {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ef-code .ef-text {
+    flex: none;
+  }
+}
+
+/* ===== Review ===== */
+
+/* Whether a person has read the text: under a title, or a heading.  A
+   draft is a badge; a reviewed text only says so, quietly. */
+.review-draft,
+.review-reviewed {
+  margin: 0.25rem 0 1.25rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+.review-draft p,
+.review-reviewed p {
+  display: inline-block;
+  margin: 0;
+  padding: 0 0.5rem;
+  border: 1px dashed var(--muted);
+  border-radius: 3px;
+}
+
+.review-reviewed {
+  font-size: 0.75rem;
+}
+
+.review-reviewed p {
+  padding: 0;
+  border: none;
+}
+
+/* A person's own words in the middle of drafted text. */
+aside.human {
+  margin: 1.5rem 0;
+  padding: 0.25rem 1.25rem;
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+}
+
+p.human-label {
+  margin: 0.5rem 0 0;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ===== Gallery ===== */
+
+/* A card per example, the whole card a link to its page. */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.card:hover {
+  border-color: var(--accent);
+}
+
+.card img {
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+}
+
+a.card-name,
+a.card-name:visited {
+  display: block;
+  padding: 0.25rem 0.75rem 0;
+  color: var(--strong);
+  font-family: var(--mono);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+a.card-name::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.card p {
+  margin: 0.25rem 0.75rem 0.75rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+/* Who made a model, its port's icon and its Printables link: at the
+   foot of a card, under a page's title. */
+p.credits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  align-items: center;
+  margin: 0 0 1.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.card p.credits {
+  gap: 0.25rem 0.75rem;
+  margin: auto 0.75rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+/* Above the link that covers the card, so they can be pointed at. */
+.card .credits .port,
+.card .credits a {
+  position: relative;
+  z-index: 1;
+}
+
+.port {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.port svg {
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* How a port was checked. */
+ul.checked {
+  margin: 1.25rem 0;
+  padding: 0.5rem 1rem;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.92rem;
+}
+
+/* Renders of one model side by side, such as a keycap's legends. */
+.renders {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.renders figure {
+  margin: 0;
+}
+
+.renders img {
+  margin: 0 0 0.4rem;
+}
+
+/* ===== Gallery: rewrites ===== */
+
+/* A port and its rewrite, side by side. */
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.pair figure {
+  margin: 0;
+}
+
+.pair img {
+  margin: 0 0 0.4rem;
+}
+
+@media (max-width: 36rem) {
+  .pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Gallery: idioms ===== */
+
+/* How much of a design is drawn with fields: its level's name, boxed. */
+.idiom {
+  padding: 0 0.35em;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.idiom-why a.idiom,
+.idiom-why a.idiom:visited {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.idiom-why a.idiom:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Under a page's credits, a line per script. */
+p.idiom-why {
+  margin: -1rem 0 1.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+p.idiom-why + p.idiom-why {
+  margin-top: -1.25rem;
+}
+
+/* ===== Manual ===== */
+
+/* The manual's own pages, the current one marked. */
+nav.manual-nav ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.1rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+nav.manual-nav a,
+nav.manual-nav a:visited {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+nav.manual-nav a:hover {
+  color: var(--strong);
+}
+
+nav.manual-nav a[aria-current="page"] {
+  color: var(--accent);
+}
+
+/* A target of 24px at least. */
+nav.manual-nav a {
+  display: inline-block;
+  padding: 0.15rem 0;
+}
+
+/* On a phone, the contents and the current page; the pager leads on. */
+@media (max-width: 36rem) {
+  nav.manual-nav li:not(:first-child):not(:has([aria-current])) {
+    display: none;
+  }
+}
+
+/* Previous, up and next, at the foot of a page. */
+nav.pager {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+}
+
+nav.pager a {
+  text-decoration: none;
+}
+
+nav.pager a span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+nav.pager a[rel="up"] {
+  text-align: center;
+}
+
+nav.pager a[rel="next"] {
+  text-align: right;
+}
+
+/* A link in a term, such as an entry's to itself, is quiet. */
+dt a,
+dt a:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The index's lists of names, in as many columns as fit. */
+ul.index {
+  columns: 11rem;
+  column-gap: 1.5rem;
+  padding-left: 0;
+  list-style: none;
+}
+
+ul.index li {
+  break-inside: avoid;
+}
+
+/* The contents: each chapter with its sections, two chapters abreast. */
+ul.contents {
+  padding-left: 1.25rem;
+}
+
+ul.contents > li > a {
+  font-weight: 700;
+}
+
+@media (min-width: 44rem) {
+  ul.contents {
+    columns: 2;
+    column-gap: 2rem;
+  }
+
+  ul.contents > li {
+    break-inside: avoid;
+  }
+}
+
+/* ===== Reference entries ===== */
+
+/* What a reference section's functions make, a colour each, for the
+   section's mark, its entries' strips and labels, and the legend. */
+.k-2d { --kind: var(--kind-2d); }
+.k-3d { --kind: var(--kind-3d); }
+.k-extrude { --kind: var(--kind-extrude); }
+.k-csg { --kind: var(--kind-csg); }
+.k-transform { --kind: var(--kind-transform); }
+.k-pattern { --kind: var(--kind-pattern); }
+.k-math { --kind: var(--kind-math); }
+.k-script { --kind: var(--kind-script); }
+
+section[class*=" k-"] > h2::before {
+  color: var(--kind);
+}
+
+/* A reference section in a list of contents: a square in its colour. */
+li[class^="k-"] {
+  list-style-type: square;
+}
+
+li[class^="k-"]::marker {
+  color: var(--kind);
+}
+
+/* The index's sections by topic, each with its colour. */
+dt[class^="k-"]::before {
+  content: "";
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-right: 0.5em;
+  background: var(--kind);
+  border-radius: 1px;
+}
+
+/* An entry, its <dt> and its <dd>, beside one strip in its kind's colour;
+   the gap above it ends the one before. */
+dt.entry,
+dd.entry {
+  padding-left: 1.1rem;
+  background: linear-gradient(var(--kind, var(--border)), var(--kind, var(--border)))
+              0 0 / 4px 100% no-repeat;
+}
+
+/* Inside an entry, code's own strip would compete with the entry's. */
+dd.entry pre {
+  border-left-width: 1px;
+}
+
+/* The rule under the heading starts where its text does, so that the
+   strip runs on unbroken. */
+dt.entry {
+  margin-top: 2.5rem;
+  padding-top: 0.1rem;
+  padding-bottom: 0.4rem;
+  background:
+    linear-gradient(var(--border), var(--border)) 1.1rem 100% / calc(100% - 1.1rem) 1px no-repeat,
+    linear-gradient(var(--kind, var(--border)), var(--kind, var(--border))) 0 0 / 4px 100% no-repeat;
+}
+
+dt.entry .hl-function-name {
+  color: var(--hl-function);
+  font-weight: 700;
+}
+
+/* An entry off screen is laid out only as it nears, at the size it had
+   or else about a median one's: the prelude's page has 16,000 elements. */
+dd.entry {
+  margin: 0;
+  padding-top: 0.75rem;
+  padding-bottom: 0.1rem;
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 55rem;
+}
+
+dt.entry .label {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* An entry's link to itself, beside its label, shown when it is pointed
+   at; its signatures are text to select. */
+dt.entry .permalink {
+  margin-left: 0.5em;
+  color: var(--muted);
+  opacity: 0;
+}
+
+dt.entry:hover .permalink,
+dt.entry .permalink:focus-visible {
+  opacity: 1;
+}
+
+dt.entry .permalink:hover {
+  color: var(--accent);
+}
+
+dt.entry code.sig {
+  cursor: text;
+  user-select: text;
+}
+
+dt.entry .label .kind {
+  color: var(--kind);
+}
+
+/* An entry shown by its signatures: the first and strongest thing in it,
+   set out by keycap and coloured as in Emacs.  A line too long for the
+   page wraps between parameters, the rest as far in as keycap says. */
+dt.sig code.sig {
+  display: block;
+  padding: 0;
+  background: none;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+dt.sig code.sig > span {
+  display: block;
+  padding-left: calc(var(--hang) * 1ch);
+  text-indent: calc((var(--indent) - var(--hang)) * 1ch);
+  white-space: pre-wrap;
+}
+
+dt.sig code.sig > span.sig-gap {
+  height: 0.6em;
+}
+
+dt.sig code.sig .p {
+  white-space: pre;
+}
+
+/* A type in a signature links to its term in Concepts, its colour the
+   type's until hovered. */
+code.sig a.type,
+code.sig a.type:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+code.sig a.type:hover {
+  text-decoration: underline;
+}
+
+/* On a phone, smaller, so that a parameter fits beside the name; one
+   longer than the line breaks too. */
+@media (max-width: 36rem) {
+  dt.sig code.sig {
+    font-size: 0.85rem;
+  }
+
+  dt.sig code.sig .p {
+    white-space: pre-wrap;
+  }
+}
+
+/* Parameters, each name beside its description, the rest of a long one
+   further in; a map's keys under it. */
+dd.entry dl.org-dl {
+  margin: 0.75rem 0;
+}
+
+dd.entry dl.org-dl > dt {
+  float: left;
+  clear: left;
+  margin-right: 0.75rem;
+}
+
+/* Not beside the name as a block, which would take a map's keys there
+   too: the text alone wraps around it, and below it hangs. */
+dd.entry dl.org-dl > dd {
+  display: block;
+  margin: 0 0 0.3rem;
+  padding-left: 1.5rem;
+}
+
+dd.entry dl.org-dl dl.org-dl {
+  clear: left;
+  margin: 0.3rem 0 0;
+}
+
+/* The types and the notation of signatures: each term beside what it
+   means, in two columns, as the legend below them.  A term as long as a
+   sentence wraps rather than take the line. */
+@media (min-width: 36rem) {
+  :is(#outline-container-types, #outline-container-reading-signatures) dl.org-dl {
+    display: grid;
+    grid-template-columns: fit-content(16rem) minmax(0, 1fr);
+    gap: 0.35rem 1rem;
+  }
+
+  :is(#outline-container-types, #outline-container-reading-signatures) dl.org-dl > dd {
+    margin: 0;
+  }
+}
+
+/* The legend of the strips, in Reading signatures. */
+dl.legend {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.15rem 1rem;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.92rem;
+}
+
+dl.legend > div {
+  display: contents;
+}
+
+dl.legend dt {
+  padding-left: 1.1rem;
+  background: linear-gradient(var(--kind, transparent), var(--kind, transparent))
+              0 0 / 4px 100% no-repeat;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 2.2;
+  text-transform: uppercase;
+  color: var(--kind, var(--muted));
+}
+
+dl.legend dd {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* An entry's parts -- See also, References -- each beside a rule under
+   its label; Notes -- bounds, exactness and cost -- and From OpenSCAD
+   quieter than the text. */
+div.part {
+  margin: 1rem 0;
+  padding: 0.1rem 0 0.1rem 0.9rem;
+  border-left: 2px solid var(--border);
+  font-size: 0.9rem;
+}
+
+div.part.quiet {
+  color: var(--muted);
+}
+
+div.part > span,
+figure.example figcaption > span {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+div.part > span {
+  color: var(--muted);
+}
+
+div.part p {
+  margin: 0.2rem 0 0.4rem;
+}
+
+div.part ul {
+  margin: 0.2rem 0 0.4rem;
+  padding-left: 1.1rem;
+}
+
+div.part.quiet code {
+  color: inherit;
+}
+
+/* An example is not the documentation: a box of its own, its picture the
+   whole height of its right side, its caption and then its code beside
+   it, so that the picture sets the box's least height; on a phone, the
+   picture below. */
+figure.example {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "caption picture" "code picture";
+  margin: 1.25rem 0 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+figure.example figcaption {
+  grid-area: caption;
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.4rem 0.9rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+figure.example figcaption > span {
+  color: var(--accent);
+}
+
+figure.example figcaption p {
+  margin: 0;
+}
+
+figure.example .example-code {
+  grid-area: code;
+  min-width: 0;
+}
+
+figure.example .example-code .org-src-container {
+  height: 100%;
+  margin: 0;
+}
+
+figure.example .example-code pre {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background: var(--bg);
+}
+
+figure.example .example-pic {
+  grid-area: picture;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--border);
+}
+
+/* Its frame is twice as large. */
+figure.example .example-pic img {
+  width: 240px;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+}
+
+/* What an example that makes no shape evaluates to, under its code. */
+figure.example .example-value {
+  grid-area: picture;
+  padding: 0.4rem 0.9rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+figure.example .example-value::before {
+  content: "⇒ ";
+}
+
+figure.example .example-value code {
+  background: none;
+  white-space: pre-wrap;
+}
+
+/* Code too wide to go beside the picture, marked by publish.el, and any
+   code on a phone, goes above it. */
+figure.example.wide {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  grid-template-areas: "caption" "code" "picture";
+}
+
+figure.example.wide .example-pic {
+  border-left: none;
+  border-top: 1px solid var(--border);
+}
+
+figure.example.wide .example-pic img {
+  margin: 0 auto;
+}
+
+@media (max-width: 36rem) {
+  figure.example {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas: "caption" "code" "picture";
+  }
+
+  figure.example .example-pic {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  figure.example .example-pic img {
+    margin: 0 auto;
+  }
+}

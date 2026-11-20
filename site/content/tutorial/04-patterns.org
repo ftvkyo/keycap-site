@@ -1,0 +1,118 @@
+#+title: Patterns
+#+description: Copies and honeycombs: a fan grill in 2D, then a bowl pierced by a hundred holes.
+
+Repeating a shape works very differently with fields than with meshes.
+A field can fold space instead of copying the shape, so a thousand holes can render as fast as one.
+
+* A fan grill, in two dimensions
+
+Start a new script, =grill.keycap=:
+
+#+begin_src keycap :model grill :alt A rounded square with four corner holes, in the distance view
+// Grill for a 120 mm fan.
+
+const FAN = 120.0;           // fan's side
+const CORNER = 8.0;          // corner radius
+const HOLE_SPACING = 105.0;  // between the mounting holes' centres
+const HOLE_D = 4.5;          // mounting hole diameter
+
+let outline = rect(FAN, #{round: CORNER});
+let holes = circle(HOLE_D / 2)
+    .grid_array([HOLE_SPACING, HOLE_SPACING], [2, 2], #{center: true});
+draw(outline.difference(holes));
+#+end_src
+
+=grid_array([105, 105], [2, 2], #{center: true})= places a 2 by 2 grid of copies, 105 mm apart, centred on the origin.
+These copies are real copies: the field is the nearest of four circles.
+
+Now add the vents:
+
+#+begin_src keycap :model grill :alt The grill with a circular honeycomb of hexagonal vents
+// The vents: a honeycomb, cut to a circle.
+const OPENING = 114.0;       // diameter of the vented area
+const CELL = 9.0;            // honeycomb pitch, between cell centres
+const WALL = 1.2;            // honeycomb wall
+
+let step = [CELL * sqrt(3.0), CELL];
+let lattice = hexagon_af(CELL - WALL).repeat(step);
+let honeycomb = union(lattice, lattice.move([step[0] / 2, step[1] / 2]));
+let vents = honeycomb.intersection(circle(OPENING / 2));
+draw(outline.difference(union(holes, vents)));
+#+end_src
+
+=repeat(step)= works differently: it folds space, so every cell of the plane sees the same hexagon around its own centre.
+There is only one hexagon in the formula, however many of them show.
+That is why the honeycomb can be endless, and then cut to a circle with =intersection=.
+Two lattices, the second one shifted by half a cell, make the hexagonal packing.
+
+=m= shows only inside and outside, the way a printer would see it.
+To print the grill, extrude it: =draw(outline.difference(union(holes, vents)).extrude(2));=.
+
+* A bowl
+
+A new script, =bowl.keycap=:
+
+#+begin_src keycap :model bowl :alt A hexagonal slab with every edge rounded
+// Hex bowl: a shallow hexagonal bowl with rounded edges.
+
+const R = 70.0;             // circumradius of the hexagon
+const H = 20.0;             // height
+const ROUNDING = 5.0;
+const FLOOR = 5.0;          // floor thickness at the centre
+
+let base = regular_polygon(6, R - ROUNDING)
+    .extrude([0, H - ROUNDING])
+    .offset(ROUNDING)
+    .intersection(-z);
+draw(base);
+#+end_src
+
+It reads from the inside out:
+
+1. a hexagon, smaller than wanted by the rounding;
+2. extruded to a prism, also short by the rounding;
+3. =offset(ROUNDING)= grows it by 5 mm in every direction, which rounds every edge and corner with a 5 mm radius, since the prism's field is an exact distance;
+4. =intersection(-z)= keeps what is above the XY plane, so the bottom is cut flat.
+
+=-z= is a shape too: a [[file:../manual/concepts.html#trees-and-shapes][tree]] of the coordinates, the field of the half-space above the plane.
+
+* A hollow, from a curve
+
+The hollow is a revolved curve:
+
+#+begin_src keycap :model bowl :slice y :size "960 480" :alt The bowl hollowed out with a smooth curved floor, seen in section
+// The hollow: a curve from the floor's centre to the rim, revolved.
+let curve = [[0.0, FLOOR], [R / 2, FLOOR], [R / 2, H], [R, H]];
+let points = [[-1.0, FLOOR]];
+for i in 0..=24 {
+    points.push(bezier_point(curve, i / 24.0));
+}
+points += [[2.0 * R, H], [2.0 * R, 2.0 * H], [-1.0, 2.0 * H]];
+let hollow = polygon(points).revolve();
+let bowl = base.difference(hollow);
+draw(bowl);
+#+end_src
+
+=bezier_point= samples a cubic Bézier curve, from the centre of the floor out to the rim.
+The points, closed above the bowl, make a polygon, and =revolve= spins it into the solid that is cut away.
+The polygon goes a millimetre past the axis on purpose.
+An edge lying on the axis would have a distance of zero all along it, and revolving it would leave a fin of no thickness in the middle of the floor.
+The points are built with plain Rhai, an array and a =for= loop; only the shape at the end is a field.
+
+* A hundred holes
+
+#+begin_src keycap :model bowl :alt The finished bowl, its floor and walls pierced by a honeycomb of hexagonal holes
+// Holes: two lattices of hexagons, the second shifted by half a cell.
+const PITCH = 10.0;         // between neighbouring holes' centres
+const HOLE = 9.0;           // hole across its flats
+
+let cell = [PITCH, PITCH * sqrt(3.0)];
+let lattice = hexagon_af(HOLE).rotate_z(30).repeat(cell);
+let holes = union(lattice, lattice.move([cell[0] / 2, cell[1] / 2]));
+draw(bowl.difference(holes));
+#+end_src
+
+Press =s= in the preview to leave the section for the shaded view.
+
+These are the same two lattices, now of holes, going through the whole bowl.
+If you nudge =PITCH= with =C-c C-n=, the honeycomb opens and closes in the preview.

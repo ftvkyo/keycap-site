@@ -1,0 +1,27 @@
+/* frames.el's pages: a frame alone, on white, at the page's top left. */
+
+html {
+  background: #fff;
+}
+
+body {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ef {
+  margin: 0;
+}
+
+/* The preview's window alone, as wide as in a whole frame. */
+
+.preview .ef {
+  grid-template-columns: minmax(0, 1fr);
+  width: calc(64rem - var(--ef-code-width) - 2px);
+}
+
+.preview .ef-code,
+.preview .ef-echo {
+  display: none;
+}

@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// The front page's field: a hexagon and a box, smoothly blended, that
+// turn the other way from each other.  The site draws its distance bands
+// in characters, a frame for each T.
+
+// --- Parameters ---
+
+// How far through the loop, 0 to 1: the box turns half a turn clockwise
+// in it, the hexagon a sixth of one the other way, so the last frame
+// leads into the first.
+const T = 0.0;
+
+const K = 5.0;              // the blend's width
+
+// --- Field ---
+
+let hexagon = regular_polygon(6, 6).rotate_z(60 * T).move([-8, 0]);
+let box = rect([14, 6]).rotate_z(-180 * T).move([6, 0]);
+
+// The 70 columns show the bounds' width and a margin; a line is about two
+// columns.
+bounds([-20, -8, -1], [20, 8, 1]);
+draw(hexagon.smooth_union(box, K));

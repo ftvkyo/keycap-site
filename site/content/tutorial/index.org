@@ -1,0 +1,23 @@
+#+title: Tutorial
+#+description: Learning keycap by building its examples, step by step.
+
+#+review: reviewed 2026-11-17
+
+The tutorial has nine parts.
+Most of them start from an empty file and build a part step by step; parts 2, 3 and 8 go on with the knob from part 1.
+The first eight together take an hour or two; the last one is a longer project.
+You need keycap [[file:../install.html][installed]] and nothing else: no knowledge of distance fields, and only a little programming.
+
+1. [[file:01-first-model.org][A first model]] -- a knob from a 2D profile: the preview, the distance view, rounding by blending, nudging numbers.
+2. [[file:02-fasteners.org][Bumps and a captive nut]] -- finishing the knob: cutters with print clearances, documentation at point, slicing.
+3. [[file:03-keyboard-and-mouse.org][Keyboard and mouse]] -- the knob again, with the keyboard alone and with the mouse: the header line's buttons, the menus, scrubbing slices and numbers, every action's key and gesture.
+4. [[file:04-patterns.org][Patterns]] -- a fan grill and a honeycomb bowl: repeating a shape cheaply, rounding by offsetting.
+5. [[file:05-imports.org][Splitting a design into files]] -- a pegboard hook that imports the board from a module.
+6. [[file:06-text-and-svg.org][Text and SVG]] -- a name tag, and a badge from SVG files.
+7. [[file:07-closed-forms.org][Shapes from formulas]] -- a vase whose outline changes with height, and an involute gear.
+8. [[file:08-exporting.org][Exporting and printing]] -- bounds, resolution, and making the mesh as small as possible.
+9. [[file:09-mx-keycap.org][An MX-style keycap]] -- a sculpted keycap: squircles, a stack of tilted slices, a dish, an even shell, a stem and a legend.
+
+Each picture is made from the code above it when the site is built: the render comes from keycap's server, and the header line, completion, ElDoc and help come from keycap itself.
+The Emacs around them is drawn in the colours of one configuration, so yours will look different.
+The keys are the same.
