@@ -293,10 +293,7 @@ fn ease_in_out_cubic(t) {
 ///     .extrude([0, 30], #{scale: 0.3, ease: ease_in_pow(3)})
 /// ```
 fn ease_in_pow(t, n) {
-    let t = clamp(_float(t), 0.0, 1.0);
-    // 0 at t = 0, where `ln` has neither a gradient nor an interval; the
-    // 1e-30, never chosen, keeps the other branch's interval finite.
-    _select_less(0.0, t, exp(ln(max(t, 1e-30)) * _num(n, "ease_in_pow: n")), 0.0)
+    pow(clamp(_float(t), 0.0, 1.0), _num(n, "ease_in_pow: n"))
 }
 
 /// ease_out_pow(t: Tree, n: number): Tree
