@@ -2,7 +2,7 @@
 # `nix-build print` leaves them in ./result.
 let
   site = import ../. { };
-  inherit (site) sources;
+  inherit (site) sources keycap-server keycap-source;
   pkgs = import sources.nixpkgs { };
   inherit (pkgs) lib;
 
@@ -10,7 +10,6 @@ let
   # Inputs #
   ##########
 
-  keycap-server = (import sources.keycap).server;
   python = pkgs.python3.withPackages (ps: [ ps.pillow ]);
   typst = pkgs.typst.withPackages (ps: [ ps.tiaoma ]);
   # Maple Mono, the site's font, with every weight for print.
@@ -32,13 +31,13 @@ let
         # For text() of installed fonts, by name.
         FONTCONFIG_FILE = pkgs.makeFontsConf { fontDirectories = [ site.legend-font ]; };
         __EGL_VENDOR_LIBRARY_FILENAMES = "${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json";
-        KEYCAP_DIR = sources.keycap;
+        KEYCAP_DIR = keycap-source;
         KEYCAP_DESIGNS_DIR = sources.keycap-designs;
         OPENSCAD_DIR = sources.openscad;
       }
       ''
         export HOME=$TMPDIR
-        python3 ${./render.py} ${keycap-server}/bin/keycap-server ${sources.keycap}/prelude ${./pictures.json} $out
+        python3 ${./render.py} ${keycap-server}/bin/keycap-server ${keycap-source}/prelude ${./pictures.json} $out
       '';
 
   # The site's editor frames, made by its own ob-keycap from the front
@@ -71,7 +70,7 @@ let
         for face in Regular Italic Bold; do
           ln -s ${site.fonts}/share/fonts/woff2/MapleMonoNL-$face.ttf.woff2 pages/fonts/MapleMonoNL-$face.woff2
         done
-        emacs --batch -l ${./frames.el} ${site-src} ${sources.keycap}/examples pages
+        emacs --batch -l ${./frames.el} ${site-src} ${keycap-source}/examples pages
         python3 ${./shoot.py} ${pkgs.chromium}/bin/chromium pages $out
       '';
 

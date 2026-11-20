@@ -51,5 +51,5 @@ watch.sh         recompiles a PDF as its source changes
 ```
 
 - The small print is in `common.typ`, the same on both.
-- The pins are the site's (`../npins`), with `openscad`, the GitHub repository of the OpenSCAD designs, for the original beside its port.
+- The pins are the site's (`../../npins`), with `openscad`, the GitHub repository of the OpenSCAD designs, for the original beside its port.
 - The QR code, to https://keycap.rei.gay, comes from Typst's `tiaoma` package, from nixpkgs, so the build needs no network.
