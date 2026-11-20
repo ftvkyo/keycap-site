@@ -3,7 +3,7 @@
 
 usage: dev.py [--port PORT] [--watch DIR]... -- PUBLISH COMMAND...
 
-Watches content/, static/, tools/, publish.el and each DIR.  An edit of Org
+Watches content/, static/, tools/, publish.el and each DIR, site/ apart.  An edit of Org
 pages alone publishes only those, with KEYCAP_ONLY; any other edit publishes
 everything again, which keycap's render cache makes cheap.  Pages are sent
 with no-cache, and tell the browser to reload over Server-Sent Events.
@@ -22,7 +22,7 @@ site = Path(__file__).resolve().parent.parent
 
 # Written by publish.el itself, which must not start another round.
 generated = [site / "content" / "gallery", site / "content" / "manual", site / "content" / "field.html"]
-skipped = {".git", "target", "node_modules", "__pycache__"}
+skipped = {".git", ".claude", "target", "node_modules", "__pycache__"}
 
 SCRIPT = """\
 const events = new EventSource("/__reload");
@@ -43,7 +43,7 @@ def scan(roots):
             seen[root] = root.stat().st_mtime_ns
             continue
         for directory, names, files in os.walk(root):
-            names[:] = [n for n in names if n not in skipped and Path(directory, n) not in generated]
+            names[:] = [n for n in names if n not in skipped and Path(directory, n) not in generated and Path(directory, n) != site]
             for name in files:
                 path = Path(directory, name)
                 if path in generated:
