@@ -16,7 +16,10 @@
 //! first to the last, and the GPU has 255 registers.  So the distances and
 //! the winding number share no node but the coordinates, and each box takes
 //! nodes of its own from those, so that the same glyph twice, or two
-//! glyphs at the same height, share none either.
+//! glyphs at the same height, share none either.  The GPU also simplifies
+//! a tape by its last 512 choices (`min`, `max`, `and`) alone, so only the
+//! edges' `min` and the boxes choose; each edge's clamp and test is
+//! arithmetic.
 
 use fidget::context::Tree;
 use i_overlay::core::fill_rule::FillRule;
@@ -199,7 +202,7 @@ impl Edge {
         let line = wu.clone() * (ev / el) as f32 - wv.clone() * (eu / el) as f32;
         // The nearest point's place along the line, 0 and 1 at the ends
         let t = wu * (eu / ee) as f32 + wv * (ev / ee) as f32;
-        let past = (t.clone() - t.max(0.0f32).min(1.0f32)) * el as f32;
+        let past = positive((t - 0.5f32).abs() - 0.5f32) * el as f32;
         line.square() + past.square()
     }
 
@@ -215,7 +218,7 @@ impl Edge {
         // Where the edge meets the point's line, ahead of the point or not
         let slope = eu / ev;
         let crossing = (axes.v.clone() - pv as f32) * slope as f32 + pu as f32;
-        let ahead = crossing.compare(axes.u.clone()).max(0.0f32);
+        let ahead = below(&axes.u, crossing);
         Some(across * ahead * ev.signum() as f32)
     }
 }
@@ -246,7 +249,7 @@ impl Bounds {
         let off_v = moved.v.abs() - half[1];
         let between = |a: &Tree, lo: f64, hi: f64| a.compare(lo as f32) - a.compare(hi as f32);
         Bounds {
-            distance2: off_u.max(0.0f32).square() + off_v.max(0.0f32).square(),
+            distance2: positive(off_u).square() + positive(off_v).square(),
             inside: between(&axes.own_u(centre), lower[0], upper[0])
                 * between(&axes.v, lower[1], upper[1]),
         }
@@ -259,6 +262,17 @@ impl Bounds {
     fn distance2(&self, distance2: Tree) -> Tree {
         self.distance2.max(distance2)
     }
+}
+
+/// `a` where it is positive, 0 elsewhere: `max(a, 0)` as arithmetic,
+/// which makes no choice.
+fn positive(a: Tree) -> Tree {
+    (a.clone() + a.abs()) * 0.5f32
+}
+
+/// 1 where `a` is below `b`, 0 elsewhere, without a choice.
+fn below(a: &Tree, b: impl Into<Tree>) -> Tree {
+    (a.compare(b) + 1.0f32).not()
 }
 
 /// The middle of the box from `lower` to `upper`
@@ -307,9 +321,7 @@ fn run(axes: &Axes, edges: &[Edge]) -> Part {
     let mut winding = bounds.inside.and(winding);
     let (start, end) = (edges[0].p[1], edges[edges.len() - 1].end()[1]);
     if start != end {
-        let ahead = Tree::constant(lower[0] as f32)
-            .compare(own.u.clone())
-            .max(0.0f32);
+        let ahead = below(&own.u, lower[0] as f32);
         let ends = axes.across(start.min(end), start.max(end)) * (end - start).signum() as f32;
         winding += ahead.and(ends);
     }
