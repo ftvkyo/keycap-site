@@ -818,6 +818,46 @@ fn probes_follow_the_camera() {
 }
 
 #[test]
+fn probes_sent_at_once_read_the_frame_before_them() {
+    let dir = scratch("probe-batch");
+    let output = dir.join("frame.ppm");
+    let mut server = Server::start(&[]);
+    let probe = json!({"op": "probe", "x": 80, "y": 60});
+    let ids = [
+        server.send(json!({"op": "load", "source": "draw(sphere(1));\n"})),
+        server.send(json!({
+            "op": "render", "output": output, "width": 160, "height": 120, "backend": "cpu",
+        })),
+        server.send(probe.clone()),
+        server.send(json!({"op": "load", "source": "draw(sphere(2));\n"})),
+        server.send(probe),
+    ];
+    let mut replies: Vec<Value> = ids.iter().map(|_| server.reply()).collect();
+    replies.sort_by_key(|reply| reply["id"].as_i64());
+    let [_, render, first, _, second] = &replies[..] else {
+        panic!("{replies:?}");
+    };
+    assert!(
+        render["cancelled"].is_null() && render["error"].is_null(),
+        "{render}"
+    );
+    // Both read the frame's surface, each in the field of the load before it.
+    for (probe, value) in [(first, 0.0), (second, -1.0)] {
+        let p = position(probe);
+        assert!(
+            close(p.iter().map(|c| c * c).sum::<f64>().sqrt(), 1.0, 0.05),
+            "{probe}"
+        );
+        assert!(
+            probe["value"]
+                .as_f64()
+                .is_some_and(|v| close(v, value, 0.05)),
+            "{probe}"
+        );
+    }
+}
+
+#[test]
 fn probes_name_the_shape_under_the_cursor() {
     let dir = scratch("probe-shape");
     let output = dir.join("frame.ppm");

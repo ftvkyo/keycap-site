@@ -86,12 +86,6 @@ struct Rendered {
     empty: bool,
 }
 
-/// The last frame, and the scene it shows
-struct Shown {
-    frame: Frame,
-    scene: Arc<Scene>,
-}
-
 /// What a probe needs from the last frame.
 enum Frame {
     View3 {
@@ -118,7 +112,7 @@ struct Point {
 #[derive(Default)]
 struct Shared {
     scene: Mutex<Option<Arc<Scene>>>,
-    shown: Mutex<Option<Arc<Shown>>>,
+    shown: Mutex<Option<Arc<Frame>>>,
 }
 
 /// The language thread's
@@ -152,10 +146,10 @@ struct Renderer {
 pub fn run(prelude: Option<&Path>, threads: Option<usize>, budget: Duration) {
     // A thread reads stdin, so that a newer render or export cancels an
     // older one at once.  Renders go to a thread of their own, so that a
-    // load, completion or probe never waits for a frame; the language
-    // thread answers the rest in order, so that each sees the loads before
-    // it, and a frame waits only for those loads.  Exports run beside both,
-    // each on a thread of its own.
+    // load or completion never waits for a frame; the language thread
+    // answers the rest in order, so that each sees the loads before it, a
+    // frame waits only for those loads, and a probe for the frames before
+    // it.  Exports run beside both, each on a thread of its own.
     let (requests, queue) = mpsc::channel();
     let (renders, render_queue) = mpsc::channel();
     let interrupts = Interrupts::default();
@@ -176,12 +170,14 @@ pub fn run(prelude: Option<&Path>, threads: Option<usize>, budget: Duration) {
             };
             let served = catch_unwind(AssertUnwindSafe(|| {
                 for (id, request) in render_queue {
+                    let generation = request.generation;
                     let reply = renderer.render(*request).unwrap_or_else(Reply::Failed);
                     if let Some(fields) = reply.fields()
                         && !replies.send(id.into(), fields)
                     {
                         break;
                     }
+                    renderer.interrupts.render_done(generation);
                 }
             }));
             // A panic stops the server, as one on the language thread does,
@@ -423,12 +419,12 @@ impl Server {
     // --- probe ---
 
     fn probe(&mut self, probe: Probe) -> Result<Reply, String> {
+        self.interrupts.await_renders(&probe);
         let shown = lock(&self.shared.shown).clone();
-        let shown = shown.ok_or("nothing is rendered yet")?;
-        let frame = &shown.frame;
+        let frame = shown.ok_or("nothing is rendered yet")?;
         // The pixel under (x, y), whose centre the frame shows
         let (x, y) = (probe.x.floor(), probe.y.floor());
-        let position = match frame {
+        let position = match &*frame {
             Frame::View2 {
                 view,
                 width,
@@ -453,7 +449,8 @@ impl Server {
         let Some(position) = position else {
             return Ok(json!({ "position": null, "shape": null }).into());
         };
-        let (value, shape) = self.nearest_shape(&shown.scene, position)?.unzip();
+        let scene = self.scene()?;
+        let (value, shape) = self.nearest_shape(&scene, position)?.unzip();
         Ok(json!({ "position": position, "value": value, "shape": shape }).into())
     }
 
@@ -925,10 +922,7 @@ impl Renderer {
         if let Some(fallback) = rendered.fallback {
             reply["fallback"] = fallback.into();
         }
-        *lock(&self.shared.shown) = Some(Arc::new(Shown {
-            frame: rendered.frame,
-            scene,
-        }));
+        *lock(&self.shared.shown) = Some(Arc::new(rendered.frame));
         Ok(reply.into())
     }
 }

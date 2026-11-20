@@ -5,12 +5,13 @@
 //! `keycap-server [--prelude DIR] [--threads N] [--gpu-budget MS]` serves
 //! one script buffer.
 //! It reads one JSON request per line on stdin and answers each with one
-//! JSON line on stdout.  Renders are answered in their order, and the
-//! other requests in theirs, so that a `load` or a `probe` never waits for
-//! a frame; a render shows the scene of the loads before it.  A newer
-//! `render` cancels an older one still waiting or running, and the
-//! exports, `mesh`, `trace`, `layers`, `print` and `resin`, answer once
-//! done, running beside the other requests.  stderr carries logs only.
+//! JSON line on stdout.  Renders and probes are answered in their order,
+//! and the other requests in theirs, so that a `load` never waits for a
+//! frame; a render shows the scene of the loads before it, and a probe
+//! reads the frame of the renders before it.  A newer `render` cancels an
+//! older one still waiting or running, and the exports, `mesh`, `trace`,
+//! `layers`, `print` and `resin`, answer once done, running beside the
+//! other requests.  stderr carries logs only.
 //!
 //! It renders on half as many threads as there are cores, and exports on
 //! one per core, both at a lower priority, exports the lower; `--threads N`
@@ -158,12 +159,12 @@
 //!
 //! ## `probe`
 //!
-//! `{"id", "op": "probe", "x", "y"}`: the pixel of the last frame answered
-//! at `x` and `y`, counted from its top left.  The reply has `position`, the point
-//! at the pixel's centre on the slice or on the surface seen there (null
-//! when there is none), `value`, the field there, and `shape`, the index in
-//! `load`'s `shapes` of the shape whose field is lowest there (null with
-//! `position`).
+//! `{"id", "op": "probe", "x", "y"}`: the pixel at `x` and `y` of the
+//! frame of the renders before it, counted from its top left.  The reply
+//! has `position`, the point at the pixel's centre on the slice or on the
+//! surface seen there (null when there is none), `value`, the field there,
+//! and `shape`, the index in `load`'s `shapes` of the shape whose field is
+//! lowest there (null with `position`).
 //!
 //! ## `mesh`
 //!

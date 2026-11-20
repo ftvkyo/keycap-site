@@ -113,6 +113,10 @@ fn default_background() -> [f32; 3] {
 pub struct Probe {
     pub x: f64,
     pub y: f64,
+    /// Set by the reader: the newest render read before it, whose frame it
+    /// reads
+    #[serde(skip)]
+    pub renders_before: u64,
 }
 
 #[derive(Deserialize)]
@@ -357,6 +361,8 @@ struct Renders {
     loads_read: u64,
     /// The loads done, one way or another
     loads_done: u64,
+    /// The newest render answered, one way or another
+    renders_done: u64,
 }
 
 #[derive(Default)]
@@ -445,6 +451,30 @@ impl Interrupts {
         }
     }
 
+    /// Called by the reader for each probe.
+    fn new_probe(&self, probe: &mut Probe) {
+        probe.renders_before = self.renders().latest;
+    }
+
+    /// Called by the render thread once the render of `generation` is
+    /// answered, one way or another.
+    pub fn render_done(&self, generation: u64) {
+        self.renders().renders_done = generation;
+        self.renders.1.notify_all();
+    }
+
+    /// Called before a probe: waits for the renders read before it.
+    pub fn await_renders(&self, probe: &Probe) {
+        let mut renders = self.renders();
+        while renders.renders_done < probe.renders_before {
+            renders = self
+                .renders
+                .1
+                .wait(renders)
+                .unwrap_or_else(PoisonError::into_inner);
+        }
+    }
+
     /// Called once a load is done, one way or another.
     pub fn load_done(&self) {
         self.renders().loads_done += 1;
@@ -493,6 +523,7 @@ pub fn read_requests(
             match op {
                 Op::Render(render) => interrupts.supersede(render),
                 Op::Load(script) => interrupts.new_load(script),
+                Op::Probe(probe) => interrupts.new_probe(probe),
                 Op::Mesh(mesh) => mesh.export = interrupts.new_export(),
                 Op::Trace(trace) => trace.export = interrupts.new_export(),
                 Op::Layers(layers) => layers.export = interrupts.new_export(),
