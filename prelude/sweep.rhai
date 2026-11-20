@@ -55,7 +55,7 @@ fn helix(profile, radius, pitch) {
     // cosines has it.
     let cos_h = TAU * rh / _hypot(TAU * rh, p);
     let cos_r = TAU * r / _hypot(TAU * r, p);
-    remap(_tree(profile), r - rh, w * _sqrt(cos_h * cos_r), square(0.0))
+    remap(_tree(profile), r - rh, w * _sqrt(cos_h * cos_r), 0.0)
 }
 
 /// bend(shape: Shape, r: number, angle: number | [number, number] = [-180, 180]): Shape
@@ -221,7 +221,7 @@ fn sweep(profile, path, opts) {
     let shape = if type_of(profile) == "Fn" {
         _shape(profile.call(z), "sweep: profile")
     } else {
-        remap(_shape(profile, "sweep: profile"), x, y, square(0.0))
+        remap(_shape(profile, "sweep: profile"), x, y, 0.0)
     };
     let section = |u, v, t| _scheduled(shape, t, opts, "sweep", u, v, t);
     let parts = pieces.map(|piece| _sweep_piece(piece, section, total, varying));

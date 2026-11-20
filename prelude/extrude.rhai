@@ -82,7 +82,7 @@
 fn extrude(shape, h, opts) {
     _opts(opts, ["round", "chamfer", "normalize", "draft", "twist", "scale", "move", "ease", "ease_twist", "ease_scale", "ease_move"], "extrude");
     let zs = _height(h, "extrude: h");
-    let d = remap(_tree(shape), x, y, square(0.0));
+    let d = remap(_tree(shape), x, y, 0.0);
     _extrude(_extrude_slices(d, zs, opts, "extrude"), zs, opts, (), "extrude")
 }
 
@@ -350,12 +350,12 @@ fn revolve(shape, angle, opts) {
         // within a thousandth of a radian, they do no longer.
         flat = (1.0 / (c * c) - 1.0) * clamp(-1000.0 * at.past, 0.0, 1.0);
     }
-    let f = remap(p, u, z, square(0.0));
+    let f = remap(p, u, z, 0.0);
     if "sides" in opts {
         // The facets stretch the profile across, so the field is steeper
         // by its gradient's share along X, which a second evaluation finds.
         let h = 0.1;
-        let fu = (remap(p, u + h, z, square(0.0)) - f) / h;
+        let fu = (remap(p, u + h, z, 0.0) - f) / h;
         f = f / sqrt(1.0 + square(fu) * flat);
     }
     if whole {
@@ -395,7 +395,7 @@ fn revolve(shape) {
     } else if _is_outline(shape) {
         revolve(shape, 360.0, #{})
     } else {
-        remap(_shape(shape, "revolve: shape"), _hypot(x, y), z, square(0.0))
+        remap(_shape(shape, "revolve: shape"), _hypot(x, y), z, 0.0)
     }
 }
 
