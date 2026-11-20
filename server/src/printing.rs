@@ -16,8 +16,6 @@ use std::path::Path;
 
 use fidget::jit::JitShape;
 use fidget::mesh::Mesh;
-use flate2::Compression;
-use flate2::write::DeflateEncoder;
 
 use crate::bounds::Box3;
 use crate::contour::Grid;
@@ -27,6 +25,7 @@ use crate::outline::Point;
 use crate::render;
 // Coordinates to a tenth of a micrometre
 use crate::server::number;
+use crate::zip::Zip;
 
 /// The depth of the octree the coarse mesh is made on: 128 cells across.
 const MESH_DEPTH: u8 = 7;
@@ -126,7 +125,13 @@ pub fn export(
         ),
         ("Metadata/keycap_layers.json", &sidecar),
     ];
-    render::write_atomically(output, |file| write_zip(file, &entries))?;
+    render::write_atomically(output, |file| {
+        let mut zip = Zip::new(file);
+        for (name, data) in entries {
+            zip.add_deflated(name, data)?;
+        }
+        zip.finish().map(drop)
+    })?;
     let contours = stack.iter().flat_map(|l| l.shapes.iter().flatten());
     Ok(Some(Exported {
         triangles: mesh.triangles.len(),
@@ -272,122 +277,11 @@ fn write_sidecar(
     writeln!(file, "]}}]}}")
 }
 
-// --- Zip ---
-
-/// Writes a zip archive of `entries`, each a name and its contents,
-/// deflated, as 3MF packages are.
-fn write_zip(file: &mut impl Write, entries: &[(&str, &[u8])]) -> std::io::Result<()> {
-    let too_large = || std::io::Error::other("the 3MF is too large for a zip without Zip64");
-    let size = |n: usize| u32::try_from(n).map_err(|_| too_large());
-    let mut central = vec![];
-    let mut offset = 0;
-    for (name, data) in entries {
-        let mut encoder = DeflateEncoder::new(vec![], Compression::default());
-        encoder.write_all(data)?;
-        let deflated = encoder.finish()?;
-        let mut crc = flate2::Crc::new();
-        crc.update(data);
-        // Version 2.0, no flags, deflated, at 1980-01-01 00:00
-        let common = [
-            &20u16.to_le_bytes()[..],
-            &0u16.to_le_bytes(),
-            &8u16.to_le_bytes(),
-            &0u16.to_le_bytes(),
-            &0x21u16.to_le_bytes(),
-            &crc.sum().to_le_bytes(),
-            &size(deflated.len())?.to_le_bytes(),
-            &size(data.len())?.to_le_bytes(),
-            &u16::try_from(name.len())
-                .map_err(|_| too_large())?
-                .to_le_bytes(),
-            &0u16.to_le_bytes(),
-        ]
-        .concat();
-        let local = [&0x04034b50u32.to_le_bytes()[..], &common, name.as_bytes()].concat();
-        file.write_all(&local)?;
-        file.write_all(&deflated)?;
-        central.extend_from_slice(&0x02014b50u32.to_le_bytes());
-        // Made by version 2.0
-        central.extend_from_slice(&20u16.to_le_bytes());
-        central.extend_from_slice(&common);
-        // No comment, disk 0, no attributes
-        central.extend_from_slice(&[0; 10]);
-        central.extend_from_slice(&size(offset)?.to_le_bytes());
-        central.extend_from_slice(name.as_bytes());
-        offset += local.len() + deflated.len();
-    }
-    let count = u16::try_from(entries.len()).map_err(|_| too_large())?;
-    file.write_all(&central)?;
-    let end = [
-        &0x06054b50u32.to_le_bytes()[..],
-        &[0; 4],
-        &count.to_le_bytes(),
-        &count.to_le_bytes(),
-        &size(central.len())?.to_le_bytes(),
-        &size(offset)?.to_le_bytes(),
-        &0u16.to_le_bytes(),
-    ]
-    .concat();
-    file.write_all(&end)
-}
-
 #[cfg(test)]
 mod test {
-    use std::io::Read;
-
-    use flate2::read::DeflateDecoder;
     use nalgebra::Vector3;
 
     use super::*;
-
-    fn u16_at(data: &[u8], at: usize) -> usize {
-        u16::from_le_bytes([data[at], data[at + 1]]).into()
-    }
-
-    fn u32_at(data: &[u8], at: usize) -> usize {
-        u32::from_le_bytes([data[at], data[at + 1], data[at + 2], data[at + 3]]) as usize
-    }
-
-    /// The entries of a zip archive, by its central directory.
-    fn unzip(data: &[u8]) -> Vec<(String, Vec<u8>)> {
-        let end = data.len() - 22;
-        assert_eq!(u32_at(data, end), 0x06054b50);
-        let mut at = u32_at(data, end + 16);
-        (0..u16_at(data, end + 10))
-            .map(|_| {
-                assert_eq!(u32_at(data, at), 0x02014b50);
-                let (crc, size) = (u32_at(data, at + 16), u32_at(data, at + 24));
-                let name_length = u16_at(data, at + 28);
-                let name = &data[at + 46..at + 46 + name_length];
-                let local = u32_at(data, at + 42);
-                at += 46 + name_length;
-                assert_eq!(u32_at(data, local), 0x04034b50);
-                let start = local + 30 + u16_at(data, local + 26);
-                let mut contents = vec![];
-                DeflateDecoder::new(&data[start..])
-                    .read_to_end(&mut contents)
-                    .expect("it inflates");
-                assert_eq!(contents.len(), size);
-                let mut sum = flate2::Crc::new();
-                sum.update(&contents);
-                assert_eq!(sum.sum() as usize, crc);
-                (String::from_utf8(name.to_vec()).expect("UTF-8"), contents)
-            })
-            .collect()
-    }
-
-    #[test]
-    fn zips_read_back() {
-        let long = "layer ".repeat(1000);
-        let entries: [(&str, &[u8]); 2] = [("a.txt", b"one"), ("dir/b.txt", long.as_bytes())];
-        let mut out = vec![];
-        write_zip(&mut out, &entries).expect("it writes");
-        let read = unzip(&out);
-        assert_eq!(read.len(), 2);
-        assert_eq!((read[0].0.as_str(), read[0].1.as_slice()), entries[0]);
-        assert_eq!((read[1].0.as_str(), read[1].1.as_slice()), entries[1]);
-        assert!(out.len() < long.len() / 10);
-    }
 
     /// The footprint's hull goes round its corners counterclockwise,
     /// leaving out the points inside and along its sides.
