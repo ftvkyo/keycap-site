@@ -15,6 +15,10 @@ rec {
   # An Emacs with the package, for the tests.
   emacs = epkgs.emacsWithPackages [ package ];
 
+  # The site, with its pages and what it is built from: `nix-build -A site`, or `-A site.all` for
+  # the render cache too.
+  site = import ./site { };
+
   # cargo and rustc for the server, with the Vulkan loader its GPU rendering opens, and Python
   # for its fuzzer.
   serverShell = pkgs.mkShell {

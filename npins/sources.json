@@ -1,10 +1,35 @@
 {
   "pins": {
+    "keycap-designs": {
+      "type": "Git",
+      "repository": {
+        "type": "Git",
+        "url": "https://tangled.org/rei.gay/keycap-designs"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "5939c5e2f7ec762e9f3728c8374248cb6edc2a1d",
+      "url": null,
+      "hash": "sha256-IJo+7/4452S8P2Wiktwct/L5ZycFVTtDOzHeUgBqdpE="
+    },
     "nixpkgs": {
       "type": "Channel",
       "name": "nixos-26.05",
-      "url": "https://releases.nixos.org/nixos/26.05/nixos-26.05.9227.c25784012c99/nixexprs.tar.xz",
-      "hash": "sha256-aVla+xR1lotA4iEMo6ltSr5oKVvWxBZ8Gc9KjbwxJq8="
+      "url": "https://releases.nixos.org/nixos/26.05/nixos-26.05.14234.f1e5c356f35d/nixexprs.tar.xz",
+      "hash": "sha256-C0bP9ShRkxihpkAiWel93+JypO7ls9usnHRtK2VLvWA="
+    },
+    "openscad": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "ftvkyo",
+        "repo": "openscad"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "ef4aa398a8146251a4398f9d30cf8048623208bc",
+      "url": "https://github.com/ftvkyo/openscad/archive/ef4aa398a8146251a4398f9d30cf8048623208bc.tar.gz",
+      "hash": "sha256-Reo7UqCVCOxsSt3hdKTHOn8BvnF/VlTl78hVEwlg9kY="
     },
     "rhai-ts-mode": {
       "type": "Git",

@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # The site: Org pages published to HTML by a batch Emacs, nothing else.
-# `nix-build` leaves it in ./result; any static file server can host it.
+# `nix-build -A site` from the root leaves it in ./result; any static file
+# server can host it.
 #
 # frameCache is a directory of renders that a build left in its `cache`
 # output: a frame whose hash is there is taken from it, not rendered again.
@@ -10,11 +11,11 @@
 }:
 
 let
-  pins = import ./npins;
+  pins = import ../npins;
   pkgs = import pins.nixpkgs { };
   inherit (pkgs) lib;
 
-  # A pin overridden by a local checkout, NPINS_OVERRIDE_keycap=../keycap,
+  # A pin overridden by a local checkout, NPINS_OVERRIDE_keycap_designs=../keycap-designs,
   # is copied to the store without its Git history or Cargo's build tree.
   sources = builtins.mapAttrs (
     _: pin:
@@ -36,9 +37,30 @@ let
   # does not compile cleanly.
   epkgs = pkgs.emacsPackagesFor pkgs.emacs-pgtk;
   rhai-ts-mode = epkgs.callPackage "${sources.rhai-ts-mode}/package.nix" { };
-  keycap-server = (import sources.keycap).server;
-  keycap = epkgs.callPackage "${sources.keycap}/package.nix" {
+  keycap-server = (import ../.).server;
+  keycap = epkgs.callPackage ../package.nix {
     inherit rhai-ts-mode keycap-server;
+  };
+
+  # This repository without the site, a checkout's Git directory or the build
+  # trees: the elisp, prelude, manual and examples that the pages render.
+  keycap-source = lib.cleanSourceWith {
+    name = "keycap-source";
+    src = ../.;
+    filter =
+      path: _:
+      let
+        rel = lib.removePrefix "${toString ../.}/" (toString path);
+      in
+      !(
+        builtins.elem rel [
+          "site"
+          ".git"
+          ".claude"
+          "server/target"
+        ]
+        || lib.hasPrefix "result" rel
+      );
   };
 
   # Code blocks are highlighted by rhai-ts-mode, with its patched grammar,
@@ -47,14 +69,6 @@ let
     epkgs.htmlize
     epkgs.nix-mode
     keycap
-  ];
-
-  # Without keycap, for tools/preview.sh --root, which puts a keycap checkout
-  # on the load path: the pinned keycap is neither fetched nor built.
-  emacs-checkout = epkgs.emacsWithPackages [
-    epkgs.htmlize
-    epkgs.nix-mode
-    rhai-ts-mode
   ];
 
   # Maple Mono, the infra's own font, without ligatures.
@@ -121,10 +135,10 @@ pkgs.runCommand "keycap-site"
     passthru = {
       inherit
         emacs
-        emacs-checkout
         fonts
         fonts-licence
         keycap-server
+        keycap-source
         legend-font
         sources
         ;
@@ -141,7 +155,7 @@ pkgs.runCommand "keycap-site"
     chmod -R u+w site
     cd site
 
-    KEYCAP_DIR=${sources.keycap} \
+    KEYCAP_DIR=${keycap-source} \
     KEYCAP_DESIGNS_DIR=${sources.keycap-designs} \
     KEYCAP_FONTS=${fonts}/share/fonts/woff2 \
     KEYCAP_FONTS_LICENCE=${fonts-licence} \
