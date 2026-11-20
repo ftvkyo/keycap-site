@@ -23,7 +23,7 @@ engine: microvm
 image: alpine-large
 
 environment:
-  GITHUB_REPO: ftvkyo/keycap-site
+  GITHUB_REPO: ftvkyo/keycap
   # the image's Nix runs as a daemon
   NIX_REMOTE: daemon
 
@@ -38,6 +38,7 @@ cache:
   - key: keycap-server
     hash:
       - npins/sources.json
+      - server/Cargo.lock
     paths:
       - .keycap-server
 
@@ -49,14 +50,15 @@ steps:
         nix-store --import < .keycap-server/closure > /dev/null
       fi
       mkdir -p .frame-cache
-      nix-build -A all --arg frameCache "$PWD/.frame-cache" -o /workspace/site
+      # site/ itself, which takes the frameCache; the root takes no arguments.
+      nix-build site -A all --arg frameCache "$PWD/.frame-cache" -o /workspace/site
       rm -rf .frame-cache
       # BusyBox's cp, so plain -r, then the store's read-only modes lifted.
       cp -r /workspace/site-cache/. .frame-cache
       chmod -R u+w .frame-cache
       if [ ! -e .keycap-server/closure ]; then
         mkdir -p .keycap-server
-        nix-store --export $(nix-store -qR "$(nix-build --no-out-link -A keycap-server)") > .keycap-server/closure
+        nix-store --export $(nix-store -qR "$(nix-build --no-out-link -A server)") > .keycap-server/closure
       fi
 
   - name: Publish to gh-pages
@@ -93,5 +95,5 @@ steps:
         exit 0
       fi
 
-      commit=$(git commit-tree "$tree" -m "keycap-site at $source")
+      commit=$(git commit-tree "$tree" -m "keycap site at $source")
       git push --force "$remote" "$commit:refs/heads/gh-pages"
