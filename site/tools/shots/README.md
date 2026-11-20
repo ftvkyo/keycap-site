@@ -7,7 +7,7 @@ It runs in the infra's headless rig, from an infra checkout whose Emacs has keyc
 
 ```sh
 just niri headless hero
-NIRI_TRY_NAME=hero RIG_NAME=hero KEYCAP_DIR=~/src/keycap just emacs rig ~/src/keycap-site/tools/shots/hero.el
+NIRI_TRY_NAME=hero RIG_NAME=hero KEYCAP_DIR=~/src/keycap just emacs rig ~/src/keycap/site/tools/shots/hero.el
 ```
 
 The front page shows a composed frame of the same example; to show the screenshot instead, replace that block in `content/index.org` with a link to the image.
