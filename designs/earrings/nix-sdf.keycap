@@ -1,0 +1,108 @@
+// NixOS snowflake earring, nix.keycap with its lambdas drawn as fields:
+// each of a lambda's two pieces is the sides that bound it, planes as
+// distances, where nix.keycap clips points when the script runs.
+//
+// The NixOS snowflake is by Tim Cuthbertson and the NixOS artwork
+// contributors, CC BY 4.0
+// (https://github.com/NixOS/nixos-artwork/blob/master/logo/README.md);
+// this is a redrawing of it, and isn't endorsed by the NixOS project.
+//
+// Differences from nix.keycap:
+// - intersection_round rounds each piece's corners; where two sides meet
+//   at 60 or 120 degrees, its round is hg_sdf's, not a circle tangent to
+//   both, up to 0.16 mm off.
+// - The concave corner where the bar leaves the arm is a plain union's, a
+//   bound inside, so the chamfer on top cuts up to 0.33 mm differently
+//   there.
+
+// idiom sdf-native: a lambda's two pieces are the planes that bound them
+
+// --- Parameters ---
+
+const RADIUS = 15.0;
+const ADD_RING = true;
+
+const THICKNESS_CONNECTION = 1.0;
+const THICKNESS_A = 1.5;
+const THICKNESS_B = 2.0;
+
+const RING_THICKNESS = 1.0;
+const RING_RADIUS = 1.5;
+
+const ENABLE_GAP = true;
+
+// --- Derived sizes ---
+
+fn sizes() {
+    let r = global::RADIUS;
+    #{
+        r: r,
+        inner: r * 2.0 / 5.0,
+        inner_inscribed: r * sqrt(3.0) / 2.0 * 2.0 / 5.0,
+        gap: if global::ENABLE_GAP { r / 85.0 } else { 0.0 },
+        rounding: r / 40.0,
+        lambda: r / 5.0,
+        t: 0.01,
+    }
+}
+
+// --- Parts ---
+
+// The half-plane inside the side of a hexagon of circumradius `r` centred
+// on `c` that faces `angle` degrees: a plane as a distance.
+fn side(c, angle, r) {
+    cosd(angle) * (x - c[0]) + sind(angle) * (y - c[1]) - r * sqrt(3.0) / 2.0
+}
+
+// One lambda: its bar and its arm, each the sides that bound it, where the
+// hexagons of the original's mask cut them, their corners rounded.  Every
+// side is named once: two coinciding sides in one intersection_round would
+// each round the other away.
+fn lambda() {
+    let s = sizes();
+    let shift = s.gap * sqrt(3.0);
+    let beside = [s.inner - s.r - shift, 0.0];
+    let y0 = s.inner_inscribed;
+    let y1 = y0 + s.lambda;
+    let bar = [y0 - y, y - y1, side([0, 0], 150, s.r), side(beside, 30, s.r)];
+    // The arm, along 120 degrees, its foot inside the bar.
+    let across = sind(120) * x - cosd(120) * y;
+    let arm = [abs(across) - s.lambda / 2.0, side([0, 0], 90, s.r), side([0, 0], 150, s.r), (y0 + y1) / 2.0 - y];
+    union(intersection_round(bar, s.rounding), intersection_round(arm, s.rounding))
+}
+
+// Three lambdas, `thickness` thick, every other one round the ring, their
+// top edges chamfered by the rounding.
+fn lambdas(thickness, first) {
+    lambda()
+        .extrude([0, thickness], #{chamfer: [0, sizes().rounding]})
+        .rotate_z(60 * first)
+        .polar_array(3)
+}
+
+// The hexagonal ring the lambdas stand on, a little thinner.
+fn connection() {
+    let s = sizes();
+    regular_polygon(6, (s.inner_inscribed + s.lambda) / (sqrt(3.0) / 2.0))
+        .difference(regular_polygon(6, s.inner))
+        .offset(-s.rounding)
+        .extrude([s.t, global::THICKNESS_CONNECTION - s.t])
+}
+
+// The jump ring: a round-topped band revolved, at the tip of a lambda.
+fn ring() {
+    let s = sizes();
+    let t = global::RING_THICKNESS;
+    let band = union(circle(t / 2.0).move([0, t / 2.0]), rect([t, t / 2.0]).move([0, t / 4.0]));
+    let o = s.r + global::RING_RADIUS - t * 2.0 / 3.0;
+    band.move([global::RING_RADIUS, 0]).revolve().move([o * cosd(60), o * sind(60), 0])
+}
+
+// --- Assembly ---
+
+draw_rgb(lambdas(THICKNESS_A, 0), 0.255, 0.369, 0.604);
+draw_rgb(lambdas(THICKNESS_B, 1), 0.412, 0.604, 0.843);
+draw_rgb(connection(), 0.5, 0.5, 0.5);
+if ADD_RING {
+    draw_rgb(ring(), 0.5, 0.5, 0.5);
+}

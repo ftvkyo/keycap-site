@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Editing and previewing</title>
+<meta name="description" content="The script buffer, the preview and exporting." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="overview.html">
+<link rel="next" href="writing-models.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Editing and previewing</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html" aria-current="page">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+
+<nav id="table-of-contents" role="doc-toc">
+<h2>In this chapter</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#the-script-buffer">The script buffer</a></li>
+<li><a href="#the-preview">The preview</a>
+<ul>
+<li><a href="#views">Views</a></li>
+<li><a href="#preview-keys">Preview keys</a></li>
+<li><a href="#bounds">Bounds</a></li>
+</ul>
+</li>
+<li><a href="#exporting">Exporting</a></li>
+<li><a href="#exporting-for-laser-cutting">Exporting for laser cutting</a></li>
+<li><a href="#exporting-for-3d-printing">Exporting for 3D printing</a></li>
+<li><a href="#printing-in-resin">Printing in resin</a></li>
+<li><a href="#customization">Customization</a></li>
+<li><a href="#extending-keycap">Extending keycap</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-the-script-buffer" class="outline-2">
+<h2 id="the-script-buffer"><a href="#the-script-buffer">The script buffer</a></h2>
+<div class="outline-text-2" id="text-the-script-buffer">
+<p>
+<code>keycap-mode</code> starts one <code>keycap-server</code> process per buffer.
+After each change, once typing pauses for <code>keycap-load-delay</code> seconds, it evaluates the script; the preview, Flymake and the header line follow.
+</p>
+
+<dl class="org-dl">
+<dt>Key: C-c C-c (keycap-preview)</dt><dd>Show the preview of the script beside it, creating it if needed.</dd>
+<dt>Key: C-c C-v (keycap-preview-cycle-view)</dt><dd>Switch the preview to its next view; see <a href="#views">Views</a>.</dd>
+<dt>Key: C-c C-e (keycap-export-stl)</dt><dd>Mesh the drawn shapes into an STL file.
+With a prefix argument, ask for the resolution too.</dd>
+<dt>Key: C-c C-l (keycap-export-2d)</dt><dd>Trace the drawn shapes&rsquo; outlines into an SVG or a DXF file for laser cutting; see <a href="#exporting-for-laser-cutting">Exporting for laser cutting</a>.
+With a prefix argument, ask for the kerf too.</dd>
+<dt>Key: C-c C-r (keycap-export-resin)</dt><dd>Slice the drawn shapes into the layers of a resin print; see <a href="#printing-in-resin">Printing in resin</a>.
+With a prefix argument, ask for the printer too.</dd>
+<dt>Key: C-c C-k (keycap-export-cancel)</dt><dd>Cancel the export that runs; the file keeps what it had.</dd>
+<dt>Key: C-c C-d (keycap-describe)</dt><dd>Show the documentation of a function or shape, by default the one at point.
+The reference it opens lists everything a script can call, grouped by where it comes from.
+The script&rsquo;s own functions and those it imports, such as <code>skadis::board</code>, are documented by their <code>///</code> comments.</dd>
+<dt>Key: C-x C-e (keycap-eval-last-expression)</dt><dd>Evaluate the expression before point in the scope of the whole script and show its value in the echo area; with an active region, evaluate the region.
+A tree shows as its value at the origin and the bounds fitted to it, such as <code class="long">tree: -5 at the origin; x -5.2 to 5.2, ...</code>.</dd>
+<dt>Key: C-c C-n (keycap-increase-number)</dt><dd>Add 1 to the digit before point in the number at point, or to its last digit when point is not after one of its digits; with a numeric prefix, add that many.
+In <code>12.5</code> with point after the <code>5</code>, it steps by 0.1; after the <code>2</code>, by 1; after the <code>1</code>, by 10.
+The echo area shows the number&rsquo;s name and the step, such as <code>pitch 12 → 22 (step 10)</code>.
+Right after, <code>n</code> and <code>p</code> nudge it again, until another key.</dd>
+<dt>Key: C-c C-p (keycap-decrease-number)</dt><dd>The same, downwards; a number can cross zero.</dd>
+<dt>Key: S-&lt;wheel-up&gt; (keycap-mouse-nudge-number)</dt><dd>Over a digit, add 1 to that digit; <code>S-&lt;wheel-down&gt;</code> subtracts.
+Elsewhere, the wheel scrolls as it would.</dd>
+<dt>Key: S-&lt;down-mouse-1&gt; (keycap-mouse-scrub-number)</dt><dd>From a digit, drag right to add to that digit, a step per column the mouse moves, or left to subtract; the preview follows, and the whole drag undoes as one change.</dd>
+</dl>
+
+<p>
+The <code>Keycap</code> menu in the menu bar has these commands with their keys (<code>F10</code> opens it when the menu bar is hidden).
+With <code>context-menu-mode</code>, right-clicking a function or shape offers its description.
+</p>
+
+<p>
+Flymake marks errors, warnings and notes in the script; see <a href="troubleshooting.html#when-a-script-fails">When a script fails</a>.
+</p>
+
+<p>
+<code>completion-at-point</code> offers every function, shape and variable, and the script&rsquo;s own; inside a shape&rsquo;s map, as in <code>circle(#{</code>, it offers that shape&rsquo;s fields with their types and defaults.
+ElDoc shows the signature of the call at point, or the doc of the field at point.
+Both know the functions the script defines and imports, as of its last evaluation.
+</p>
+
+<p>
+<code>M-x keycap-guide</code> opens this manual.
+<code>C-h S</code> (<code>info-lookup-symbol</code>) finds a function in its index.
+</p>
+
+<p>
+<code>M-x keycap-version</code> shows the versions of keycap, its server and Emacs, and copies them, for a bug report.
+</p>
+</div>
+</section>
+<section id="outline-container-the-preview" class="outline-2">
+<h2 id="the-preview"><a href="#the-preview">The preview</a></h2>
+<div class="outline-text-2" id="text-the-preview">
+<p>
+The preview shows the shapes the script draws, each in its colour, rendered by <code>keycap-server</code> into a frame under <code>$XDG_RUNTIME_DIR/keycap/</code>.
+Its header line shows the view, the bounds in use and where they come from, the backend, the render time, the slice in 2D views, and, while the mouse is over the image, the point under it and the field&rsquo;s value there.
+Lines the script <code>print</code>-s show below the image, up to <code>keycap-preview-output-lines</code> of them.
+</p>
+
+<p>
+The header line&rsquo;s words are buttons: the view and the camera, or the slice&rsquo;s axis and offset, offer their choices in a menu, the wheel over the offset moves the slice, a tilted slice&rsquo;s angles level it, and the bounds and the backend switch when clicked; an error goes to its line in the script, and an export cancels.
+Right-clicking the preview opens the same menu as the menu bar&rsquo;s <code>Preview</code>, which, over the model, starts with the way to its shape&rsquo;s <code>draw</code>.
+A click selects the preview, for its keys; dragging, the wheel and the header&rsquo;s buttons leave the keyboard where it was, so the script can be typed in while the mouse turns the model.
+</p>
+</div>
+<div id="outline-container-views" class="outline-3">
+<h3 id="views"><a href="#views">Views</a></h3>
+<div class="outline-text-3" id="text-views">
+<dl class="org-dl">
+<dt>shaded</dt><dd>the model in 3D, each shape in its colour, lit as in a studio: a key light from the upper left, a fill light from the right and light from above, less of it in crevices.
+The lights turn with the camera; the CPU and the GPU light alike.</dd>
+<dt>heightmap</dt><dd>the model in 3D, its depth as grey.</dd>
+<dt>sdf</dt><dd>a 2D slice through the model, coloured by the field&rsquo;s value: orange outside, blue inside, with lines at regular distances, and red where the field is NaN.
+The view for 2D drawings and for checking that a field is a distance (see <a href="writing-models.html#exact-distances-and-bounds">Exact distances and bounds</a>).</dd>
+<dt>mono</dt><dd>a 2D slice, white inside and black outside.</dd>
+</dl>
+
+<p>
+A model that is unbounded along Z, as every 2D drawing is, opens in the sdf view.
+From a 3D view, the 2D views slice through the middle of the bounds, across the axis sliced last (Z at first), or through 0 along an unbounded axis; the header line shows where, such as <code>sdf z = 4</code>.
+</p>
+
+<p>
+A slice can tilt, to cut a slanted wall square across and measure it: about the image&rsquo;s right and up, through the middle of the bounds.
+The image&rsquo;s scale stays; the offset then runs along the tilted normal, and the header line shows the angles, such as <code>sdf z ⊥ (12°, -30°) at 4</code>.
+The point under the mouse is read in the model&rsquo;s own coordinates.
+</p>
+
+<p>
+<code>?</code> names the most used keys of the view shown in the echo area, the slice&rsquo;s in 2D; the preview does so once by itself the first time it shows a 3D view and a 2D one.
+<code>h</code> lists every key.
+</p>
+</div>
+</div>
+<div id="outline-container-preview-keys" class="outline-3">
+<h3 id="preview-keys"><a href="#preview-keys">Preview keys</a></h3>
+<div class="outline-text-3" id="text-preview-keys">
+<p>
+The keys come in families: the digits point the camera, or the slice in 2D views; brackets and braces move and tilt the slice; <code>s</code>, <code>z</code>, <code>d</code> and <code>m</code> pick a view; Shift with the mouse moves the slice, Control tilts it.
+</p>
+
+<dl class="org-dl">
+<dt>Key: &lt;left&gt; (keycap-preview-orbit-left)</dt><dd>Turn the camera around the model; in 2D views, the arrows pan.
+<code>&lt;right&gt;</code>, <code>&lt;up&gt;</code> and <code>&lt;down&gt;</code> turn it the other ways.</dd>
+<dt>Key: M-&lt;left&gt; (keycap-preview-pan-left)</dt><dd>Move the camera; <code>M-&lt;right&gt;</code>, <code>M-&lt;up&gt;</code> and <code>M-&lt;down&gt;</code> likewise.</dd>
+<dt>Key: + (keycap-preview-zoom-in)</dt><dd>Zoom in; also <code>=</code> and the mouse wheel.</dd>
+<dt>Key: - (keycap-preview-zoom-out)</dt><dd>Zoom out.</dd>
+<dt>Key: &lt;down-mouse-1&gt; (keycap-preview-mouse-orbit)</dt><dd>Drag to turn the camera; while it drags, frames have at most half the resolution (<code>keycap-preview-drag-resolution</code>), the last one in full.</dd>
+<dt>Key: &lt;down-mouse-2&gt; (keycap-preview-mouse-pan)</dt><dd>Drag to move the camera.</dd>
+<dt>Key: p (keycap-preview-projection)</dt><dd>Switch between orthographic and perspective.</dd>
+<dt>Key: 1 (keycap-preview-front)</dt><dd>Look from the front, as the numpad&rsquo;s <code>1</code> does in Blender; in 2D views, slice level across Y, the axis the front camera looks along, through the middle of the bounds.</dd>
+<dt>Key: 3 (keycap-preview-right)</dt><dd>Look from the right; in 2D views, slice level across X.</dd>
+<dt>Key: 7 (keycap-preview-top)</dt><dd>Look from the top; in 2D views, slice level across Z.</dd>
+<dt>Key: 0 (keycap-preview-isometric)</dt><dd>Look from the front right, above; in 2D views, slice through the middle of the bounds facing that way, tilted from Z.</dd>
+<dt>Key: r (keycap-preview-reset-camera)</dt><dd>Look from the front right, above, unmoved and unzoomed; in 2D views, level the slice where it is.</dd>
+<dt>Key: v (keycap-preview-cycle-view)</dt><dd>Switch to the next view.</dd>
+<dt>Key: s (keycap-preview-shaded)</dt><dd>Switch to shaded.</dd>
+<dt>Key: z (keycap-preview-heightmap)</dt><dd>Switch to heightmap, the depth along Z.</dd>
+<dt>Key: d (keycap-preview-sdf)</dt><dd>Switch to sdf, the distance field on a slice.</dd>
+<dt>Key: m (keycap-preview-mono)</dt><dd>Switch to mono, the inside and outside on a slice.</dd>
+<dt>Key: [ (keycap-preview-slice-backward)</dt><dd>Move the slice of the 2D views back along its axis, by about a twentieth of the bounds; with a numeric prefix, move it to that offset.</dd>
+<dt>Key: ] (keycap-preview-slice-forward)</dt><dd>Move the slice forward.</dd>
+<dt>Key: { (keycap-preview-tilt-backward)</dt><dd>Tilt the slice 5° about the image&rsquo;s right, its top away; with a numeric prefix, tilt it to that angle.</dd>
+<dt>Key: } (keycap-preview-tilt-forward)</dt><dd>Tilt the slice the other way, its top toward you.</dd>
+<dt>Key: M-{ (keycap-preview-tilt-left)</dt><dd>Tilt the slice 5° about the image&rsquo;s up, its right edge toward you; <code>M-}</code> the other way.</dd>
+<dt>Key: S-&lt;wheel-up&gt; (keycap-preview-mouse-slice-step)</dt><dd>Step the slice forward, as <code>]</code>; <code>S-&lt;wheel-down&gt;</code> steps it back, and <code>M-&lt;wheel-up&gt;</code> and <code>M-&lt;wheel-down&gt;</code> ten steps.</dd>
+<dt>Key: S-&lt;down-mouse-1&gt; (keycap-preview-mouse-slice)</dt><dd>Drag up or down to move the slice, the window&rsquo;s height covering the bounds along its axis; frames have the resolution of <code>&lt;down-mouse-1&gt;</code>, the header line shows where the slice is.</dd>
+<dt>Key: C-&lt;down-mouse-1&gt; (keycap-preview-mouse-tilt)</dt><dd>Drag to tilt the slice, as if holding it: down brings its top toward you, right takes its right edge away.</dd>
+<dt>Key: &lt;double-mouse-1&gt; (keycap-preview-mouse-goto-shape)</dt><dd>Go to the <code>draw</code> of the shape under the mouse, in the script or the file it imports; in 2D views, of the shape the mouse is in, or the nearest one.</dd>
+<dt>Key: &lt;down-mouse-3&gt;</dt><dd>The preview&rsquo;s menu: views, cameras or slices, bounds, backend and exports.</dd>
+<dt>Key: b (keycap-preview-toggle-bounds)</dt><dd>Switch between the script&rsquo;s bounds and the bounds fitted to the model.</dd>
+<dt>Key: G (keycap-preview-toggle-backend)</dt><dd>Render on the other of the GPU and the CPU than the frame was rendered on, or, once switched, where it is sooner again.</dd>
+<dt>Key: e (keycap-preview-export-stl)</dt><dd>Export, within the bounds the preview shows.</dd>
+<dt>Key: l (keycap-preview-export-2d)</dt><dd>Export the outlines on the slice the 2D views show, tilted or not, for laser cutting, within the bounds the preview shows.</dd>
+<dt>Key: C-g (keycap-preview-keyboard-quit)</dt><dd>Cancel the export that runs; without one, quit as usual.</dd>
+<dt>Key: ? (keycap-preview-keys)</dt><dd>Name the most used keys of the view shown.</dd>
+<dt>Key: g</dt><dd>Render again.</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-bounds" class="outline-3">
+<h3 id="bounds"><a href="#bounds">Bounds</a></h3>
+<div class="outline-text-3" id="text-bounds">
+<p>
+The preview shows a region of space: the script&rsquo;s, set with <code>bounds</code>, or one fitted to the drawn shapes.
+Without a <code>bounds</code> call, the fitted region stands in.
+<code>keycap-server</code> fits it by interval arithmetic: it shrinks a large box from each side while the slab it cuts off is provably outside every shape.
+A side where that never becomes provable is unbounded: a 2D drawing along Z, an endless <code>repeat</code>, a field that interval arithmetic sees through badly.
+When the fitted bounds are in use and interval arithmetic gives the shapes NaN far out, the header line says so; see <a href="troubleshooting.html#preview-problems">Preview problems</a>.
+Unbounded axes are centred on 0 and as wide as the widest bounded one, or 20 units when every axis is unbounded; set <code>bounds</code> when the fitted region is wrong.
+</p>
+</div>
+</div>
+</section>
+<section id="outline-container-exporting" class="outline-2">
+<h2 id="exporting"><a href="#exporting">Exporting</a></h2>
+<div class="outline-text-2" id="text-exporting">
+<p>
+<code>C-c C-e</code> meshes the union of all drawn shapes, within the bounds, into a binary STL.
+The mesh cells are at most 1/resolution units across: the script&rsquo;s <code>resolution</code>, else <code>keycap-export-resolution</code> (10 cells per mm by default), or with a prefix argument, the one you type.
+Every <code>draw</code> is exported, reference geometry included; see <a href="recipes.html#reference-geometry">Reference geometry</a>.
+Meshing uses every core, or <code>keycap-server-threads</code> of them; at 10 cells per mm, a part the size of a hand, such as <code>knob.keycap</code>, takes a few seconds, and a vase a few minutes.
+</p>
+
+<p>
+The mesher makes triangles of the cells&rsquo; size everywhere, flat faces as dense as curves, so the export then simplifies the mesh: triangles merge wherever the surface stays within <code>keycap-export-tolerance</code> of the one meshed, a tenth of a cell unless set.
+Sharp edges and thin walls stay, since flattening them would stray further than that; a flat face becomes a few large triangles, and a curve keeps the triangles it needs to bend within the tolerance.
+At 2 cells per mm, <code>vase-koch.keycap</code> meshes into 2 million triangles and exports as 73,000 within 0.04 mm, a file nearly thirty times smaller; a tolerance of 0 keeps every triangle.
+The resolution decides which details the mesh catches, and the tolerance how closely it follows them: a finer resolution for small features, then a tolerance around the printer&rsquo;s own accuracy.
+</p>
+
+<p>
+The export runs beside everything else: the script can be edited and the preview turned while it does, and it writes the script as it was when the export started.
+The preview&rsquo;s header line shows its progress, such as <code class="long">Exporting part.stl: sampling, 12 s</code>: sampling the shapes is most of the time, then triangulating, simplifying and writing.
+The echo area tells the result, such as <code class="long">Exported knob.stl: 42564 triangles (of 960906, within 0.0053) in 5.1 s</code>.
+An export that would take more memory than is free stops with an error rather than crowd out the rest of the machine; a lower resolution, or tighter bounds, make it fit.
+<code>C-c C-k</code> in the script, or <code>C-g</code> in the preview, cancels it; the file keeps what it had, since a mesh only replaces it once it is complete.
+One export runs at a time.
+</p>
+</div>
+</section>
+<section id="outline-container-exporting-for-laser-cutting" class="outline-2">
+<h2 id="exporting-for-laser-cutting"><a href="#exporting-for-laser-cutting">Exporting for laser cutting</a></h2>
+<div class="outline-text-2" id="text-exporting-for-laser-cutting">
+<p>
+<code>C-c C-l</code> traces the outlines of the drawn shapes on a plane into a drawing for a laser cutter.
+The file&rsquo;s extension chooses an SVG or a DXF.
+A 2D drawing is traced as it is.
+A solid is sliced: at the slice a 2D view of the preview shows, or else across Z through the middle of the bounds.
+<code>l</code> in the preview exports the slice it shows, within the bounds it shows.
+</p>
+
+<p>
+What the laser does along a shape&rsquo;s outline is the role the shape is drawn with:
+</p>
+
+<dl class="org-dl">
+<dt><code>"cut"</code></dt><dd>the default: cut through, a red (<code>#ff0000</code>) hairline.</dd>
+<dt><code>"score"</code></dt><dd>marked but not cut through, a blue (<code>#0000ff</code>) hairline.</dd>
+<dt><code>"engrave"</code></dt><dd>an area burnt in, filled black (<code>#000000</code>).</dd>
+</dl>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A tag with a hole to hang it by, a line scored round its edge and an engraved name.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">label</span> <span class="hl-operator">=</span> <span class="hl-function-call">text</span><span class="hl-bracket">(</span><span class="hl-string">"keycap"</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span>
+    <span class="hl-property-name">size</span><span class="hl-delimiter">:</span> <span class="hl-number">12</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">halign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">valign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">45</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">circle</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">40.5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">)))</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">36</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">role</span><span class="hl-delimiter">:</span> <span class="hl-string">"score"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">label</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">role</span><span class="hl-delimiter">:</span> <span class="hl-string">"engrave"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-exporting-for-laser-cutting-4c60cd64b616331e.png" width="480" height="360" fetchpriority="high" alt="A tag with a hole to hang it by, a line scored round its edge and an engraved name.">
+
+</div></figure>
+
+<p>
+The SVG has a group per role, and the DXF a layer per role in AutoCAD colour 1, 5 or 7, each named after it.
+The colours are the ones most laser drivers and makerspaces expect; it is a habit rather than a standard, and some Glowforge guides swap red and blue.
+Software that takes each colour as a layer, as LightBurn and Glowforge&rsquo;s do, needs its settings assigned to them once.
+Hairlines are 0.001 inch wide, as drivers that cut along strokes want them.
+Once a script scores or engraves anything, the 2D views draw every shape&rsquo;s outline in its role&rsquo;s colour.
+Roles are a keycap extension: a <code>.fidget</code> script draws plain shapes.
+</p>
+
+<p>
+Each role&rsquo;s shapes are traced as their union, cut to the bounds.
+Outlines run counterclockwise and holes clockwise.
+A part&rsquo;s holes come before its outline, parts inside holes before the parts around them, and engravings and scores before cuts, so that a laser following the file in order cuts each part loose last.
+Both files are in millimetres with +Y up: the SVG by its <code>width</code>, <code>height</code> and <code>viewBox</code>, the DXF by <code>$INSUNITS</code>.
+The DXF is AutoCAD R12, which every reader takes, each outline a closed polyline.
+</p>
+
+<p>
+The tracing samples the shapes on a grid of cells 1/resolution across, as meshing does, then moves every point it finds onto the surface: the grid decides which outlines there are, not where they lie, and only details smaller than a cell can go missing.
+Sharp corners the grid cuts off come back where the surface&rsquo;s tangents meet.
+The points are fitted with lines and circular arcs within <code>keycap-export-tolerance</code>, a tenth of a cell unless set: a straight side becomes one line, a rounded corner one arc, a circle two half circles, and a curve that is not circular as many arcs as the tolerance takes.
+A tolerance of 0 keeps a line between every two points.
+The first leg of <code>laptop-stand.keycap</code> exports as 7 lines and 23 arcs.
+The living-hinge sheet of <code>bendy-sheet.keycap</code>, 280 by 175 mm with 147 slots, takes under 2 seconds at 10 cells per mm.
+</p>
+
+<p>
+The laser burns away a kerf, a fraction of a millimetre wide, along every cut.
+<code>keycap-export-kerf</code>, or with a prefix argument the one you type, grows the shapes to cut by half of it, so that parts come out to size and holes shrink to theirs; scores and engravings stay as drawn.
+The growth is an offset of the field by half the kerf times the field&rsquo;s slope along the plane: exact for an exact 2D distance field, within a few micrometres for a slice of an exact solid, and only a bound for a field that is no distance.
+</p>
+
+<p>
+The prelude&rsquo;s <code>keycap/lasercut</code> module, imported with <code>import "keycap/lasercut" as lc;</code>, has finger joints, tabs and slots, T-slots for captive nuts, cross laps, living hinges and a box, laid out flat with a sheet to score around them.
+Its joints take a <code>fit</code>, the clearance between the parts: with the kerf set to the laser&rsquo;s, it is the clearance as cut; exported with no kerf, a joint comes out looser by twice the kerf.
+</p>
+
+<p>
+The export runs as an STL export does, beside everything else and cancelled the same way.
+The header line shows its progress, such as <code>Exporting part.svg: tracing, 1 s</code>: sampling, tracing, simplifying, for each role in turn, then writing.
+The echo area tells the result, such as <code class="long">Exported part.svg: 9 outlines, 7 lines and 23 arcs in 0.2 s</code>.
+</p>
+
+<p>
+keycap knows shapes, not materials.
+Never laser-cut PVC or vinyl, and don&rsquo;t cut polycarbonate or unidentified plastics: ask your makerspace, or read the material&rsquo;s safety data sheet.
+Cut acrylic only if it is cast acrylic (PMMA), extract the fumes of every job, and don&rsquo;t leave a laser running unattended.
+</p>
+</div>
+</section>
+<section id="outline-container-exporting-for-3d-printing" class="outline-2">
+<h2 id="exporting-for-3d-printing"><a href="#exporting-for-3d-printing">Exporting for 3D printing</a></h2>
+<div class="outline-text-2" id="text-exporting-for-3d-printing">
+<p>
+<code>keycap-export-print</code> writes a 3MF for FDM slicers such as PrusaSlicer and OrcaSlicer.
+Its mesh is deliberately coarse, 128 cells across within 0.02 mm, since slicers only place, preview and paint it, and find seams on it.
+The part stands on the bed, centred, and is named after the script.
+</p>
+
+<p>
+The layers are as thick as the slopes they cross allow: walls, and slopes of 45° or steeper, take the thickest, and a surface nearer level takes thinner ones, down to the least, as OrcaSlicer&rsquo;s adaptive layer heights have it.
+The slopes come from the field rather than the mesh&rsquo;s facets, and the 3MF carries the result as the layer height profile both slicers read, so that they slice the part that way without further ado.
+<code>keycap-print-layer-heights</code> sets the first layer&rsquo;s height and the range of the others, 0.2, and 0.08 to 0.2 mm by default.
+The first must be the slicer&rsquo;s first layer height, or the slicer drops the profile for its own layer height.
+</p>
+
+<p>
+The 3MF also holds the layers themselves, traced from the field at the heights the slicer will cut them, as 2D exports trace outlines: every point on the surface, on a grid of the script&rsquo;s <code>resolution</code>, else <code>keycap-export-resolution</code>.
+OrcaSlicer 2.5&rsquo;s plugin <code>orca/keycap_layers.py</code>, in keycap&rsquo;s repository, slices by them instead of the mesh, so that walls and infill follow the model, not its facets.
+Side-load it in Orca&rsquo;s plugins dialog and pick it as the process&rsquo;s slicing pipeline plugin.
+Layers at other heights, after the layer heights change in the slicer, keep the mesh&rsquo;s slices.
+</p>
+
+<p>
+Once written, the 3MF opens in <code>keycap-print-slicer</code>, when set.
+The export runs as an STL export does; the header line shows its progress: sampling, triangulating, simplifying, choosing layer heights, slicing and writing.
+</p>
+</div>
+</section>
+<section id="outline-container-printing-in-resin" class="outline-2">
+<h2 id="printing-in-resin"><a href="#printing-in-resin">Printing in resin</a></h2>
+<div class="outline-text-2" id="text-printing-in-resin">
+<p>
+A resin printer cures a layer at a time, each layer an image on its display.
+<code>C-c C-r</code> makes those images from the drawn shapes&rsquo; fields, without a mesh: each pixel of a layer is sampled half way up it, and is as grey as the share of it the shapes cover, read from the distance to their edge at its centre.
+Edges come out anti-aliased, exactly so where the field is a distance; a field that is only a bound greys its edges unevenly, but never puts a pixel on the wrong side.
+The printer is <code>keycap-resin-printer</code>, or with a prefix argument the one you type.
+</p>
+
+<p>
+The file is an SL1 archive, as PrusaSlicer writes for Prusa&rsquo;s SL1 and SL1S: a PNG for each layer, and the printer&rsquo;s settings.
+Those printers print it as it is.
+For others, UVtools converts it into the printer&rsquo;s own format: <code class="long">UVtoolsCmd convert part.sl1 cxdlp</code> for most of Creality&rsquo;s Halot printers, or <code>auto</code> for the format the printer&rsquo;s profile names.
+Formlabs printers take no layers from elsewhere: PreForm slices them from an STL.
+</p>
+
+<p>
+The model&rsquo;s footprint stands in the middle of the display and its lowest layer on the plate; empty layers below and above it are left out.
+Rotate the model in the script to lay it on the plate as it should print.
+keycap adds no supports: a model that needs them goes to PrusaSlicer, Lychee, Chitubox or UVtools as an STL, which add them.
+A hollow part is a <code>shell</code> in the script, its drain holes a <code>difference</code>; see <a href="recipes.html#shells-and-hollow-parts">Shells and hollow parts</a>.
+</p>
+
+<p>
+The export runs as an STL export does, beside everything else and cancelled the same way.
+The header line shows <code>slicing</code>, and the echo area tells the result, such as <code class="long">Exported knob.sl1: 585 layers of 0.05, 41.0 ml, in 1.1 s</code>.
+Layers are sampled on every core a batch at a time and written as they come, so a print needs little memory however many layers it has.
+<code>knob.keycap</code> slices in about a second for the SL1S, and in three for the 8K display of a Halot Mage Pro, where its STL takes five.
+</p>
+
+<p>
+<code>M-x keycap-export-resin-layer</code> writes one layer as a PNG, the image the printer would show: the one through the slice across Z the preview shows, or at a height you type.
+</p>
+
+<p>
+Printers known by name:
+</p>
+
+<dl class="org-dl">
+<dt><code>prusa-sl1s</code></dt><dd>Prusa SL1S SPEED, with PrusaSlicer&rsquo;s exposures at 0.05 mm.</dd>
+<dt><code>creality-halot-sky</code></dt><dd>Creality Halot Sky, for <code>.cxdlp</code>.</dd>
+<dt><code>creality-halot-mage-pro</code></dt><dd>Creality Halot Mage Pro, for <code>.cxdlpv4</code>.</dd>
+</dl>
+
+<p>
+The Halots&rsquo; displays, lifts and waits are UVtools&rsquo; and want checking against the printer, and their exposures are only a starting point for a standard resin.
+</p>
+
+<p>
+Another printer is a TOML file, such as:
+</p>
+<div class="org-src-container">
+<pre class="src src-toml"><span class="hl-variable-name">model</span> = <span class="hl-string">"SL1S"</span>
+<span class="hl-variable-name">height</span> = 150
+<span class="hl-variable-name">layer_height</span> = 0.05
+<span class="hl-variable-name">exposure</span> = 1.7
+<span class="hl-variable-name">bottom_exposure</span> = 25
+<span class="hl-variable-name">bottom_layers</span> = 10
+
+[<span class="hl-type">display</span>]
+<span class="hl-variable-name">pixels</span> = [2560, 1620]
+<span class="hl-variable-name">size</span> = [128, 81]
+<span class="hl-variable-name">orientation</span> = <span class="hl-string">"portrait"</span>
+<span class="hl-variable-name">mirror</span> = [<span class="hl-keyword">true</span>, <span class="hl-keyword">false</span>]
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt><code>model</code></dt><dd>The name the printer goes by: an SL1 or SL1S prints only files that name it, <code>SL1</code> or <code>SL1S</code>, and UVtools converts for the Halot whose code it names, such as <code>CL-89</code>.</dd>
+<dt><code>height</code></dt><dd>The tallest print, in mm.</dd>
+<dt><code>layer_height</code></dt><dd>In mm.</dd>
+<dt><code>exposure</code>, <code>bottom_exposure</code></dt><dd>Seconds each layer, and each of the first layers, is cured for.</dd>
+<dt><code>bottom_layers</code></dt><dd>How many layers are cured longer, to hold to the plate; on an SL1, the layers over which the time fades to <code>exposure</code>.</dd>
+<dt><code>notes</code></dt><dd>Lines for UVtools: lifts, waits and speeds, such as <code>"LiftHeight_6"</code>, and the format <code>auto</code> converts to, such as <code>"FILEFORMAT_CXDLP"</code>.</dd>
+<dt><code>display</code></dt><dd>As PrusaSlicer&rsquo;s printer settings have it: <code>pixels</code> and <code>size</code>, in mm, along the display&rsquo;s x and y, <code>orientation</code>, <code>"landscape"</code> (the default) or <code>"portrait"</code>, and whether the image is mirrored along x and y.
+A printer&rsquo;s PrusaSlicer profile, or UVtools&rsquo; for printers PrusaSlicer has none for, has them as <code>display_pixels_x</code>, <code>display_width</code>, <code>display_orientation</code> and <code>display_mirror_x</code>, and so on; mirrored wrong, a print comes out mirrored.</dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-customization" class="outline-2">
+<h2 id="customization"><a href="#customization">Customization</a></h2>
+<div class="outline-text-2" id="text-customization">
+<dl class="org-dl">
+<dt>User Option: keycap-server-program</dt><dd>The <code>keycap-server</code> executable.</dd>
+<dt>User Option: keycap-prelude-directory</dt><dd>The directory whose <code>.rhai</code> files every script can call without importing them; the package&rsquo;s prelude by default.</dd>
+<dt>User Option: keycap-server-threads</dt><dd>The threads each <code>keycap-server</code> renders on, and as many again that it exports on; <code>nil</code>, the default, is half the cores to render on and every core to export on, both at a lower priority than other programs.
+On a machine shared with other work, a few keep the rest of its cores free.</dd>
+<dt>User Option: keycap-load-delay</dt><dd>Seconds of idle time after an edit before the script is evaluated again.</dd>
+<dt>User Option: keycap-export-resolution</dt><dd>Cells per unit for export when the script sets no <code>resolution</code>: of the mesh, or of the grid outlines are traced on.</dd>
+<dt>User Option: keycap-export-tolerance</dt><dd>How far, in units, an exported mesh or outline may stray from the surface as it is simplified; <code>nil</code>, the default, is a tenth of a cell, and 0 keeps every triangle and every point traced.</dd>
+<dt>User Option: keycap-export-kerf</dt><dd>The width a laser burns away along a cut, half of which 2D exports grow the shapes to cut by; 0 by default.</dd>
+<dt>User Option: keycap-print-layer-heights</dt><dd>The layer heights of <code>keycap-export-print</code> in millimetres: the first layer&rsquo;s, which must be the slicer&rsquo;s, then the least and the most of the others; <code>(0.2 0.08 0.2)</code> by default.</dd>
+<dt>User Option: keycap-print-slicer</dt><dd>The program <code>keycap-export-print</code> opens its 3MF in, such as <code>"orca-slicer"</code>; <code>nil</code>, the default, for none.</dd>
+<dt>User Option: keycap-resin-printer</dt><dd>The resin printer prints are sliced for: a name the server knows, <code>prusa-sl1s</code> by default, or a <code>.toml</code> file that describes one.</dd>
+<dt>User Option: keycap-preview-view</dt><dd>The view a 3D model opens in: <code>shaded</code>, <code>heightmap</code>, <code>sdf</code> or <code>mono</code>.</dd>
+<dt>User Option: keycap-preview-bounds</dt><dd><code>script</code> or <code>fitted</code>: which bounds the preview shows first.</dd>
+<dt>User Option: keycap-preview-backend</dt><dd><code>auto</code>, the default, <code>gpu</code> or <code>cpu</code>.
+<code>auto</code> renders a 3D frame on whichever of the GPU and the CPU the frames before it say is sooner: a laptop&rsquo;s GPU is often slower than its CPU, and any GPU is on shapes whose intervals tell it little.</dd>
+<dt>User Option: keycap-preview-projection</dt><dd><code>orthographic</code> or <code>perspective</code>.</dd>
+<dt>User Option: keycap-preview-output-lines</dt><dd>Lines of <code>print</code> output shown below the image, at most.</dd>
+<dt>User Option: keycap-preview-drag-resolution</dt><dd>The share of the full resolution a camera drag&rsquo;s frames start at and never exceed, 0.5 by default; the frame the drag ends on is in full.
+When a frame in full takes more than a fifth of a second, an edit renders at this share too, and in full once the script has not changed for a second.</dd>
+<dt>User Option: keycap-preview-drag-frame-time</dt><dd>Seconds a frame should take while the mouse drags the camera, 0.05 by default.
+Slower frames have fewer pixels, down to a quarter of the full resolution each way, or to the share below which they rendered no sooner; <code>nil</code> keeps a drag at <code>keycap-preview-drag-resolution</code>.</dd>
+<dt>User Option: keycap-preview-probe-interval</dt><dd>Seconds between two readings of the field under the mouse.</dd>
+</dl>
+
+<p>
+The preview&rsquo;s window comes from <code>display-buffer</code>, so <code>display-buffer-alist</code> decides where it goes.
+</p>
+</div>
+</section>
+<section id="outline-container-extending-keycap" class="outline-2">
+<h2 id="extending-keycap"><a href="#extending-keycap">Extending keycap</a></h2>
+<div class="outline-text-2" id="text-extending-keycap">
+<p>
+Lisp that drives keycap without a person at the keyboard, such as the build of keycap&rsquo;s site, calls these functions.
+keycap&rsquo;s other names, the ones with <code>--</code> in them, may change in any release.
+</p>
+
+<p>
+The server answers requests, alists such as <code class="long">((op . "eval") (source . "") (expression . "1 + 2"))</code>, as its protocol in <code>server/src/main.rs</code> describes them.
+</p>
+
+<dl class="org-dl">
+<dt><code class="long">(keycap-request-sync REQUEST &amp;optional TIMEOUT)</code></dt><dd>Send REQUEST to the current buffer&rsquo;s server and return its reply; nil once TIMEOUT seconds pass.</dd>
+<dt><code>(keycap-server-batch REQUESTS)</code></dt><dd>Answer REQUESTS with a server started for them, and return the replies in their order.</dd>
+<dt><code>(keycap-use-server BUFFER)</code></dt><dd>Send the current buffer&rsquo;s requests to BUFFER&rsquo;s server, so that many scripts share one; killing them leaves it running.</dd>
+</dl>
+
+<dl class="org-dl">
+<dt><code class="long">(keycap-load-sync &amp;optional RELOAD TIMEOUT)</code></dt><dd>Evaluate the script in the current buffer and return the server&rsquo;s report; with RELOAD, even when the server has its text already.</dd>
+<dt><code>(keycap-report-failure REPORT)</code></dt><dd>Why the script of REPORT failed to load, as the preview&rsquo;s header line says it, or nil.</dd>
+<dt><code class="long">(keycap-report-diagnostics REPORT)</code></dt><dd>REPORT&rsquo;s diagnostics as Flymake marks them in the current buffer.</dd>
+<dt><code>(keycap-report-flat-p REPORT)</code></dt><dd>Non-nil when REPORT&rsquo;s model is 2D, unbounded along Z, which the preview opens in <code>sdf</code>.</dd>
+<dt><code class="long">(keycap-diagnostic-message DIAGNOSTIC)</code></dt><dd>The message of one of a report&rsquo;s diagnostics, without the position Rhai adds.</dd>
+</dl>
+
+<dl class="org-dl">
+<dt><code>(keycap-script-statements)</code></dt><dd>The top-level statements of the script in the current buffer, any buffer holding Rhai, as <code>(START . END)</code>.</dd>
+<dt><code>(keycap-script-functions)</code></dt><dd>The functions it defines, as <code>(NAME START . END)</code>, each from its <code>///</code> comment.</dd>
+<dt><code>(keycap-script-draws)</code></dt><dd>Its top-level <code>draw</code> and <code>draw_rgb</code> statements, as <code>(START . END)</code>.</dd>
+</dl>
+
+<dl class="org-dl">
+<dt><code>(keycap-docs DIALECT)</code></dt><dd>The server&rsquo;s documentation of DIALECT, <code>keycap</code> or <code>fidget</code>, which the reference is written from.</dd>
+<dt><code>(keycap-names &amp;optional DIALECT)</code></dt><dd>A hash table of the names DIALECT documents, asked of the server once; a script buffer highlights them once they are known.</dd>
+<dt><code class="long">(keycap-set-out-signatures SIGNATURES &amp;optional TYPES)</code></dt><dd>SIGNATURES and the TYPES they name, set out and highlighted as <code>C-c C-d</code> shows them.</dd>
+<dt><code>(keycap-name-at-point)</code></dt><dd>The name <code>C-c C-d</code> describes at point.</dd>
+</dl>
+
+<dl class="org-dl">
+<dt><code>(keycap-nudge N)</code></dt><dd>Add N steps of the digit before point to the number at point, as <code>C-c C-n</code> does, and return what the echo area says of it, such as <code>radius 0.5 → 0.6 (step 0.1)</code>.</dd>
+<dt><code>(keycap-exporting-p)</code></dt><dd>Non-nil while an export of the script runs.</dd>
+</dl>
+
+<p>
+A snapshot is a preview that no window shows and no edit changes, for frames rendered one by one, such as this manual&rsquo;s:
+</p>
+
+<dl class="org-dl">
+<dt><code class="long">(keycap-preview-snapshot SCRIPT &amp;rest SETTINGS)</code></dt><dd>A snapshot of the script buffer SCRIPT, its report, view, camera, slice, bounds and backend from SETTINGS or as a preview would start; killing it deletes its frames.</dd>
+<dt><code class="long">(keycap-preview-request WIDTH HEIGHT)</code></dt><dd>The render request for a WIDTH by HEIGHT frame of what the preview shows, for the script&rsquo;s server to answer.</dd>
+<dt><code>(keycap-preview-set-frame FRAME)</code></dt><dd>Take FRAME, the server&rsquo;s reply, as the frame the preview shows.</dd>
+<dt><code>(keycap-preview-header)</code></dt><dd>The preview&rsquo;s header line, as text.</dd>
+<dt><code class="long">(keycap-preview-probe-sync RIGHT UP WIDTH HEIGHT)</code></dt><dd>Read the model at RIGHT and UP on the slice of a 2D view into the header line, as the mouse over that point would, and return the frame&rsquo;s pixel there.</dd>
+<dt><code>(keycap-preview-menu NAME)</code></dt><dd>The preview&rsquo;s menu NAME as a keymap: <code>context</code>, or a header line word&rsquo;s, <code>view</code>, <code>camera</code> or <code>slice</code>.</dd>
+<dt><code class="long">(keycap-preview-idle-p &amp;optional SCRIPT)</code></dt><dd>Non-nil when the preview of SCRIPT shows a frame and nothing loads or renders, as a screenshot of it waits for.</dd>
+</dl>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="overview.html"><span>Previous</span> Overview</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="writing-models.html"><span>Next</span> Writing models</a></nav>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

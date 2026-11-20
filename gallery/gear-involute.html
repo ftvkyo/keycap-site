@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>gear-involute</title>
+<meta name="description" content="Involute spur gear." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">gear-involute</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/shapes/gear_involute.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>shapes/gear_involute.scad</code></a></p>
+
+<p>
+Involute spur gear.
+</p>
+
+<p>
+The involute of the base circle has a closed-form distance, so
+involute_gear() draws both flanks as exact curves from the same four
+numbers, with a fillet at their roots; there is nothing to step through.
+The four numbers are the design&rsquo;s; the thickness, the bore and the
+fillet, ISO&rsquo;s 0.38 of the module, are this port&rsquo;s.  Its 12 teeth are
+not undercut, as a gear cut by a rack would be: it meshes with its
+like, but a rack&rsquo;s tips would rub its roots.
+A turn that grows with height makes the teeth helical; this one goes
+and comes back, a herringbone.
+</p>
+
+<a href="frames/gear-involute-98baa8d3e2306ff5.png"><img src="frames/gear-involute-98baa8d3e2306ff5.png" width="800" height="600" fetchpriority="high" alt="gear-involute, shaded, from the front right"></a>
+
+<a href="frames/gear-involute-e70388692c95c4f7.png"><img src="frames/gear-involute-e70388692c95c4f7.png" width="800" height="600" loading="lazy" alt="gear-involute, shaded, from the back left"></a>
+
+<a href="frames/gear-involute-f9c7cb8f6a82a04e.png"><img src="frames/gear-involute-f9c7cb8f6a82a04e.png" width="800" height="600" loading="lazy" alt="gear-involute, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/gear-involute.keycap"><code>gear-involute.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Involute spur gear, from an OpenSCAD design that traced its involute</span>
+<span class="hl-comment">// point by point.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The involute of the base circle has a closed-form distance, so</span>
+<span class="hl-comment">// involute_gear() draws both flanks as exact curves from the same four</span>
+<span class="hl-comment">// numbers, with a fillet at their roots; there is nothing to step through.</span>
+<span class="hl-comment">// The four numbers are the design's; the thickness, the bore and the</span>
+<span class="hl-comment">// fillet, ISO's 0.38 of the module, are this port's.  Its 12 teeth are</span>
+<span class="hl-comment">// not undercut, as a gear cut by a rack would be: it meshes with its</span>
+<span class="hl-comment">// like, but a rack's tips would rub its roots.</span>
+<span class="hl-comment">// A turn that grows with height makes the teeth helical; this one goes</span>
+<span class="hl-comment">// and comes back, a herringbone.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">M</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>               <span class="hl-comment">// module, mm</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CLEARANCE</span> <span class="hl-operator">=</span> <span class="hl-number">15.0</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// dedendum beyond the module, %</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TEETH</span> <span class="hl-operator">=</span> <span class="hl-number">12</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PRESSURE</span> <span class="hl-operator">=</span> <span class="hl-number">20.0</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// pressure angle, degrees</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">8.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BORE</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>            <span class="hl-comment">// shaft diameter</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HELIX</span> <span class="hl-operator">=</span> <span class="hl-number">0.0</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// degrees the teeth lean at the pitch circle; 0 for spur teeth</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">false</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// show the gear's circles</span>
+
+<span class="hl-comment">// --- Gear ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">options</span> <span class="hl-operator">=</span> <span class="hl-bracket">#{</span><span class="hl-property-name">pressure_angle</span><span class="hl-delimiter">:</span> <span class="hl-constant">PRESSURE</span><span class="hl-delimiter">,</span> <span class="hl-property-name">clearance</span><span class="hl-delimiter">:</span> <span class="hl-constant">CLEARANCE</span> <span class="hl-operator">/</span> <span class="hl-number">100.0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">fillet</span><span class="hl-delimiter">:</span> <span class="hl-number">0.38</span> <span class="hl-operator">*</span> <span class="hl-constant">M</span><span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">radii</span> <span class="hl-operator">=</span> <span class="hl-builtin">gear_radii</span><span class="hl-bracket">(</span><span class="hl-constant">TEETH</span><span class="hl-delimiter">,</span> <span class="hl-constant">M</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">options</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> <span class="hl-operator">=</span> <span class="hl-builtin">involute_gear</span><span class="hl-bracket">(</span><span class="hl-constant">TEETH</span><span class="hl-delimiter">,</span> <span class="hl-constant">M</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">options</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-constant">BORE</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">gear</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-constant">HELIX</span> <span class="hl-operator">==</span> <span class="hl-number">0.0</span> <span class="hl-bracket">{</span>
+    <span class="hl-variable-use">profile</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">THICKNESS</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+    <span class="hl-comment">// A tooth that leans HELIX degrees at the pitch circle turns the</span>
+    <span class="hl-comment">// profile by tan(HELIX) / r_pitch radians per mm of height.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">turn</span> <span class="hl-operator">=</span> <span class="hl-constant">THICKNESS</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span> <span class="hl-operator">*</span> <span class="hl-builtin">tand</span><span class="hl-bracket">(</span><span class="hl-constant">HELIX</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-variable-use">radii</span><span class="hl-delimiter">.</span><span class="hl-property-use">pitch</span> <span class="hl-operator">*</span> <span class="hl-number">180.0</span> <span class="hl-operator">/</span> <span class="hl-constant">PI</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">twisted</span> <span class="hl-operator">=</span> <span class="hl-builtin">loft</span><span class="hl-bracket">([</span>
+        <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">shape</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">profile</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-constant">THICKNESS</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-property-name">angle</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">turn</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-constant">THICKNESS</span><span class="hl-delimiter">,</span> <span class="hl-property-name">angle</span><span class="hl-delimiter">:</span> <span class="hl-number">0.0</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">twisted</span><span class="hl-delimiter">,</span> <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-variable-use">radii</span><span class="hl-delimiter">.</span><span class="hl-property-use">tip</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">16</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">16</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">16</span><span class="hl-delimiter">,</span> <span class="hl-number">16</span><span class="hl-delimiter">,</span> <span class="hl-constant">THICKNESS</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">resolution</span><span class="hl-bracket">(</span><span class="hl-number">5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">gear</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The tip, pitch, base and root circles, as the OpenSCAD design's debug()</span>
+<span class="hl-comment">// shows them.</span>
+<span class="hl-keyword">if</span> <span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">circles</span> <span class="hl-operator">=</span> <span class="hl-bracket">[[</span><span class="hl-variable-use">radii</span><span class="hl-delimiter">.</span><span class="hl-property-use">tip</span><span class="hl-delimiter">,</span> <span class="hl-number">0.8</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">radii</span><span class="hl-delimiter">.</span><span class="hl-property-use">pitch</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-delimiter">,</span> <span class="hl-number">0.7</span><span class="hl-delimiter">,</span> <span class="hl-number">0.3</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+                   <span class="hl-bracket">[</span><span class="hl-variable-use">radii</span><span class="hl-delimiter">.</span><span class="hl-property-use">base</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">radii</span><span class="hl-delimiter">.</span><span class="hl-property-use">root</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-delimiter">,</span> <span class="hl-number">0.3</span><span class="hl-delimiter">,</span> <span class="hl-number">0.8</span><span class="hl-bracket">]]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">for</span> <span class="hl-variable-name">c</span> <span class="hl-keyword">in</span> <span class="hl-variable-use">circles</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-builtin">annulus</span><span class="hl-bracket">([</span><span class="hl-variable-use">c</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">0.1</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-number">0.1</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-constant">THICKNESS</span><span class="hl-delimiter">,</span> <span class="hl-constant">THICKNESS</span> <span class="hl-operator">+</span> <span class="hl-number">0.4</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c</span><span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c</span><span class="hl-bracket">[</span><span class="hl-number">3</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

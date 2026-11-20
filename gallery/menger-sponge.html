@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>menger-sponge</title>
+<meta name="description" content="Menger sponge: a cube with a cross cut through it, each of the 20 cubes left a smaller sponge, three levels deep." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">menger-sponge</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://tangled.org/rei.gay/keycap">keycap</a></span></p>
+
+<p>
+Menger sponge: a cube with a cross cut through it, each of the 20 cubes
+left a smaller sponge, three levels deep.
+</p>
+
+<p>
+As a union, the third level is 8000 cubes.  Here each level is one cross,
+repeated without end on a grid at the cost of one, and cut from the cube:
+the cost grows with the levels, not with the cubes.
+</p>
+
+<a href="frames/menger-sponge-e8153caca32b6811.png"><img src="frames/menger-sponge-e8153caca32b6811.png" width="800" height="600" fetchpriority="high" alt="menger-sponge, shaded, from the front right"></a>
+
+<a href="frames/menger-sponge-4ef1fd2c9f980cca.png"><img src="frames/menger-sponge-4ef1fd2c9f980cca.png" width="800" height="600" loading="lazy" alt="menger-sponge, shaded, from the back left"></a>
+
+<a href="frames/menger-sponge-6ee0cc8e6056ba34.png"><img src="frames/menger-sponge-6ee0cc8e6056ba34.png" width="800" height="600" loading="lazy" alt="menger-sponge, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/menger-sponge.keycap"><code>menger-sponge.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Menger sponge: a cube with a cross cut through it, each of the 20 cubes</span>
+<span class="hl-comment">// left a smaller sponge, three levels deep.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// As a union, the third level is 8000 cubes.  Here each level is one cross,</span>
+<span class="hl-comment">// repeated without end on a grid at the cost of one, and cut from the cube:</span>
+<span class="hl-comment">// the cost grows with the levels, not with the cubes.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">SIZE</span> <span class="hl-operator">=</span> <span class="hl-number">54.0</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// the cube's side</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">LEVELS</span> <span class="hl-operator">=</span> <span class="hl-number">3</span><span class="hl-delimiter">;</span>            <span class="hl-comment">// the smallest holes are SIZE / 3^LEVELS</span>
+
+<span class="hl-comment">// --- Sponge ---</span>
+
+<span class="hl-doc">/// Three square bars `w` wide through the origin, along X, Y and Z, long</span>
+<span class="hl-doc">/// enough to cross a cell of side `s`.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">bars</span><span class="hl-bracket">(</span><span class="hl-variable-name">w</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">s</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-variable-use">w</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">w</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-variable-use">s</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-variable-use">w</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">w</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">w</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">w</span><span class="hl-bracket">]))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// At each level, the cubes are a third the size, and each has a cross a</span>
+<span class="hl-comment">// third of its side cut through it.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">sponge</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">(</span><span class="hl-constant">SIZE</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">for</span> <span class="hl-variable-name">level</span> <span class="hl-keyword">in</span> <span class="hl-number">0</span><span class="hl-operator">..</span><span class="hl-constant">LEVELS</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-constant">SIZE</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span> <span class="hl-operator">**</span> <span class="hl-variable-use">level</span><span class="hl-delimiter">;</span>
+    <span class="hl-variable-use">sponge</span> <span class="hl-operator">=</span> <span class="hl-variable-use">sponge</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-function-call">bars</span><span class="hl-bracket">(</span><span class="hl-variable-use">s</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat</span><span class="hl-bracket">([</span><span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-builtin">resolution</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">sponge</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

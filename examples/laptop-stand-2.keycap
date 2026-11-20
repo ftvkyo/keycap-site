@@ -1,0 +1,189 @@
+// SPDX-License-Identifier: 0BSD
+//
+// Laptop stand, version 2: two laser-cut legs crossed on printed hinges,
+// the hinges' arms rounded.
+//
+// Ported from `src/organisation/laptop_stand_2.scad`.  Differences:
+// - PART picks the output, as the original's RENDER does: "all" the
+//   assembly, "assembly folded", "joint" a hinge laid down for printing,
+//   "joint cut" a hinge moved to be sliced across Z at 0 in the viewer
+//   (the original's projection(cut = true)), "leg1" and "leg2" the 2D cuts.
+// - A leg's corners are rounded by rounded_polygon, convex ones by ROUNDING
+//   and concave ones by 1: the original's opening and closing, exactly.
+// - A hinge arm's profile is found by keycap/points when the script runs.
+//   The original's minkowski of its offset profile with a sphere is then
+//   that profile's opening by JOINT_ROUNDING, rounded_polygon's convex
+//   corners, extruded with its rims rounded by the same: exact.
+// - Holes and pins are round where the original's $fn = 24 makes polygons.
+//
+// Compared with the original: the parts within 0.047 mm, the assembly's
+// volume within 0.08%.
+
+import "keycap/points" as points;
+
+// --- Parameters ---
+
+const PART = "all";               // "all", "assembly folded", "joint", "joint cut", "leg1", "leg2"
+
+const LAPTOP = [200.0, 300.0, 15.0];
+const LAPTOP_TILT = 30.0;         // the laptop's angle
+const LAPTOP_LIFT = 25.0;         // how far it is raised off the ground
+
+const LEG_ANGLE = 30.0;           // half of the angle between the legs
+const LEG_THICKNESS = 5.0;        // the legs' material
+const LEG_NOTCH_OFFSET = 10.0;    // extra length at the front of the notch
+const LEG_HOLE_OFFSET = 15.0;     // from the hinges' axis to the screws
+
+const ROUNDING = 4.0;
+
+const HOLE_R = 1.5;               // screws
+const HOLE_CAP_R = 4.0;           // their heads
+const HOLE_SPREAD = 6.0;          // the screws of the two legs apart
+
+const JOINT_H = 24.0;
+const JOINT_CAP_H = 4.0;
+const JOINT_ROUNDING = 2.0;
+
+const NOZ = 0.4;
+const E = 0.01;
+
+const HALFJOINT_H = (JOINT_H - NOZ) / 2;
+const LEG_AXIS_EXTRA_OFFSET = LEG_THICKNESS * 2;
+
+// --- Calculations ---
+
+// The laptop's bottom and front, seen from the side at its tilt
+const SUPPORT = [cosd(LAPTOP_TILT) * LAPTOP[0], sind(LAPTOP_TILT) * LAPTOP[0]];
+const NOTCH = [cosd(90.0 - LAPTOP_TILT) * LAPTOP[2], sind(90.0 - LAPTOP_TILT) * LAPTOP[2]];
+
+const HOLES = [
+    [LEG_HOLE_OFFSET, LAPTOP_LIFT],
+    [LEG_HOLE_OFFSET, LAPTOP_LIFT + SUPPORT[1] / 3],
+    [LEG_HOLE_OFFSET, LAPTOP_LIFT + SUPPORT[1] * 2 / 3],
+];
+
+// --- Legs ---
+
+// A leg's outline before it is widened for the legs' angle
+fn leg_points() {
+    let s = global::SUPPORT;
+    let n = global::NOTCH;
+    let lift = global::LAPTOP_LIFT;
+    let front = s[0] + n[0];
+    [
+        [0.0, 0.0],                                                 // origin
+        [front + global::LEG_NOTCH_OFFSET, 0.0],                    // front, bottom
+        [front + global::LEG_NOTCH_OFFSET, lift + n[1] * 3 / 2],    // notch, front top
+        [front - global::LEG_NOTCH_OFFSET, lift + n[1] * 2],        // notch, back top
+        [front, lift + n[1]],                                       // notch, back middle
+        [s[0], lift],                                               // notch, back bottom
+        [0.0, s[1] + lift],                                         // back, top
+    ]
+}
+
+// A leg with its holes: `hole_offset` moves the screws up and their heads'
+// recesses down, apart on the two legs.
+fn leg_2d(hole_offset) {
+    // Seen square to the leg, which leans out by LEG_ANGLE
+    let outline = points::scale(leg_points(), [1 / cosd(global::LEG_ANGLE), 1.0]);
+    let base = rounded_polygon(outline, global::ROUNDING, #{concave: 1.0});
+    let holes = [];
+    for hole in global::HOLES {
+        let x = hole[0] - global::LEG_THICKNESS;
+        holes.push(circle(global::HOLE_R).move([x, hole[1] + hole_offset]));
+        holes.push(circle(global::HOLE_CAP_R).move([x, hole[1] - hole_offset]));
+    }
+    base.difference(union(holes))
+}
+
+// A leg standing up, its thickness along Y, as the assembly has it
+fn leg(hole_offset) {
+    leg_2d(hole_offset)
+        .extrude([-global::LEG_THICKNESS / 2, global::LEG_THICKNESS / 2])
+        .rotate_xyz([90, 0, 0])
+        .move([global::LEG_AXIS_EXTRA_OFFSET + global::LEG_THICKNESS, 0, 0])
+}
+
+// --- Joint ---
+
+// A rectangle's corners, centered
+fn rect_points(center, size) {
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(|corner| [
+        center[0] + corner[0] * size[0] / 2,
+        center[1] + corner[1] * size[1] / 2,
+    ])
+}
+
+// The arm's profile: a strip along the hinge's side and a strip leaning out
+// by LEG_ANGLE, kept to the strips' common ground.
+fn arm_profile(extent) {
+    let t = global::LEG_THICKNESS;
+    let a = global::LEG_ANGLE;
+    let strips = points::union(
+        rect_points([extent / 2, t * 3 / 2], [extent, t]),
+        points::rotate(rect_points([extent / 4 + t / 2 + global::NOZ, 0.0], [extent / 2, t]), a),
+    );
+    let inside = points::intersection(strips, rect_points([extent / 2, t / 2], [extent, t * 3]));
+    points::intersection(inside, points::rotate(rect_points([extent, -t * 3 / 2], [extent * 2, t * 4]), a))
+}
+
+// The arm of a hinge that a leg is screwed to
+fn joint_attachment() {
+    let t = global::LEG_THICKNESS;
+    let h = global::HALFJOINT_H;
+    let extent = global::LEG_AXIS_EXTRA_OFFSET + global::LEG_HOLE_OFFSET + h / 2;
+    let r = global::JOINT_ROUNDING;
+    let screw = cylinder(global::HOLE_R, t + global::E)
+        .rotate_xyz([90, 0, 0])
+        .move([extent - h / 2, t * 3 / 2, 0]);
+    rounded_polygon(arm_profile(extent), r, #{concave: 0})
+        .extrude([-h / 2, h / 2], #{round: r})
+        .difference(screw)
+}
+
+// A hinge: a sleeve split in two, a pin with caps, and an arm on each half
+// `angle` apart
+fn joint(angle) {
+    let t = global::LEG_THICKNESS;
+    let sleeve = cylinder(t, global::JOINT_H).difference(union(
+        cuboid([t * 2, t * 2, global::NOZ]),
+        cylinder(t / 2 + global::NOZ, global::JOINT_H + global::E),
+    ));
+    let pin_h = global::JOINT_H + global::NOZ * 2;
+    let cap_z = (pin_h + global::JOINT_CAP_H) / 2;
+    let pin = union(
+        cylinder(t / 2, pin_h + global::E),
+        cylinder(t, global::JOINT_CAP_H).move([0, 0, cap_z]).symmetric_z(),
+    );
+    let arm_z = (global::HALFJOINT_H + global::NOZ) / 2;
+    let top = joint_attachment().move([0, 0, arm_z]).rotate_z(angle);
+    let bottom = joint_attachment().move([0, 0, -arm_z]).rotate_z(angle).reflect_y();
+    union(sleeve, pin, top, bottom)
+}
+
+// --- Assembly ---
+
+fn assembly(angle) {
+    let legs = union(
+        leg(global::HOLE_SPREAD).move([0, global::LEG_THICKNESS / 2, 0]).rotate_z(angle),
+        leg(-global::HOLE_SPREAD).move([0, -global::LEG_THICKNESS / 2, 0]).rotate_z(-angle),
+    );
+    let joints = union(global::HOLES.map(|hole| joint(angle).move([0, 0, hole[1]])));
+    union(legs, joints)
+}
+
+// --- Output ---
+
+if PART == "all" {
+    draw(assembly(180 - LEG_ANGLE));
+} else if PART == "assembly folded" {
+    draw(assembly(0));
+} else if PART == "joint" {
+    draw(joint(90).rotate_xyz([0, -90, 0]));
+} else if PART == "joint cut" {
+    draw(joint(180 - LEG_ANGLE).move([0, 0, HALFJOINT_H / 2]));
+} else if PART == "leg1" {
+    draw(leg_2d(HOLE_SPREAD));
+} else if PART == "leg2" {
+    draw(leg_2d(-HOLE_SPREAD).reflect_y());
+}

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>bendy-sheet</title>
+<meta name="description" content="Bendy sheet: a laser-cut plywood sheet with a living hinge across all of it, to bend into a half pipe, and the supports that hold it so." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">bendy-sheet</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/experimental/bendy-sheet.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>experimental/bendy-sheet.scad</code></a></p>
+
+<p>
+Bendy sheet: a laser-cut plywood sheet with a living hinge across all of
+it, to bend into a half pipe, and the supports that hold it so.
+</p>
+
+<p>
+Ported from <code class="long">src/experimental/bendy-sheet.scad</code>.
+</p>
+<ul class="org-ul">
+<li>The slots are keycap/lasercut&rsquo;s straight living hinge, one repetition
+for every slot instead of a loop of 147 squares; HINGE_AT puts its
+middle slots where the original&rsquo;s loops put theirs.</li>
+<li>The supports&rsquo; slots are the module&rsquo;s cross laps.</li>
+<li>PART picks the output, as the original&rsquo;s commented-out calls do:
+&ldquo;sheet&rdquo;, &ldquo;semicircle&rdquo;, &ldquo;leg&rdquo;.</li>
+</ul>
+
+<p>
+Compared with the original: within 0.004 mm.
+</p>
+
+<a href="frames/bendy-sheet-54b7391a5b1d338f.png"><img src="frames/bendy-sheet-54b7391a5b1d338f.png" width="800" height="600" fetchpriority="high" alt="bendy-sheet, its distance field"></a>
+
+<a href="frames/bendy-sheet-e20e7fc3e390e1d4.png"><img src="frames/bendy-sheet-e20e7fc3e390e1d4.png" width="800" height="600" loading="lazy" alt="bendy-sheet, inside and outside"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/bendy-sheet.keycap"><code>bendy-sheet.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Bendy sheet: a laser-cut plywood sheet with a living hinge across all of</span>
+<span class="hl-comment">// it, to bend into a half pipe, and the supports that hold it so.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/experimental/bendy-sheet.scad`.</span>
+<span class="hl-comment">// - The slots are keycap/lasercut's straight living hinge, one repetition</span>
+<span class="hl-comment">//   for every slot instead of a loop of 147 squares; HINGE_AT puts its</span>
+<span class="hl-comment">//   middle slots where the original's loops put theirs.</span>
+<span class="hl-comment">// - The supports' slots are the module's cross laps.</span>
+<span class="hl-comment">// - PART picks the output, as the original's commented-out calls do:</span>
+<span class="hl-comment">//   "sheet", "semicircle", "leg".</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.004 mm.</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/lasercut"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">lc</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PART</span> <span class="hl-operator">=</span> <span class="hl-string">"sheet"</span><span class="hl-delimiter">;</span>             <span class="hl-comment">// "sheet", "semicircle", "leg"</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">STOCK</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">270.0</span><span class="hl-delimiter">,</span> <span class="hl-number">165.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>     <span class="hl-comment">// the area the hinge bends</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PADDING</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>              <span class="hl-comment">// the sheet round it</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SLOT</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">30.0</span><span class="hl-delimiter">,</span> <span class="hl-number">3.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SLOT_GAP</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>             <span class="hl-comment">// between slots, and between rows</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PLY_T</span> <span class="hl-operator">=</span> <span class="hl-number">3.2</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The middle of the hinge's slots: the original's rows run from y = -82 to</span>
+<span class="hl-comment">// 86, and its slots in alternate rows are centred on x = -7.5 and 10.</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HINGE_AT</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">7.5</span><span class="hl-delimiter">,</span> <span class="hl-number">2.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">R</span> <span class="hl-operator">=</span> <span class="hl-constant">STOCK</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-constant">PI</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// the half pipe's radius</span>
+
+<span class="hl-comment">// --- Sheet ---</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">sheet</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">size</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">STOCK</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PADDING</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">STOCK</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PADDING</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-comment">// An area wider than the sheet, so that the sheet's own sides cut the</span>
+    <span class="hl-comment">// slots, as the original's do; 22 rows high.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">hinge</span> <span class="hl-operator">=</span> <span class="hl-type">lc</span><span class="hl-delimiter">::</span><span class="hl-function-call">living_hinge</span><span class="hl-bracket">([</span><span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">30.0</span><span class="hl-delimiter">,</span> <span class="hl-number">171.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PLY_T</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span>
+        <span class="hl-property-name">length</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SLOT</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">width</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SLOT</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">pitch</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SLOT</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SLOT_GAP</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">bridge</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SLOT_GAP</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">rect</span><span class="hl-bracket">(</span><span class="hl-variable-use">size</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">hinge</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HINGE_AT</span><span class="hl-bracket">))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Supports ---</span>
+
+<span class="hl-comment">// The half pipe's end: a half disc, slotted from below for the legs.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">semicircle</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">R</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">slot</span> <span class="hl-operator">=</span> <span class="hl-type">lc</span><span class="hl-delimiter">::</span><span class="hl-function-call">cross_lap</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">4.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PLY_T</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">180</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">y</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">slot</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">slot</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">])))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// A leg along the pipe, slotted from above for three half discs.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">leg</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">R</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">h</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">slot</span> <span class="hl-operator">=</span> <span class="hl-type">lc</span><span class="hl-delimiter">::</span><span class="hl-function-call">cross_lap</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">4.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PLY_T</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">slots</span> <span class="hl-operator">=</span> <span class="hl-bracket">[]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">for</span> <span class="hl-variable-name">x</span> <span class="hl-keyword">in</span> <span class="hl-bracket">[</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">STOCK</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">STOCK</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-bracket">]</span> <span class="hl-bracket">{</span>
+        <span class="hl-variable-use">slots</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-variable-use">slot</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">STOCK</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">slots</span><span class="hl-bracket">))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Output ---</span>
+
+<span class="hl-keyword">if</span> <span class="hl-constant">PART</span> <span class="hl-operator">==</span> <span class="hl-string">"sheet"</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">sheet</span><span class="hl-bracket">())</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-keyword">if</span> <span class="hl-constant">PART</span> <span class="hl-operator">==</span> <span class="hl-string">"semicircle"</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">semicircle</span><span class="hl-bracket">())</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-keyword">if</span> <span class="hl-constant">PART</span> <span class="hl-operator">==</span> <span class="hl-string">"leg"</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">leg</span><span class="hl-bracket">())</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

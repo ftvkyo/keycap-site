@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: 0BSD
+//
+// Menger sponge: a cube with a cross cut through it, each of the 20 cubes
+// left a smaller sponge, three levels deep.
+//
+// As a union, the third level is 8000 cubes.  Here each level is one cross,
+// repeated without end on a grid at the cost of one, and cut from the cube:
+// the cost grows with the levels, not with the cubes.
+
+// --- Parameters ---
+
+const SIZE = 54.0;           // the cube's side
+const LEVELS = 3;            // the smallest holes are SIZE / 3^LEVELS
+
+// --- Sponge ---
+
+/// Three square bars `w` wide through the origin, along X, Y and Z, long
+/// enough to cross a cell of side `s`.
+fn bars(w, s) {
+    union(cuboid([w, w, 2 * s]), cuboid([w, 2 * s, w]), cuboid([2 * s, w, w]))
+}
+
+// At each level, the cubes are a third the size, and each has a cross a
+// third of its side cut through it.
+let sponge = cuboid(SIZE);
+for level in 0..LEVELS {
+    let s = SIZE / 3.0 ** level;
+    sponge = sponge.difference(bars(s / 3.0, s).repeat([s, s, s]));
+}
+
+resolution(4);
+draw(sponge);

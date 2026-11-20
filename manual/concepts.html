@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Concepts</title>
+<meta name="description" content="Trees and shapes, the reference's types and signatures, units." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="writing-models.html">
+<link rel="next" href="shapes-reference.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Concepts</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html" aria-current="page">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+<p>
+What the reference chapters take as known; <a href="writing-models.html">Writing models</a> shows it at work.
+</p>
+
+<nav id="table-of-contents" role="doc-toc">
+<h2>In this chapter</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#trees-and-shapes">Trees and shapes</a></li>
+<li><a href="#types">Types</a></li>
+<li><a href="#reading-signatures">Reading signatures</a></li>
+<li><a href="#units-and-axes">Units and axes</a></li>
+<li><a href="#scripts-and-files">Scripts and files</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-trees-and-shapes" class="outline-2">
+<h2 id="trees-and-shapes"><a href="#trees-and-shapes">Trees and shapes</a></h2>
+<div class="outline-text-2" id="text-trees-and-shapes">
+<p>
+A <i>tree</i> is an expression of the coordinates <code>x</code>, <code>y</code> and <code>z</code>, such as <code>hypot(x, y) - 5</code>.
+A script builds its trees once, as it runs, and fidget evaluates them later, at every point it renders or meshes.
+A tree&rsquo;s value at a point is its field there.
+</p>
+
+<p>
+A script has one type for trees, <code>Tree</code>, as <code>type_of</code> and error messages name it.
+<code>Shape</code> in a signature is a <code>Tree</code> read as a solid, negative inside, positive outside and zero on its surface, while <code>Tree</code> is any such value, a number that may vary over space.
+So any tree can stand for a shape: <code>z - 9</code> is everything below z = 9.
+A 2D shape is a tree without <code>z</code>, in the XY plane; see <a href="writing-models.html#2d-drawings">2D drawings</a>.
+</p>
+
+<p>
+This manual calls fidget&rsquo;s built-ins shapes too, transforms and combinations included, as fidget does.
+fidget calls their parameters fields, as in <code class="long">field center must be provided for RotateX</code>; anywhere else, a field is a tree&rsquo;s values.
+</p>
+</div>
+</section>
+<section id="outline-container-types" class="outline-2">
+<h2 id="types"><a href="#types">Types</a></h2>
+<div class="outline-text-2" id="text-types">
+<dl class="org-dl">
+<dt><code id="type-number">number</code></dt><dd>a number that is known when the script runs, such as a count or a size; Rhai keeps integers and floats apart, see <a href="writing-models.html#numbers-and-trees">Numbers and trees</a></dd>
+<dt><code id="type-Tree">Tree</code></dt><dd>a number that may vary over space: a number, or an expression of <code>x</code>, <code>y</code> and <code>z</code>; given only numbers, a function that returns a <code>Tree</code> returns a number, unless its entry says otherwise</dd>
+<dt><code id="type-Shape">Shape</code></dt><dd>a <code>Tree</code> read as a solid, below 0 inside and above 0 outside</dd>
+<dt><code id="type-Vec2">Vec2</code>, <code id="type-Vec3">Vec3</code></dt><dd><code>[x, y]</code> and <code>[x, y, z]</code>, of numbers, or <code>vec2</code> and <code>vec3</code> values; <code>[x, y]</code> stands for a <code>Vec3</code> with z = 0 for a point or a direction, or 1 for a scale or a count, but a 3D size needs all three</dd>
+<dt><code id="type-Axis">Axis</code>, <code id="type-Plane">Plane</code></dt><dd>fidget&rsquo;s axes and planes, see <code>rotate</code> and <code>reflect</code></dd>
+<dt><code id="type-Ease">Ease</code></dt><dd>an easing, <code>string | ((t: Tree) =&gt; Tree)</code>: a name that <code>ease</code> takes, such as <code>"in_out_sine"</code>, or a function of <code>t</code> from 0 to 1</dd>
+<dt><code id="type-Height">Height</code></dt><dd><code>number | [number, number]</code>: a height centred on z = 0, or <code>[z0, z1]</code>, from <code>z0</code> up to <code>z1</code></dd>
+<dt><code id="type-Sched">Sched</code></dt><dd>a value along a part: a <code>Tree</code>, a function of <code>t</code>, or keyframes in <code>t</code>, as <code>keyframes</code> takes them; <code>t</code> runs from 0 to 1 along the part, from the bottom of an extrusion to its top</dd>
+<dt><code id="type-string">string</code>, <code id="type-bool">bool</code></dt><dd>Rhai&rsquo;s own</dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-reading-signatures" class="outline-2">
+<h2 id="reading-signatures"><a href="#reading-signatures">Reading signatures</a></h2>
+<div class="outline-text-2" id="text-reading-signatures">
+<p>
+A function&rsquo;s description starts with the ways to call it, written as in TypeScript:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-keycap-signature">      <span class="hl-function-name">offset</span>(<span class="hl-variable-name">shape</span>: <span class="hl-keycap-tree-type">Shape</span>, <span class="hl-variable-name">d</span>: <span class="hl-keycap-tree-type">Tree</span>): <span class="hl-keycap-tree-type">Shape</span>
+<span class="hl-variable-name">shape</span>.<span class="hl-function-name">offset</span>(<span class="hl-variable-name">d</span>: <span class="hl-keycap-tree-type">Tree</span>): <span class="hl-keycap-tree-type">Shape</span>
+</pre>
+</div>
+
+<p>
+The notation is:
+</p>
+
+<dl class="org-dl">
+<dt><code>T[]</code></dt><dd>an array of <code>T</code></dd>
+<dt><code>#{ a: T, b?: U }</code></dt><dd>a map whose key <code>b</code> may be left out</dd>
+<dt><code>A | B</code></dt><dd>either of them</dd>
+<dt><code>(t: Tree) =&gt; Tree</code></dt><dd>a function, written as a closure, <code>|t| ...</code>, or by name, <code>Fn("name")</code></dd>
+<dt><code>name: T = v</code></dt><dd>an argument that may be left out, <code>v</code> when it is</dd>
+<dt><code>...input: Shape[]</code></dt><dd>any number of arguments</dd>
+<dt><code>shape.f(...)</code></dt><dd>the method form, its first argument before the dot</dd>
+<dt><code>type Slice = ...</code></dt><dd>a name for a type, used by the function it is shown with</dd>
+</dl>
+
+<p>
+Which of fidget&rsquo;s fields may be left out, and in which order they come, depends on the form of the call; see <a href="writing-models.html#calling-shapes">Calling shapes</a>.
+</p>
+
+<p>
+On this site, the strip beside an entry says what it makes; its label says that, and where it comes from.
+</p>
+
+<dl class="legend"><div class="entry k-2d"><dt>2D</dt><dd>a shape in the XY plane</dd></div><div class="entry k-3d"><dt>3D</dt><dd>a solid</dd></div><div class="entry k-extrude"><dt>2D to 3D</dt><dd>a solid made from 2D shapes: extruded, revolved, lofted or swept</dd></div><div class="entry k-csg"><dt>CSG</dt><dd>shapes combined, offset or hollowed</dd></div><div class="entry k-transform"><dt>transform</dt><dd>a shape moved, turned, scaled or mirrored</dd></div><div class="entry k-pattern"><dt>pattern</dt><dd>copies of a shape</dd></div><div class="entry k-math"><dt>math</dt><dd>numbers and expressions: arithmetic, easings, vectors</dd></div><div class="entry k-script"><dt>script</dt><dd>what a script draws, and where</dd></div><div class="entry"><dt>fidget</dt><dd>fidget’s own, in its viewer and CLI too</dd></div><div class="entry"><dt>keycap</dt><dd>keycap’s, from its prelude or its script API</dd></div></dl>
+</div>
+</section>
+<section id="outline-container-units-and-axes" class="outline-2">
+<h2 id="units-and-axes"><a href="#units-and-axes">Units and axes</a></h2>
+<div class="outline-text-2" id="text-units-and-axes">
+<ul class="org-ul">
+<li>A length is in millimetres: the SVG and DXF exports are in millimetres, and slicers read an STL&rsquo;s numbers as millimetres.</li>
+<li>An angle is in degrees, but fidget&rsquo;s <code>sin</code>, <code>cos</code> and the other trigonometric functions take radians; see <a href="prelude-reference.html#angles-in-degrees">Angles in degrees</a>.</li>
+<li>2D shapes lie in the XY plane, and the prelude&rsquo;s round solids and extrusions have their axis along Z.</li>
+<li>The prelude&rsquo;s shapes are centred on the origin; see <a href="prelude-reference.html#placement-and-anchors">Placement and anchors</a>.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-scripts-and-files" class="outline-2">
+<h2 id="scripts-and-files"><a href="#scripts-and-files">Scripts and files</a></h2>
+<div class="outline-text-2" id="text-scripts-and-files">
+<ul class="org-ul">
+<li>A script shows and exports what it passes to <code>draw</code>, and the value of its last expression is not drawn; see <a href="writing-models.html#drawing-and-colours">Drawing and colours</a>.</li>
+<li>The prelude is loaded before every script; its modules load by name, as in <code class="long">import "keycap/screws" as screws;</code>, and other files by their path; see <a href="writing-models.html#the-prelude">The prelude</a> and <a href="writing-models.html#imports">Imports</a>.</li>
+<li>A <code>.keycap</code> script can call everything in this manual, a <code>.fidget</code> script only what fidget&rsquo;s own tools run; see <a href="writing-models.html#dialects">Dialects</a>.</li>
+</ul>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="writing-models.html"><span>Previous</span> Writing models</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="shapes-reference.html"><span>Next</span> Shapes reference</a></nav>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

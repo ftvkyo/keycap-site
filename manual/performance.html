@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Performance</title>
+<meta name="description" content="Keeping renders and exports fast." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="coming-from-openscad.html">
+<link rel="next" href="troubleshooting.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Performance</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html" aria-current="page">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+<p>
+fidget evaluates the tree over boxes of space with interval arithmetic and skips the boxes it proves empty or full, so speed depends on the tree&rsquo;s size and on how well intervals see through it.
+</p>
+
+<ul class="org-ul">
+<li>Copies cost: <code>grid_array(step, [10, 10])</code> is a hundred copies in the tree; <code>repeat_grid</code> is one.</li>
+<li><code>polygon</code> costs about 40 operations per point and <code>rounded_polygon</code> about 90 per rounded corner, and intervals see through neither well: a prism on a 64-gon of points renders in about 5 CPU-seconds, one on <code>regular_polygon(64, r)</code> in 0.7.
+A single convex loop of straight edges takes a path of about 15 operations a corner, with the same values to rounding and intervals that see its inside, and its prism renders in 0.6; <code>#{convex: false}</code> keeps the general one.
+Draw with primitives, planes and their combinations where they fit, and keep points for outlines measured or traced.</li>
+<li><code>keycap/points</code>&rsquo;s combinations work when the script runs, in about <code>n * m</code> steps for outlines of <code>n</code> and <code>m</code> edges: <code>scraper.keycap</code>&rsquo;s six take a tenth of a second.</li>
+<li><code>text</code> and <code>svg</code> cost about 45 operations per edge of their outlines, but boxes around their contours let a render skip the ones far from each region: a line of ten letters is about 14,000 operations and renders in a tenth of a second.
+An SVG with thousands of small curves, such as a KiCad board&rsquo;s drill holes, is hundreds of thousands, and takes about a second to load and as long to render on the CPU; import it alone, or the part of it you need with <code>id</code>.
+The libfive font is a fortieth of the size of a real one.</li>
+<li>Exact fields and plain <code>min</code> and <code>max</code> prune well; <code>%</code>, <code>floor</code> and the selection tricks of <a href="writing-models.html#choices-without-if">Choices without if</a> prune poorly, and so render slower.</li>
+<li>So do <code>sin</code>, <code>cos</code> and <code>atan2</code> of a coordinate, <code>sind</code> and the other degree functions too: the GPU sees no region near them empty or full, and the CPU calls a library function for every point.
+The prelude&rsquo;s eases, turns and shapes about the Z axis use polynomials and <code>atan</code> instead, which prune.</li>
+<li>Mirrors fold space cheaper than angles do: <code>abs(x)</code> and reflections across lines cost a few operations, <code>repeat_polar</code> about a hundred for its angle, sine and cosine; for shapes symmetric about their axis, fold by mirrors, as <code>vase-koch.keycap</code> does.</li>
+<li><code>normalize_z</code>, and so <code>loft</code>, evaluates the shape twice, as <code>loft_tilted</code> does its profile, and a shape given at two slices of a <code>loft</code> is evaluated twice more.</li>
+<li>A rounding or a chamfer whose size varies over space evaluates its shapes twice, to keep the field a distance.</li>
+<li>A folded shape hides its extent from interval arithmetic, and so does a turning one, except about the Z axis.
+<code>max</code> with a cylinder, box or torus that contains it changes no value, but lets fitted bounds find it and renders skip the space around it.</li>
+<li><code>bezier_stroke</code> costs about 150 operations per piece of curve, but boxes around the pieces let a render skip the ones far from each region: <code>feather.keycap</code>&rsquo;s two hundred barbs load in three seconds and render in about one.</li>
+<li>A large, loose bounding region wastes work; set <code>bounds</code> when the fitted region is too large, or when an unbounded axis leaves it guessing.</li>
+<li>The preview renders where it is sooner, on the GPU or the CPU; <code>G</code> overrides it.
+The GPU renders a slow frame in tiles, each well short of the time after which the driver resets the GPU, and shorter still while an edit or a drag makes frames that the next replaces.</li>
+<li>Export time grows with the surface area times the resolution squared: try a part at 5 cells per mm, then export it at the default 10, or at 20 for fine details.
+The memory does too, which makes a long thin part, such as <code>feather.keycap</code>, cheap at a resolution that a vase of the same size could not afford.</li>
+<li>A script stops after 20 million operations, which only an endless loop reaches.</li>
+</ul>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="coming-from-openscad.html"><span>Previous</span> Coming from OpenSCAD</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="troubleshooting.html"><span>Next</span> Troubleshooting</a></nav>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

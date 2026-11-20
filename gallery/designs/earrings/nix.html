@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>nix</title>
+<meta name="description" content="NixOS snowflake earring: six lambdas in two colours and thicknesses round a hexagonal ring, their top edges chamfered, with a jump ring." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../style.449e415602.css">
+<link rel="preload" href="../../../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../../../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../../../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../../../tutorial/index.html">Tutorial</a><a href="../../../manual/index.html">Manual</a><a href="../../../gallery/index.html" aria-current="page">Gallery</a><a href="../../../install.html">Install</a><a href="../../../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">nix</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/earrings/nix.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>earrings/nix.scad</code></a></p>
+
+<p class="idiom-why"><a class="idiom" href="../../../gallery/index.html#idioms">point-based</a> <code>nix.keycap</code>: a lambda's outline is clipped from points when the script loads, then rounded</p>
+<p class="idiom-why"><a class="idiom" href="../../../gallery/index.html#idioms">sdf-native</a> <code>nix-sdf.keycap</code>: a lambda's two pieces are the planes that bound them</p>
+
+<p>
+NixOS snowflake earring: six lambdas in two colours and thicknesses
+round a hexagonal ring, their top edges chamfered, with a jump ring.
+</p>
+
+<p>
+The NixOS snowflake is by Tim Cuthbertson and the NixOS artwork
+contributors, CC BY 4.0
+(<a href="https://github.com/NixOS/nixos-artwork/blob/master/logo/README.md">https://github.com/NixOS/nixos-artwork/blob/master/logo/README.md</a>);
+this is a redrawing of it, and isn&rsquo;t endorsed by the NixOS project.
+</p>
+
+<p>
+Ported from src/earrings/nix.scad.  Differences:
+</p>
+<ul class="org-ul">
+<li>A lambda&rsquo;s outline, its bar and its arm clipped to the mask of three
+hexagons, is found by points::union and points::intersection when
+the script runs; the original intersects the shapes.  Its convex
+corners are rounded exactly, where the original&rsquo;s 12-gon offset and
+cone leave facets (under 0.015 mm).</li>
+<li>add_character, the original&rsquo;s letters on the lambdas, is not ported.</li>
+</ul>
+
+<ul class="org-ul checked">
+<li>Compared with the original: within 0.013 mm.</li>
+</ul>
+
+<a href="frames/nix-731286b6412d729a.png"><img src="frames/nix-731286b6412d729a.png" width="800" height="600" fetchpriority="high" alt="nix, shaded, from the front right"></a>
+
+<a href="frames/nix-90d273500f4d1c04.png"><img src="frames/nix-90d273500f4d1c04.png" width="800" height="600" loading="lazy" alt="nix, shaded, from the back left"></a>
+<section id="outline-container-rewritten-with-fields" class="outline-2">
+<h2 id="rewritten-with-fields"><a href="#rewritten-with-fields">Rewritten with fields</a></h2>
+<div class="outline-text-2" id="text-rewritten-with-fields">
+<p>
+NixOS snowflake earring, nix.keycap with its lambdas drawn as fields:
+each of a lambda&rsquo;s two pieces is the sides that bound it, planes as
+distances, where nix.keycap clips points when the script runs.
+</p>
+
+<div class="pair">
+<figure>
+<a href="frames/nix-731286b6412d729a.png"><img src="frames/nix-731286b6412d729a.png" width="800" height="600" loading="lazy" alt="nix.keycap"></a>
+
+<figcaption><code>nix.keycap</code> <span class="idiom">point-based</span></figcaption></figure>
+<figure>
+<a href="frames/nix-sdf-becadc36d144a50d.png"><img src="frames/nix-sdf-becadc36d144a50d.png" width="800" height="600" loading="lazy" alt="nix-sdf.keycap"></a>
+
+<figcaption><code>nix-sdf.keycap</code> <span class="idiom">sdf-native</span></figcaption></figure>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&#xa0;</th>
+<th scope="col" class="org-right"><code>nix.keycap</code></th>
+<th scope="col" class="org-right"><code>nix-sdf.keycap</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Nodes</td>
+<td class="org-right">4453</td>
+<td class="org-right">654</td>
+</tr>
+
+<tr>
+<td class="org-left">Shaded render, CPU-s</td>
+<td class="org-right">2.0</td>
+<td class="org-right">0.6</td>
+</tr>
+
+<tr>
+<td class="org-left">Export at 10 cells per mm, CPU-s</td>
+<td class="org-right">41</td>
+<td class="org-right">16</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>Max deviation: 0.16 mm at the lambdas&rsquo; 60 and 120 degree corners, 0.33 mm where the chamfer meets their concave corner</li>
+<li>Trade-off: a seventh of the nodes, a third of the render and under half the export, with no points clipped when the script loads; it gives up circular rounds where sides meet off square, and an exact field inside the concave corner.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../../../designs/earrings/nix.keycap"><code>nix.keycap</code></a></li>
+<li><a href="../../../designs/earrings/nix-sdf.keycap"><code>nix-sdf.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+</div>
+<div id="outline-container-nix-keycap" class="outline-3">
+<h3 id="nix-keycap"><a href="#nix-keycap"><code>nix.keycap</code></a></h3>
+<div class="outline-text-3" id="text-nix-keycap">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// NixOS snowflake earring: six lambdas in two colours and thicknesses</span>
+<span class="hl-comment">// round a hexagonal ring, their top edges chamfered, with a jump ring.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The NixOS snowflake is by Tim Cuthbertson and the NixOS artwork</span>
+<span class="hl-comment">// contributors, CC BY 4.0</span>
+<span class="hl-comment">// (https://github.com/NixOS/nixos-artwork/blob/master/logo/README.md);</span>
+<span class="hl-comment">// this is a redrawing of it, and isn't endorsed by the NixOS project.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from src/earrings/nix.scad.  Differences:</span>
+<span class="hl-comment">// - A lambda's outline, its bar and its arm clipped to the mask of three</span>
+<span class="hl-comment">//   hexagons, is found by points::union and points::intersection when</span>
+<span class="hl-comment">//   the script runs; the original intersects the shapes.  Its convex</span>
+<span class="hl-comment">//   corners are rounded exactly, where the original's 12-gon offset and</span>
+<span class="hl-comment">//   cone leave facets (under 0.015 mm).</span>
+<span class="hl-comment">// - add_character, the original's letters on the lambdas, is not ported.</span>
+
+<span class="hl-comment">// idiom point-based: a lambda's outline is clipped from points when the script loads, then rounded</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/points"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">points</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">RADIUS</span> <span class="hl-operator">=</span> <span class="hl-number">15.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ADD_RING</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">THICKNESS_CONNECTION</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">THICKNESS_A</span> <span class="hl-operator">=</span> <span class="hl-number">1.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">THICKNESS_B</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">RING_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">RING_RADIUS</span> <span class="hl-operator">=</span> <span class="hl-number">1.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">ENABLE_GAP</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Derived sizes ---</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">sizes</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RADIUS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">inscribed</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">#{</span>
+        <span class="hl-property-name">r</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">inscribed</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">inscribed</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">inner</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-operator">/</span> <span class="hl-number">5.0</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">inner_inscribed</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">inscribed</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-operator">/</span> <span class="hl-number">5.0</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">gap</span><span class="hl-delimiter">:</span> <span class="hl-keyword">if</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">ENABLE_GAP</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">85.0</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-number">0.0</span> <span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">rounding</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">40.0</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">lambda</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">5.0</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">t</span><span class="hl-delimiter">:</span> <span class="hl-number">0.01</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">}</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Parts ---</span>
+
+<span class="hl-comment">// A rectangle's corners, `size` wide, centred on `centre`, turned by</span>
+<span class="hl-comment">// `angle` degrees about the origin.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">rect_points</span><span class="hl-bracket">(</span><span class="hl-variable-name">centre</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">size</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">angle</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">half</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">corners</span> <span class="hl-operator">=</span> <span class="hl-bracket">[[</span><span class="hl-operator">-</span><span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">half</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]]]</span><span class="hl-delimiter">;</span>
+    <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">rotate</span><span class="hl-bracket">(</span><span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">move</span><span class="hl-bracket">(</span><span class="hl-variable-use">corners</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">centre</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">angle</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// One lambda: its bar and its arm, clipped to the mask of three hexagons,</span>
+<span class="hl-comment">// its convex corners rounded and its concave ones sharp, as the original's</span>
+<span class="hl-comment">// opening leaves them.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">lambda</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">sizes</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">shift</span> <span class="hl-operator">=</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">gap</span> <span class="hl-operator">*</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">hexagon</span> <span class="hl-operator">=</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">masks</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+        <span class="hl-variable-use">hexagon</span><span class="hl-delimiter">,</span>
+        <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">move</span><span class="hl-bracket">(</span><span class="hl-variable-use">hexagon</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span> <span class="hl-operator">-</span> <span class="hl-variable-use">shift</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">move</span><span class="hl-bracket">(</span><span class="hl-variable-use">hexagon</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[(</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inscribed</span> <span class="hl-operator">+</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner_inscribed</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bar</span> <span class="hl-operator">=</span> <span class="hl-function-call">rect_points</span><span class="hl-bracket">([(</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-variable-use">shift</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner_inscribed</span> <span class="hl-operator">+</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">lambda</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">lambda</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">arm</span> <span class="hl-operator">=</span> <span class="hl-function-call">rect_points</span><span class="hl-bracket">([</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">lambda</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">120</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">outline</span> <span class="hl-operator">=</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">bar</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">arm</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">for</span> <span class="hl-variable-name">m</span> <span class="hl-keyword">in</span> <span class="hl-variable-use">masks</span> <span class="hl-bracket">{</span>
+        <span class="hl-variable-use">outline</span> <span class="hl-operator">=</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">outline</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">m</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-builtin">rounded_polygon</span><span class="hl-bracket">(</span><span class="hl-variable-use">outline</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">rounding</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">concave</span><span class="hl-delimiter">:</span> <span class="hl-number">0</span><span class="hl-bracket">})</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// Three lambdas, `thickness` thick, every other one round the ring, their</span>
+<span class="hl-comment">// top edges chamfered by the rounding.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">lambdas</span><span class="hl-bracket">(</span><span class="hl-variable-name">thickness</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">first</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">lambda</span><span class="hl-bracket">()</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">thickness</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">chamfer</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-function-call">sizes</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-property-use">rounding</span><span class="hl-bracket">]})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">60</span> <span class="hl-operator">*</span> <span class="hl-variable-use">first</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">polar_array</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The hexagonal ring the lambdas stand on, a little thinner.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">connection</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">sizes</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-bracket">(</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner_inscribed</span> <span class="hl-operator">+</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">lambda</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-bracket">(</span><span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">rounding</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">t</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">THICKNESS_CONNECTION</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">t</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The jump ring: a round-topped band revolved, at the tip of a lambda.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">ring</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">sizes</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">t</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RING_THICKNESS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">band</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-variable-use">t</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">4.0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">o</span> <span class="hl-operator">=</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RING_RADIUS</span> <span class="hl-operator">-</span> <span class="hl-variable-use">t</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-variable-use">band</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RING_RADIUS</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">revolve</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">o</span> <span class="hl-operator">*</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-number">60</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">o</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-number">60</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Assembly ---</span>
+
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">lambdas</span><span class="hl-bracket">(</span><span class="hl-constant">THICKNESS_A</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.255</span><span class="hl-delimiter">,</span> <span class="hl-number">0.369</span><span class="hl-delimiter">,</span> <span class="hl-number">0.604</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">lambdas</span><span class="hl-bracket">(</span><span class="hl-constant">THICKNESS_B</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.412</span><span class="hl-delimiter">,</span> <span class="hl-number">0.604</span><span class="hl-delimiter">,</span> <span class="hl-number">0.843</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">connection</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">if</span> <span class="hl-constant">ADD_RING</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">ring</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-nix-sdf-keycap" class="outline-3">
+<h3 id="nix-sdf-keycap"><a href="#nix-sdf-keycap"><code>nix-sdf.keycap</code></a></h3>
+<div class="outline-text-3" id="text-nix-sdf-keycap">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// NixOS snowflake earring, nix.keycap with its lambdas drawn as fields:</span>
+<span class="hl-comment">// each of a lambda's two pieces is the sides that bound it, planes as</span>
+<span class="hl-comment">// distances, where nix.keycap clips points when the script runs.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The NixOS snowflake is by Tim Cuthbertson and the NixOS artwork</span>
+<span class="hl-comment">// contributors, CC BY 4.0</span>
+<span class="hl-comment">// (https://github.com/NixOS/nixos-artwork/blob/master/logo/README.md);</span>
+<span class="hl-comment">// this is a redrawing of it, and isn't endorsed by the NixOS project.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Differences from nix.keycap:</span>
+<span class="hl-comment">// - intersection_round rounds each piece's corners; where two sides meet</span>
+<span class="hl-comment">//   at 60 or 120 degrees, its round is hg_sdf's, not a circle tangent to</span>
+<span class="hl-comment">//   both, up to 0.16 mm off.</span>
+<span class="hl-comment">// - The concave corner where the bar leaves the arm is a plain union's, a</span>
+<span class="hl-comment">//   bound inside, so the chamfer on top cuts up to 0.33 mm differently</span>
+<span class="hl-comment">//   there.</span>
+
+<span class="hl-comment">// idiom sdf-native: a lambda's two pieces are the planes that bound them</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">RADIUS</span> <span class="hl-operator">=</span> <span class="hl-number">15.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ADD_RING</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">THICKNESS_CONNECTION</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">THICKNESS_A</span> <span class="hl-operator">=</span> <span class="hl-number">1.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">THICKNESS_B</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">RING_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">RING_RADIUS</span> <span class="hl-operator">=</span> <span class="hl-number">1.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">ENABLE_GAP</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Derived sizes ---</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">sizes</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RADIUS</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">#{</span>
+        <span class="hl-property-name">r</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">inner</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-operator">/</span> <span class="hl-number">5.0</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">inner_inscribed</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-operator">/</span> <span class="hl-number">5.0</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">gap</span><span class="hl-delimiter">:</span> <span class="hl-keyword">if</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">ENABLE_GAP</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">85.0</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-number">0.0</span> <span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">rounding</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">40.0</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">lambda</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">5.0</span><span class="hl-delimiter">,</span>
+        <span class="hl-property-name">t</span><span class="hl-delimiter">:</span> <span class="hl-number">0.01</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">}</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Parts ---</span>
+
+<span class="hl-comment">// The half-plane inside the side of a hexagon of circumradius `r` centred</span>
+<span class="hl-comment">// on `c` that faces `angle` degrees: a plane as a distance.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">side</span><span class="hl-bracket">(</span><span class="hl-variable-name">c</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">angle</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">r</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-variable-use">angle</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">-</span> <span class="hl-variable-use">c</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">])</span> <span class="hl-operator">+</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-variable-use">angle</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-bracket">(</span><span class="hl-variable-use">y</span> <span class="hl-operator">-</span> <span class="hl-variable-use">c</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">])</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// One lambda: its bar and its arm, each the sides that bound it, where the</span>
+<span class="hl-comment">// hexagons of the original's mask cut them, their corners rounded.  Every</span>
+<span class="hl-comment">// side is named once: two coinciding sides in one intersection_round would</span>
+<span class="hl-comment">// each round the other away.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">lambda</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">sizes</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">shift</span> <span class="hl-operator">=</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">gap</span> <span class="hl-operator">*</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">beside</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span> <span class="hl-operator">-</span> <span class="hl-variable-use">shift</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">y0</span> <span class="hl-operator">=</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner_inscribed</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">y1</span> <span class="hl-operator">=</span> <span class="hl-variable-use">y0</span> <span class="hl-operator">+</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">lambda</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bar</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">y0</span> <span class="hl-operator">-</span> <span class="hl-variable-use">y</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span> <span class="hl-operator">-</span> <span class="hl-variable-use">y1</span><span class="hl-delimiter">,</span> <span class="hl-function-call">side</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">150</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">side</span><span class="hl-bracket">(</span><span class="hl-variable-use">beside</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span><span class="hl-bracket">)]</span><span class="hl-delimiter">;</span>
+    <span class="hl-comment">// The arm, along 120 degrees, its foot inside the bar.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">across</span> <span class="hl-operator">=</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-number">120</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-variable-use">x</span> <span class="hl-operator">-</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-number">120</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-variable-use">y</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">arm</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-builtin">abs</span><span class="hl-bracket">(</span><span class="hl-variable-use">across</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">lambda</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-function-call">side</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">90</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">side</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">150</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-bracket">(</span><span class="hl-variable-use">y0</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y1</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-variable-use">y</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">intersection_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">bar</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">rounding</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-builtin">intersection_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">arm</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">rounding</span><span class="hl-bracket">))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// Three lambdas, `thickness` thick, every other one round the ring, their</span>
+<span class="hl-comment">// top edges chamfered by the rounding.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">lambdas</span><span class="hl-bracket">(</span><span class="hl-variable-name">thickness</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">first</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">lambda</span><span class="hl-bracket">()</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">thickness</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">chamfer</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-function-call">sizes</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-property-use">rounding</span><span class="hl-bracket">]})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">60</span> <span class="hl-operator">*</span> <span class="hl-variable-use">first</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">polar_array</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The hexagonal ring the lambdas stand on, a little thinner.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">connection</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">sizes</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-bracket">(</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner_inscribed</span> <span class="hl-operator">+</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">lambda</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-bracket">(</span><span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">rounding</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">t</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">THICKNESS_CONNECTION</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">t</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The jump ring: a round-topped band revolved, at the tip of a lambda.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">ring</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">sizes</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">t</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RING_THICKNESS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">band</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-variable-use">t</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">4.0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">o</span> <span class="hl-operator">=</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-property-use">r</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RING_RADIUS</span> <span class="hl-operator">-</span> <span class="hl-variable-use">t</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-variable-use">band</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RING_RADIUS</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">revolve</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">o</span> <span class="hl-operator">*</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-number">60</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">o</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-number">60</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Assembly ---</span>
+
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">lambdas</span><span class="hl-bracket">(</span><span class="hl-constant">THICKNESS_A</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.255</span><span class="hl-delimiter">,</span> <span class="hl-number">0.369</span><span class="hl-delimiter">,</span> <span class="hl-number">0.604</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">lambdas</span><span class="hl-bracket">(</span><span class="hl-constant">THICKNESS_B</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.412</span><span class="hl-delimiter">,</span> <span class="hl-number">0.604</span><span class="hl-delimiter">,</span> <span class="hl-number">0.843</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">connection</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">if</span> <span class="hl-constant">ADD_RING</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">ring</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Install</title>
+<meta name="description" content="Installing keycap, with Nix or without." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="style.449e415602.css">
+<link rel="preload" href="fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="tutorial/index.html">Tutorial</a><a href="manual/index.html">Manual</a><a href="gallery/index.html">Gallery</a><a href="install.html" aria-current="page">Install</a><a href="about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Install</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p>
+keycap consists of two Emacs packages, keycap and rhai-ts-mode, and keycap-server, a program keycap starts for each script.
+With Nix, all three come as one package; without Nix, Emacs installs the packages and cargo builds the server.
+</p>
+<section id="outline-container-requirements" class="outline-2">
+<h2 id="requirements"><a href="#requirements">Requirements</a></h2>
+<div class="outline-text-2" id="text-requirements">
+<ul class="org-ul">
+<li>Emacs 30.1 or later, built with tree-sitter (most distributions&rsquo; builds are).</li>
+<li>Linux on x86-64 or AArch64, since fidget compiles shapes to machine code for these.
+macOS should work too without Nix, as fidget supports it, but I haven&rsquo;t tested it.</li>
+<li>Optionally, a GPU with Vulkan; without one, rendering uses all CPU cores instead.</li>
+<li>Without Nix: git, a C compiler, Rust 1.95 or later, and the Liberation Sans font, which <code>text()</code> draws in unless a script names another.
+For the GPU, the server also needs the Vulkan loader, <code>libvulkan.so.1</code>.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-try-it-with-nix" class="outline-2">
+<h2 id="try-it-with-nix"><a href="#try-it-with-nix">Try it with Nix</a></h2>
+<div class="outline-text-2" id="text-try-it-with-nix">
+<p>
+To run keycap without changing your configuration, build an Emacs with it and run that:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">git clone https://tangled.org/rei.gay/keycap
+nix-build keycap/default.nix -A emacs
+./result/bin/emacs keycap/examples/knob.keycap
+</pre>
+</div>
+
+<p>
+The first build compiles the server, which takes a few minutes.
+The knob&rsquo;s script opens in <code>keycap-mode</code>, and <code>C-c C-c</code> renders it beside the script.
+</p>
+</div>
+</section>
+<section id="outline-container-with-nix" class="outline-2">
+<h2 id="with-nix"><a href="#with-nix">With Nix</a></h2>
+<div class="outline-text-2" id="text-with-nix">
+<p>
+The package builds the server, the grammar and the manual, and points keycap at them.
+Nix can fetch keycap itself, so no checkout is needed:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-nix"><span class="hl-nix-keyword">let</span>
+  <span class="hl-nix-attribute">keycap</span> = builtins.fetchTarball <span class="hl-string">"https://tangled.org/rei.gay/keycap/archive/main.tar.gz"</span>;
+<span class="hl-nix-keyword">in</span>
+(pkgs.emacsPackagesFor pkgs.emacs).emacsWithPackages (epkgs: [
+  (epkgs.callPackage <span class="hl-string">"</span><span class="hl-nix-antiquote">${</span>keycap<span class="hl-nix-antiquote">}</span><span class="hl-string">/package.nix"</span> { })
+])
+</pre>
+</div>
+
+<p>
+With home-manager, the same <code>callPackage</code> goes in <code>programs.emacs.extraPackages</code>.
+<code>main.tar.gz</code> follows the main branch; to pin a commit, fetch <code>&lt;commit&gt;.tar.gz</code> with its <code>sha256</code>, or add keycap with npins or as a flake input with <code>flake = false</code>.
+From a checkout, the package is <code class="long">epkgs.callPackage ./keycap/package.nix { }</code>.
+</p>
+
+<p>
+The first build compiles the server, which takes a few minutes; it is built with keycap&rsquo;s own nixpkgs, whatever yours is.
+<code>rhai-ts-mode</code> comes with the package, and <code>.keycap</code> and <code>.fidget</code> files open in <code>keycap-mode</code>.
+Errors are marked by Flymake, so turn it on for them:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(add-hook 'keycap-mode-hook #'flymake-mode)
+</pre>
+</div>
+
+<p>
+To check it, save <a href="examples/knob.keycap">knob.keycap</a>, open it and press <code>C-c C-c</code>: the knob appears beside the script.
+<code>M-x keycap-version</code> names keycap&rsquo;s version and the server&rsquo;s, which are the same.
+</p>
+</div>
+</section>
+<section id="outline-container-without-nix" class="outline-2">
+<h2 id="without-nix"><a href="#without-nix">Without Nix</a></h2>
+<div class="outline-text-2" id="text-without-nix">
+</div>
+<div id="outline-container-the-emacs-packages" class="outline-3">
+<h3 id="the-emacs-packages"><a href="#the-emacs-packages">The Emacs packages</a></h3>
+<div class="outline-text-3" id="text-the-emacs-packages">
+<p>
+Evaluate these once, in <code>*scratch*</code> or with <code>M-:</code>, rhai-ts-mode first, since keycap needs it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(package-vc-install <span class="hl-string">"https://tangled.org/rei.gay/rhai-ts-mode"</span> nil 'Git)
+(package-vc-install <span class="hl-string">"https://tangled.org/rei.gay/keycap"</span> nil 'Git)
+</pre>
+</div>
+
+<p>
+Emacs can&rsquo;t tell from a tangled URL that the repository is git, hence <code>'Git</code>.
+Errors are marked by Flymake, so turn it on for them in your init file:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(add-hook 'keycap-mode-hook #'flymake-mode)
+</pre>
+</div>
+
+<p>
+Or, with <code>use-package</code>, put this in your init file instead, and the next start installs both:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span class="hl-keyword">use-package</span> rhai-ts-mode
+  <span class="hl-builtin">:vc</span> (<span class="hl-builtin">:url</span> <span class="hl-string">"https://tangled.org/rei.gay/rhai-ts-mode"</span> <span class="hl-builtin">:rev</span> <span class="hl-builtin">:newest</span>))
+
+(<span class="hl-keyword">use-package</span> keycap
+  <span class="hl-builtin">:vc</span> (<span class="hl-builtin">:url</span> <span class="hl-string">"https://tangled.org/rei.gay/keycap"</span> <span class="hl-builtin">:rev</span> <span class="hl-builtin">:newest</span>)
+  <span class="hl-builtin">:hook</span> (keycap-mode . flymake-mode))
+</pre>
+</div>
+
+<p>
+Without <code>:rev :newest</code>, <code>use-package</code> installs the commit that last changed the package&rsquo;s version, which is the first one.
+Either way, each package is a git checkout in <code>~/.emacs.d/elpa/</code> (or <code>~/.config/emacs/elpa/</code>, if your configuration lives there), and <code>.keycap</code> and <code>.fidget</code> files open in <code>keycap-mode</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-the-server" class="outline-3">
+<h3 id="the-server"><a href="#the-server">The server</a></h3>
+<div class="outline-text-3" id="text-the-server">
+<p>
+Build it from the keycap checkout:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">cargo install --locked --path ~/.emacs.d/elpa/keycap/server
+</pre>
+</div>
+
+<p>
+This takes a few minutes and puts <code>keycap-server</code> in <code>~/.cargo/bin</code>; <code>--locked</code> keeps the dependencies at the versions keycap was tested with.
+The build stays in the checkout&rsquo;s <code>server/target</code>, almost 1 GB, which makes the next one quick.
+</p>
+
+<p>
+An Emacs started from a desktop launcher may not have <code>~/.cargo/bin</code> on <code>exec-path</code>, where keycap looks for the server; naming it works however Emacs starts:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp">(<span class="hl-keyword">setq</span> keycap-server-program <span class="hl-string">"~/.cargo/bin/keycap-server"</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-the-grammar" class="outline-3">
+<h3 id="the-grammar"><a href="#the-grammar">The grammar</a></h3>
+<div class="outline-text-3" id="text-the-grammar">
+<p>
+<code>M-x rhai-ts-mode-install-grammar</code> fetches tree-sitter-rhai and builds it with your C compiler, into <code>~/.emacs.d/tree-sitter/</code>.
+From the next start, <code>.rhai</code> files open in <code>rhai-ts-mode</code>.
+</p>
+
+<p>
+This is the upstream grammar; the patched one in rhai-ts-mode&rsquo;s <code>grammar/</code> is built by the Nix package only.
+Upstream marks floats written as <code>3.</code> and nested block comments as errors, and misreads <code>0b</code> and <code>0o</code> numbers without one: <code>0b101</code> is <code>0</code> followed by <code>b101</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-checking-it" class="outline-3">
+<h3 id="checking-it"><a href="#checking-it">Checking it</a></h3>
+<div class="outline-text-3" id="text-checking-it">
+<p>
+Open <code class="long">~/.emacs.d/elpa/keycap/examples/knob.keycap</code> and press <code>C-c C-c</code>: the knob appears beside the script.
+<code>M-x keycap-version</code> names keycap&rsquo;s version and the server&rsquo;s, which are the same unless one was updated without the other.
+</p>
+</div>
+</div>
+</section>
+<section id="outline-container-the-manual" class="outline-2">
+<h2 id="the-manual"><a href="#the-manual">The manual</a></h2>
+<div class="outline-text-2" id="text-the-manual">
+<p>
+With Nix, the manual is in Info: <code>M-x keycap-guide</code>, or <code>keycap</code> in <code>C-h i</code>.
+Without Nix, <code>M-x keycap-guide</code> opens <code>doc/keycap.org</code>, which has no reference chapters, as they are written from the server&rsquo;s documentation when the Nix package is built; the whole manual is <a href="manual/index.html">on this site</a>.
+<code>C-c C-d</code> on a name shows its documentation either way.
+</p>
+
+<p>
+Nothing needs configuring; the user options are in the manual&rsquo;s <a href="manual/editing-and-previewing.html#customization">Customization</a>, and how <code>.keycap</code> and <code>.fidget</code> scripts differ is in <a href="manual/writing-models.html#dialects">Dialects</a>.
+</p>
+</div>
+</section>
+<section id="outline-container-troubleshooting" class="outline-2">
+<h2 id="troubleshooting"><a href="#troubleshooting">Troubleshooting</a></h2>
+<div class="outline-text-2" id="text-troubleshooting">
+<dl class="org-dl">
+<dt><code class="long">No keycap-server found: install keycap-server (…), or set ‘keycap-server-program’</code></dt><dd>Emacs didn&rsquo;t find the server on <code>exec-path</code>; set <code>keycap-server-program</code> to its full path, as in <a href="#the-server">The server</a>.</dd>
+<dt><code class="long">Cannot activate tree-sitter, because language grammar for rhai is unavailable</code></dt><dd>The grammar isn&rsquo;t installed; run <code>M-x rhai-ts-mode-install-grammar</code>.</dd>
+<dt><code>requires rustc 1.95</code>, from cargo</dt><dd>The Rust toolchain is too old; <code>rustup update</code> updates it.</dd>
+<dt><code class="long">text: no default font; Liberation Sans is not installed, so give a font</code></dt><dd>Install Liberation Sans, or name a font in the <code>text</code> call.</dd>
+<dt>The preview&rsquo;s header line says <code>CPU</code> and <code>(no GPU)</code></dt><dd>The server found no Vulkan device: without Nix, check that the Vulkan loader and your GPU&rsquo;s Vulkan driver are installed.
+On NixOS, a server built with cargo finds no loader unless <code>LD_LIBRARY_PATH</code> has <code>vulkan-loader</code>&rsquo;s <code>lib</code> directory; installed with Nix, it needs nothing.
+The manual&rsquo;s <a href="manual/troubleshooting.html#preview-problems">Preview problems</a> has the other reasons the CPU renders.</dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-updating" class="outline-2">
+<h2 id="updating"><a href="#updating">Updating</a></h2>
+<div class="outline-text-2" id="text-updating">
+<ul class="org-ul">
+<li>With Nix, rebuild: <code>main.tar.gz</code> is fetched again once Nix&rsquo;s copy is an hour old (<code>tarball-ttl</code>), and a pinned commit moves when you change it.</li>
+<li>Without Nix, <code>M-x package-vc-upgrade-all</code>, then the same <code>cargo install</code> again, so that the server matches the package.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-uninstalling" class="outline-2">
+<h2 id="uninstalling"><a href="#uninstalling">Uninstalling</a></h2>
+<div class="outline-text-2" id="text-uninstalling">
+<ul class="org-ul">
+<li>With Nix, remove the package from the list and rebuild.</li>
+<li><p>
+Without Nix, <code>M-x package-delete</code> keycap, then rhai-ts-mode; keycap&rsquo;s checkout takes the server&rsquo;s build with it.
+Then remove the server and the grammar:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh">cargo uninstall keycap-server
+rm ~/.emacs.d/tree-sitter/libtree-sitter-rhai.so
+</pre>
+</div></li>
+</ul>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

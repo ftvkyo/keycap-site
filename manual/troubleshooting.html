@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Troubleshooting</title>
+<meta name="description" content="Messages and what they mean." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="performance.html">
+<link rel="next" href="examples.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Troubleshooting</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html" aria-current="page">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+<nav id="table-of-contents" role="doc-toc">
+<h2>In this chapter</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#when-a-script-fails">When a script fails</a></li>
+<li><a href="#error-messages">Error messages</a></li>
+<li><a href="#surprises-without-an-error">Surprises without an error</a></li>
+<li><a href="#preview-problems">Preview problems</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-when-a-script-fails" class="outline-2">
+<h2 id="when-a-script-fails"><a href="#when-a-script-fails">When a script fails</a></h2>
+<div class="outline-text-2" id="text-when-a-script-fails">
+<p>
+An error stops the script where it happens:
+</p>
+
+<ul class="org-ul">
+<li>Flymake underlines the token that caused it, marks its line in the fringe and counts it in the mode line; with point on the token, the echo area shows the message.</li>
+<li>The preview&rsquo;s header line shows the line number and the message, and a click on it goes to the line.</li>
+<li>The preview keeps the last model that worked, so it doesn&rsquo;t go blank while a line is half typed.</li>
+</ul>
+
+<p>
+Example: misspell <code>screw_hole</code> in the plate from the <a href="overview.html#quick-start">Quick start</a>.
+</p>
+<figure class="ef"><div class="ef-window ef-code"><div class="ef-tabline"><span class="ef-tab">plate.keycap</span> ×</div><div class="ef-text"><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">1</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> = <span class="hl-builtin">rect</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-number">40</span>, <span class="hl-number">30</span><span class="ef-d2">]</span>, #<span class="ef-d2">{</span><span class="hl-property-name">round</span>: <span class="hl-number">4</span><span class="ef-d2">}</span><span class="ef-d1">)</span>.<span class="hl-function-call">extrude</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-number">0</span>, <span class="hl-number">5</span><span class="ef-d2">]</span><span class="ef-d1">)</span>;</span></div><div class="ef-line ef-current"><span class="ef-fringe ef-fringe-error"></span><span class="ef-ln">2</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">hole</span> = <span class="hl-function-call ef-error">screw_hol</span><span class="ef-d1 ef-cursor">(</span><span class="hl-string">"M3"</span>, <span class="hl-number">10</span>, #<span class="ef-d2">{</span><span class="hl-property-name">head</span>: <span class="hl-string">"countersunk"</span><span class="ef-d2">}</span><span class="ef-d1">)</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">3</span><span class="ef-lc">    .<span class="hl-function-call">move</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">5</span><span class="ef-d2">]</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">4</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">holes</span> = hole.<span class="hl-function-call">grid_array</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-number">30</span>, <span class="hl-number">20</span><span class="ef-d2">]</span>, <span class="ef-d2">[</span><span class="hl-number">2</span>, <span class="hl-number">2</span><span class="ef-d2">]</span>, #<span class="ef-d2">{</span><span class="hl-property-name">center</span>: <span class="hl-constant">true</span><span class="ef-d2">}</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">5</span><span class="ef-lc"><span class="hl-builtin">draw</span><span class="ef-d1">(</span>plate.<span class="hl-function-call">difference</span><span class="ef-d2">(</span>holes<span class="ef-d2">)</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">6</span><span class="ef-lc"></span></div></div><div class="ef-modeline"><span class="ef-flag"></span><span class="ef-buffer"><span class="ef-dir">manual/</span>plate.keycap</span><span>All</span><span class="ef-fill"></span><span class="ef-mode">keycap</span><span class="ef-counters"><span class="ef-error-count">⊗1</span><span class="ef-warning-count">⚠0</span><span class="ef-note-count"><span class="ef-i">i</span>0</span></span></div></div><div class="ef-window ef-preview"><div class="ef-headerline"><span class="hl-error">line 2: Function not found: screw_hol (string, i64, map)</span>  ·  shaded iso  ·  fitted bounds 43 × 32.2 × 5.84</div><div class="ef-image"><a href="frames/plate-ff95fa918dfdc767.png"><img src="frames/plate-ff95fa918dfdc767.png" width="960" height="960" fetchpriority="high" alt="The plate's script with screw_hol underlined and the error in the echo area; the preview still shows the plate, the error in its header line"></a></div><div class="ef-modeline ef-inactive"><span class="ef-buffer">*keycap: plate.keycap*</span><span>All</span><span class="ef-fill"></span><span>keycap preview</span></div></div><div class="ef-echo"><span class="hl-error">Function not found: screw_hol (string, i64, map)</span></div></figure>
+
+<p>
+The mark is on the innermost place it can be: an error inside a function is marked on its line in the function, and the message names the calls that led there.
+An error in an imported file or in the prelude is marked at the call that reached it, or at the <code>import</code>, its message starting with the file and line.
+<code>M-x flymake-goto-next-error</code> goes to the next mark, and <code class="long">M-x flymake-show-buffer-diagnostics</code> lists them all.
+<a href="#error-messages">Error messages</a> has the messages a script most often meets.
+</p>
+
+<p>
+Warnings and notes leave the script running.
+Warnings mark a <code>draw</code> whose shape pokes out of the script&rsquo;s <code>bounds</code>, a script that draws nothing, shapes that are empty everywhere, and, without <code>bounds</code>, a shape unbounded on every axis, such as a bare gyroid.
+In a <code>.keycap</code> file, notes mark a call of a fidget built-in that has a better keycap call, such as <code>rectangle</code> where <code>rect</code> is exact, and say why.
+A line that reads <code>// keycap: no-prefer</code>, anywhere in the file, silences them, for a script that keeps fidget&rsquo;s calls on purpose.
+</p>
+</div>
+</section>
+<section id="outline-container-error-messages" class="outline-2">
+<h2 id="error-messages"><a href="#error-messages">Error messages</a></h2>
+<div class="outline-text-2" id="text-error-messages">
+<dl class="org-dl">
+<dt><code class="long">cannot compare Tree types during function tracing</code></dt><dd>A comparison (<code>&lt;</code>, <code>==</code> and the rest) with a tree; see <a href="writing-models.html#choices-without-if">Choices without if</a>.</dd>
+<dt><code>Variable not found: w</code></dt><dd>Inside a <code>fn</code>, a variable of the script&rsquo;s; declare it <code>const</code> and read it as <code>global::w</code>, or pass it in.
+In a module, an exported constant is also read as <code>global::NAME</code>.</dd>
+<dt><code class="long">Function not found: grow (Tree, i64)</code></dt><dd>A function called with arguments of types it has no definition for: a typo, a wrong argument count, or a script function called as a method (see <a href="writing-models.html#methods-and-chaining">Methods and chaining</a>).
+<code>difference (Tree, Tree, Tree)</code> means three arguments where two go.</dd>
+<dt><code class="long">Syntax error: Expecting ';' to terminate this statement</code></dt><dd>A missing <code>;</code> at the end of the line before.</dd>
+<dt><code class="long">Runtime error: field center must be provided for RotateX</code></dt><dd>A transform called with a map needs every field; leave the map out to get the defaults.</dd>
+<dt><code class="long">Runtime error: field xy is not present in Circle</code></dt><dd>A misspelt field; completion inside the map lists the right ones.</dd>
+<dt><code class="long">Runtime error: missing argument of type Vec&lt;Tree&gt;</code></dt><dd><code>union</code> or <code>intersection</code> of a single shape.</dd>
+<dt><code class="long">Runtime error: missing argument of type Tree</code></dt><dd>An array of shapes where a transform wants one; wrap it in <code>union</code>.</dd>
+<dt><code class="long">Runtime error: shape does not have an argument of type Tree</code></dt><dd>A tree where a shape wants a number: integer math such as <code>sin(1)</code> or <code>sqrt(4)</code> made one; see <a href="writing-models.html#numbers-and-trees">Numbers and trees</a>.</dd>
+<dt><code class="long">Runtime error: shape does not have an argument of type Vec3</code></dt><dd>An argument the shape has no field for, here a 3D point for a 2D shape.</dd>
+<dt><code class="long">Data type incorrect: Vec3 (expecting Vec2)</code></dt><dd>A vector of the wrong size for a field.</dd>
+<dt><code class="long">the script ran more than 20000000 operations; is a loop endless?</code></dt><dd>A loop that does not end, or one far too large.</dd>
+<dt><code>bounds are already set</code></dt><dd>A second <code>bounds</code> call.</dd>
+<dt><code class="long">bounds are empty on x: lower must be below upper</code></dt><dd>The corners of <code>bounds</code> swapped.</dd>
+<dt><code class="long">import cycle: a.rhai -&gt; b.rhai -&gt; a.rhai</code></dt><dd>Files importing each other.</dd>
+<dt><code class="long">text: no installed font is "JetBrains Mono:bold"</code></dt><dd>No installed family of that name; <code>fc-list : family</code> lists them.
+A font file needs a <code>/</code> or its <code>.ttf</code> or <code>.otf</code> in the name to be taken as one.</dd>
+<dt><code class="long">svg: cannot read plate.svg: No such file or directory</code></dt><dd>The path is relative to the script, or to Emacs&rsquo;s directory for a buffer without a file.</dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-surprises-without-an-error" class="outline-2">
+<h2 id="surprises-without-an-error"><a href="#surprises-without-an-error">Surprises without an error</a></h2>
+<div class="outline-text-2" id="text-surprises-without-an-error">
+<ul class="org-ul">
+<li><code>5 / 2</code> is 2, and <code>sqrt(4)</code> is a tree; see <a href="writing-models.html#numbers-and-trees">Numbers and trees</a>.</li>
+<li><code>circle(1, 2)</code> is a circle of radius 2: two positional numbers fill the same field.</li>
+<li><code>cylinder(r, h)</code> takes the radius first.</li>
+<li>Prelude shapes are centred on the origin, along Z too; <code>#{anchor: "bottom"}</code> or a height of <code>[0, h]</code> stands them on z = 0.</li>
+<li>An offset of fidget&rsquo;s <code>box</code> or <code>rectangle</code> keeps sharp corners: their fields are bounds; use <code>cuboid</code> and <code>rect</code>.</li>
+<li>After <code>scale</code> or <code>scale_uniform</code>, offsets come out the wrong size; use <code>scale_exact</code>.</li>
+<li><code>reflect(s, "xy")</code> mirrors across Y (fidget a386417); use <code>reflect_z</code>.</li>
+<li><code>revolve_y</code> does not revolve (fidget a386417); use <code>revolve</code>.</li>
+<li>fidget&rsquo;s <code>mix</code> is a hash, not an interpolation; use <code>lerp</code>.</li>
+<li>A <code>repeat</code> whose shape is off-centre cuts the copies at the cell&rsquo;s edges; move the result instead.</li>
+<li><code>draw</code> in an imported module draws too.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-preview-problems" class="outline-2">
+<h2 id="preview-problems"><a href="#preview-problems">Preview problems</a></h2>
+<div class="outline-text-2" id="text-preview-problems">
+<dl class="org-dl">
+<dt>The model is tiny or far away</dt><dd>The fitted bounds are loose or unbounded on an axis; set <code>bounds</code>, or press <code>b</code> to compare with the script&rsquo;s.</dd>
+<dt>The header line says the shapes&rsquo; intervals are NaN</dt><dd>Interval arithmetic evaluates a field over a whole box at once, and its intervals are NaN for a division by an interval that holds 0, and for <code>sqrt</code>, <code>acos</code> or <code>ln</code> of one that reaches out of their domain, even where the values never do.
+<code>2 * x * y / (x * x + y * y)</code> lies within ±1, but its interval over a box does not, so <code>sqrt(1 - 0.9 * square(...))</code> of it is NaN there.
+A NaN interval proves nothing, and <code>min</code> and <code>max</code> pass it on, so the fitted bounds come out loose or missing, and renders evaluate every voxel, which is slow on the CPU and too slow for the GPU.
+Clamp such a value to the range it has anyway (<code>clamp(v, -1.0, 1.0)</code>), take <code>sqrt</code> of <code>max(v, 0.0)</code>, keep a divisor that is positive away from 0 (<code>max(d, 1e-6)</code>), or set <code>bounds</code>.</dd>
+<dt>A shape is cut off</dt><dd>It pokes out of the script&rsquo;s <code>bounds</code>; Flymake warns at its <code>draw</code>.</dd>
+<dt>The preview is slow</dt><dd>See <a href="performance.html">Performance</a>; the header line shows the render time and backend.</dd>
+<dt>The header line says CPU and a reason</dt><dd>The GPU was asked for, or was the sooner, and the CPU rendered instead: there is no GPU, a shape needs more registers than the GPU has, the shapes are too slow for the GPU even in small tiles, or the GPU failed on this scene (its device was lost, or it hung), which keeps the scene on the CPU until the script is evaluated again.
+Shapes are too slow for the GPU when interval arithmetic tells nothing about them, so that every voxel is evaluated; see <a href="editing-and-previewing.html#bounds">Bounds</a>.</dd>
+<dt>Nothing is drawn</dt><dd>The script ran, but drew nothing, or drew empty space (a <code>difference</code> that removed everything, an <code>intersection</code> of disjoint shapes); the sdf view shows where the field is negative.
+The header line says <code>nothing in view</code> when no pixel shows a shape, and <code>nothing on this slice</code> in the 2D views.</dd>
+</dl>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="performance.html"><span>Previous</span> Performance</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="examples.html"><span>Next</span> Examples</a></nav>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

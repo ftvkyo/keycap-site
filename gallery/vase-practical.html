@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>vase-practical</title>
+<meta name="description" content="Vase on a hexagram rounded both ways, widening and turning a sixth as it rises." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">vase-practical</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/vases/practical.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>vases/practical.scad</code></a></p>
+
+<p>
+Vase on a hexagram rounded both ways, widening and turning a sixth as it
+rises.
+</p>
+
+<p>
+Ported from <code>src/vases/practical.scad</code>.
+</p>
+<ul class="org-ul">
+<li>The profile is star(&#x2026;, #{round}): the arcs that OpenSCAD&rsquo;s
+offset(-r) offset(2 * r) offset(-r) draws with 72 facets to a circle,
+exactly, and folded, so it costs as much as one point of the star.</li>
+<li>OpenSCAD&rsquo;s twist turns clockwise looking down and the loft&rsquo;s angle
+anticlockwise, so the angle is negative.</li>
+<li>linear_extrude&rsquo;s 25 slices are flat between them and the loft turns
+smoothly; the two are within 0.05 mm of each other.</li>
+</ul>
+
+<p>
+Compared with the original: within 0.11 mm.
+</p>
+
+<a href="frames/vase-practical-ebea0be5903e59a3.png"><img src="frames/vase-practical-ebea0be5903e59a3.png" width="800" height="600" fetchpriority="high" alt="vase-practical, shaded, from the front right"></a>
+
+<a href="frames/vase-practical-77848644a511534b.png"><img src="frames/vase-practical-77848644a511534b.png" width="800" height="600" loading="lazy" alt="vase-practical, shaded, from the back left"></a>
+
+<a href="frames/vase-practical-fe53306c32862e6f.png"><img src="frames/vase-practical-fe53306c32862e6f.png" width="800" height="600" loading="lazy" alt="vase-practical, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/vase-practical.keycap"><code>vase-practical.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Vase on a hexagram rounded both ways, widening and turning a sixth as it</span>
+<span class="hl-comment">// rises.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/vases/practical.scad`.</span>
+<span class="hl-comment">// - The profile is star(..., #{round}): the arcs that OpenSCAD's</span>
+<span class="hl-comment">//   offset(-r) offset(2 * r) offset(-r) draws with 72 facets to a circle,</span>
+<span class="hl-comment">//   exactly, and folded, so it costs as much as one point of the star.</span>
+<span class="hl-comment">// - OpenSCAD's twist turns clockwise looking down and the loft's angle</span>
+<span class="hl-comment">//   anticlockwise, so the angle is negative.</span>
+<span class="hl-comment">// - linear_extrude's 25 slices are flat between them and the loft turns</span>
+<span class="hl-comment">//   smoothly; the two are within 0.05 mm of each other.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.11 mm.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">50.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">RADIUS_BOTTOM</span> <span class="hl-operator">=</span> <span class="hl-number">40.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">RADIUS_TOP</span> <span class="hl-operator">=</span> <span class="hl-number">60.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TURNS</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span> <span class="hl-operator">/</span> <span class="hl-number">6.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-constant">RADIUS_BOTTOM</span> <span class="hl-operator">/</span> <span class="hl-number">4.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Shape ---</span>
+
+<span class="hl-comment">// Two triangles of circumradius RADIUS_BOTTOM, turned a sixth apart</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> <span class="hl-operator">=</span> <span class="hl-builtin">star</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-constant">RADIUS_BOTTOM</span><span class="hl-delimiter">,</span> <span class="hl-constant">RADIUS_BOTTOM</span> <span class="hl-operator">/</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">vase</span> <span class="hl-operator">=</span> <span class="hl-builtin">loft</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">shape</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">profile</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-constant">HEIGHT</span><span class="hl-delimiter">,</span> <span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-constant">RADIUS_TOP</span> <span class="hl-operator">/</span> <span class="hl-constant">RADIUS_BOTTOM</span><span class="hl-delimiter">,</span> <span class="hl-property-name">angle</span><span class="hl-delimiter">:</span> <span class="hl-operator">-</span><span class="hl-number">360.0</span> <span class="hl-operator">*</span> <span class="hl-constant">TURNS</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Output ---</span>
+
+<span class="hl-builtin">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-constant">RADIUS_TOP</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">RADIUS_TOP</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-constant">RADIUS_TOP</span><span class="hl-delimiter">,</span> <span class="hl-constant">RADIUS_TOP</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEIGHT</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">vase</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

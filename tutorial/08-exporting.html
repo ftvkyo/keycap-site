@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Exporting and printing</title>
+<meta name="description" content="From the script to an STL a slicer can use: bounds, resolution and tolerance." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="07-closed-forms.html">
+<link rel="next" href="09-mx-keycap.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html" aria-current="page">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Exporting and printing</h1>
+<p class="subtitle">Part 8 of 9</p>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p>
+A field doesn&rsquo;t have triangles, so to get a mesh, keycap has to make one.
+Exporting samples the field on a grid inside the bounds, builds a mesh from it, and simplifies the mesh.
+</p>
+<section id="outline-container-exporting" class="outline-2">
+<h2 id="exporting"><a href="#exporting">Exporting</a></h2>
+<div class="outline-text-2" id="text-exporting">
+<p>
+In the script of the knob, press <code>C-c C-e</code> (or <code>e</code> in the preview).
+By default, the file is named after the script, <code>knob.stl</code>, and saved next to it.
+</p>
+
+<figure class="ef"><div class="ef-window ef-code"><div class="ef-tabline"><span class="ef-tab">knob.keycap</span> ×</div><div class="ef-text"><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">10</span><span class="ef-lc"><span class="hl-comment">// The cutters: the waist on both sides, and the dish.</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">11</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">waist</span> = <span class="hl-builtin">ellipse</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">D</span> / <span class="hl-number">6</span>, <span class="hl-constant">H</span> / <span class="hl-number">2</span><span class="ef-d2">]</span><span class="ef-d1">)</span>.<span class="hl-function-call">move</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">D</span> / <span class="hl-number">2</span>, <span class="hl-constant">H</span> / <span class="hl-number">2</span><span class="ef-d2">]</span><span class="ef-d1">)</span>.<span class="hl-function-call">symmetric_x</span><span class="ef-d1">()</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">12</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">dish</span> = <span class="hl-builtin">ellipse</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">D</span> / <span class="hl-number">2</span>, <span class="hl-constant">H</span> / <span class="hl-number">12</span><span class="ef-d2">]</span><span class="ef-d1">)</span>.<span class="hl-function-call">move</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-number">0</span>, <span class="hl-constant">H</span><span class="ef-d2">]</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">13</span><span class="ef-lc"></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">14</span><span class="ef-lc"><span class="hl-comment">// The cuts, with every edge they leave rounded.</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">15</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> = block.<span class="hl-function-call">smooth_difference</span><span class="ef-d1">(</span><span class="ef-d2">[</span>waist, dish<span class="ef-d2">]</span>, <span class="hl-number">2.0</span> * <span class="hl-constant">ROUNDING</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">16</span><span class="ef-lc"></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">17</span><span class="ef-lc"><span class="hl-comment">// The profile spun around the Z axis.</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">18</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">handle</span> = profile.<span class="hl-function-call">revolve</span><span class="ef-d1">()</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">19</span><span class="ef-lc"></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">20</span><span class="ef-lc"><span class="hl-comment">// Bumps half sunk into the dish, centred on its surface.</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">21</span><span class="ef-lc"><span class="hl-keyword">const</span> <span class="hl-constant">BUMPS</span> = <span class="hl-number">12</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">22</span><span class="ef-lc"><span class="hl-keyword">const</span> <span class="hl-constant">BUMP</span> = <span class="hl-constant">D</span> / <span class="hl-number">12</span>;        <span class="hl-comment">// bump diameter</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">23</span><span class="ef-lc"><span class="hl-keyword">const</span> <span class="hl-constant">BUMP_RING</span> = <span class="hl-constant">D</span> * <span class="hl-number">7</span> / <span class="hl-number">12</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">24</span><span class="ef-lc"></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">25</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">bump_z</span> = <span class="hl-constant">H</span> - <span class="hl-constant">H</span> / <span class="hl-number">12</span> * <span class="hl-builtin">sin</span><span class="ef-d1">(</span><span class="hl-builtin">acos</span><span class="ef-d2">(</span><span class="hl-constant">BUMP_RING</span> / <span class="hl-constant">D</span><span class="ef-d2">)</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">26</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">bump</span> = <span class="hl-builtin">ellipsoid</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">BUMP</span> / <span class="hl-number">2</span>, <span class="hl-constant">BUMP</span> / <span class="hl-number">2</span>, <span class="hl-constant">BUMP</span> / <span class="hl-number">4</span><span class="ef-d2">]</span><span class="ef-d1">)</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">27</span><span class="ef-lc">    .<span class="hl-function-call">move</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">BUMP_RING</span> / <span class="hl-number">2</span>, <span class="hl-number">0</span>, bump_z<span class="ef-d2">]</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">28</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">bumps</span> = bump.<span class="hl-function-call">polar_array</span><span class="ef-d1">(</span><span class="hl-constant">BUMPS</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">29</span><span class="ef-lc"></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">30</span><span class="ef-lc"><span class="hl-comment">// A captive nut from below, so the knob screws onto a bolt.</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">31</span><span class="ef-lc"><span class="hl-keyword">const</span> <span class="hl-constant">BOLT</span> = <span class="hl-string">"M5"</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">32</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">nut</span> = <span class="hl-builtin">nut_trap</span><span class="ef-d1">(</span><span class="hl-constant">BOLT</span>, <span class="hl-number">5</span><span class="ef-d1">)</span>.<span class="hl-function-call">reflect_z</span><span class="ef-d1">()</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">33</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">bolt</span> = <span class="hl-builtin">screw_hole</span><span class="ef-d1">(</span><span class="hl-constant">BOLT</span>, <span class="hl-number">20</span>, #<span class="ef-d2">{</span><span class="hl-property-name">head</span>: <span class="hl-string">"none"</span><span class="ef-d2">}</span><span class="ef-d1">)</span>.<span class="hl-function-call">reflect_z</span><span class="ef-d1">()</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">34</span><span class="ef-lc"><span class="hl-builtin">draw</span><span class="ef-d1">(</span><span class="hl-builtin">union</span><span class="ef-d2">(</span>handle, bumps<span class="ef-d2">)</span>.<span class="hl-function-call">difference</span><span class="ef-d2">(</span><span class="hl-builtin">union</span><span class="ef-d3">(</span>nut, bolt<span class="ef-d3">)</span><span class="ef-d2">)</span><span class="ef-d1">)</span>;</span></div><div class="ef-line ef-current"><span class="ef-fringe"></span><span class="ef-ln">35</span><span class="ef-lc"><span class="ef-cursor"> </span></span></div></div><div class="ef-modeline"><span class="ef-flag"></span><span class="ef-buffer"><span class="ef-dir">tutorial/</span>knob.keycap</span><span>Bot</span><span class="ef-fill"></span><span class="ef-mode">keycap</span><span class="ef-counters"><span class="ef-error-count">⊗0</span><span class="ef-warning-count">⚠0</span><span class="ef-note-count"><span class="ef-i">i</span>0</span></span></div></div><div class="ef-window ef-preview"><div class="ef-headerline">shaded iso  ·  fitted bounds 54.2 × 54.2 × 31.1</div><div class="ef-image"><a href="frames/knob-23868e9a8c5800e0.png"><img src="frames/knob-23868e9a8c5800e0.png" width="960" height="960" fetchpriority="high" alt="The knob exported: the echo area reports the triangles kept, of how many, and within what tolerance"></a></div><div class="ef-modeline ef-inactive"><span class="ef-buffer">*keycap: knob.keycap*</span><span>All</span><span class="ef-fill"></span><span>keycap preview</span></div></div><div class="ef-echo">Exported knob.stl: 47232 triangles (of 986776, within 0.0053)</div></figure>
+
+<p>
+The export runs in the background.
+The header shows its progress, and the preview keeps working; <code>C-c C-k</code>, or <code>C-g</code> in the preview, cancels it.
+A cancelled export doesn&rsquo;t touch the file that was there before.
+</p>
+</div>
+</section>
+<section id="outline-container-bounds" class="outline-2">
+<h2 id="bounds"><a href="#bounds">Bounds</a></h2>
+<div class="outline-text-2" id="text-bounds">
+<p>
+Only what is within the bounds is exported.
+Without <code>bounds(...)</code>, the preview finds the bounds itself, from the field, and the header says <code>fitted bounds</code> and their size.
+<code class="long">bounds([x0, y0, z0], [x1, y1, z1])</code> in the script sets them explicitly, and warns you when a shape sticks out of them.
+<code>b</code> in the preview switches between the two.
+</p>
+</div>
+</section>
+<section id="outline-container-resolution-and-tolerance" class="outline-2">
+<h2 id="resolution-and-tolerance"><a href="#resolution-and-tolerance">Resolution and tolerance</a></h2>
+<div class="outline-text-2" id="text-resolution-and-tolerance">
+<ul class="org-ul">
+<li><code>resolution(n)</code> in the script, or <code>keycap-export-resolution</code>, is the density of the grid: <code>n</code> cells per millimetre.
+Details smaller than a cell can be lost; try a part at 5 (cells of 0.2 mm), then export it at the default 10.</li>
+<li>The mesh is then simplified wherever that changes it by less than <code>keycap-export-tolerance</code>, which is a tenth of a cell by default.
+Flat faces become a few large triangles, and curves keep as many as they need.</li>
+</ul>
+
+<p>
+The echo area says how many triangles the grid made, how many are left, and how close they stay to the surface.
+For a twisted vase, 1.5 million triangles become 49,000, and the file is 2.4 MB instead of 74 MB.
+</p>
+</div>
+</section>
+<section id="outline-container-printing" class="outline-2">
+<h2 id="printing"><a href="#printing">Printing</a></h2>
+<div class="outline-text-2" id="text-printing">
+<p>
+The STL is closed and watertight, so any slicer can use it.
+A few things that help:
+</p>
+
+<ul class="org-ul">
+<li>Model in millimetres, with the part standing on z = 0, as slicers expect.</li>
+<li>Use the clearances from the prelude (<code>clearance</code>, the <code>fit</code> of <code>screw_hole</code>) instead of guessing; tune them to your printer once, in one place.</li>
+<li>Before exporting, look at a slice through anything that has to fit: <code>d</code>, then <code>1</code>, <code>3</code> or <code>7</code>, and <code>[</code>, <code>]</code> or Shift and the wheel.</li>
+<li>Print a test piece before relying on a fit, and don&rsquo;t use a printed part where its failing could hurt someone: nothing here has been tested for strength (see <a href="../about.html#no-warranty">No warranty</a>).</li>
+</ul>
+
+<p>
+The <a href="../manual/index.html">manual</a> has the rest, and the <a href="../gallery/index.html">gallery</a> has an example for most kinds of parts.
+</p>
+</div>
+</section>
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="07-closed-forms.html"><span>Previous</span> Shapes from formulas</a><a rel="up" href="index.html"><span>Up</span> Tutorial</a><a rel="next" href="09-mx-keycap.html"><span>Next</span> An MX-style keycap</a></nav>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

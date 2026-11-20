@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>table-cable-hook</title>
+<meta name="description" content="Cable tray for under a table's edge, screwed to the underside, with slots that hold five cables." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">table-cable-hook</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/organisation/hook-table-cables.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code class="long">organisation/hook-table-cables.scad</code></a><a class="printables" href="https://www.printables.com/model/1016571">Printables</a></p>
+
+<p>
+Cable tray for under a table&rsquo;s edge, screwed to the underside, with slots
+that hold five cables.
+</p>
+
+<p>
+draw_rgb shows the part in colour among its surroundings: the table and
+the screw are drawn only while PREVIEW is true, so set it to false before
+exporting.
+</p>
+
+<a href="frames/table-cable-hook-5de06f9aed6ff487.png"><img src="frames/table-cable-hook-5de06f9aed6ff487.png" width="800" height="600" fetchpriority="high" alt="table-cable-hook, shaded, from the front right"></a>
+
+<a href="frames/table-cable-hook-26a614e420a15f3d.png"><img src="frames/table-cable-hook-26a614e420a15f3d.png" width="800" height="600" loading="lazy" alt="table-cable-hook, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/table-cable-hook.keycap"><code>table-cable-hook.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Cable tray for under a table's edge, screwed to the underside, with slots</span>
+<span class="hl-comment">// that hold five cables; ported from OpenSCAD.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// draw_rgb shows the part in colour among its surroundings: the table and</span>
+<span class="hl-comment">// the screw are drawn only while PREVIEW is true, so set it to false before</span>
+<span class="hl-comment">// exporting.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// Table and screw</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TABLE_T</span> <span class="hl-operator">=</span> <span class="hl-number">16.2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">EDGE</span> <span class="hl-operator">=</span> <span class="hl-number">10.1</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// from the screw's axis to the table's edge</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HOLE_D</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CAP_D</span> <span class="hl-operator">=</span> <span class="hl-number">8.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// Hook</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">T</span> <span class="hl-operator">=</span> <span class="hl-number">7.5</span><span class="hl-delimiter">;</span>              <span class="hl-comment">// thickness of everything</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ATTACH_W</span> <span class="hl-operator">=</span> <span class="hl-number">25.0</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// width of the part under the table</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BEARING</span> <span class="hl-operator">=</span> <span class="hl-number">2.5</span><span class="hl-delimiter">;</span>        <span class="hl-comment">// material between the screw's head and the table</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">EXTENT</span> <span class="hl-operator">=</span> <span class="hl-number">25.0</span><span class="hl-delimiter">;</span>        <span class="hl-comment">// reach of the tray beyond its bend</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">=</span> <span class="hl-number">75.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// Cables</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CABLE</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CABLES</span> <span class="hl-operator">=</span> <span class="hl-number">5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Attachment ---</span>
+
+<span class="hl-comment">// The plate under the table, with the screw's hole and a recess for its</span>
+<span class="hl-comment">// head: a square turned 45 degrees and stretched, so that the recess's roof</span>
+<span class="hl-comment">// prints as a bridge.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">cap_recess</span> <span class="hl-operator">=</span> <span class="hl-builtin">rect</span><span class="hl-bracket">(</span><span class="hl-constant">CAP_D</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">45</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">scale</span><span class="hl-bracket">([</span><span class="hl-number">0.86</span><span class="hl-delimiter">,</span> <span class="hl-number">1.25</span><span class="hl-bracket">])</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-constant">T</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">BEARING</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">attachment</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">EDGE</span> <span class="hl-operator">+</span> <span class="hl-constant">T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">ATTACH_W</span><span class="hl-delimiter">,</span> <span class="hl-constant">T</span><span class="hl-bracket">])</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">T</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-constant">HOLE_D</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span> <span class="hl-operator">*</span> <span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">cap_recess</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Tray ---</span>
+
+<span class="hl-comment">// The tray's outline beyond the table's edge: rounded corners away from the</span>
+<span class="hl-comment">// table, sharp ones along it.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">reach</span> <span class="hl-operator">=</span> <span class="hl-constant">T</span> <span class="hl-operator">+</span> <span class="hl-constant">EXTENT</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">outline</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+    <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-variable-use">reach</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">EDGE</span> <span class="hl-operator">+</span> <span class="hl-variable-use">reach</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-variable-use">reach</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">EDGE</span> <span class="hl-operator">+</span> <span class="hl-variable-use">reach</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The tray, and a quarter-round bend along the table's edge.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">bend</span> <span class="hl-operator">=</span> <span class="hl-builtin">intersection</span><span class="hl-bracket">(</span>
+    <span class="hl-variable-use">outline</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">T</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">EDGE</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">tray</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">outline</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bend</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// A cable's slot: round where the cable rests, open at the tray's end</span>
+<span class="hl-comment">// through a wider mouth; union_round fills the corners between the slot</span>
+<span class="hl-comment">// and the mouth, as OpenSCAD's offset(-r) offset(r) did.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">length</span> <span class="hl-operator">=</span> <span class="hl-constant">EXTENT</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">CABLE</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">slot</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+    <span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-constant">CABLE</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">union_round</span><span class="hl-bracket">(</span>
+        <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-variable-use">length</span> <span class="hl-operator">+</span> <span class="hl-constant">CABLE</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">CABLE</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">length</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-constant">CABLE</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-number">3</span> <span class="hl-operator">*</span> <span class="hl-constant">ROUNDING</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">CABLE</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">length</span> <span class="hl-operator">+</span> <span class="hl-constant">CABLE</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-number">1.5</span> <span class="hl-operator">*</span> <span class="hl-constant">ROUNDING</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-constant">ROUNDING</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// Each slot through the tray, with a funnel around its end.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">funnel_r</span> <span class="hl-operator">=</span> <span class="hl-number">1.4</span> <span class="hl-operator">*</span> <span class="hl-constant">CABLE</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">funnel</span> <span class="hl-operator">=</span> <span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">funnel_r</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">cutout</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">slot</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-constant">T</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">funnel</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The slots' pitch, as OpenSCAD derives it from the funnel's size; there</span>
+<span class="hl-comment">// the row sits 1/8 mm off the tray's middle, here it is centred.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">pitch</span> <span class="hl-operator">=</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">/</span> <span class="hl-constant">CABLES</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-number">1.5</span> <span class="hl-operator">*</span> <span class="hl-constant">CABLE</span> <span class="hl-operator">-</span> <span class="hl-variable-use">funnel_r</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">cutouts</span> <span class="hl-operator">=</span> <span class="hl-variable-use">cutout</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">EDGE</span> <span class="hl-operator">+</span> <span class="hl-constant">T</span> <span class="hl-operator">+</span> <span class="hl-number">1.5</span> <span class="hl-operator">*</span> <span class="hl-constant">CABLE</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">linear_array</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">pitch</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-constant">CABLES</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">attachment</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">tray</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">cutouts</span><span class="hl-bracket">))</span><span class="hl-delimiter">,</span> <span class="hl-number">0.95</span><span class="hl-delimiter">,</span> <span class="hl-number">0.55</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Surroundings ---</span>
+
+<span class="hl-keyword">if</span> <span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">table</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">80</span><span class="hl-delimiter">,</span> <span class="hl-number">100</span><span class="hl-delimiter">,</span> <span class="hl-constant">TABLE_T</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">EDGE</span> <span class="hl-operator">-</span> <span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">TABLE_T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">table</span><span class="hl-delimiter">,</span> <span class="hl-number">0.65</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.35</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">screw</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+        <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-constant">HOLE_D</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">BEARING</span> <span class="hl-operator">+</span> <span class="hl-number">10</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-constant">CAP_D</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">BEARING</span> <span class="hl-operator">-</span> <span class="hl-number">1.5</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">screw</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.65</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

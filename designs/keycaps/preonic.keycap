@@ -1,0 +1,53 @@
+// Sculpted MX keycaps on an OLKB Preonic, with the legends of QMK's
+// default keymap.  Five rows of twelve on the MX grid, a 2u space bar in
+// the middle of the bottom one, each row with its sculpt from
+// `src/keycaps/mx_v4.scad`: the number row is its row 2, the bottom row
+// its row 6.
+//
+// The legends are the base layer of QMK's
+// `keyboards/preonic/keymaps/default/keymap.c`, as its comment draws it.
+// Its keys are a 5 by 12 grid, both of the middle bottom ones Space, which
+// one 2u covers: the Preonic's `LAYOUT_preonic_1x2uC`.
+//
+// The caps of a row are one cap repeated, at the cost of one; only their
+// legends are each their own.
+
+// idiom sdf-native: keycap.rhai's caps, a row one cap repeated by repeat_grid, the legends glyphs
+
+import "keycap" as keycap;
+
+const LAYOUT = [
+    ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "Bksp"],
+    ["Tab", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "Del"],
+    ["Esc", "A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "\""],
+    ["Shift", "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", "Enter"],
+    ["Brite", "Ctrl", "Alt", "GUI", "Lower", "Space", "Raise", "Left", "Down", "Up", "Right"],
+];
+const SPACE = 5;            // the 2u's place on the bottom row
+
+// --- Board ---
+
+// In the caps' frame the typist is at +X, so the rows follow each other
+// along it and run along +Y.
+let p = keycap::PITCH;
+let board = [];
+for r in 0..LAYOUT.len() {
+    let labels = LAYOUT[r];
+    let o = keycap::options(#{row: r + 2});
+    if labels.len() == 12 {
+        board.push(keycap::caps(labels, keycap::FONT, o).move([p * r, 0.0, 0.0]));
+    } else {
+        let space = keycap::options(#{row: r + 2, double: true});
+        board.push(keycap::caps(labels.extract(0, SPACE), keycap::FONT, o).move([p * r, 0.0, 0.0]));
+        board.push(keycap::caps([labels[SPACE]], keycap::FONT, space).move([p * r, p * (SPACE + 0.5), 0.0]));
+        board.push(keycap::caps(labels.extract(SPACE + 1), keycap::FONT, o).move([p * r, p * (SPACE + 2), 0.0]));
+    }
+}
+
+// --- Keycaps ---
+
+// Turned to the board's frame, where the typist is at -Y, and centred.
+let size = [p * 11.0, p * 4.0];
+bounds([-size[0] * 0.5 - 10.0, -size[1] * 0.5 - 10.0, -0.5], [size[0] * 0.5 + 10.0, size[1] * 0.5 + 10.0, 14.5]);
+resolution(20);
+draw(union(board).rotate_z(-90).move([-size[0] * 0.5, size[1] * 0.5, 0.0]));

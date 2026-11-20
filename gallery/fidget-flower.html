@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>fidget-flower</title>
+<meta name="description" content="A fidget flower: twelve spiral petals, each on a cog wheel that meshes with the cogs round a housing, which turns on a printed bearing." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">fidget-flower</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/interactive/flower.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>interactive/flower.scad</code></a></p>
+
+<p>
+A fidget flower: twelve spiral petals, each on a cog wheel that meshes
+with the cogs round a housing, which turns on a printed bearing.
+</p>
+
+<p>
+Ported from <code>src/interactive/flower.scad</code>.  It differs in:
+</p>
+<ul class="org-ul">
+<li>the bearing&rsquo;s port&rsquo;s differences (<code>bearing.rhai</code>);</li>
+<li>the petals, a <code>loft</code> through the original&rsquo;s slices: between two
+slices the loft turns the round profile, where its polyhedron joins
+their points straight, a chord that is 3.7% narrower halfway between
+them;</li>
+<li>every round part being round, where RESOLUTION and $fn facet them: the
+petals, the housing and the gears&rsquo; grooves (rotate_extrude with
+$fn = 12); RESOLUTION still sets how many slices a petal has;</li>
+<li>PART &ldquo;all&rdquo; drawing the housing in colour, as the original&rsquo;s
+translucent one.</li>
+</ul>
+
+<p>
+Compared with the original: within 0.26 mm.
+</p>
+
+<a href="frames/fidget-flower-ca4044c03b373c3b.png"><img src="frames/fidget-flower-ca4044c03b373c3b.png" width="800" height="600" fetchpriority="high" alt="fidget-flower, shaded, from the front right"></a>
+
+<a href="frames/fidget-flower-9e60072cd4a308f1.png"><img src="frames/fidget-flower-9e60072cd4a308f1.png" width="800" height="600" loading="lazy" alt="fidget-flower, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/fidget-flower.keycap"><code>fidget-flower.keycap</code></a></li>
+<li><a href="../examples/bearing.rhai"><code>bearing.rhai</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// A fidget flower: twelve spiral petals, each on a cog wheel that meshes</span>
+<span class="hl-comment">// with the cogs round a housing, which turns on a printed bearing.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/interactive/flower.scad`.  It differs in:</span>
+<span class="hl-comment">// - the bearing's port's differences (`bearing.rhai`);</span>
+<span class="hl-comment">// - the petals, a `loft` through the original's slices: between two</span>
+<span class="hl-comment">//   slices the loft turns the round profile, where its polyhedron joins</span>
+<span class="hl-comment">//   their points straight, a chord that is 3.7% narrower halfway between</span>
+<span class="hl-comment">//   them;</span>
+<span class="hl-comment">// - every round part being round, where RESOLUTION and $fn facet them: the</span>
+<span class="hl-comment">//   petals, the housing and the gears' grooves (rotate_extrude with</span>
+<span class="hl-comment">//   $fn = 12); RESOLUTION still sets how many slices a petal has;</span>
+<span class="hl-comment">// - PART "all" drawing the housing in colour, as the original's</span>
+<span class="hl-comment">//   translucent one.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.26 mm.</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"bearing"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">bearing</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/screws"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">screws</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/inserts"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">inserts</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-comment">// "all", "petal", "housing-top", "housing-bottom", "interface",</span>
+<span class="hl-comment">// "interface-shell", "interface-cage", "interface-top", "interface-bottom"</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PART</span> <span class="hl-operator">=</span> <span class="hl-string">"all"</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">RESOLUTION</span> <span class="hl-operator">=</span> <span class="hl-number">12</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>   <span class="hl-comment">// the bearing's balls, for reference</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PETAL_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">100.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PETAL_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">15.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PETAL_END_SCALE</span> <span class="hl-operator">=</span> <span class="hl-number">0.3</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PETAL_END_DISPLACEMENT</span> <span class="hl-operator">=</span> <span class="hl-number">20.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PETAL_TURNS</span> <span class="hl-operator">=</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-comment">// How the petal's height grows along it, so that the spiral is not even.</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PETAL_BEZIER</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.1</span><span class="hl-delimiter">,</span> <span class="hl-number">0.4</span><span class="hl-delimiter">,</span> <span class="hl-number">1.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">HOUSING_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">2.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HOUSING_PETAL_COUNT</span> <span class="hl-operator">=</span> <span class="hl-number">12</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HOUSING_PETAL_COGS</span> <span class="hl-operator">=</span> <span class="hl-number">12</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The housing's cogs are as wide as a petal's, and a whole number of them</span>
+<span class="hl-comment">// spans a petal's thickness.</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">COG_WIDTH</span> <span class="hl-operator">=</span> <span class="hl-constant">PETAL_THICKNESS</span> <span class="hl-operator">*</span> <span class="hl-constant">PI</span> <span class="hl-operator">/</span> <span class="hl-constant">HOUSING_PETAL_COGS</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HOUSING_COGS</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-constant">PETAL_THICKNESS</span> <span class="hl-operator">/</span> <span class="hl-constant">COG_WIDTH</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">ceiling</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">to_int</span><span class="hl-bracket">()</span> <span class="hl-operator">*</span> <span class="hl-constant">HOUSING_PETAL_COUNT</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HOUSING_DIAMETER</span> <span class="hl-operator">=</span> <span class="hl-constant">COG_WIDTH</span> <span class="hl-operator">*</span> <span class="hl-constant">HOUSING_COGS</span> <span class="hl-operator">/</span> <span class="hl-constant">PI</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">CONNECTION_EXTENT</span> <span class="hl-operator">=</span> <span class="hl-constant">HOUSING_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CONNECTION_GROOVE</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-number">3.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// the rhombus's half diagonals</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CONNECTION_R</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-constant">PETAL_THICKNESS</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">PETAL_THICKNESS</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">INTERFACE_JOINER_HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">4.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Petal ---</span>
+
+<span class="hl-comment">// A circle's slices along a spiral that shrinks as it rises, from the</span>
+<span class="hl-comment">// housing's rim outwards.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">petal</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">n</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RESOLUTION</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">slices</span> <span class="hl-operator">=</span> <span class="hl-bracket">[]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">for</span> <span class="hl-variable-name">k</span> <span class="hl-keyword">in</span> <span class="hl-number">0</span><span class="hl-operator">..</span><span class="hl-variable-use">n</span> <span class="hl-bracket">{</span>
+        <span class="hl-keyword">let</span> <span class="hl-variable-name">f</span> <span class="hl-operator">=</span> <span class="hl-variable-use">k</span><span class="hl-delimiter">.</span><span class="hl-function-call">to_float</span><span class="hl-bracket">()</span> <span class="hl-operator">/</span> <span class="hl-bracket">(</span><span class="hl-variable-use">n</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+        <span class="hl-keyword">let</span> <span class="hl-variable-name">t</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PETAL_END_DISPLACEMENT</span> <span class="hl-operator">*</span> <span class="hl-variable-use">f</span><span class="hl-delimiter">;</span>
+        <span class="hl-keyword">let</span> <span class="hl-variable-name">a</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PETAL_TURNS</span> <span class="hl-operator">*</span> <span class="hl-number">360.0</span> <span class="hl-operator">*</span> <span class="hl-variable-use">f</span><span class="hl-delimiter">;</span>
+        <span class="hl-variable-use">slices</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(#{</span>
+            <span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PETAL_LENGTH</span> <span class="hl-operator">*</span> <span class="hl-builtin">bezier_point</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PETAL_BEZIER</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">f</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+            <span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-builtin">lerp</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PETAL_THICKNESS</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PETAL_THICKNESS</span> <span class="hl-operator">*</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PETAL_END_SCALE</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">f</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span>
+            <span class="hl-property-name">move</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-variable-use">t</span> <span class="hl-operator">*</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-variable-use">slices</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">.</span><span class="hl-property-use">shape</span> <span class="hl-operator">=</span> <span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-number">1</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">loft</span><span class="hl-bracket">(</span><span class="hl-variable-use">slices</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The cog wheel at a petal's root, tapering into the housing, with the</span>
+<span class="hl-comment">// groove that rides on the housing's ridge.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">gear</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">CONNECTION_R</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">e</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">CONNECTION_EXTENT</span><span class="hl-delimiter">;</span>
+    <span class="hl-comment">// Triangles turned by a cog each, three cogs a triangle: a star whose</span>
+    <span class="hl-comment">// inner corners are where neighbouring triangles' sides cross.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">n</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HOUSING_PETAL_COGS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">cogs</span> <span class="hl-operator">=</span> <span class="hl-builtin">star</span><span class="hl-bracket">(</span><span class="hl-variable-use">n</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">/</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-number">60.0</span> <span class="hl-operator">-</span> <span class="hl-number">180.0</span> <span class="hl-operator">/</span> <span class="hl-variable-use">n</span><span class="hl-bracket">)])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">groove</span> <span class="hl-operator">=</span> <span class="hl-function-call">_rhombus</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">CONNECTION_GROOVE</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-builtin">atand</span><span class="hl-bracket">(</span><span class="hl-variable-use">e</span> <span class="hl-operator">/</span> <span class="hl-bracket">(</span><span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">])))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([(</span><span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">])</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">e</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">revolve</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">loft</span><span class="hl-bracket">([#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">shape</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">cogs</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">e</span><span class="hl-delimiter">,</span> <span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]}])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">groove</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">180</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// OpenSCAD's circle(1, $fn = 4) scaled by `half`: a rhombus with its</span>
+<span class="hl-comment">// corners on the axes.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">_rhombus</span><span class="hl-bracket">(</span><span class="hl-variable-name">half</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">polygon</span><span class="hl-bracket">([[</span><span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">half</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]]])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Housing ---</span>
+
+<span class="hl-comment">// The housing's ring, in the plane through the axis, with the ridge the</span>
+<span class="hl-comment">// gears' grooves ride on, and its cogs: pyramids from the centre out to its</span>
+<span class="hl-comment">// rim, beyond its middle.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">housing</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">d</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HOUSING_DIAMETER</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">t</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PETAL_THICKNESS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">ht</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HOUSING_THICKNESS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">CONNECTION_R</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> <span class="hl-operator">=</span> <span class="hl-builtin">polygon</span><span class="hl-bracket">([</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">d</span> <span class="hl-operator">*</span> <span class="hl-number">7</span> <span class="hl-operator">/</span> <span class="hl-number">32</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">d</span> <span class="hl-operator">*</span> <span class="hl-number">7</span> <span class="hl-operator">/</span> <span class="hl-number">32</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-variable-use">ht</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-variable-use">ht</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">ridge</span> <span class="hl-operator">=</span> <span class="hl-function-call">_rhombus</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">CONNECTION_GROOVE</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-builtin">atand</span><span class="hl-bracket">((</span><span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">])</span> <span class="hl-operator">/</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">CONNECTION_EXTENT</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">d</span> <span class="hl-operator">*</span> <span class="hl-number">3</span> <span class="hl-operator">/</span> <span class="hl-number">8</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">*</span> <span class="hl-number">3</span> <span class="hl-operator">/</span> <span class="hl-number">8</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">angle</span> <span class="hl-operator">=</span> <span class="hl-builtin">atand</span><span class="hl-bracket">(</span><span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-variable-use">t</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">length</span> <span class="hl-operator">=</span> <span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">/</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-variable-use">angle</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">cog</span> <span class="hl-operator">=</span> <span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">COG_WIDTH</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">length</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">sides</span><span class="hl-delimiter">:</span> <span class="hl-number">3</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">length</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_xyz</span><span class="hl-bracket">([</span><span class="hl-number">180</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">angle</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">cogs</span> <span class="hl-operator">=</span> <span class="hl-variable-use">cog</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_polar</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HOUSING_COGS</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">360.0</span> <span class="hl-operator">/</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HOUSING_COGS</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">cogs</span><span class="hl-delimiter">,</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">profile</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">ridge</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">revolve</span><span class="hl-bracket">())</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The top half holds the bearing's inner shell by its middle, on a hub with</span>
+<span class="hl-comment">// six spokes.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">housing_top</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">d</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HOUSING_DIAMETER</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">t</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PETAL_THICKNESS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">ht</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HOUSING_THICKNESS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">h</span> <span class="hl-operator">=</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-variable-use">ht</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">INTERFACE_JOINER_HEIGHT</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">w</span> <span class="hl-operator">=</span> <span class="hl-variable-use">ht</span> <span class="hl-operator">-</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">32</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">spokes</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-variable-use">w</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">w</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-variable-use">ht</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">12</span> <span class="hl-operator">+</span> <span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">8</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">polar_array</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">hub</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">8</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">spokes</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">12</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+        <span class="hl-function-call">housing</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-variable-use">d</span> <span class="hl-operator">*</span> <span class="hl-number">9</span> <span class="hl-operator">/</span> <span class="hl-number">32</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span> <span class="hl-operator">*</span> <span class="hl-number">33</span> <span class="hl-operator">/</span> <span class="hl-number">32</span><span class="hl-bracket">))</span><span class="hl-delimiter">,</span>
+        <span class="hl-variable-use">hub</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">INTERFACE_JOINER_HEIGHT</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">housing_bottom</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">housing</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect_z</span><span class="hl-bracket">()</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Interface ---</span>
+
+<span class="hl-comment">// Her bearing between the housing and the hub: an M2 screw 6 long from the</span>
+<span class="hl-comment">// top, its head 2 below the face, into a CNC Kitchen M2 insert 3 deep from</span>
+<span class="hl-comment">// the bottom, the screw's hole on through.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">interface</span> <span class="hl-operator">=</span> <span class="hl-type">bearing</span><span class="hl-delimiter">::</span><span class="hl-function-call">bearing</span><span class="hl-bracket">(#{</span>
+    <span class="hl-property-name">shell_height</span><span class="hl-delimiter">:</span> <span class="hl-constant">PETAL_THICKNESS</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_outer_diameter</span><span class="hl-delimiter">:</span> <span class="hl-constant">HOUSING_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_inner_diameter</span><span class="hl-delimiter">:</span> <span class="hl-constant">HOUSING_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_inner_joiner_count</span><span class="hl-delimiter">:</span> <span class="hl-number">3</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_inner_joiner_height</span><span class="hl-delimiter">:</span> <span class="hl-constant">INTERFACE_JOINER_HEIGHT</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_inner_gap</span><span class="hl-delimiter">:</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">ball_diameter</span><span class="hl-delimiter">:</span> <span class="hl-number">3.5</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">ball_count</span><span class="hl-delimiter">:</span> <span class="hl-number">12</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">ball_margin</span><span class="hl-delimiter">:</span> <span class="hl-number">0.2</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">cage_margin</span><span class="hl-delimiter">:</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">cutters</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span>
+        <span class="hl-type">screws</span><span class="hl-delimiter">::</span><span class="hl-function-call">hole</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">counterbore</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-type">inserts</span><span class="hl-delimiter">::</span><span class="hl-function-call">hole</span><span class="hl-bracket">(</span><span class="hl-string">"M2"</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">depth</span><span class="hl-delimiter">:</span> <span class="hl-number">3</span><span class="hl-bracket">})</span><span class="hl-delimiter">,</span> <span class="hl-type">screws</span><span class="hl-delimiter">::</span><span class="hl-function-call">hole</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">))</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Output ---</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">draw_interface</span><span class="hl-bracket">(</span><span class="hl-variable-name">b</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">which</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">all</span> <span class="hl-operator">=</span> <span class="hl-variable-use">which</span> <span class="hl-operator">==</span> <span class="hl-string">"interface"</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">all</span> <span class="hl-operator">||</span> <span class="hl-variable-use">which</span> <span class="hl-operator">==</span> <span class="hl-string">"interface-shell"</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">outer</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">all</span> <span class="hl-operator">||</span> <span class="hl-variable-use">which</span> <span class="hl-operator">==</span> <span class="hl-string">"interface-top"</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner_top</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">all</span> <span class="hl-operator">||</span> <span class="hl-variable-use">which</span> <span class="hl-operator">==</span> <span class="hl-string">"interface-bottom"</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner_bottom</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">all</span> <span class="hl-operator">||</span> <span class="hl-variable-use">which</span> <span class="hl-operator">==</span> <span class="hl-string">"interface-cage"</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">cage</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">all</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">cage</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect_z</span><span class="hl-bracket">())</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-keyword">if</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">balls</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">if</span> <span class="hl-constant">PART</span> <span class="hl-operator">==</span> <span class="hl-string">"all"</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">housing_top</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-function-call">housing_bottom</span><span class="hl-bracket">())</span><span class="hl-delimiter">,</span> <span class="hl-number">1.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-function-call">draw_interface</span><span class="hl-bracket">(</span><span class="hl-variable-use">interface</span><span class="hl-delimiter">,</span> <span class="hl-string">"interface"</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-comment">// The petals swirl out of their wedges of the circle, so they are copies</span>
+    <span class="hl-comment">// rather than a fold.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">one</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">petal</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-function-call">gear</span><span class="hl-bracket">())</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_y</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">HOUSING_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">one</span><span class="hl-delimiter">.</span><span class="hl-function-call">polar_array</span><span class="hl-bracket">(</span><span class="hl-constant">HOUSING_PETAL_COUNT</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-keyword">if</span> <span class="hl-constant">PART</span> <span class="hl-operator">==</span> <span class="hl-string">"petal"</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">petal</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-function-call">gear</span><span class="hl-bracket">()))</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-keyword">if</span> <span class="hl-constant">PART</span> <span class="hl-operator">==</span> <span class="hl-string">"housing-top"</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">housing_top</span><span class="hl-bracket">())</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-keyword">if</span> <span class="hl-constant">PART</span> <span class="hl-operator">==</span> <span class="hl-string">"housing-bottom"</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">housing_bottom</span><span class="hl-bracket">())</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-keyword">if</span> <span class="hl-constant">PART</span><span class="hl-delimiter">.</span><span class="hl-function-call">starts_with</span><span class="hl-bracket">(</span><span class="hl-string">"interface"</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">draw_interface</span><span class="hl-bracket">(</span><span class="hl-variable-use">interface</span><span class="hl-delimiter">,</span> <span class="hl-constant">PART</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">throw</span> <span class="hl-string">`PART must be all, petal, housing-top, housing-bottom or interface[-shell, -cage, -top, -bottom], got </span><span class="hl-misc-punctuation">${</span><span class="hl-constant">PART</span><span class="hl-misc-punctuation">}</span><span class="hl-string">`</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

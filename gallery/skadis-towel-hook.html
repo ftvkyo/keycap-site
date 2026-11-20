@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>skadis-towel-hook</title>
+<meta name="description" content="Towel hook for an IKEA SKÅDIS pegboard: two pegs in one column of holes, a back plate and a rod angled up." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">skadis-towel-hook</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://tangled.org/rei.gay/keycap">keycap</a></span></p>
+
+<p>
+Towel hook for an IKEA SKÅDIS pegboard: two pegs in one column of holes,
+a back plate and a rod angled up.
+</p>
+
+<p>
+The board&rsquo;s dimensions and the peg live in <code>skadis.rhai</code> next to this
+file; <code>import</code> finds it relative to this script.
+</p>
+
+<p>
+Unverified: the board&rsquo;s dimensions, and the pegs&rsquo; fit in its holes.
+</p>
+
+<a href="frames/skadis-towel-hook-7cd2b386f9f98bb8.png"><img src="frames/skadis-towel-hook-7cd2b386f9f98bb8.png" width="800" height="600" fetchpriority="high" alt="skadis-towel-hook, shaded, from the front right"></a>
+
+<a href="frames/skadis-towel-hook-80698fd49611022f.png"><img src="frames/skadis-towel-hook-80698fd49611022f.png" width="800" height="600" loading="lazy" alt="skadis-towel-hook, shaded, from the back left"></a>
+
+<a href="frames/skadis-towel-hook-b889a01bdea4698f.png"><img src="frames/skadis-towel-hook-b889a01bdea4698f.png" width="800" height="600" loading="lazy" alt="skadis-towel-hook, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/skadis-towel-hook.keycap"><code>skadis-towel-hook.keycap</code></a></li>
+<li><a href="../examples/skadis.rhai"><code>skadis.rhai</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Towel hook for an IKEA SK&#197;DIS pegboard: two pegs in one column of holes,</span>
+<span class="hl-comment">// a back plate and a rod angled up.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The board's dimensions and the peg live in `skadis.rhai` next to this</span>
+<span class="hl-comment">// file; `import` finds it relative to this script.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Unverified: the board's dimensions, and the pegs' fit in its holes.</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"skadis"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">skadis</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// draw a piece of board around the hook</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CLEARANCE</span> <span class="hl-operator">=</span> <span class="hl-number">0.3</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ROD_R</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ROD_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">70.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ROD_TILT</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// degrees upwards, so towels stay on</span>
+
+<span class="hl-comment">// --- Hook ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">column</span> <span class="hl-operator">=</span> <span class="hl-type">skadis</span><span class="hl-delimiter">::</span><span class="hl-constant">PITCH</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// Pegs in two holes of one column, 40 mm apart.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">pegs</span> <span class="hl-operator">=</span> <span class="hl-type">skadis</span><span class="hl-delimiter">::</span><span class="hl-function-call">peg</span><span class="hl-bracket">(</span><span class="hl-constant">CLEARANCE</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">linear_array</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">column</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The plate in front of the board, 4 mm thick, covering both holes.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-number">3</span> <span class="hl-operator">*</span> <span class="hl-constant">ROD_R</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">column</span> <span class="hl-operator">+</span> <span class="hl-number">18</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-bracket">})</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">column</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-number">3</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The rod, from the plate's lower end out and up, joined with a fillet.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">rise</span> <span class="hl-operator">=</span> <span class="hl-constant">ROD_LENGTH</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-constant">ROD_TILT</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">rod</span> <span class="hl-operator">=</span> <span class="hl-builtin">capsule</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">column</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">ROD_LENGTH</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">column</span> <span class="hl-operator">+</span> <span class="hl-variable-use">rise</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-constant">ROD_R</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">pegs</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">plate</span><span class="hl-delimiter">.</span><span class="hl-function-call">union_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">rod</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">)))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Board ---</span>
+
+<span class="hl-keyword">if</span> <span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-type">skadis</span><span class="hl-delimiter">::</span><span class="hl-function-call">board</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-type">skadis</span><span class="hl-delimiter">::</span><span class="hl-constant">PITCH</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">column</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-number">0.85</span><span class="hl-delimiter">,</span> <span class="hl-number">0.85</span><span class="hl-delimiter">,</span> <span class="hl-number">0.8</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

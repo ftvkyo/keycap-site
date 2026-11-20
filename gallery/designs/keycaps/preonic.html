@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>preonic</title>
+<meta name="description" content="Sculpted MX keycaps on an OLKB Preonic, with the legends of QMK's default keymap." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../style.449e415602.css">
+<link rel="preload" href="../../../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../../../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../../../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../../../tutorial/index.html">Tutorial</a><a href="../../../manual/index.html">Manual</a><a href="../../../gallery/index.html" aria-current="page">Gallery</a><a href="../../../install.html">Install</a><a href="../../../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">preonic</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/keycaps/mx_v4.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>keycaps/mx_v4.scad</code></a></p>
+
+<p class="idiom-why"><a class="idiom" href="../../../gallery/index.html#idioms">sdf-native</a> keycap.rhai's caps, a row one cap repeated by repeat_grid, the legends glyphs</p>
+
+<p>
+Sculpted MX keycaps on an OLKB Preonic, with the legends of QMK&rsquo;s
+default keymap.  Five rows of twelve on the MX grid, a 2u space bar in
+the middle of the bottom one, each row with its sculpt from
+<code>src/keycaps/mx_v4.scad</code>: the number row is its row 2, the bottom row
+its row 6.
+</p>
+
+<p>
+The legends are the base layer of QMK&rsquo;s
+<code class="long">keyboards/preonic/keymaps/default/keymap.c</code>, as its comment draws it.
+Its keys are a 5 by 12 grid, both of the middle bottom ones Space, which
+one 2u covers: the Preonic&rsquo;s <code>LAYOUT_preonic_1x2uC</code>.
+</p>
+
+<p>
+The caps of a row are one cap repeated, at the cost of one; only their
+legends are each their own.
+</p>
+
+<a href="frames/preonic-666836b78e26ecfb.png"><img src="frames/preonic-666836b78e26ecfb.png" width="800" height="600" fetchpriority="high" alt="preonic, shaded, from the front right"></a>
+
+<a href="frames/preonic-28eb9418b5bbc135.png"><img src="frames/preonic-28eb9418b5bbc135.png" width="800" height="600" loading="lazy" alt="preonic, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../../../designs/keycaps/preonic.keycap"><code>preonic.keycap</code></a></li>
+<li><a href="../../../designs/keycaps/keycap.rhai"><code>keycap.rhai</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// Sculpted MX keycaps on an OLKB Preonic, with the legends of QMK's</span>
+<span class="hl-comment">// default keymap.  Five rows of twelve on the MX grid, a 2u space bar in</span>
+<span class="hl-comment">// the middle of the bottom one, each row with its sculpt from</span>
+<span class="hl-comment">// `src/keycaps/mx_v4.scad`: the number row is its row 2, the bottom row</span>
+<span class="hl-comment">// its row 6.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The legends are the base layer of QMK's</span>
+<span class="hl-comment">// `keyboards/preonic/keymaps/default/keymap.c`, as its comment draws it.</span>
+<span class="hl-comment">// Its keys are a 5 by 12 grid, both of the middle bottom ones Space, which</span>
+<span class="hl-comment">// one 2u covers: the Preonic's `LAYOUT_preonic_1x2uC`.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The caps of a row are one cap repeated, at the cost of one; only their</span>
+<span class="hl-comment">// legends are each their own.</span>
+
+<span class="hl-comment">// idiom sdf-native: keycap.rhai's caps, a row one cap repeated by repeat_grid, the legends glyphs</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">keycap</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">LAYOUT</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+    <span class="hl-bracket">[</span><span class="hl-string">"`"</span><span class="hl-delimiter">,</span> <span class="hl-string">"1"</span><span class="hl-delimiter">,</span> <span class="hl-string">"2"</span><span class="hl-delimiter">,</span> <span class="hl-string">"3"</span><span class="hl-delimiter">,</span> <span class="hl-string">"4"</span><span class="hl-delimiter">,</span> <span class="hl-string">"5"</span><span class="hl-delimiter">,</span> <span class="hl-string">"6"</span><span class="hl-delimiter">,</span> <span class="hl-string">"7"</span><span class="hl-delimiter">,</span> <span class="hl-string">"8"</span><span class="hl-delimiter">,</span> <span class="hl-string">"9"</span><span class="hl-delimiter">,</span> <span class="hl-string">"0"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Bksp"</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-string">"Tab"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Q"</span><span class="hl-delimiter">,</span> <span class="hl-string">"W"</span><span class="hl-delimiter">,</span> <span class="hl-string">"E"</span><span class="hl-delimiter">,</span> <span class="hl-string">"R"</span><span class="hl-delimiter">,</span> <span class="hl-string">"T"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Y"</span><span class="hl-delimiter">,</span> <span class="hl-string">"U"</span><span class="hl-delimiter">,</span> <span class="hl-string">"I"</span><span class="hl-delimiter">,</span> <span class="hl-string">"O"</span><span class="hl-delimiter">,</span> <span class="hl-string">"P"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Del"</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-string">"Esc"</span><span class="hl-delimiter">,</span> <span class="hl-string">"A"</span><span class="hl-delimiter">,</span> <span class="hl-string">"S"</span><span class="hl-delimiter">,</span> <span class="hl-string">"D"</span><span class="hl-delimiter">,</span> <span class="hl-string">"F"</span><span class="hl-delimiter">,</span> <span class="hl-string">"G"</span><span class="hl-delimiter">,</span> <span class="hl-string">"H"</span><span class="hl-delimiter">,</span> <span class="hl-string">"J"</span><span class="hl-delimiter">,</span> <span class="hl-string">"K"</span><span class="hl-delimiter">,</span> <span class="hl-string">"L"</span><span class="hl-delimiter">,</span> <span class="hl-string">";"</span><span class="hl-delimiter">,</span> <span class="hl-string">"\""</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-string">"Shift"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Z"</span><span class="hl-delimiter">,</span> <span class="hl-string">"X"</span><span class="hl-delimiter">,</span> <span class="hl-string">"C"</span><span class="hl-delimiter">,</span> <span class="hl-string">"V"</span><span class="hl-delimiter">,</span> <span class="hl-string">"B"</span><span class="hl-delimiter">,</span> <span class="hl-string">"N"</span><span class="hl-delimiter">,</span> <span class="hl-string">"M"</span><span class="hl-delimiter">,</span> <span class="hl-string">","</span><span class="hl-delimiter">,</span> <span class="hl-string">"."</span><span class="hl-delimiter">,</span> <span class="hl-string">"/"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Enter"</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-string">"Brite"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Ctrl"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Alt"</span><span class="hl-delimiter">,</span> <span class="hl-string">"GUI"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Lower"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Space"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Raise"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Left"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Down"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Up"</span><span class="hl-delimiter">,</span> <span class="hl-string">"Right"</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SPACE</span> <span class="hl-operator">=</span> <span class="hl-number">5</span><span class="hl-delimiter">;</span>            <span class="hl-comment">// the 2u's place on the bottom row</span>
+
+<span class="hl-comment">// --- Board ---</span>
+
+<span class="hl-comment">// In the caps' frame the typist is at +X, so the rows follow each other</span>
+<span class="hl-comment">// along it and run along +Y.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">p</span> <span class="hl-operator">=</span> <span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-constant">PITCH</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">board</span> <span class="hl-operator">=</span> <span class="hl-bracket">[]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">for</span> <span class="hl-variable-name">r</span> <span class="hl-keyword">in</span> <span class="hl-number">0</span><span class="hl-operator">..</span><span class="hl-constant">LAYOUT</span><span class="hl-delimiter">.</span><span class="hl-function-call">len</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">labels</span> <span class="hl-operator">=</span> <span class="hl-constant">LAYOUT</span><span class="hl-bracket">[</span><span class="hl-variable-use">r</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">o</span> <span class="hl-operator">=</span> <span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-function-call">options</span><span class="hl-bracket">(#{</span><span class="hl-property-name">row</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span> <span class="hl-operator">+</span> <span class="hl-number">2</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">labels</span><span class="hl-delimiter">.</span><span class="hl-function-call">len</span><span class="hl-bracket">()</span> <span class="hl-operator">==</span> <span class="hl-number">12</span> <span class="hl-bracket">{</span>
+        <span class="hl-variable-use">board</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-function-call">caps</span><span class="hl-bracket">(</span><span class="hl-variable-use">labels</span><span class="hl-delimiter">,</span> <span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-constant">FONT</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">o</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">p</span> <span class="hl-operator">*</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+        <span class="hl-keyword">let</span> <span class="hl-variable-name">space</span> <span class="hl-operator">=</span> <span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-function-call">options</span><span class="hl-bracket">(#{</span><span class="hl-property-name">row</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span> <span class="hl-operator">+</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-property-name">double</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+        <span class="hl-variable-use">board</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-function-call">caps</span><span class="hl-bracket">(</span><span class="hl-variable-use">labels</span><span class="hl-delimiter">.</span><span class="hl-function-call">extract</span><span class="hl-bracket">(</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">SPACE</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-constant">FONT</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">o</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">p</span> <span class="hl-operator">*</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+        <span class="hl-variable-use">board</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-function-call">caps</span><span class="hl-bracket">([</span><span class="hl-variable-use">labels</span><span class="hl-bracket">[</span><span class="hl-constant">SPACE</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-constant">FONT</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">space</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">p</span> <span class="hl-operator">*</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">p</span> <span class="hl-operator">*</span> <span class="hl-bracket">(</span><span class="hl-constant">SPACE</span> <span class="hl-operator">+</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+        <span class="hl-variable-use">board</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-function-call">caps</span><span class="hl-bracket">(</span><span class="hl-variable-use">labels</span><span class="hl-delimiter">.</span><span class="hl-function-call">extract</span><span class="hl-bracket">(</span><span class="hl-constant">SPACE</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-type">keycap</span><span class="hl-delimiter">::</span><span class="hl-constant">FONT</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">o</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">p</span> <span class="hl-operator">*</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">p</span> <span class="hl-operator">*</span> <span class="hl-bracket">(</span><span class="hl-constant">SPACE</span> <span class="hl-operator">+</span> <span class="hl-number">2</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Keycaps ---</span>
+
+<span class="hl-comment">// Turned to the board's frame, where the typist is at -Y, and centred.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">size</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">p</span> <span class="hl-operator">*</span> <span class="hl-number">11.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">p</span> <span class="hl-operator">*</span> <span class="hl-number">4.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span> <span class="hl-operator">-</span> <span class="hl-number">10.0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span> <span class="hl-operator">-</span> <span class="hl-number">10.0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">0.5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span> <span class="hl-operator">+</span> <span class="hl-number">10.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span> <span class="hl-operator">+</span> <span class="hl-number">10.0</span><span class="hl-delimiter">,</span> <span class="hl-number">14.5</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">resolution</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">board</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

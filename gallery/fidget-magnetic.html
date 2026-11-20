@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>fidget-magnetic</title>
+<meta name="description" content="A magnetic fidget spinner: a printed bearing with a grip round it, on a hexagonal axis with frustums that lock the inner shell and bicone tips, and pairs of magnets in the shells, so that it clicks as it turns." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">fidget-magnetic</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/interactive/fidget_magnetic.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>interactive/fidget_magnetic.scad</code></a></p>
+
+<p>
+A magnetic fidget spinner: a printed bearing with a grip round it, on a
+hexagonal axis with frustums that lock the inner shell and bicone tips,
+and pairs of magnets in the shells, so that it clicks as it turns.
+</p>
+
+<p>
+Ported from <code class="long">src/interactive/fidget_magnetic.scad</code>.  It differs in:
+</p>
+<ul class="org-ul">
+<li>the bearing&rsquo;s port&rsquo;s differences (<code>bearing.rhai</code>);</li>
+<li>the grip&rsquo;s corners, rounded by <code>difference_round</code> where OpenSCAD opens
+the profile with offset(2) offset(-2): the same where the ellipse meets
+the faces square, and here they meet at about 40 degrees;</li>
+<li>every round part being round, where RESOLUTION facets them: the shells,
+the grip, the tips (OpenSCAD&rsquo;s rotate_extrude with $fn = 12), the pins&rsquo;
+holes and the bumps;</li>
+<li>PART drawing one part or all, the magnets for reference only while
+PREVIEW is true.</li>
+</ul>
+
+<p>
+Compared with the original: within 0.30 mm, at the grip&rsquo;s corners.
+</p>
+
+<a href="frames/fidget-magnetic-a67782a66f27bcc9.png"><img src="frames/fidget-magnetic-a67782a66f27bcc9.png" width="800" height="600" fetchpriority="high" alt="fidget-magnetic, shaded, from the front right"></a>
+
+<a href="frames/fidget-magnetic-ae96bdc63ee2bbfd.png"><img src="frames/fidget-magnetic-ae96bdc63ee2bbfd.png" width="800" height="600" loading="lazy" alt="fidget-magnetic, shaded, from the back left"></a>
+
+<a href="frames/fidget-magnetic-5cc8999207f2c89d.png"><img src="frames/fidget-magnetic-5cc8999207f2c89d.png" width="800" height="600" loading="lazy" alt="fidget-magnetic, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/fidget-magnetic.keycap"><code>fidget-magnetic.keycap</code></a></li>
+<li><a href="../examples/bearing.rhai"><code>bearing.rhai</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// A magnetic fidget spinner: a printed bearing with a grip round it, on a</span>
+<span class="hl-comment">// hexagonal axis with frustums that lock the inner shell and bicone tips,</span>
+<span class="hl-comment">// and pairs of magnets in the shells, so that it clicks as it turns.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/interactive/fidget_magnetic.scad`.  It differs in:</span>
+<span class="hl-comment">// - the bearing's port's differences (`bearing.rhai`);</span>
+<span class="hl-comment">// - the grip's corners, rounded by `difference_round` where OpenSCAD opens</span>
+<span class="hl-comment">//   the profile with offset(2) offset(-2): the same where the ellipse meets</span>
+<span class="hl-comment">//   the faces square, and here they meet at about 40 degrees;</span>
+<span class="hl-comment">// - every round part being round, where RESOLUTION facets them: the shells,</span>
+<span class="hl-comment">//   the grip, the tips (OpenSCAD's rotate_extrude with $fn = 12), the pins'</span>
+<span class="hl-comment">//   holes and the bumps;</span>
+<span class="hl-comment">// - PART drawing one part or all, the magnets for reference only while</span>
+<span class="hl-comment">//   PREVIEW is true.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.30 mm, at the grip's corners.</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"bearing"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">bearing</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/screws"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">screws</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/inserts"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">inserts</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/magnets"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">magnets</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PART</span> <span class="hl-operator">=</span> <span class="hl-string">"all"</span><span class="hl-delimiter">;</span>     <span class="hl-comment">// "all", "bearing-outer", "bearing-inner-top", "bearing-inner-bottom", "bearing-cage", "axis"</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CUT</span> <span class="hl-operator">=</span> <span class="hl-constant">false</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// a section through the axis</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>   <span class="hl-comment">// the magnets and the balls, for reference</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">18.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DIAMETER</span> <span class="hl-operator">=</span> <span class="hl-number">50.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">AXIS_R</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">AXIS_E</span> <span class="hl-operator">=</span> <span class="hl-number">20.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">MAGNETS</span> <span class="hl-operator">=</span> <span class="hl-number">6</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">INNER_GAP</span> <span class="hl-operator">=</span> <span class="hl-number">0.6</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The clearance of the axis's hole and the magnets' pockets.</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">T</span> <span class="hl-operator">=</span> <span class="hl-number">0.25</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Axis ---</span>
+
+<span class="hl-comment">// The axis, or with `hole` its hole: a hexagonal prism, a frustum either</span>
+<span class="hl-comment">// side of the bearing's middle that locks the inner shell's halves, and a</span>
+<span class="hl-comment">// bicone at each end with a pin's hole through it, all cut to a bar as</span>
+<span class="hl-comment">// thick as the prism across its flats.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">axis</span><span class="hl-bracket">(</span><span class="hl-variable-name">hole</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">AXIS_R</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">t</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-variable-use">hole</span> <span class="hl-bracket">{</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-number">0.0</span> <span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">gap</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">INNER_GAP</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">frustum</span> <span class="hl-operator">=</span> <span class="hl-bracket">#{</span><span class="hl-property-name">sides</span><span class="hl-delimiter">:</span> <span class="hl-number">6</span><span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">lock</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-variable-use">hole</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+            <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">1.5</span> <span class="hl-operator">+</span> <span class="hl-variable-use">t</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">gap</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">frustum</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+            <span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">1.5</span> <span class="hl-operator">+</span> <span class="hl-variable-use">t</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">+</span> <span class="hl-variable-use">t</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">gap</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">gap</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-variable-use">gap</span> <span class="hl-operator">*</span> <span class="hl-number">3</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">frustum</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">)</span>
+    <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">1.5</span> <span class="hl-operator">+</span> <span class="hl-variable-use">t</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">+</span> <span class="hl-variable-use">t</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">gap</span> <span class="hl-operator">*</span> <span class="hl-number">3</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">frustum</span><span class="hl-bracket">)</span>
+    <span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+    <span class="hl-comment">// A hexagon revolved about its axis through two vertices, turned to lie</span>
+    <span class="hl-comment">// along Y.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">tip_z</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HEIGHT</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">AXIS_E</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">tip</span> <span class="hl-operator">=</span> <span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">+</span> <span class="hl-variable-use">t</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">revolve</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">tip_z</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">pin</span> <span class="hl-operator">=</span> <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">1.5</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">tip_z</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">length</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HEIGHT</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">AXIS_E</span> <span class="hl-operator">*</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">([</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span> <span class="hl-operator">+</span> <span class="hl-variable-use">t</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">length</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">sides</span><span class="hl-delimiter">:</span> <span class="hl-number">6</span><span class="hl-bracket">})</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">lock</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">tip</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">pin</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-number">30</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HEIGHT</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">AXIS_E</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-bracket">]))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">symmetric_z</span><span class="hl-bracket">()</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Magnets ---</span>
+
+<span class="hl-comment">// Her magnets, 4.85 across and 1.75 thick, and their pockets, closed for</span>
+<span class="hl-comment">// magnets dropped in while the print is paused, T larger all round.</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">MAGNET</span> <span class="hl-operator">=</span> <span class="hl-bracket">#{</span><span class="hl-property-name">d</span><span class="hl-delimiter">:</span> <span class="hl-number">4.85</span><span class="hl-delimiter">,</span> <span class="hl-property-name">h</span><span class="hl-delimiter">:</span> <span class="hl-number">1.75</span><span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">magnet</span><span class="hl-bracket">(</span><span class="hl-variable-name">hole</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">m</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">MAGNET</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">hole</span> <span class="hl-bracket">{</span>
+        <span class="hl-type">magnets</span><span class="hl-delimiter">::</span><span class="hl-function-call">pocket</span><span class="hl-bracket">(</span><span class="hl-variable-use">m</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">fit</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-property-name">closed</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-bracket">(</span><span class="hl-variable-use">m</span><span class="hl-delimiter">.</span><span class="hl-property-use">h</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span>
+    <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+        <span class="hl-type">magnets</span><span class="hl-delimiter">::</span><span class="hl-function-call">magnet</span><span class="hl-bracket">(</span><span class="hl-variable-use">m</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">m</span><span class="hl-delimiter">.</span><span class="hl-property-use">h</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span>
+    <span class="hl-bracket">}</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// A magnet in the outer shell and one in the inner, at every one of</span>
+<span class="hl-comment">// MAGNETS angles; the inner one's pocket is in both of the inner halves.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">all_magnets</span><span class="hl-bracket">(</span><span class="hl-variable-name">hole</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">inner</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-variable-use">hole</span> <span class="hl-bracket">{</span>
+        <span class="hl-keyword">let</span> <span class="hl-variable-name">g</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">INNER_GAP</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+        <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">magnet</span><span class="hl-bracket">(</span><span class="hl-constant">true</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">g</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-function-call">magnet</span><span class="hl-bracket">(</span><span class="hl-constant">true</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">g</span><span class="hl-bracket">]))</span>
+    <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+        <span class="hl-function-call">magnet</span><span class="hl-bracket">(</span><span class="hl-constant">false</span><span class="hl-bracket">)</span>
+    <span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">magnet</span><span class="hl-bracket">(</span><span class="hl-variable-use">hole</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">inner</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DIAMETER</span> <span class="hl-operator">-</span> <span class="hl-number">10</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">60</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">polar_array</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">MAGNETS</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Bearing ---</span>
+
+<span class="hl-comment">// An M2 screw from the top, 16 long, its head 2 below the face, into a</span>
+<span class="hl-comment">// CNC Kitchen M2 insert 3 deep from the bottom, the screw's hole on through.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">b</span> <span class="hl-operator">=</span> <span class="hl-type">bearing</span><span class="hl-delimiter">::</span><span class="hl-function-call">bearing</span><span class="hl-bracket">(#{</span>
+    <span class="hl-property-name">shell_height</span><span class="hl-delimiter">:</span> <span class="hl-constant">HEIGHT</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_outer_diameter</span><span class="hl-delimiter">:</span> <span class="hl-constant">DIAMETER</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_inner_diameter</span><span class="hl-delimiter">:</span> <span class="hl-constant">DIAMETER</span> <span class="hl-operator">-</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_inner_joiner_count</span><span class="hl-delimiter">:</span> <span class="hl-number">3</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_inner_joiner_height</span><span class="hl-delimiter">:</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">shell_inner_gap</span><span class="hl-delimiter">:</span> <span class="hl-constant">INNER_GAP</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">ball_diameter</span><span class="hl-delimiter">:</span> <span class="hl-number">3.5</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">ball_count</span><span class="hl-delimiter">:</span> <span class="hl-number">12</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">ball_margin</span><span class="hl-delimiter">:</span> <span class="hl-number">0.1</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">cage_margin</span><span class="hl-delimiter">:</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">cage_ball_margin</span><span class="hl-delimiter">:</span> <span class="hl-number">0.3</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">solid</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">cutters</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span>
+        <span class="hl-type">screws</span><span class="hl-delimiter">::</span><span class="hl-function-call">hole</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">16</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">counterbore</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-type">inserts</span><span class="hl-delimiter">::</span><span class="hl-function-call">hole</span><span class="hl-bracket">(</span><span class="hl-string">"M2"</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">depth</span><span class="hl-delimiter">:</span> <span class="hl-number">3</span><span class="hl-bracket">})</span><span class="hl-delimiter">,</span> <span class="hl-type">screws</span><span class="hl-delimiter">::</span><span class="hl-function-call">hole</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">))</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">holes</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">axis</span><span class="hl-bracket">(</span><span class="hl-constant">true</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">all_magnets</span><span class="hl-bracket">(</span><span class="hl-constant">true</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The grip round the outer shell: a ring with a groove round its outside,</span>
+<span class="hl-comment">// its corners rounded, and 24 bumps on it.  It reaches 1 into the shell,</span>
+<span class="hl-comment">// so that the two do not meet on a face, where their union's field would</span>
+<span class="hl-comment">// be 0 inside, and the magnets' pockets are cut after.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">grip_profile</span> <span class="hl-operator">=</span> <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEIGHT</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">2</span><span class="hl-bracket">})</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">difference_round</span><span class="hl-bracket">(</span><span class="hl-builtin">ellipse</span><span class="hl-bracket">([</span><span class="hl-number">3</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">*</span> <span class="hl-number">2</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-number">1</span> <span class="hl-operator">-</span> <span class="hl-variable-use">x</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">grip</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+    <span class="hl-variable-use">grip_profile</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">revolve</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">ellipsoid</span><span class="hl-bracket">([</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-number">10</span> <span class="hl-operator">-</span> <span class="hl-number">3.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_polar</span><span class="hl-bracket">(</span><span class="hl-number">24</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">parts_by_name</span> <span class="hl-operator">=</span> <span class="hl-bracket">#{</span>
+    <span class="hl-string">"bearing-outer"</span><span class="hl-delimiter">:</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">outer</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">grip</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-string">"bearing-inner-top"</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner_top</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-string">"bearing-inner-bottom"</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">inner_bottom</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-string">"bearing-cage"</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">cage</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-string">"axis"</span><span class="hl-delimiter">:</span> <span class="hl-builtin">axis</span><span class="hl-bracket">(</span><span class="hl-constant">false</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Output ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">shown</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-constant">PART</span> <span class="hl-operator">==</span> <span class="hl-string">"all"</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">all</span> <span class="hl-operator">=</span> <span class="hl-variable-use">parts_by_name</span><span class="hl-delimiter">.</span><span class="hl-function-call">values</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+    <span class="hl-variable-use">all</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">cage</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect_z</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">all</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-keyword">if</span> <span class="hl-constant">PART</span> <span class="hl-keyword">in</span> <span class="hl-variable-use">parts_by_name</span> <span class="hl-bracket">{</span>
+    <span class="hl-variable-use">parts_by_name</span><span class="hl-bracket">[</span><span class="hl-constant">PART</span><span class="hl-bracket">]</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">throw</span> <span class="hl-string">`PART must be all or one of </span><span class="hl-misc-punctuation">${</span><span class="hl-variable-use">parts_by_name</span><span class="hl-delimiter">.</span><span class="hl-function-call">keys</span><span class="hl-bracket">()</span><span class="hl-misc-punctuation">}</span><span class="hl-string">, got </span><span class="hl-misc-punctuation">${</span><span class="hl-constant">PART</span><span class="hl-misc-punctuation">}</span><span class="hl-string">`</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">cut</span><span class="hl-bracket">(</span><span class="hl-variable-name">s</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">if</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">CUT</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">s</span> <span class="hl-bracket">}</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">cut</span><span class="hl-bracket">(</span><span class="hl-variable-use">shown</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">if</span> <span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">cut</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">all_magnets</span><span class="hl-bracket">(</span><span class="hl-constant">false</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">b</span><span class="hl-delimiter">.</span><span class="hl-property-use">balls</span><span class="hl-bracket">))</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

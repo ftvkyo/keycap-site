@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>vase-interpolate</title>
+<meta name="description" content="Vase whose outline turns from a hexagon into a hexagram, back, and then into a circle, widening and swaying as it rises, where it is 72 layers of 180 points stitched into a polyhedron." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">vase-interpolate</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/vases/interpolate.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>vases/interpolate.scad</code></a></p>
+
+<p>
+Vase whose outline turns from a hexagon into a hexagram, back, and then
+into a circle, widening and swaying as it rises,
+where it is 72 layers of 180 points stitched into a polyhedron.
+</p>
+
+<p>
+The OpenSCAD design interpolates the points of two outlines.  Between a
+hexagon and a hexagram, whose 12 corners pair up, that is a star whose
+inner corners move in: here it is star() with a depth that keyframes()
+eases over the height, so every layer is the same outline as there.  The
+circle has no corners to pair with; lerp() blends it in as a field, which
+draws in-between outlines a little rounder than the points did.
+</p>
+
+<p>
+The OpenSCAD design is a solid, to print in vase mode; here WALL hollows
+it, to print as it is.
+</p>
+
+<a href="frames/vase-interpolate-0b4d028d8728bc8f.png"><img src="frames/vase-interpolate-0b4d028d8728bc8f.png" width="800" height="600" fetchpriority="high" alt="vase-interpolate, shaded, from the front right"></a>
+
+<a href="frames/vase-interpolate-0e34d100f3d6aecf.png"><img src="frames/vase-interpolate-0e34d100f3d6aecf.png" width="800" height="600" loading="lazy" alt="vase-interpolate, shaded, from the back left"></a>
+
+<a href="frames/vase-interpolate-7e5ef1242f3b630e.png"><img src="frames/vase-interpolate-7e5ef1242f3b630e.png" width="800" height="600" loading="lazy" alt="vase-interpolate, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/vase-interpolate.keycap"><code>vase-interpolate.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Vase whose outline turns from a hexagon into a hexagram, back, and then</span>
+<span class="hl-comment">// into a circle, widening and swaying as it rises; ported from OpenSCAD,</span>
+<span class="hl-comment">// where it is 72 layers of 180 points stitched into a polyhedron.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The OpenSCAD design interpolates the points of two outlines.  Between a</span>
+<span class="hl-comment">// hexagon and a hexagram, whose 12 corners pair up, that is a star whose</span>
+<span class="hl-comment">// inner corners move in: here it is star() with a depth that keyframes()</span>
+<span class="hl-comment">// eases over the height, so every layer is the same outline as there.  The</span>
+<span class="hl-comment">// circle has no corners to pair with; lerp() blends it in as a field, which</span>
+<span class="hl-comment">// draws in-between outlines a little rounder than the points did.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The OpenSCAD design is a solid, to print in vase mode; here WALL hollows</span>
+<span class="hl-comment">// it, to print as it is.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">R_BOTTOM</span> <span class="hl-operator">=</span> <span class="hl-number">30.0</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// circumradius at the foot</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">R_TOP</span> <span class="hl-operator">=</span> <span class="hl-number">50.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// and at the rim</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">75.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TWIST</span> <span class="hl-operator">=</span> <span class="hl-number">30.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// degrees the outline sways each way</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">WALL</span> <span class="hl-operator">=</span> <span class="hl-number">1.2</span><span class="hl-delimiter">;</span>            <span class="hl-comment">// 0 for a solid, to print in vase mode</span>
+
+<span class="hl-comment">// --- Profile ---</span>
+
+<span class="hl-comment">// A hexagon is the 6-pointed star whose inner corners sit on its edges,</span>
+<span class="hl-comment">// cos(30) out; a hexagram's sit 1 / sqrt(3) out, where its triangles cross.</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HEXAGON</span> <span class="hl-operator">=</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-number">30</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HEXAGRAM</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span> <span class="hl-operator">/</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">third</span> <span class="hl-operator">=</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">depth</span> <span class="hl-operator">=</span> <span class="hl-builtin">keyframes</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span>
+    <span class="hl-bracket">[</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEXAGON</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">third</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEXAGRAM</span><span class="hl-delimiter">,</span> <span class="hl-string">"in_out_cubic"</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">third</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEXAGON</span><span class="hl-delimiter">,</span> <span class="hl-string">"in_out_cubic"</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">stars</span> <span class="hl-operator">=</span> <span class="hl-builtin">star</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">1.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">depth</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">outline</span> <span class="hl-operator">=</span> <span class="hl-builtin">lerp</span><span class="hl-bracket">(</span><span class="hl-variable-use">stars</span><span class="hl-delimiter">,</span> <span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-number">1.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-builtin">ease_in_out_cubic</span><span class="hl-bracket">(</span><span class="hl-builtin">linstep</span><span class="hl-bracket">(</span><span class="hl-variable-use">third</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEIGHT</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Vase ---</span>
+
+<span class="hl-comment">// The outline changes on its own schedule, so loft() only scales and turns</span>
+<span class="hl-comment">// it: the sway out and back with every third, the radius over the whole</span>
+<span class="hl-comment">// height.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">vase</span> <span class="hl-operator">=</span> <span class="hl-builtin">loft</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">shape</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">outline</span><span class="hl-delimiter">,</span> <span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-constant">R_BOTTOM</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">third</span><span class="hl-delimiter">,</span> <span class="hl-property-name">angle</span><span class="hl-delimiter">:</span> <span class="hl-constant">TWIST</span><span class="hl-delimiter">,</span> <span class="hl-property-name">ease</span><span class="hl-delimiter">:</span> <span class="hl-string">"in_out_sine"</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">third</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">angle</span><span class="hl-delimiter">:</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">ease</span><span class="hl-delimiter">:</span> <span class="hl-string">"in_out_sine"</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-constant">HEIGHT</span><span class="hl-delimiter">,</span> <span class="hl-property-name">angle</span><span class="hl-delimiter">:</span> <span class="hl-constant">TWIST</span><span class="hl-delimiter">,</span> <span class="hl-property-name">ease</span><span class="hl-delimiter">:</span> <span class="hl-string">"in_out_sine"</span><span class="hl-delimiter">,</span> <span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-constant">R_TOP</span><span class="hl-delimiter">,</span> <span class="hl-property-name">ease_scale</span><span class="hl-delimiter">:</span> <span class="hl-string">"out_quadratic"</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The cylinder round it changes no value, but tells interval arithmetic</span>
+<span class="hl-comment">// where the vase ends, which the turning outline hides.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">vase</span> <span class="hl-operator">=</span> <span class="hl-builtin">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">vase</span><span class="hl-delimiter">,</span> <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-constant">R_TOP</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// A wall of even thickness, measured square to the surface even where the</span>
+<span class="hl-comment">// outline leans and turns; the top cut away to open it.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">model</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-constant">WALL</span> <span class="hl-operator">&gt;</span> <span class="hl-number">0.0</span> <span class="hl-bracket">{</span>
+    <span class="hl-variable-use">vase</span><span class="hl-delimiter">.</span><span class="hl-function-call">shell</span><span class="hl-bracket">(</span><span class="hl-constant">WALL</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-constant">HEIGHT</span> <span class="hl-operator">-</span> <span class="hl-constant">WALL</span><span class="hl-bracket">))</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+    <span class="hl-variable-use">vase</span>
+<span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">55</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">55</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">55</span><span class="hl-delimiter">,</span> <span class="hl-number">55</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">resolution</span><span class="hl-bracket">(</span><span class="hl-number">5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">model</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

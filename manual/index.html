@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Manual</title>
+<meta name="description" content="keycap's manual: the editor, the language and every function, with pictures." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="next" href="overview.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Manual</h1>
+<p class="subtitle" role="doc-subtitle">Modelling with signed distance fields in Emacs</p>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html" aria-current="page">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+<p>
+keycap&rsquo;s manual, a page per chapter.
+Every function that makes a shape has a picture of its example, rendered by keycap.
+In Emacs, <code>M-x keycap-guide</code> opens the same manual in Info.
+</p>
+<section id="outline-container-contents" class="outline-2">
+<h2 id="contents"><a href="#contents">Contents</a></h2>
+<div class="outline-text-2" id="text-contents">
+<span id="table-of-contents"></span>
+<ul class="org-ul contents">
+<li><span id="overview"></span><a href="overview.html">Overview</a>
+<ul class="org-ul">
+<li><span id="requirements"></span><a href="overview.html#requirements">Requirements</a></li>
+<li><span id="quick-start"></span><a href="overview.html#quick-start">Quick start</a></li>
+</ul></li>
+<li><span id="editing-and-previewing"></span><a href="editing-and-previewing.html">Editing and previewing</a>
+<ul class="org-ul">
+<li><span id="the-script-buffer"></span><a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><span id="the-preview"></span><a href="editing-and-previewing.html#the-preview">The preview</a>
+<ul class="org-ul">
+<li><span id="views"></span><a href="editing-and-previewing.html#views">Views</a></li>
+<li><span id="preview-keys"></span><a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><span id="bounds"></span><a href="editing-and-previewing.html#bounds">Bounds</a></li>
+</ul></li>
+<li><span id="exporting"></span><a href="editing-and-previewing.html#exporting">Exporting</a></li>
+<li><span id="exporting-for-laser-cutting"></span><a href="editing-and-previewing.html#exporting-for-laser-cutting">Exporting for laser cutting</a></li>
+<li><span id="exporting-for-3d-printing"></span><a href="editing-and-previewing.html#exporting-for-3d-printing">Exporting for 3D printing</a></li>
+<li><span id="printing-in-resin"></span><a href="editing-and-previewing.html#printing-in-resin">Printing in resin</a></li>
+<li><span id="customization"></span><a href="editing-and-previewing.html#customization">Customization</a></li>
+<li><span id="extending-keycap"></span><a href="editing-and-previewing.html#extending-keycap">Extending keycap</a></li>
+</ul></li>
+<li><span id="writing-models"></span><a href="writing-models.html">Writing models</a>
+<ul class="org-ul">
+<li><span id="fields-and-trees"></span><a href="writing-models.html#fields-and-trees">Fields and trees</a></li>
+<li><span id="exact-distances-and-bounds"></span><a href="writing-models.html#exact-distances-and-bounds">Exact distances and bounds</a></li>
+<li><span id="numbers-and-trees"></span><a href="writing-models.html#numbers-and-trees">Numbers and trees</a></li>
+<li><span id="choices-without-if"></span><a href="writing-models.html#choices-without-if">Choices without if</a></li>
+<li><span id="functions-and-constants"></span><a href="writing-models.html#functions-and-constants">Functions and constants</a></li>
+<li><span id="methods-and-chaining"></span><a href="writing-models.html#methods-and-chaining">Methods and chaining</a></li>
+<li><span id="calling-shapes"></span><a href="writing-models.html#calling-shapes">Calling shapes</a></li>
+<li><span id="drawing-and-colours"></span><a href="writing-models.html#drawing-and-colours">Drawing and colours</a></li>
+<li><span id="bounds-and-resolution"></span><a href="writing-models.html#bounds-and-resolution">Bounds and resolution</a></li>
+<li><span id="2d-drawings"></span><a href="writing-models.html#2d-drawings">2D drawings</a></li>
+<li><span id="text-and-svg"></span><a href="writing-models.html#text-and-svg">Text and SVG</a></li>
+<li><span id="dialects"></span><a href="writing-models.html#dialects">Dialects</a></li>
+<li><span id="imports"></span><a href="writing-models.html#imports">Imports</a></li>
+<li><span id="the-prelude"></span><a href="writing-models.html#the-prelude">The prelude</a></li>
+</ul></li>
+<li><span id="concepts"></span><a href="concepts.html">Concepts</a>
+<ul class="org-ul">
+<li><span id="trees-and-shapes"></span><a href="concepts.html#trees-and-shapes">Trees and shapes</a></li>
+<li><span id="types"></span><a href="concepts.html#types">Types</a></li>
+<li><span id="reading-signatures"></span><a href="concepts.html#reading-signatures">Reading signatures</a></li>
+<li><span id="units-and-axes"></span><a href="concepts.html#units-and-axes">Units and axes</a></li>
+<li><span id="scripts-and-files"></span><a href="concepts.html#scripts-and-files">Scripts and files</a></li>
+</ul></li>
+<li><span id="shapes-reference"></span><a href="shapes-reference.html">Shapes reference</a>
+<ul class="org-ul">
+<li class="k-2d"><span id="built-in-2d-shapes"></span><a href="shapes-reference.html#built-in-2d-shapes">Built-in 2D shapes</a></li>
+<li class="k-3d"><span id="built-in-3d-shapes"></span><a href="shapes-reference.html#built-in-3d-shapes">Built-in 3D shapes</a></li>
+<li class="k-csg"><span id="combinations"></span><a href="shapes-reference.html#combinations">Combinations</a></li>
+<li class="k-transform"><span id="transforms"></span><a href="shapes-reference.html#transforms">Transforms</a></li>
+<li class="k-extrude"><span id="from-2d-to-3d"></span><a href="shapes-reference.html#from-2d-to-3d">From 2D to 3D</a></li>
+</ul></li>
+<li><span id="operators-and-math-reference"></span><a href="operators-and-math-reference.html">Operators and math reference</a>
+<ul class="org-ul">
+<li class="k-math"><span id="coordinates-and-constants"></span><a href="operators-and-math-reference.html#coordinates-and-constants">Coordinates and constants</a></li>
+<li class="k-math"><span id="arithmetic"></span><a href="operators-and-math-reference.html#arithmetic">Arithmetic</a></li>
+<li class="k-math"><span id="comparison-and-selection"></span><a href="operators-and-math-reference.html#comparison-and-selection">Comparison and selection</a></li>
+<li class="k-math"><span id="math-functions"></span><a href="operators-and-math-reference.html#math-functions">Math functions</a></li>
+<li class="k-math"><span id="random-numbers"></span><a href="operators-and-math-reference.html#random-numbers">Random numbers</a></li>
+<li class="k-math"><span id="remapping"></span><a href="operators-and-math-reference.html#remapping">Remapping</a></li>
+<li class="k-math"><span id="vectors-and-axes"></span><a href="operators-and-math-reference.html#vectors-and-axes">Vectors and axes</a></li>
+<li class="k-script"><span id="script-api"></span><a href="operators-and-math-reference.html#script-api">Script API</a></li>
+</ul></li>
+<li><span id="prelude-reference"></span><a href="prelude-reference.html">Prelude reference</a>
+<ul class="org-ul">
+<li><span id="conventions"></span><a href="prelude-reference.html#conventions">Conventions</a>
+<ul class="org-ul">
+<li><span id="placement-and-anchors"></span><a href="prelude-reference.html#placement-and-anchors">Placement and anchors</a></li>
+<li><span id="sizes-and-pairs"></span><a href="prelude-reference.html#sizes-and-pairs">Sizes and pairs</a></li>
+<li><span id="options"></span><a href="prelude-reference.html#options">Options</a></li>
+<li><span id="rounding-and-chamfering"></span><a href="prelude-reference.html#rounding-and-chamfering">Rounding and chamfering</a></li>
+<li><span id="methods"></span><a href="prelude-reference.html#methods">Methods</a></li>
+<li><span id="arrays"></span><a href="prelude-reference.html#arrays">Arrays</a></li>
+<li><span id="angles-in-degrees"></span><a href="prelude-reference.html#angles-in-degrees">Angles in degrees</a></li>
+<li><span id="field-quality"></span><a href="prelude-reference.html#field-quality">Field quality</a></li>
+</ul></li>
+<li class="k-math"><span id="math-helpers"></span><a href="prelude-reference.html#math-helpers">Math helpers</a></li>
+<li class="k-2d"><span id="2d-shapes"></span><a href="prelude-reference.html#2d-shapes">2D shapes</a></li>
+<li class="k-3d"><span id="3d-shapes"></span><a href="prelude-reference.html#3d-shapes">3D shapes</a></li>
+<li class="k-extrude"><span id="extrusion-and-revolution"></span><a href="prelude-reference.html#extrusion-and-revolution">Extrusion and revolution</a></li>
+<li class="k-csg"><span id="offsets-and-combinations"></span><a href="prelude-reference.html#offsets-and-combinations">Offsets and combinations</a></li>
+<li class="k-transform"><span id="transforms-in-the-prelude"></span><a href="prelude-reference.html#transforms-in-the-prelude">Transforms in the prelude</a></li>
+<li class="k-pattern"><span id="arrays-and-repetition"></span><a href="prelude-reference.html#arrays-and-repetition">Arrays and repetition</a></li>
+<li class="k-math"><span id="easing-and-keyframes"></span><a href="prelude-reference.html#easing-and-keyframes">Easing and keyframes</a></li>
+<li class="k-extrude"><span id="profiles-over-height"></span><a href="prelude-reference.html#profiles-over-height">Profiles over height</a></li>
+<li class="k-extrude"><span id="helices-and-rings"></span><a href="prelude-reference.html#helices-and-rings">Helices, bends and sweeps</a></li>
+<li class="k-2d"><span id="b-zier-curves"></span><a href="prelude-reference.html#b-zier-curves">Bézier curves</a></li>
+<li class="k-2d"><span id="gears"></span><a href="prelude-reference.html#gears">Gears</a></li>
+<li class="k-3d"><span id="fasteners"></span><a href="prelude-reference.html#fasteners">Fasteners</a></li>
+</ul></li>
+<li><span id="modules-reference"></span><a href="modules-reference.html">Modules reference</a>
+<ul class="org-ul">
+<li class="k-3d"><span id="threads"></span><a href="modules-reference.html#threads">Threads</a></li>
+<li class="k-3d"><span id="screws"></span><a href="modules-reference.html#screws">Screws</a></li>
+<li class="k-3d"><span id="nuts-and-washers"></span><a href="modules-reference.html#nuts-and-washers">Nuts and washers</a></li>
+<li class="k-3d"><span id="heat-set-inserts"></span><a href="modules-reference.html#heat-set-inserts">Heat-set inserts</a></li>
+<li class="k-3d"><span id="magnets"></span><a href="modules-reference.html#magnets">Magnets</a></li>
+<li class="k-3d"><span id="bearings"></span><a href="modules-reference.html#bearings">Bearings</a></li>
+<li class="k-3d"><span id="extrusions"></span><a href="modules-reference.html#extrusions">Extrusions</a></li>
+<li class="k-2d"><span id="laser-cutting"></span><a href="modules-reference.html#laser-cutting">Laser cutting</a></li>
+<li class="k-math"><span id="points"></span><a href="modules-reference.html#points">Points</a></li>
+</ul></li>
+<li><span id="recipes"></span><a href="recipes.html">Recipes</a>
+<ul class="org-ul">
+<li><span id="rounding-and-chamfering-2"></span><a href="recipes.html#rounding-and-chamfering-2">Rounding and chamfering</a></li>
+<li><span id="shells-and-hollow-parts"></span><a href="recipes.html#shells-and-hollow-parts">Shells and hollow parts</a></li>
+<li><span id="clearances-and-fits"></span><a href="recipes.html#clearances-and-fits">Clearances and fits</a></li>
+<li><span id="screw-holes-and-nuts"></span><a href="recipes.html#screw-holes-and-nuts">Screw holes and nuts</a></li>
+<li><span id="horizontal-holes"></span><a href="recipes.html#horizontal-holes">Horizontal holes</a></li>
+<li><span id="patterns"></span><a href="recipes.html#patterns">Patterns</a></li>
+<li><span id="reference-geometry"></span><a href="recipes.html#reference-geometry">Reference geometry</a></li>
+</ul></li>
+<li><span id="coming-from-openscad"></span><a href="coming-from-openscad.html">Coming from OpenSCAD</a>
+<ul class="org-ul">
+<li><span id="what-is-different"></span><a href="coming-from-openscad.html#what-is-different">What is different</a></li>
+<li><span id="porting-from-openscad"></span><a href="coming-from-openscad.html#porting-from-openscad">OpenSCAD&rsquo;s constructs</a></li>
+<li><span id="text-imports-and-exports"></span><a href="coming-from-openscad.html#text-imports-and-exports">Text, imports and exports</a></li>
+<li><span id="porting-point-layer-and-polyhedron-designs"></span><a href="coming-from-openscad.html#porting-point-layer-and-polyhedron-designs">Porting point-layer and polyhedron designs</a>
+<ul class="org-ul">
+<li><span id="profiles-that-change-with-height"></span><a href="coming-from-openscad.html#profiles-that-change-with-height">Profiles that change with height</a></li>
+<li><span id="sweeps-helices-and-rings"></span><a href="coming-from-openscad.html#sweeps-helices-and-rings">Sweeps, helices and rings</a></li>
+<li><span id="copies-placed-by-loops"></span><a href="coming-from-openscad.html#copies-placed-by-loops">Copies placed by loops</a></li>
+<li><span id="curves-and-closed-forms"></span><a href="coming-from-openscad.html#curves-and-closed-forms">Curves and closed forms</a></li>
+</ul></li>
+</ul></li>
+<li><span id="performance"></span><a href="performance.html">Performance</a></li>
+<li><span id="troubleshooting"></span><a href="troubleshooting.html">Troubleshooting</a>
+<ul class="org-ul">
+<li><span id="when-a-script-fails"></span><a href="troubleshooting.html#when-a-script-fails">When a script fails</a></li>
+<li><span id="error-messages"></span><a href="troubleshooting.html#error-messages">Error messages</a></li>
+<li><span id="surprises-without-an-error"></span><a href="troubleshooting.html#surprises-without-an-error">Surprises without an error</a></li>
+<li><span id="preview-problems"></span><a href="troubleshooting.html#preview-problems">Preview problems</a></li>
+</ul></li>
+<li><span id="examples"></span><a href="examples.html">Examples</a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-function-index" class="outline-2">
+<h2 id="function-index"><a href="#function-index">Functions</a></h2>
+<div class="outline-text-2" id="text-function-index">
+</div>
+<div id="outline-container-by-name" class="outline-3">
+<h3 id="by-name"><a href="#by-name">By name</a></h3>
+<div class="outline-text-3" id="text-by-name">
+<ul class="org-ul index">
+<li><a href="operators-and-math-reference.html#fn-less"><code>!=</code></a></li>
+<li><span id="fn-percent"></span><a href="operators-and-math-reference.html#fn-percent"><code>%</code></a></li>
+<li><span id="fn-*"></span><a href="operators-and-math-reference.html#fn-*"><code>*</code></a></li>
+<li><span id="fn-**"></span><a href="operators-and-math-reference.html#fn-**"><code>**</code></a></li>
+<li><span id="fn-plus"></span><a href="operators-and-math-reference.html#fn-plus"><code>+</code></a></li>
+<li><span id="fn--"></span><a href="operators-and-math-reference.html#fn--"><code>-</code></a></li>
+<li><span id="fn-/"></span><a href="operators-and-math-reference.html#fn-/"><code>/</code></a></li>
+<li><span id="fn-less"></span><span id="fn-less="></span><span id="fn-greater"></span><span id="fn-greater="></span><span id="fn-=="></span><span id="fn-!="></span><a href="operators-and-math-reference.html#fn-less"><code>&lt;</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-less"><code>&lt;=</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-less"><code>==</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-less"><code>&gt;</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-less"><code>&gt;=</code></a></li>
+<li><span id="fn-abs"></span><a href="operators-and-math-reference.html#fn-abs"><code>abs</code></a></li>
+<li><span id="fn-acos"></span><a href="operators-and-math-reference.html#fn-acos"><code>acos</code></a></li>
+<li><span id="fn-acosd"></span><a href="prelude-reference.html#fn-acosd"><code>acosd</code></a></li>
+<li><span id="fn-and"></span><a href="operators-and-math-reference.html#fn-and"><code>and</code></a></li>
+<li><span id="fn-annulus"></span><a href="prelude-reference.html#fn-annulus"><code>annulus</code></a></li>
+<li><span id="fn-arc_stroke"></span><a href="prelude-reference.html#fn-arc_stroke"><code>arc_stroke</code></a></li>
+<li><span id="fn-arrange_row"></span><a href="prelude-reference.html#fn-arrange_row"><code>arrange_row</code></a></li>
+<li><span id="fn-asin"></span><a href="operators-and-math-reference.html#fn-asin"><code>asin</code></a></li>
+<li><span id="fn-asind"></span><a href="prelude-reference.html#fn-asind"><code>asind</code></a></li>
+<li><span id="fn-atan"></span><a href="operators-and-math-reference.html#fn-atan"><code>atan</code></a></li>
+<li><span id="fn-atan2"></span><a href="operators-and-math-reference.html#fn-atan2"><code>atan2</code></a></li>
+<li><span id="fn-atan2d"></span><a href="prelude-reference.html#fn-atan2d"><code>atan2d</code></a></li>
+<li><span id="fn-atand"></span><a href="prelude-reference.html#fn-atand"><code>atand</code></a></li>
+<li><span id="fn-axes"></span><a href="operators-and-math-reference.html#fn-axes"><code>axes</code></a></li>
+<li><span id="fn-axis"></span><a href="operators-and-math-reference.html#fn-axis"><code>axis</code></a></li>
+<li><span id="fn-bearings-bearing"></span><a href="modules-reference.html#fn-bearings-bearing"><code>bearings::bearing</code></a></li>
+<li><span id="fn-bearings-deep_groove"></span><a href="modules-reference.html#fn-bearings-deep_groove"><code>bearings::deep_groove</code></a></li>
+<li><span id="fn-bearings-linear_ball"></span><a href="modules-reference.html#fn-bearings-linear_ball"><code>bearings::linear_ball</code></a></li>
+<li><span id="fn-bearings-seat"></span><a href="modules-reference.html#fn-bearings-seat"><code>bearings::seat</code></a></li>
+<li><span id="fn-bend"></span><a href="prelude-reference.html#fn-bend"><code>bend</code></a></li>
+<li><span id="fn-bezier_graph"></span><a href="prelude-reference.html#fn-bezier_graph"><code>bezier_graph</code></a></li>
+<li><span id="fn-bezier_integral"></span><a href="prelude-reference.html#fn-bezier_integral"><code>bezier_integral</code></a></li>
+<li><span id="fn-bezier_point"></span><a href="prelude-reference.html#fn-bezier_point"><code>bezier_point</code></a></li>
+<li><span id="fn-bezier_stroke"></span><a href="prelude-reference.html#fn-bezier_stroke"><code>bezier_stroke</code></a></li>
+<li><span id="fn-blend"></span><a href="shapes-reference.html#fn-blend"><code>blend</code></a></li>
+<li><span id="fn-bounds"></span><a href="operators-and-math-reference.html#fn-bounds"><code>bounds</code></a></li>
+<li><span id="fn-box"></span><a href="shapes-reference.html#fn-box"><code>box</code></a></li>
+<li><span id="fn-capsule"></span><a href="prelude-reference.html#fn-capsule"><code>capsule</code></a></li>
+<li><span id="fn-catmull_rom"></span><a href="prelude-reference.html#fn-catmull_rom"><code>catmull_rom</code></a></li>
+<li><span id="fn-cbrt"></span><a href="operators-and-math-reference.html#fn-cbrt"><code>cbrt</code></a></li>
+<li><span id="fn-ceil"></span><a href="operators-and-math-reference.html#fn-ceil"><code>ceil</code></a></li>
+<li><span id="fn-circle"></span><a href="shapes-reference.html#fn-circle"><code>circle</code></a></li>
+<li><span id="fn-circle_ray"></span><a href="prelude-reference.html#fn-circle_ray"><code>circle_ray</code></a></li>
+<li><span id="fn-clamp"></span><a href="prelude-reference.html#fn-clamp"><code>clamp</code></a></li>
+<li><span id="fn-clearance"></span><a href="prelude-reference.html#fn-clearance"><code>clearance</code></a></li>
+<li><span id="fn-compare"></span><a href="operators-and-math-reference.html#fn-compare"><code>compare</code></a></li>
+<li><span id="fn-cone"></span><a href="prelude-reference.html#fn-cone"><code>cone</code></a></li>
+<li><span id="fn-cos"></span><a href="operators-and-math-reference.html#fn-cos"><code>cos</code></a></li>
+<li><span id="fn-cosd"></span><a href="prelude-reference.html#fn-cosd"><code>cosd</code></a></li>
+<li><span id="fn-cosh"></span><a href="operators-and-math-reference.html#fn-cosh"><code>cosh</code></a></li>
+<li><span id="fn-cross"></span><a href="prelude-reference.html#fn-cross"><code>cross</code></a></li>
+<li><span id="fn-cuboid"></span><a href="prelude-reference.html#fn-cuboid"><code>cuboid</code></a></li>
+<li><span id="fn-cylinder"></span><a href="prelude-reference.html#fn-cylinder"><code>cylinder</code></a></li>
+<li><span id="fn-difference"></span><a href="shapes-reference.html#fn-difference"><code>difference</code></a></li>
+<li><span id="fn-difference_chamfer"></span><a href="prelude-reference.html#fn-difference_chamfer"><code>difference_chamfer</code></a></li>
+<li><span id="fn-difference_round"></span><a href="prelude-reference.html#fn-difference_round"><code>difference_round</code></a></li>
+<li><span id="fn-dot"></span><a href="prelude-reference.html#fn-dot"><code>dot</code></a></li>
+<li><span id="fn-draw"></span><span id="fn-draw-2"></span><a href="operators-and-math-reference.html#fn-draw"><code>draw</code></a></li>
+<li><span id="fn-draw_rgb"></span><a href="operators-and-math-reference.html#fn-draw_rgb"><code>draw_rgb</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>E</code></a></li>
+<li><span id="fn-ease"></span><a href="prelude-reference.html#fn-ease"><code>ease</code></a></li>
+<li><span id="fn-ease_in_asine"></span><a href="prelude-reference.html#fn-ease_in_asine"><code>ease_in_asine</code></a></li>
+<li><span id="fn-ease_in_bounce"></span><a href="prelude-reference.html#fn-ease_in_bounce"><code>ease_in_bounce</code></a></li>
+<li><span id="fn-ease_in_cubic"></span><a href="prelude-reference.html#fn-ease_in_cubic"><code>ease_in_cubic</code></a></li>
+<li><span id="fn-ease_in_elastic"></span><a href="prelude-reference.html#fn-ease_in_elastic"><code>ease_in_elastic</code></a></li>
+<li><span id="fn-ease_in_out_asine"></span><a href="prelude-reference.html#fn-ease_in_out_asine"><code>ease_in_out_asine</code></a></li>
+<li><span id="fn-ease_in_out_bounce"></span><a href="prelude-reference.html#fn-ease_in_out_bounce"><code>ease_in_out_bounce</code></a></li>
+<li><span id="fn-ease_in_out_cubic"></span><a href="prelude-reference.html#fn-ease_in_out_cubic"><code>ease_in_out_cubic</code></a></li>
+<li><span id="fn-ease_in_out_elastic"></span><a href="prelude-reference.html#fn-ease_in_out_elastic"><code>ease_in_out_elastic</code></a></li>
+<li><span id="fn-ease_in_out_pow"></span><a href="prelude-reference.html#fn-ease_in_out_pow"><code>ease_in_out_pow</code></a></li>
+<li><span id="fn-ease_in_out_quadratic"></span><a href="prelude-reference.html#fn-ease_in_out_quadratic"><code>ease_in_out_quadratic</code></a></li>
+<li><span id="fn-ease_in_out_sine"></span><a href="prelude-reference.html#fn-ease_in_out_sine"><code>ease_in_out_sine</code></a></li>
+<li><span id="fn-ease_in_pow"></span><a href="prelude-reference.html#fn-ease_in_pow"><code>ease_in_pow</code></a></li>
+<li><span id="fn-ease_in_quadratic"></span><a href="prelude-reference.html#fn-ease_in_quadratic"><code>ease_in_quadratic</code></a></li>
+<li><span id="fn-ease_in_sine"></span><a href="prelude-reference.html#fn-ease_in_sine"><code>ease_in_sine</code></a></li>
+<li><span id="fn-ease_out_asine"></span><a href="prelude-reference.html#fn-ease_out_asine"><code>ease_out_asine</code></a></li>
+<li><span id="fn-ease_out_bounce"></span><a href="prelude-reference.html#fn-ease_out_bounce"><code>ease_out_bounce</code></a></li>
+<li><span id="fn-ease_out_cubic"></span><a href="prelude-reference.html#fn-ease_out_cubic"><code>ease_out_cubic</code></a></li>
+<li><span id="fn-ease_out_elastic"></span><a href="prelude-reference.html#fn-ease_out_elastic"><code>ease_out_elastic</code></a></li>
+<li><span id="fn-ease_out_pow"></span><a href="prelude-reference.html#fn-ease_out_pow"><code>ease_out_pow</code></a></li>
+<li><span id="fn-ease_out_quadratic"></span><a href="prelude-reference.html#fn-ease_out_quadratic"><code>ease_out_quadratic</code></a></li>
+<li><span id="fn-ease_out_sine"></span><a href="prelude-reference.html#fn-ease_out_sine"><code>ease_out_sine</code></a></li>
+<li><span id="fn-ellipse"></span><a href="prelude-reference.html#fn-ellipse"><code>ellipse</code></a></li>
+<li><span id="fn-ellipsoid"></span><a href="prelude-reference.html#fn-ellipsoid"><code>ellipsoid</code></a></li>
+<li><span id="fn-elongate"></span><a href="prelude-reference.html#fn-elongate"><code>elongate</code></a></li>
+<li><span id="fn-engrave"></span><a href="prelude-reference.html#fn-engrave"><code>engrave</code></a></li>
+<li><span id="fn-exp"></span><a href="operators-and-math-reference.html#fn-exp"><code>exp</code></a></li>
+<li><span id="fn-exp2"></span><a href="operators-and-math-reference.html#fn-exp2"><code>exp2</code></a></li>
+<li><span id="fn-extrude"></span><a href="prelude-reference.html#fn-extrude"><code>extrude</code></a></li>
+<li><span id="fn-extrude_z"></span><a href="shapes-reference.html#fn-extrude_z"><code>extrude_z</code></a></li>
+<li><span id="fn-extrusions-beam"></span><a href="modules-reference.html#fn-extrusions-beam"><code>extrusions::beam</code></a></li>
+<li><span id="fn-extrusions-misumi"></span><a href="modules-reference.html#fn-extrusions-misumi"><code>extrusions::misumi</code></a></li>
+<li><span id="fn-extrusions-profile"></span><a href="modules-reference.html#fn-extrusions-profile"><code>extrusions::profile</code></a></li>
+<li><span id="fn-flatten"></span><a href="prelude-reference.html#fn-flatten"><code>flatten</code></a></li>
+<li><span id="fn-floor"></span><a href="operators-and-math-reference.html#fn-floor"><code>floor</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>FRAC_1_PI</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>FRAC_1_SQRT_2</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>FRAC_2_PI</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>FRAC_2_SQRT_PI</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_2</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_3</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_4</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_6</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_8</code></a></li>
+<li><span id="fn-fract"></span><a href="prelude-reference.html#fn-fract"><code>fract</code></a></li>
+<li><span id="fn-gear_radii"></span><a href="prelude-reference.html#fn-gear_radii"><code>gear_radii</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>GOLDEN_RATIO</code></a></li>
+<li><span id="fn-grid_array"></span><a href="prelude-reference.html#fn-grid_array"><code>grid_array</code></a></li>
+<li><span id="fn-half"></span><a href="prelude-reference.html#fn-half"><code>half</code></a></li>
+<li><span id="fn-half_space"></span><a href="prelude-reference.html#fn-half_space"><code>half_space</code></a></li>
+<li><span id="fn-helix"></span><a href="prelude-reference.html#fn-helix"><code>helix</code></a></li>
+<li><span id="fn-hex_grid"></span><a href="prelude-reference.html#fn-hex_grid"><code>hex_grid</code></a></li>
+<li><span id="fn-hexagon_af"></span><a href="prelude-reference.html#fn-hexagon_af"><code>hexagon_af</code></a></li>
+<li><span id="fn-hypot"></span><a href="prelude-reference.html#fn-hypot"><code>hypot</code></a></li>
+<li><span id="fn-insert_hole"></span><a href="prelude-reference.html#fn-insert_hole"><code>insert_hole</code></a></li>
+<li><span id="fn-inserts-cnc_kitchen"></span><a href="modules-reference.html#fn-inserts-cnc_kitchen"><code>inserts::cnc_kitchen</code></a></li>
+<li><span id="fn-inserts-hole"></span><a href="modules-reference.html#fn-inserts-hole"><code>inserts::hole</code></a></li>
+<li><span id="fn-inserts-insert"></span><a href="modules-reference.html#fn-inserts-insert"><code>inserts::insert</code></a></li>
+<li><span id="fn-inserts-ruthex"></span><a href="modules-reference.html#fn-inserts-ruthex"><code>inserts::ruthex</code></a></li>
+<li><span id="fn-inserts-spec"></span><a href="modules-reference.html#fn-inserts-spec"><code>inserts::spec</code></a></li>
+<li><span id="fn-intersection"></span><a href="shapes-reference.html#fn-intersection"><code>intersection</code></a></li>
+<li><span id="fn-intersection_chamfer"></span><a href="prelude-reference.html#fn-intersection_chamfer"><code>intersection_chamfer</code></a></li>
+<li><span id="fn-intersection_round"></span><a href="prelude-reference.html#fn-intersection_round"><code>intersection_round</code></a></li>
+<li><span id="fn-inverse"></span><a href="shapes-reference.html#fn-inverse"><code>inverse</code></a></li>
+<li><span id="fn-involute_gear"></span><a href="prelude-reference.html#fn-involute_gear"><code>involute_gear</code></a></li>
+<li><span id="fn-kaleidoscope"></span><a href="prelude-reference.html#fn-kaleidoscope"><code>kaleidoscope</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-diagnostic-message</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-docs</code></a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting"><code>keycap-export-2d</code></a></li>
+<li><a href="editing-and-previewing.html#exporting-for-3d-printing"><code>keycap-export-print</code></a></li>
+<li><a href="editing-and-previewing.html#printing-in-resin"><code>keycap-export-resin</code></a></li>
+<li><a href="editing-and-previewing.html#printing-in-resin"><code>keycap-export-resin-layer</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-exporting-p</code></a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer"><code>keycap-guide</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-load-sync</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-name-at-point</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-names</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-nudge</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-header</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-idle-p</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-menu</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-probe-sync</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-request</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-set-frame</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-snapshot</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-report-diagnostics</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-report-failure</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-report-flat-p</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-request-sync</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-script-draws</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-script-functions</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-script-statements</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-server-batch</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-set-out-signatures</code></a></li>
+<li><a href="editing-and-previewing.html#extending-keycap"><code>keycap-use-server</code></a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer"><code>keycap-version</code></a></li>
+<li><span id="fn-keyframes"></span><a href="prelude-reference.html#fn-keyframes"><code>keyframes</code></a></li>
+<li><span id="fn-lc-box"></span><a href="modules-reference.html#fn-lc-box"><code>lc::box</code></a></li>
+<li><span id="fn-lc-box_panels"></span><a href="modules-reference.html#fn-lc-box_panels"><code>lc::box_panels</code></a></li>
+<li><span id="fn-lc-cross_lap"></span><a href="modules-reference.html#fn-lc-cross_lap"><code>lc::cross_lap</code></a></li>
+<li><span id="fn-lc-finger_joint"></span><a href="modules-reference.html#fn-lc-finger_joint"><code>lc::finger_joint</code></a></li>
+<li><span id="fn-lc-hinge_for"></span><a href="modules-reference.html#fn-lc-hinge_for"><code>lc::hinge_for</code></a></li>
+<li><span id="fn-lc-hinge_materials"></span><a href="modules-reference.html#fn-lc-hinge_materials"><code>lc::hinge_materials</code></a></li>
+<li><span id="fn-lc-living_hinge"></span><a href="modules-reference.html#fn-lc-living_hinge"><code>lc::living_hinge</code></a></li>
+<li><span id="fn-lc-sheet"></span><a href="modules-reference.html#fn-lc-sheet"><code>lc::sheet</code></a></li>
+<li><span id="fn-lc-t_slot"></span><a href="modules-reference.html#fn-lc-t_slot"><code>lc::t_slot</code></a></li>
+<li><span id="fn-lc-t_slot_spec"></span><a href="modules-reference.html#fn-lc-t_slot_spec"><code>lc::t_slot_spec</code></a></li>
+<li><span id="fn-lc-tab_slots"></span><a href="modules-reference.html#fn-lc-tab_slots"><code>lc::tab_slots</code></a></li>
+<li><span id="fn-lc-tabs"></span><a href="modules-reference.html#fn-lc-tabs"><code>lc::tabs</code></a></li>
+<li><span id="fn-lerp"></span><a href="prelude-reference.html#fn-lerp"><code>lerp</code></a></li>
+<li><span id="fn-linear_array"></span><a href="prelude-reference.html#fn-linear_array"><code>linear_array</code></a></li>
+<li><span id="fn-linstep"></span><a href="prelude-reference.html#fn-linstep"><code>linstep</code></a></li>
+<li><span id="fn-ln"></span><a href="operators-and-math-reference.html#fn-ln"><code>ln</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>LN_10</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>LN_2</code></a></li>
+<li><span id="fn-loft"></span><a href="prelude-reference.html#fn-loft"><code>loft</code></a></li>
+<li><span id="fn-loft_tilted"></span><a href="prelude-reference.html#fn-loft_tilted"><code>loft_tilted</code></a></li>
+<li><span id="fn-loft_z"></span><a href="shapes-reference.html#fn-loft_z"><code>loft_z</code></a></li>
+<li><span id="fn-log"></span><a href="operators-and-math-reference.html#fn-log"><code>log</code></a></li>
+<li><span id="fn-log10"></span><a href="operators-and-math-reference.html#fn-log10"><code>log10</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>LOG10_E</code></a></li>
+<li><span id="fn-log2"></span><a href="operators-and-math-reference.html#fn-log2"><code>log2</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>LOG2_E</code></a></li>
+<li><span id="fn-magnets-magnet"></span><a href="modules-reference.html#fn-magnets-magnet"><code>magnets::magnet</code></a></li>
+<li><span id="fn-magnets-pocket"></span><a href="modules-reference.html#fn-magnets-pocket"><code>magnets::pocket</code></a></li>
+<li><span id="fn-magnets-size"></span><a href="modules-reference.html#fn-magnets-size"><code>magnets::size</code></a></li>
+<li><span id="fn-max"></span><a href="operators-and-math-reference.html#fn-max"><code>max</code></a></li>
+<li><span id="fn-metric"></span><a href="prelude-reference.html#fn-metric"><code>metric</code></a></li>
+<li><span id="fn-min"></span><a href="operators-and-math-reference.html#fn-min"><code>min</code></a></li>
+<li><span id="fn-mix"></span><a href="operators-and-math-reference.html#fn-mix"><code>mix</code></a></li>
+<li><span id="fn-mod"></span><a href="prelude-reference.html#fn-mod"><code>mod</code></a></li>
+<li><span id="fn-morph"></span><a href="prelude-reference.html#fn-morph"><code>morph</code></a></li>
+<li><span id="fn-move"></span><a href="shapes-reference.html#fn-move"><code>move</code></a></li>
+<li><span id="fn-norm"></span><a href="prelude-reference.html#fn-norm"><code>norm</code></a></li>
+<li><span id="fn-normal2"></span><a href="prelude-reference.html#fn-normal2"><code>normal2</code></a></li>
+<li><span id="fn-normalize"></span><a href="prelude-reference.html#fn-normalize"><code>normalize</code></a></li>
+<li><span id="fn-normalize_slope"></span><a href="prelude-reference.html#fn-normalize_slope"><code>normalize_slope</code></a></li>
+<li><span id="fn-normalize_z"></span><a href="prelude-reference.html#fn-normalize_z"><code>normalize_z</code></a></li>
+<li><span id="fn-not"></span><a href="operators-and-math-reference.html#fn-not"><code>not</code></a></li>
+<li><span id="fn-nut_slot"></span><a href="prelude-reference.html#fn-nut_slot"><code>nut_slot</code></a></li>
+<li><span id="fn-nut_trap"></span><a href="prelude-reference.html#fn-nut_trap"><code>nut_trap</code></a></li>
+<li><span id="fn-nuts-din_562"></span><a href="modules-reference.html#fn-nuts-din_562"><code>nuts::din_562</code></a></li>
+<li><span id="fn-nuts-iso_4032"></span><a href="modules-reference.html#fn-nuts-iso_4032"><code>nuts::iso_4032</code></a></li>
+<li><span id="fn-nuts-iso_4035"></span><a href="modules-reference.html#fn-nuts-iso_4035"><code>nuts::iso_4035</code></a></li>
+<li><span id="fn-nuts-iso_7040"></span><a href="modules-reference.html#fn-nuts-iso_7040"><code>nuts::iso_7040</code></a></li>
+<li><span id="fn-nuts-iso_7089"></span><a href="modules-reference.html#fn-nuts-iso_7089"><code>nuts::iso_7089</code></a></li>
+<li><span id="fn-nuts-nut"></span><a href="modules-reference.html#fn-nuts-nut"><code>nuts::nut</code></a></li>
+<li><span id="fn-nuts-slot"></span><a href="modules-reference.html#fn-nuts-slot"><code>nuts::slot</code></a></li>
+<li><span id="fn-nuts-spec"></span><a href="modules-reference.html#fn-nuts-spec"><code>nuts::spec</code></a></li>
+<li><span id="fn-nuts-trap"></span><a href="modules-reference.html#fn-nuts-trap"><code>nuts::trap</code></a></li>
+<li><span id="fn-nuts-washer"></span><a href="modules-reference.html#fn-nuts-washer"><code>nuts::washer</code></a></li>
+<li><span id="fn-octahedron"></span><a href="prelude-reference.html#fn-octahedron"><code>octahedron</code></a></li>
+<li><span id="fn-offset"></span><a href="prelude-reference.html#fn-offset"><code>offset</code></a></li>
+<li><span id="fn-or"></span><a href="operators-and-math-reference.html#fn-or"><code>or</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>PHI</code></a></li>
+<li><span id="fn-PI"></span><span id="fn-TAU"></span><span id="fn-E"></span><span id="fn-PHI"></span><span id="fn-GOLDEN_RATIO"></span><span id="fn-SQRT_2"></span><span id="fn-FRAC_1_SQRT_2"></span><span id="fn-FRAC_PI_2"></span><span id="fn-FRAC_PI_3"></span><span id="fn-FRAC_PI_4"></span><span id="fn-FRAC_PI_6"></span><span id="fn-FRAC_PI_8"></span><span id="fn-FRAC_1_PI"></span><span id="fn-FRAC_2_PI"></span><span id="fn-FRAC_2_SQRT_PI"></span><span id="fn-LN_2"></span><span id="fn-LN_10"></span><span id="fn-LOG2_E"></span><span id="fn-LOG10_E"></span><a href="operators-and-math-reference.html#fn-PI"><code>PI</code></a></li>
+<li><span id="fn-plane"></span><span id="fn-plane-2"></span><a href="shapes-reference.html#fn-plane"><code>plane</code></a></li>
+<li><span id="fn-plane_through"></span><a href="prelude-reference.html#fn-plane_through"><code>plane_through</code></a></li>
+<li><span id="fn-points-bezier"></span><a href="modules-reference.html#fn-points-bezier"><code>points::bezier</code></a></li>
+<li><span id="fn-points-difference"></span><a href="modules-reference.html#fn-points-difference"><code>points::difference</code></a></li>
+<li><span id="fn-points-intersection"></span><a href="modules-reference.html#fn-points-intersection"><code>points::intersection</code></a></li>
+<li><span id="fn-points-mirror"></span><a href="modules-reference.html#fn-points-mirror"><code>points::mirror</code></a></li>
+<li><span id="fn-points-miter_offset"></span><a href="modules-reference.html#fn-points-miter_offset"><code>points::miter_offset</code></a></li>
+<li><span id="fn-points-move"></span><a href="modules-reference.html#fn-points-move"><code>points::move</code></a></li>
+<li><span id="fn-points-regular_polygon"></span><a href="modules-reference.html#fn-points-regular_polygon"><code>points::regular_polygon</code></a></li>
+<li><span id="fn-points-rotate"></span><a href="modules-reference.html#fn-points-rotate"><code>points::rotate</code></a></li>
+<li><span id="fn-points-scale"></span><a href="modules-reference.html#fn-points-scale"><code>points::scale</code></a></li>
+<li><span id="fn-points-star"></span><a href="modules-reference.html#fn-points-star"><code>points::star</code></a></li>
+<li><span id="fn-points-union"></span><a href="modules-reference.html#fn-points-union"><code>points::union</code></a></li>
+<li><span id="fn-polar_array"></span><a href="prelude-reference.html#fn-polar_array"><code>polar_array</code></a></li>
+<li><span id="fn-polar_outline"></span><a href="prelude-reference.html#fn-polar_outline"><code>polar_outline</code></a></li>
+<li><span id="fn-polygon"></span><a href="prelude-reference.html#fn-polygon"><code>polygon</code></a></li>
+<li><span id="fn-polygon_ray"></span><a href="prelude-reference.html#fn-polygon_ray"><code>polygon_ray</code></a></li>
+<li><span id="fn-pow"></span><a href="operators-and-math-reference.html#fn-pow"><code>pow</code></a></li>
+<li><span id="fn-rand"></span><a href="operators-and-math-reference.html#fn-rand"><code>rand</code></a></li>
+<li><span id="fn-rect"></span><a href="prelude-reference.html#fn-rect"><code>rect</code></a></li>
+<li><span id="fn-rectangle"></span><a href="shapes-reference.html#fn-rectangle"><code>rectangle</code></a></li>
+<li><span id="fn-recurse"></span><a href="prelude-reference.html#fn-recurse"><code>recurse</code></a></li>
+<li><span id="fn-reflect"></span><a href="shapes-reference.html#fn-reflect"><code>reflect</code></a></li>
+<li><span id="fn-reflect_x"></span><a href="shapes-reference.html#fn-reflect_x"><code>reflect_x</code></a></li>
+<li><span id="fn-reflect_xy"></span><a href="shapes-reference.html#fn-reflect_xy"><code>reflect_xy</code></a></li>
+<li><span id="fn-reflect_y"></span><a href="shapes-reference.html#fn-reflect_y"><code>reflect_y</code></a></li>
+<li><span id="fn-reflect_z"></span><a href="shapes-reference.html#fn-reflect_z"><code>reflect_z</code></a></li>
+<li><span id="fn-regular_polygon"></span><a href="prelude-reference.html#fn-regular_polygon"><code>regular_polygon</code></a></li>
+<li><span id="fn-remap"></span><a href="operators-and-math-reference.html#fn-remap"><code>remap</code></a></li>
+<li><span id="fn-repeat"></span><a href="prelude-reference.html#fn-repeat"><code>repeat</code></a></li>
+<li><span id="fn-repeat_grid"></span><a href="prelude-reference.html#fn-repeat_grid"><code>repeat_grid</code></a></li>
+<li><span id="fn-repeat_polar"></span><a href="prelude-reference.html#fn-repeat_polar"><code>repeat_polar</code></a></li>
+<li><span id="fn-repeat_x"></span><a href="shapes-reference.html#fn-repeat_x"><code>repeat_x</code></a></li>
+<li><span id="fn-rescale"></span><a href="prelude-reference.html#fn-rescale"><code>rescale</code></a></li>
+<li><span id="fn-resolution"></span><a href="operators-and-math-reference.html#fn-resolution"><code>resolution</code></a></li>
+<li><span id="fn-revolve"></span><a href="prelude-reference.html#fn-revolve"><code>revolve</code></a></li>
+<li><span id="fn-revolve_y"></span><a href="shapes-reference.html#fn-revolve_y"><code>revolve_y</code></a></li>
+<li><span id="fn-rod"></span><a href="prelude-reference.html#fn-rod"><code>rod</code></a></li>
+<li><span id="fn-rotate"></span><a href="shapes-reference.html#fn-rotate"><code>rotate</code></a></li>
+<li><span id="fn-rotate_x"></span><a href="shapes-reference.html#fn-rotate_x"><code>rotate_x</code></a></li>
+<li><span id="fn-rotate_xyz"></span><a href="prelude-reference.html#fn-rotate_xyz"><code>rotate_xyz</code></a></li>
+<li><span id="fn-rotate_y"></span><a href="shapes-reference.html#fn-rotate_y"><code>rotate_y</code></a></li>
+<li><span id="fn-rotate_z"></span><a href="shapes-reference.html#fn-rotate_z"><code>rotate_z</code></a></li>
+<li><span id="fn-round"></span><a href="operators-and-math-reference.html#fn-round"><code>round</code></a></li>
+<li><span id="fn-rounded_polygon"></span><a href="prelude-reference.html#fn-rounded_polygon"><code>rounded_polygon</code></a></li>
+<li><span id="fn-saturate"></span><a href="prelude-reference.html#fn-saturate"><code>saturate</code></a></li>
+<li><span id="fn-scale"></span><a href="shapes-reference.html#fn-scale"><code>scale</code></a></li>
+<li><span id="fn-scale_bound"></span><a href="prelude-reference.html#fn-scale_bound"><code>scale_bound</code></a></li>
+<li><span id="fn-scale_exact"></span><a href="prelude-reference.html#fn-scale_exact"><code>scale_exact</code></a></li>
+<li><span id="fn-scale_uniform"></span><a href="shapes-reference.html#fn-scale_uniform"><code>scale_uniform</code></a></li>
+<li><span id="fn-screw_hole"></span><a href="prelude-reference.html#fn-screw_hole"><code>screw_hole</code></a></li>
+<li><span id="fn-screws-hole"></span><a href="modules-reference.html#fn-screws-hole"><code>screws::hole</code></a></li>
+<li><span id="fn-screws-iso_10642"></span><a href="modules-reference.html#fn-screws-iso_10642"><code>screws::iso_10642</code></a></li>
+<li><span id="fn-screws-iso_273"></span><a href="modules-reference.html#fn-screws-iso_273"><code>screws::iso_273</code></a></li>
+<li><span id="fn-screws-iso_4017"></span><a href="modules-reference.html#fn-screws-iso_4017"><code>screws::iso_4017</code></a></li>
+<li><span id="fn-screws-iso_4762"></span><a href="modules-reference.html#fn-screws-iso_4762"><code>screws::iso_4762</code></a></li>
+<li><span id="fn-screws-iso_7046"></span><a href="modules-reference.html#fn-screws-iso_7046"><code>screws::iso_7046</code></a></li>
+<li><span id="fn-screws-iso_7380"></span><a href="modules-reference.html#fn-screws-iso_7380"><code>screws::iso_7380</code></a></li>
+<li><span id="fn-screws-screw"></span><a href="modules-reference.html#fn-screws-screw"><code>screws::screw</code></a></li>
+<li><span id="fn-screws-spec"></span><a href="modules-reference.html#fn-screws-spec"><code>screws::spec</code></a></li>
+<li><span id="fn-sector"></span><a href="prelude-reference.html#fn-sector"><code>sector</code></a></li>
+<li><span id="fn-shell"></span><a href="prelude-reference.html#fn-shell"><code>shell</code></a></li>
+<li><span id="fn-sign"></span><a href="operators-and-math-reference.html#fn-sign"><code>sign</code></a></li>
+<li><span id="fn-sin"></span><a href="operators-and-math-reference.html#fn-sin"><code>sin</code></a></li>
+<li><span id="fn-sind"></span><a href="prelude-reference.html#fn-sind"><code>sind</code></a></li>
+<li><span id="fn-sinh"></span><a href="operators-and-math-reference.html#fn-sinh"><code>sinh</code></a></li>
+<li><span id="fn-slab"></span><a href="prelude-reference.html#fn-slab"><code>slab</code></a></li>
+<li><span id="fn-smooth_difference"></span><a href="prelude-reference.html#fn-smooth_difference"><code>smooth_difference</code></a></li>
+<li><span id="fn-smooth_intersection"></span><a href="prelude-reference.html#fn-smooth_intersection"><code>smooth_intersection</code></a></li>
+<li><span id="fn-smooth_union"></span><a href="prelude-reference.html#fn-smooth_union"><code>smooth_union</code></a></li>
+<li><span id="fn-smootherstep"></span><a href="prelude-reference.html#fn-smootherstep"><code>smootherstep</code></a></li>
+<li><span id="fn-smoothstep"></span><a href="prelude-reference.html#fn-smoothstep"><code>smoothstep</code></a></li>
+<li><span id="fn-sphere"></span><a href="shapes-reference.html#fn-sphere"><code>sphere</code></a></li>
+<li><span id="fn-sqrt"></span><a href="operators-and-math-reference.html#fn-sqrt"><code>sqrt</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>SQRT_2</code></a></li>
+<li><span id="fn-square"></span><a href="operators-and-math-reference.html#fn-square"><code>square</code></a></li>
+<li><span id="fn-squircle"></span><a href="prelude-reference.html#fn-squircle"><code>squircle</code></a></li>
+<li><span id="fn-squircle_ray"></span><a href="prelude-reference.html#fn-squircle_ray"><code>squircle_ray</code></a></li>
+<li><span id="fn-star"></span><a href="prelude-reference.html#fn-star"><code>star</code></a></li>
+<li><span id="fn-star_ray"></span><a href="prelude-reference.html#fn-star_ray"><code>star_ray</code></a></li>
+<li><span id="fn-step"></span><a href="prelude-reference.html#fn-step"><code>step</code></a></li>
+<li><span id="fn-stroke"></span><a href="prelude-reference.html#fn-stroke"><code>stroke</code></a></li>
+<li><span id="fn-svg"></span><a href="operators-and-math-reference.html#fn-svg"><code>svg</code></a></li>
+<li><span id="fn-sweep"></span><a href="prelude-reference.html#fn-sweep"><code>sweep</code></a></li>
+<li><span id="fn-sweep_length"></span><a href="prelude-reference.html#fn-sweep_length"><code>sweep_length</code></a></li>
+<li><span id="fn-symmetric_x"></span><a href="prelude-reference.html#fn-symmetric_x"><code>symmetric_x</code></a></li>
+<li><span id="fn-symmetric_y"></span><a href="prelude-reference.html#fn-symmetric_y"><code>symmetric_y</code></a></li>
+<li><span id="fn-symmetric_z"></span><a href="prelude-reference.html#fn-symmetric_z"><code>symmetric_z</code></a></li>
+<li><span id="fn-tan"></span><a href="operators-and-math-reference.html#fn-tan"><code>tan</code></a></li>
+<li><span id="fn-tand"></span><a href="prelude-reference.html#fn-tand"><code>tand</code></a></li>
+<li><span id="fn-tanh"></span><a href="operators-and-math-reference.html#fn-tanh"><code>tanh</code></a></li>
+<li><a href="operators-and-math-reference.html#fn-PI"><code>TAU</code></a></li>
+<li><span id="fn-teardrop"></span><a href="prelude-reference.html#fn-teardrop"><code>teardrop</code></a></li>
+<li><span id="fn-text"></span><a href="operators-and-math-reference.html#fn-text"><code>text</code></a></li>
+<li><span id="fn-threads-basic"></span><a href="modules-reference.html#fn-threads-basic"><code>threads::basic</code></a></li>
+<li><span id="fn-threads-external"></span><a href="modules-reference.html#fn-threads-external"><code>threads::external</code></a></li>
+<li><span id="fn-threads-internal"></span><a href="modules-reference.html#fn-threads-internal"><code>threads::internal</code></a></li>
+<li><span id="fn-threads-iso_261"></span><a href="modules-reference.html#fn-threads-iso_261"><code>threads::iso_261</code></a></li>
+<li><span id="fn-threads-size"></span><a href="modules-reference.html#fn-threads-size"><code>threads::size</code></a></li>
+<li><span id="fn-to_degrees"></span><a href="operators-and-math-reference.html#fn-to_degrees"><code>to_degrees</code></a></li>
+<li><span id="fn-to_radians"></span><a href="operators-and-math-reference.html#fn-to_radians"><code>to_radians</code></a></li>
+<li><span id="fn-to_string"></span><a href="operators-and-math-reference.html#fn-to_string"><code>to_string</code></a></li>
+<li><span id="fn-torus"></span><a href="prelude-reference.html#fn-torus"><code>torus</code></a></li>
+<li><span id="fn-tube"></span><a href="prelude-reference.html#fn-tube"><code>tube</code></a></li>
+<li><span id="fn-twist"></span><a href="prelude-reference.html#fn-twist"><code>twist</code></a></li>
+<li><span id="fn-union"></span><a href="shapes-reference.html#fn-union"><code>union</code></a></li>
+<li><span id="fn-union_chamfer"></span><a href="prelude-reference.html#fn-union_chamfer"><code>union_chamfer</code></a></li>
+<li><span id="fn-union_round"></span><a href="prelude-reference.html#fn-union_round"><code>union_round</code></a></li>
+<li><span id="fn-vec2"></span><a href="operators-and-math-reference.html#fn-vec2"><code>vec2</code></a></li>
+<li><span id="fn-vec3"></span><a href="operators-and-math-reference.html#fn-vec3"><code>vec3</code></a></li>
+<li><span id="fn-wedge"></span><a href="prelude-reference.html#fn-wedge"><code>wedge</code></a></li>
+<li><span id="fn-x"></span><a href="operators-and-math-reference.html#fn-x"><code>x</code></a></li>
+<li><span id="fn-y"></span><a href="operators-and-math-reference.html#fn-y"><code>y</code></a></li>
+<li><span id="fn-z"></span><a href="operators-and-math-reference.html#fn-z"><code>z</code></a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-by-topic" class="outline-3">
+<h3 id="by-topic"><a href="#by-topic">By topic</a></h3>
+<div class="outline-text-3" id="text-by-topic">
+</div>
+<div id="outline-container-editing-and-previewing" class="outline-4">
+<h4 id="editing-and-previewing"><a href="#editing-and-previewing">Editing and previewing</a></h4>
+<div class="outline-text-4" id="text-editing-and-previewing">
+<dl class="org-dl">
+<dt><a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></dt><dd><a href="editing-and-previewing.html#the-script-buffer"><code>keycap-guide</code></a>, <a href="editing-and-previewing.html#the-script-buffer"><code>keycap-version</code></a></dd>
+<dt><a href="editing-and-previewing.html#exporting-for-laser-cutting">Exporting for laser cutting</a></dt><dd><a href="editing-and-previewing.html#exporting-for-laser-cutting"><code>keycap-export-2d</code></a></dd>
+<dt><a href="editing-and-previewing.html#exporting-for-3d-printing">Exporting for 3D printing</a></dt><dd><a href="editing-and-previewing.html#exporting-for-3d-printing"><code>keycap-export-print</code></a></dd>
+<dt><a href="editing-and-previewing.html#printing-in-resin">Printing in resin</a></dt><dd><a href="editing-and-previewing.html#printing-in-resin"><code>keycap-export-resin</code></a>, <a href="editing-and-previewing.html#printing-in-resin"><code>keycap-export-resin-layer</code></a></dd>
+<dt><a href="editing-and-previewing.html#extending-keycap">Extending keycap</a></dt><dd><a href="editing-and-previewing.html#extending-keycap"><code>keycap-request-sync</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-server-batch</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-use-server</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-load-sync</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-report-failure</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-report-diagnostics</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-report-flat-p</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-diagnostic-message</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-script-statements</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-script-functions</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-script-draws</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-docs</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-names</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-set-out-signatures</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-name-at-point</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-nudge</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-exporting-p</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-snapshot</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-request</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-set-frame</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-header</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-probe-sync</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-menu</code></a>, <a href="editing-and-previewing.html#extending-keycap"><code>keycap-preview-idle-p</code></a></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-shapes-reference" class="outline-4">
+<h4 id="shapes-reference"><a href="#shapes-reference">Shapes reference</a></h4>
+<div class="outline-text-4" id="text-shapes-reference">
+<dl class="org-dl">
+<dt class="k-2d"><a href="shapes-reference.html#built-in-2d-shapes">Built-in 2D shapes</a></dt><dd><a href="shapes-reference.html#fn-circle"><code>circle</code></a>, <a href="shapes-reference.html#fn-rectangle"><code>rectangle</code></a></dd>
+<dt class="k-3d"><a href="shapes-reference.html#built-in-3d-shapes">Built-in 3D shapes</a></dt><dd><a href="shapes-reference.html#fn-sphere"><code>sphere</code></a>, <a href="shapes-reference.html#fn-box"><code>box</code></a>, <a href="shapes-reference.html#fn-plane"><code>plane</code></a></dd>
+<dt class="k-csg"><a href="shapes-reference.html#combinations">Combinations</a></dt><dd><a href="shapes-reference.html#fn-union"><code>union</code></a>, <a href="shapes-reference.html#fn-intersection"><code>intersection</code></a>, <a href="shapes-reference.html#fn-difference"><code>difference</code></a>, <a href="shapes-reference.html#fn-inverse"><code>inverse</code></a>, <a href="shapes-reference.html#fn-blend"><code>blend</code></a></dd>
+<dt class="k-transform"><a href="shapes-reference.html#transforms">Transforms</a></dt><dd><a href="shapes-reference.html#fn-move"><code>move</code></a>, <a href="shapes-reference.html#fn-rotate"><code>rotate</code></a>, <a href="shapes-reference.html#fn-rotate_x"><code>rotate_x</code></a>, <a href="shapes-reference.html#fn-rotate_y"><code>rotate_y</code></a>, <a href="shapes-reference.html#fn-rotate_z"><code>rotate_z</code></a>, <a href="shapes-reference.html#fn-scale"><code>scale</code></a>, <a href="shapes-reference.html#fn-scale_uniform"><code>scale_uniform</code></a>, <a href="shapes-reference.html#fn-reflect"><code>reflect</code></a>, <a href="shapes-reference.html#fn-reflect_x"><code>reflect_x</code></a>, <a href="shapes-reference.html#fn-reflect_y"><code>reflect_y</code></a>, <a href="shapes-reference.html#fn-reflect_z"><code>reflect_z</code></a>, <a href="shapes-reference.html#fn-reflect_xy"><code>reflect_xy</code></a>, <a href="shapes-reference.html#fn-repeat_x"><code>repeat_x</code></a></dd>
+<dt class="k-extrude"><a href="shapes-reference.html#from-2d-to-3d">From 2D to 3D</a></dt><dd><a href="shapes-reference.html#fn-extrude_z"><code>extrude_z</code></a>, <a href="shapes-reference.html#fn-loft_z"><code>loft_z</code></a>, <a href="shapes-reference.html#fn-revolve_y"><code>revolve_y</code></a></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-operators-and-math-reference" class="outline-4">
+<h4 id="operators-and-math-reference"><a href="#operators-and-math-reference">Operators and math reference</a></h4>
+<div class="outline-text-4" id="text-operators-and-math-reference">
+<dl class="org-dl">
+<dt class="k-math"><a href="operators-and-math-reference.html#coordinates-and-constants">Coordinates and constants</a></dt><dd><a href="operators-and-math-reference.html#fn-x"><code>x</code></a>, <a href="operators-and-math-reference.html#fn-y"><code>y</code></a>, <a href="operators-and-math-reference.html#fn-z"><code>z</code></a>, <a href="operators-and-math-reference.html#fn-axes"><code>axes</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>PI</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>TAU</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>E</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>PHI</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>GOLDEN_RATIO</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>SQRT_2</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>FRAC_1_SQRT_2</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_2</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_3</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_4</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_6</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>FRAC_PI_8</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>FRAC_1_PI</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>FRAC_2_PI</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>FRAC_2_SQRT_PI</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>LN_2</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>LN_10</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>LOG2_E</code></a>, <a href="operators-and-math-reference.html#fn-PI"><code>LOG10_E</code></a></dd>
+<dt class="k-math"><a href="operators-and-math-reference.html#arithmetic">Arithmetic</a></dt><dd><a href="operators-and-math-reference.html#fn-plus"><code>+</code></a>, <a href="operators-and-math-reference.html#fn--"><code>-</code></a>, <a href="operators-and-math-reference.html#fn-*"><code>*</code></a>, <a href="operators-and-math-reference.html#fn-/"><code>/</code></a>, <a href="operators-and-math-reference.html#fn-percent"><code>%</code></a>, <a href="operators-and-math-reference.html#fn-**"><code>**</code></a></dd>
+<dt class="k-math"><a href="operators-and-math-reference.html#comparison-and-selection">Comparison and selection</a></dt><dd><a href="operators-and-math-reference.html#fn-min"><code>min</code></a>, <a href="operators-and-math-reference.html#fn-max"><code>max</code></a>, <a href="operators-and-math-reference.html#fn-compare"><code>compare</code></a>, <a href="operators-and-math-reference.html#fn-and"><code>and</code></a>, <a href="operators-and-math-reference.html#fn-or"><code>or</code></a>, <a href="operators-and-math-reference.html#fn-not"><code>not</code></a>, <a href="operators-and-math-reference.html#fn-less"><code>&lt;</code></a>, <a href="operators-and-math-reference.html#fn-less"><code>&lt;=</code></a>, <a href="operators-and-math-reference.html#fn-less"><code>&gt;</code></a>, <a href="operators-and-math-reference.html#fn-less"><code>&gt;=</code></a>, <a href="operators-and-math-reference.html#fn-less"><code>==</code></a>, <a href="operators-and-math-reference.html#fn-less"><code>!=</code></a></dd>
+<dt class="k-math"><a href="operators-and-math-reference.html#math-functions">Math functions</a></dt><dd><a href="operators-and-math-reference.html#fn-abs"><code>abs</code></a>, <a href="operators-and-math-reference.html#fn-sign"><code>sign</code></a>, <a href="operators-and-math-reference.html#fn-sqrt"><code>sqrt</code></a>, <a href="operators-and-math-reference.html#fn-cbrt"><code>cbrt</code></a>, <a href="operators-and-math-reference.html#fn-square"><code>square</code></a>, <a href="operators-and-math-reference.html#fn-pow"><code>pow</code></a>, <a href="operators-and-math-reference.html#fn-sin"><code>sin</code></a>, <a href="operators-and-math-reference.html#fn-cos"><code>cos</code></a>, <a href="operators-and-math-reference.html#fn-tan"><code>tan</code></a>, <a href="operators-and-math-reference.html#fn-asin"><code>asin</code></a>, <a href="operators-and-math-reference.html#fn-acos"><code>acos</code></a>, <a href="operators-and-math-reference.html#fn-atan"><code>atan</code></a>, <a href="operators-and-math-reference.html#fn-atan2"><code>atan2</code></a>, <a href="operators-and-math-reference.html#fn-sinh"><code>sinh</code></a>, <a href="operators-and-math-reference.html#fn-cosh"><code>cosh</code></a>, <a href="operators-and-math-reference.html#fn-tanh"><code>tanh</code></a>, <a href="operators-and-math-reference.html#fn-to_degrees"><code>to_degrees</code></a>, <a href="operators-and-math-reference.html#fn-to_radians"><code>to_radians</code></a>, <a href="operators-and-math-reference.html#fn-exp"><code>exp</code></a>, <a href="operators-and-math-reference.html#fn-exp2"><code>exp2</code></a>, <a href="operators-and-math-reference.html#fn-ln"><code>ln</code></a>, <a href="operators-and-math-reference.html#fn-log"><code>log</code></a>, <a href="operators-and-math-reference.html#fn-log2"><code>log2</code></a>, <a href="operators-and-math-reference.html#fn-log10"><code>log10</code></a>, <a href="operators-and-math-reference.html#fn-floor"><code>floor</code></a>, <a href="operators-and-math-reference.html#fn-ceil"><code>ceil</code></a>, <a href="operators-and-math-reference.html#fn-round"><code>round</code></a></dd>
+<dt class="k-math"><a href="operators-and-math-reference.html#random-numbers">Random numbers</a></dt><dd><a href="operators-and-math-reference.html#fn-rand"><code>rand</code></a>, <a href="operators-and-math-reference.html#fn-mix"><code>mix</code></a></dd>
+<dt class="k-math"><a href="operators-and-math-reference.html#remapping">Remapping</a></dt><dd><a href="operators-and-math-reference.html#fn-remap"><code>remap</code></a></dd>
+<dt class="k-math"><a href="operators-and-math-reference.html#vectors-and-axes">Vectors and axes</a></dt><dd><a href="operators-and-math-reference.html#fn-vec2"><code>vec2</code></a>, <a href="operators-and-math-reference.html#fn-vec3"><code>vec3</code></a>, <a href="operators-and-math-reference.html#fn-axis"><code>axis</code></a>, <a href="operators-and-math-reference.html#fn-to_string"><code>to_string</code></a></dd>
+<dt class="k-script"><a href="operators-and-math-reference.html#script-api">Script API</a></dt><dd><a href="operators-and-math-reference.html#fn-draw"><code>draw</code></a>, <a href="operators-and-math-reference.html#fn-draw_rgb"><code>draw_rgb</code></a>, <a href="operators-and-math-reference.html#fn-bounds"><code>bounds</code></a>, <a href="operators-and-math-reference.html#fn-resolution"><code>resolution</code></a>, <a href="operators-and-math-reference.html#fn-text"><code>text</code></a>, <a href="operators-and-math-reference.html#fn-svg"><code>svg</code></a></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-prelude-reference" class="outline-4">
+<h4 id="prelude-reference"><a href="#prelude-reference">Prelude reference</a></h4>
+<div class="outline-text-4" id="text-prelude-reference">
+<dl class="org-dl">
+<dt class="k-math"><a href="prelude-reference.html#math-helpers">Math helpers</a></dt><dd><a href="prelude-reference.html#fn-clamp"><code>clamp</code></a>, <a href="prelude-reference.html#fn-saturate"><code>saturate</code></a>, <a href="prelude-reference.html#fn-lerp"><code>lerp</code></a>, <a href="prelude-reference.html#fn-rescale"><code>rescale</code></a>, <a href="prelude-reference.html#fn-step"><code>step</code></a>, <a href="prelude-reference.html#fn-linstep"><code>linstep</code></a>, <a href="prelude-reference.html#fn-smoothstep"><code>smoothstep</code></a>, <a href="prelude-reference.html#fn-fract"><code>fract</code></a>, <a href="prelude-reference.html#fn-mod"><code>mod</code></a>, <a href="prelude-reference.html#fn-hypot"><code>hypot</code></a>, <a href="prelude-reference.html#fn-sind"><code>sind</code></a>, <a href="prelude-reference.html#fn-cosd"><code>cosd</code></a>, <a href="prelude-reference.html#fn-tand"><code>tand</code></a>, <a href="prelude-reference.html#fn-asind"><code>asind</code></a>, <a href="prelude-reference.html#fn-acosd"><code>acosd</code></a>, <a href="prelude-reference.html#fn-atand"><code>atand</code></a>, <a href="prelude-reference.html#fn-atan2d"><code>atan2d</code></a>, <a href="prelude-reference.html#fn-dot"><code>dot</code></a>, <a href="prelude-reference.html#fn-cross"><code>cross</code></a>, <a href="prelude-reference.html#fn-norm"><code>norm</code></a>, <a href="prelude-reference.html#fn-normalize"><code>normalize</code></a>, <a href="prelude-reference.html#fn-normal2"><code>normal2</code></a></dd>
+<dt class="k-2d"><a href="prelude-reference.html#2d-shapes">2D shapes</a></dt><dd><a href="prelude-reference.html#fn-rect"><code>rect</code></a>, <a href="prelude-reference.html#fn-annulus"><code>annulus</code></a>, <a href="prelude-reference.html#fn-ellipse"><code>ellipse</code></a>, <a href="prelude-reference.html#fn-teardrop"><code>teardrop</code></a>, <a href="prelude-reference.html#fn-wedge"><code>wedge</code></a>, <a href="prelude-reference.html#fn-sector"><code>sector</code></a>, <a href="prelude-reference.html#fn-polar_outline"><code>polar_outline</code></a>, <a href="prelude-reference.html#fn-circle_ray"><code>circle_ray</code></a>, <a href="prelude-reference.html#fn-polygon_ray"><code>polygon_ray</code></a>, <a href="prelude-reference.html#fn-star_ray"><code>star_ray</code></a>, <a href="prelude-reference.html#fn-squircle_ray"><code>squircle_ray</code></a>, <a href="prelude-reference.html#fn-squircle"><code>squircle</code></a>, <a href="prelude-reference.html#fn-regular_polygon"><code>regular_polygon</code></a>, <a href="prelude-reference.html#fn-star"><code>star</code></a>, <a href="prelude-reference.html#fn-hexagon_af"><code>hexagon_af</code></a>, <a href="prelude-reference.html#fn-polygon"><code>polygon</code></a>, <a href="prelude-reference.html#fn-rounded_polygon"><code>rounded_polygon</code></a>, <a href="prelude-reference.html#fn-stroke"><code>stroke</code></a>, <a href="prelude-reference.html#fn-arc_stroke"><code>arc_stroke</code></a></dd>
+<dt class="k-3d"><a href="prelude-reference.html#3d-shapes">3D shapes</a></dt><dd><a href="prelude-reference.html#fn-cuboid"><code>cuboid</code></a>, <a href="prelude-reference.html#fn-cylinder"><code>cylinder</code></a>, <a href="prelude-reference.html#fn-tube"><code>tube</code></a>, <a href="prelude-reference.html#fn-cone"><code>cone</code></a>, <a href="prelude-reference.html#fn-torus"><code>torus</code></a>, <a href="prelude-reference.html#fn-ellipsoid"><code>ellipsoid</code></a>, <a href="prelude-reference.html#fn-capsule"><code>capsule</code></a>, <a href="prelude-reference.html#fn-rod"><code>rod</code></a>, <a href="prelude-reference.html#fn-octahedron"><code>octahedron</code></a>, <a href="prelude-reference.html#fn-half_space"><code>half_space</code></a>, <a href="prelude-reference.html#fn-plane_through"><code>plane_through</code></a>, <a href="prelude-reference.html#fn-slab"><code>slab</code></a>, <a href="prelude-reference.html#fn-flatten"><code>flatten</code></a>, <a href="prelude-reference.html#fn-half"><code>half</code></a></dd>
+<dt class="k-extrude"><a href="prelude-reference.html#extrusion-and-revolution">Extrusion and revolution</a></dt><dd><a href="prelude-reference.html#fn-extrude"><code>extrude</code></a>, <a href="prelude-reference.html#fn-twist"><code>twist</code></a>, <a href="prelude-reference.html#fn-revolve"><code>revolve</code></a></dd>
+<dt class="k-csg"><a href="prelude-reference.html#offsets-and-combinations">Offsets and combinations</a></dt><dd><a href="prelude-reference.html#fn-offset"><code>offset</code></a>, <a href="prelude-reference.html#fn-shell"><code>shell</code></a>, <a href="prelude-reference.html#fn-clearance"><code>clearance</code></a>, <a href="prelude-reference.html#fn-union_round"><code>union_round</code></a>, <a href="prelude-reference.html#fn-intersection_round"><code>intersection_round</code></a>, <a href="prelude-reference.html#fn-difference_round"><code>difference_round</code></a>, <a href="prelude-reference.html#fn-union_chamfer"><code>union_chamfer</code></a>, <a href="prelude-reference.html#fn-intersection_chamfer"><code>intersection_chamfer</code></a>, <a href="prelude-reference.html#fn-difference_chamfer"><code>difference_chamfer</code></a>, <a href="prelude-reference.html#fn-smooth_union"><code>smooth_union</code></a>, <a href="prelude-reference.html#fn-smooth_intersection"><code>smooth_intersection</code></a>, <a href="prelude-reference.html#fn-smooth_difference"><code>smooth_difference</code></a>, <a href="prelude-reference.html#fn-engrave"><code>engrave</code></a></dd>
+<dt class="k-transform"><a href="prelude-reference.html#transforms-in-the-prelude">Transforms in the prelude</a></dt><dd><a href="prelude-reference.html#fn-rotate_xyz"><code>rotate_xyz</code></a>, <a href="prelude-reference.html#fn-symmetric_x"><code>symmetric_x</code></a>, <a href="prelude-reference.html#fn-symmetric_y"><code>symmetric_y</code></a>, <a href="prelude-reference.html#fn-symmetric_z"><code>symmetric_z</code></a>, <a href="prelude-reference.html#fn-scale_exact"><code>scale_exact</code></a>, <a href="prelude-reference.html#fn-scale_bound"><code>scale_bound</code></a>, <a href="prelude-reference.html#fn-elongate"><code>elongate</code></a></dd>
+<dt class="k-pattern"><a href="prelude-reference.html#arrays-and-repetition">Arrays and repetition</a></dt><dd><a href="prelude-reference.html#fn-linear_array"><code>linear_array</code></a>, <a href="prelude-reference.html#fn-grid_array"><code>grid_array</code></a>, <a href="prelude-reference.html#fn-polar_array"><code>polar_array</code></a>, <a href="prelude-reference.html#fn-arrange_row"><code>arrange_row</code></a>, <a href="prelude-reference.html#fn-repeat"><code>repeat</code></a>, <a href="prelude-reference.html#fn-repeat_grid"><code>repeat_grid</code></a>, <a href="prelude-reference.html#fn-repeat_polar"><code>repeat_polar</code></a>, <a href="prelude-reference.html#fn-hex_grid"><code>hex_grid</code></a>, <a href="prelude-reference.html#fn-kaleidoscope"><code>kaleidoscope</code></a>, <a href="prelude-reference.html#fn-recurse"><code>recurse</code></a></dd>
+<dt class="k-math"><a href="prelude-reference.html#easing-and-keyframes">Easing and keyframes</a></dt><dd><a href="prelude-reference.html#fn-ease_in_sine"><code>ease_in_sine</code></a>, <a href="prelude-reference.html#fn-ease_out_sine"><code>ease_out_sine</code></a>, <a href="prelude-reference.html#fn-ease_in_out_sine"><code>ease_in_out_sine</code></a>, <a href="prelude-reference.html#fn-ease_in_asine"><code>ease_in_asine</code></a>, <a href="prelude-reference.html#fn-ease_out_asine"><code>ease_out_asine</code></a>, <a href="prelude-reference.html#fn-ease_in_out_asine"><code>ease_in_out_asine</code></a>, <a href="prelude-reference.html#fn-ease_in_quadratic"><code>ease_in_quadratic</code></a>, <a href="prelude-reference.html#fn-ease_out_quadratic"><code>ease_out_quadratic</code></a>, <a href="prelude-reference.html#fn-ease_in_out_quadratic"><code>ease_in_out_quadratic</code></a>, <a href="prelude-reference.html#fn-ease_in_cubic"><code>ease_in_cubic</code></a>, <a href="prelude-reference.html#fn-ease_out_cubic"><code>ease_out_cubic</code></a>, <a href="prelude-reference.html#fn-ease_in_out_cubic"><code>ease_in_out_cubic</code></a>, <a href="prelude-reference.html#fn-ease_in_pow"><code>ease_in_pow</code></a>, <a href="prelude-reference.html#fn-ease_out_pow"><code>ease_out_pow</code></a>, <a href="prelude-reference.html#fn-ease_in_out_pow"><code>ease_in_out_pow</code></a>, <a href="prelude-reference.html#fn-ease_in_elastic"><code>ease_in_elastic</code></a>, <a href="prelude-reference.html#fn-ease_out_elastic"><code>ease_out_elastic</code></a>, <a href="prelude-reference.html#fn-ease_in_out_elastic"><code>ease_in_out_elastic</code></a>, <a href="prelude-reference.html#fn-ease_out_bounce"><code>ease_out_bounce</code></a>, <a href="prelude-reference.html#fn-ease_in_bounce"><code>ease_in_bounce</code></a>, <a href="prelude-reference.html#fn-ease_in_out_bounce"><code>ease_in_out_bounce</code></a>, <a href="prelude-reference.html#fn-smootherstep"><code>smootherstep</code></a>, <a href="prelude-reference.html#fn-ease"><code>ease</code></a>, <a href="prelude-reference.html#fn-keyframes"><code>keyframes</code></a>, <a href="prelude-reference.html#fn-morph"><code>morph</code></a></dd>
+<dt class="k-extrude"><a href="prelude-reference.html#profiles-over-height">Profiles over height</a></dt><dd><a href="prelude-reference.html#fn-loft"><code>loft</code></a>, <a href="prelude-reference.html#fn-loft_tilted"><code>loft_tilted</code></a>, <a href="prelude-reference.html#fn-normalize_z"><code>normalize_z</code></a>, <a href="prelude-reference.html#fn-normalize_slope"><code>normalize_slope</code></a></dd>
+<dt class="k-extrude"><a href="prelude-reference.html#helices-and-rings">Helices, bends and sweeps</a></dt><dd><a href="prelude-reference.html#fn-helix"><code>helix</code></a>, <a href="prelude-reference.html#fn-bend"><code>bend</code></a>, <a href="prelude-reference.html#fn-sweep"><code>sweep</code></a>, <a href="prelude-reference.html#fn-sweep_length"><code>sweep_length</code></a></dd>
+<dt class="k-2d"><a href="prelude-reference.html#b-zier-curves">Bézier curves</a></dt><dd><a href="prelude-reference.html#fn-bezier_point"><code>bezier_point</code></a>, <a href="prelude-reference.html#fn-bezier_integral"><code>bezier_integral</code></a>, <a href="prelude-reference.html#fn-bezier_graph"><code>bezier_graph</code></a>, <a href="prelude-reference.html#fn-catmull_rom"><code>catmull_rom</code></a>, <a href="prelude-reference.html#fn-bezier_stroke"><code>bezier_stroke</code></a></dd>
+<dt class="k-2d"><a href="prelude-reference.html#gears">Gears</a></dt><dd><a href="prelude-reference.html#fn-gear_radii"><code>gear_radii</code></a>, <a href="prelude-reference.html#fn-involute_gear"><code>involute_gear</code></a></dd>
+<dt class="k-3d"><a href="prelude-reference.html#fasteners">Fasteners</a></dt><dd><a href="prelude-reference.html#fn-metric"><code>metric</code></a>, <a href="prelude-reference.html#fn-screw_hole"><code>screw_hole</code></a>, <a href="prelude-reference.html#fn-nut_trap"><code>nut_trap</code></a>, <a href="prelude-reference.html#fn-nut_slot"><code>nut_slot</code></a>, <a href="prelude-reference.html#fn-insert_hole"><code>insert_hole</code></a></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-modules-reference" class="outline-4">
+<h4 id="modules-reference"><a href="#modules-reference">Modules reference</a></h4>
+<div class="outline-text-4" id="text-modules-reference">
+<dl class="org-dl">
+<dt class="k-3d"><a href="modules-reference.html#threads">Threads</a></dt><dd><a href="modules-reference.html#fn-threads-iso_261"><code>threads::iso_261</code></a>, <a href="modules-reference.html#fn-threads-basic"><code>threads::basic</code></a>, <a href="modules-reference.html#fn-threads-size"><code>threads::size</code></a>, <a href="modules-reference.html#fn-threads-external"><code>threads::external</code></a>, <a href="modules-reference.html#fn-threads-internal"><code>threads::internal</code></a></dd>
+<dt class="k-3d"><a href="modules-reference.html#screws">Screws</a></dt><dd><a href="modules-reference.html#fn-screws-iso_4762"><code>screws::iso_4762</code></a>, <a href="modules-reference.html#fn-screws-iso_7380"><code>screws::iso_7380</code></a>, <a href="modules-reference.html#fn-screws-iso_10642"><code>screws::iso_10642</code></a>, <a href="modules-reference.html#fn-screws-iso_7046"><code>screws::iso_7046</code></a>, <a href="modules-reference.html#fn-screws-iso_4017"><code>screws::iso_4017</code></a>, <a href="modules-reference.html#fn-screws-iso_273"><code>screws::iso_273</code></a>, <a href="modules-reference.html#fn-screws-spec"><code>screws::spec</code></a>, <a href="modules-reference.html#fn-screws-screw"><code>screws::screw</code></a>, <a href="modules-reference.html#fn-screws-hole"><code>screws::hole</code></a></dd>
+<dt class="k-3d"><a href="modules-reference.html#nuts-and-washers">Nuts and washers</a></dt><dd><a href="modules-reference.html#fn-nuts-iso_4032"><code>nuts::iso_4032</code></a>, <a href="modules-reference.html#fn-nuts-iso_4035"><code>nuts::iso_4035</code></a>, <a href="modules-reference.html#fn-nuts-din_562"><code>nuts::din_562</code></a>, <a href="modules-reference.html#fn-nuts-iso_7040"><code>nuts::iso_7040</code></a>, <a href="modules-reference.html#fn-nuts-iso_7089"><code>nuts::iso_7089</code></a>, <a href="modules-reference.html#fn-nuts-spec"><code>nuts::spec</code></a>, <a href="modules-reference.html#fn-nuts-nut"><code>nuts::nut</code></a>, <a href="modules-reference.html#fn-nuts-washer"><code>nuts::washer</code></a>, <a href="modules-reference.html#fn-nuts-trap"><code>nuts::trap</code></a>, <a href="modules-reference.html#fn-nuts-slot"><code>nuts::slot</code></a></dd>
+<dt class="k-3d"><a href="modules-reference.html#heat-set-inserts">Heat-set inserts</a></dt><dd><a href="modules-reference.html#fn-inserts-ruthex"><code>inserts::ruthex</code></a>, <a href="modules-reference.html#fn-inserts-cnc_kitchen"><code>inserts::cnc_kitchen</code></a>, <a href="modules-reference.html#fn-inserts-spec"><code>inserts::spec</code></a>, <a href="modules-reference.html#fn-inserts-insert"><code>inserts::insert</code></a>, <a href="modules-reference.html#fn-inserts-hole"><code>inserts::hole</code></a></dd>
+<dt class="k-3d"><a href="modules-reference.html#magnets">Magnets</a></dt><dd><a href="modules-reference.html#fn-magnets-size"><code>magnets::size</code></a>, <a href="modules-reference.html#fn-magnets-magnet"><code>magnets::magnet</code></a>, <a href="modules-reference.html#fn-magnets-pocket"><code>magnets::pocket</code></a></dd>
+<dt class="k-3d"><a href="modules-reference.html#bearings">Bearings</a></dt><dd><a href="modules-reference.html#fn-bearings-deep_groove"><code>bearings::deep_groove</code></a>, <a href="modules-reference.html#fn-bearings-linear_ball"><code>bearings::linear_ball</code></a>, <a href="modules-reference.html#fn-bearings-bearing"><code>bearings::bearing</code></a>, <a href="modules-reference.html#fn-bearings-seat"><code>bearings::seat</code></a></dd>
+<dt class="k-3d"><a href="modules-reference.html#extrusions">Extrusions</a></dt><dd><a href="modules-reference.html#fn-extrusions-misumi"><code>extrusions::misumi</code></a>, <a href="modules-reference.html#fn-extrusions-profile"><code>extrusions::profile</code></a>, <a href="modules-reference.html#fn-extrusions-beam"><code>extrusions::beam</code></a></dd>
+<dt class="k-2d"><a href="modules-reference.html#laser-cutting">Laser cutting</a></dt><dd><a href="modules-reference.html#fn-lc-finger_joint"><code>lc::finger_joint</code></a>, <a href="modules-reference.html#fn-lc-tabs"><code>lc::tabs</code></a>, <a href="modules-reference.html#fn-lc-tab_slots"><code>lc::tab_slots</code></a>, <a href="modules-reference.html#fn-lc-cross_lap"><code>lc::cross_lap</code></a>, <a href="modules-reference.html#fn-lc-t_slot_spec"><code>lc::t_slot_spec</code></a>, <a href="modules-reference.html#fn-lc-t_slot"><code>lc::t_slot</code></a>, <a href="modules-reference.html#fn-lc-living_hinge"><code>lc::living_hinge</code></a>, <a href="modules-reference.html#fn-lc-hinge_materials"><code>lc::hinge_materials</code></a>, <a href="modules-reference.html#fn-lc-hinge_for"><code>lc::hinge_for</code></a>, <a href="modules-reference.html#fn-lc-box_panels"><code>lc::box_panels</code></a>, <a href="modules-reference.html#fn-lc-box"><code>lc::box</code></a>, <a href="modules-reference.html#fn-lc-sheet"><code>lc::sheet</code></a></dd>
+<dt class="k-math"><a href="modules-reference.html#points">Points</a></dt><dd><a href="modules-reference.html#fn-points-regular_polygon"><code>points::regular_polygon</code></a>, <a href="modules-reference.html#fn-points-star"><code>points::star</code></a>, <a href="modules-reference.html#fn-points-bezier"><code>points::bezier</code></a>, <a href="modules-reference.html#fn-points-move"><code>points::move</code></a>, <a href="modules-reference.html#fn-points-rotate"><code>points::rotate</code></a>, <a href="modules-reference.html#fn-points-scale"><code>points::scale</code></a>, <a href="modules-reference.html#fn-points-mirror"><code>points::mirror</code></a>, <a href="modules-reference.html#fn-points-miter_offset"><code>points::miter_offset</code></a>, <a href="modules-reference.html#fn-points-union"><code>points::union</code></a>, <a href="modules-reference.html#fn-points-intersection"><code>points::intersection</code></a>, <a href="modules-reference.html#fn-points-difference"><code>points::difference</code></a></dd>
+</dl>
+</div>
+</div>
+</div>
+</section>
+<section id="outline-container-key-index" class="outline-2">
+<h2 id="key-index"><a href="#key-index">Keys</a></h2>
+<div class="outline-text-2" id="text-key-index">
+<ul class="org-ul index">
+<li><code>+ (keycap-preview-zoom-in)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>- (keycap-preview-zoom-out)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>0 (keycap-preview-isometric)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>1 (keycap-preview-front)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>3 (keycap-preview-right)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>7 (keycap-preview-top)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">&lt;double-mouse-1&gt; (keycap-preview-mouse-goto-shape)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">&lt;down-mouse-1&gt; (keycap-preview-mouse-orbit)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">&lt;down-mouse-2&gt; (keycap-preview-mouse-pan)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>&lt;down-mouse-3&gt;</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">&lt;left&gt; (keycap-preview-orbit-left)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>? (keycap-preview-keys)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">C-&lt;down-mouse-1&gt; (keycap-preview-mouse-tilt)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>C-c C-c (keycap-preview)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code>C-c C-d (keycap-describe)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code>C-c C-e (keycap-export-stl)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code>C-c C-k (keycap-export-cancel)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code>C-c C-l (keycap-export-2d)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code>C-c C-n (keycap-increase-number)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code>C-c C-p (keycap-decrease-number)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code>C-c C-r (keycap-export-resin)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code class="long">C-c C-v (keycap-preview-cycle-view)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code class="long">C-g (keycap-preview-keyboard-quit)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">C-x C-e (keycap-eval-last-expression)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code class="long">G (keycap-preview-toggle-backend)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">M-&lt;left&gt; (keycap-preview-pan-left)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>M-{ (keycap-preview-tilt-left)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">S-&lt;down-mouse-1&gt; (keycap-mouse-scrub-number)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code class="long">S-&lt;down-mouse-1&gt; (keycap-preview-mouse-slice)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">S-&lt;wheel-up&gt; (keycap-mouse-nudge-number)</code> &#x2013; <a href="editing-and-previewing.html#the-script-buffer">The script buffer</a></li>
+<li><code class="long">S-&lt;wheel-up&gt; (keycap-preview-mouse-slice-step)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code class="long">[ (keycap-preview-slice-backward)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>] (keycap-preview-slice-forward)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>b (keycap-preview-toggle-bounds)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>d (keycap-preview-sdf)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>e (keycap-preview-export-stl)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>g</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>l (keycap-preview-export-2d)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>m (keycap-preview-mono)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>p (keycap-preview-projection)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>r (keycap-preview-reset-camera)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>s (keycap-preview-shaded)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>v (keycap-preview-cycle-view)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>z (keycap-preview-heightmap)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>{ (keycap-preview-tilt-backward)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+<li><code>} (keycap-preview-tilt-forward)</code> &#x2013; <a href="editing-and-previewing.html#preview-keys">Preview keys</a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-concept-index" class="outline-2">
+<h2 id="concept-index"><a href="#concept-index">Concepts</a></h2>
+<div class="outline-text-2" id="text-concept-index">
+<ul class="org-ul index">
+<li><a href="writing-models.html#dialects">.fidget files</a></li>
+<li><a href="writing-models.html#2d-drawings">2D</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-3d-printing">3D printing</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-3d-printing">3MF</a></li>
+<li class="k-3d"><a href="modules-reference.html#extrusions">aluminium extrusions</a></li>
+<li><a href="prelude-reference.html#placement-and-anchors">anchor</a></li>
+<li class="k-pattern"><a href="prelude-reference.html#arrays-and-repetition">arrays</a></li>
+<li><a href="concepts.html#units-and-axes">axes</a></li>
+<li><a href="concepts.html#types">Axis, type</a></li>
+<li class="k-3d"><a href="modules-reference.html#bearings">bearings</a></li>
+<li><a href="writing-models.html#bounds-and-resolution">bounds</a></li>
+<li><a href="editing-and-previewing.html#bounds">bounds, preview</a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer">bug reports</a></li>
+<li class="k-2d"><a href="prelude-reference.html#b-zier-curves">Bézier curves</a></li>
+<li><a href="writing-models.html#methods-and-chaining">chaining</a></li>
+<li><a href="recipes.html#rounding-and-chamfering-2">chamfers</a></li>
+<li><a href="recipes.html#clearances-and-fits">clearance</a></li>
+<li><a href="writing-models.html#drawing-and-colours">colour</a></li>
+<li><a href="writing-models.html#choices-without-if">comparison</a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer">completion</a></li>
+<li><a href="concepts.html">concepts</a></li>
+<li><a href="writing-models.html#functions-and-constants">const</a></li>
+<li class="k-math"><a href="operators-and-math-reference.html#coordinates-and-constants">constants</a></li>
+<li class="k-csg"><a href="shapes-reference.html#combinations">CSG</a></li>
+<li><a href="editing-and-previewing.html#customization">customization</a></li>
+<li><a href="prelude-reference.html#angles-in-degrees">degrees</a></li>
+<li><a href="writing-models.html#dialects">dialects</a></li>
+<li><a href="writing-models.html#exact-distances-and-bounds">distance bound</a></li>
+<li><a href="writing-models.html#drawing-and-colours">draw</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting">DXF</a></li>
+<li><a href="concepts.html#types">Ease, type</a></li>
+<li class="k-math"><a href="prelude-reference.html#easing-and-keyframes">easing</a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer">ElDoc</a></li>
+<li><a href="troubleshooting.html">error messages</a></li>
+<li><a href="troubleshooting.html#when-a-script-fails">errors</a></li>
+<li><a href="writing-models.html#exact-distances-and-bounds">exact field</a></li>
+<li><a href="examples.html">examples</a></li>
+<li><a href="editing-and-previewing.html#exporting">export</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting">export, 2D</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-3d-printing">export, 3MF</a></li>
+<li><a href="editing-and-previewing.html#exporting">export, cancelling</a></li>
+<li><a href="editing-and-previewing.html#exporting">export, tolerance</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting">export, tolerance</a></li>
+<li><a href="editing-and-previewing.html#extending-keycap">extending keycap</a></li>
+<li class="k-3d"><a href="prelude-reference.html#fasteners">fasteners</a></li>
+<li><a href="writing-models.html#fields-and-trees">field</a></li>
+<li><a href="recipes.html#rounding-and-chamfering-2">fillets</a></li>
+<li><a href="troubleshooting.html#when-a-script-fails">Flymake</a></li>
+<li><a href="writing-models.html#text-and-svg">fonts</a></li>
+<li><a href="writing-models.html#functions-and-constants">functions</a></li>
+<li class="k-2d"><a href="prelude-reference.html#gears">gears</a></li>
+<li><a href="writing-models.html#functions-and-constants">global</a></li>
+<li class="k-3d"><a href="prelude-reference.html#fasteners">heat-set inserts</a></li>
+<li class="k-3d"><a href="modules-reference.html#heat-set-inserts">heat-set inserts</a></li>
+<li><a href="concepts.html#types">Height, type</a></li>
+<li class="k-extrude"><a href="prelude-reference.html#helices-and-rings">helix</a></li>
+<li><a href="editing-and-previewing.html#views">hint, preview keys</a></li>
+<li><a href="writing-models.html#choices-without-if">if</a></li>
+<li><a href="writing-models.html#imports">import</a></li>
+<li><a href="writing-models.html#numbers-and-trees">integer division</a></li>
+<li><a href="writing-models.html#numbers-and-trees">integers</a></li>
+<li class="k-2d"><a href="prelude-reference.html#gears">involute</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting">joints, laser-cut</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting">kerf</a></li>
+<li><a href="writing-models.html#dialects">keycap-dialect</a></li>
+<li class="k-extrude"><a href="prelude-reference.html#profiles-over-height">keycaps</a></li>
+<li class="k-math"><a href="prelude-reference.html#easing-and-keyframes">keyframes</a></li>
+<li><a href="editing-and-previewing.html#preview-keys">keys, preview</a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer">keys, script buffer</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting">laser cutting</a></li>
+<li class="k-2d"><a href="modules-reference.html#laser-cutting">laser cutting, joints</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting">laser cutting, materials</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-3d-printing">layer heights</a></li>
+<li><a href="writing-models.html#exact-distances-and-bounds">Lipschitz</a></li>
+<li><a href="editing-and-previewing.html#extending-keycap">Lisp interface</a></li>
+<li class="k-extrude"><a href="prelude-reference.html#profiles-over-height">loft</a></li>
+<li class="k-3d"><a href="modules-reference.html#magnets">magnets</a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer">manual</a></li>
+<li><a href="writing-models.html#calling-shapes">map arguments</a></li>
+<li class="k-math"><a href="operators-and-math-reference.html#math-functions">math</a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer">menu</a></li>
+<li><a href="writing-models.html#methods-and-chaining">methods</a></li>
+<li><a href="concepts.html#units-and-axes">millimetres</a></li>
+<li><a href="writing-models.html#imports">modules</a></li>
+<li><a href="modules-reference.html">modules, reference</a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer">mouse</a></li>
+<li><a href="editing-and-previewing.html#the-preview">mouse, preview</a></li>
+<li><a href="editing-and-previewing.html#printing-in-resin">MSLA</a></li>
+<li><a href="troubleshooting.html#when-a-script-fails">no-prefer</a></li>
+<li><a href="troubleshooting.html#when-a-script-fails">notes</a></li>
+<li><a href="concepts.html#types">number, type</a></li>
+<li class="k-3d"><a href="prelude-reference.html#fasteners">nuts</a></li>
+<li class="k-3d"><a href="modules-reference.html#nuts-and-washers">nuts</a></li>
+<li><a href="coming-from-openscad.html">OpenSCAD</a></li>
+<li><a href="coming-from-openscad.html#porting-point-layer-and-polyhedron-designs">OpenSCAD, polyhedron</a></li>
+<li><a href="prelude-reference.html#options">options</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-3d-printing">OrcaSlicer</a></li>
+<li><a href="recipes.html#patterns">patterns</a></li>
+<li><a href="performance.html">performance</a></li>
+<li><a href="concepts.html#types">Plane, type</a></li>
+<li><a href="coming-from-openscad.html#porting-point-layer-and-polyhedron-designs">point layers</a></li>
+<li class="k-math"><a href="modules-reference.html#points">points</a></li>
+<li class="k-math"><a href="modules-reference.html#points">polygons, from points</a></li>
+<li><a href="coming-from-openscad.html#porting-point-layer-and-polyhedron-designs">polyhedron</a></li>
+<li><a href="coming-from-openscad.html#porting-from-openscad">porting</a></li>
+<li class="k-math"><a href="operators-and-math-reference.html#math-functions">powers</a></li>
+<li><a href="writing-models.html#the-prelude">prelude</a></li>
+<li><a href="prelude-reference.html">prelude, reference</a></li>
+<li><a href="editing-and-previewing.html#the-preview">preview</a></li>
+<li><a href="editing-and-previewing.html#printing-in-resin">printer profiles</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-3d-printing">PrusaSlicer</a></li>
+<li><a href="overview.html#quick-start">quick start</a></li>
+<li class="k-math"><a href="operators-and-math-reference.html#random-numbers">random</a></li>
+<li><a href="recipes.html#reference-geometry">reference geometry</a></li>
+<li class="k-math"><a href="operators-and-math-reference.html#remapping">remap</a></li>
+<li class="k-pattern"><a href="prelude-reference.html#arrays-and-repetition">repetition</a></li>
+<li><a href="overview.html#requirements">requirements</a></li>
+<li><a href="editing-and-previewing.html#printing-in-resin">resin printing</a></li>
+<li><a href="editing-and-previewing.html#exporting">resolution</a></li>
+<li><a href="writing-models.html#bounds-and-resolution">resolution</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting">roles</a></li>
+<li><a href="recipes.html#rounding-and-chamfering-2">rounding</a></li>
+<li><a href="prelude-reference.html#rounding-and-chamfering">rounding, varying</a></li>
+<li><a href="concepts.html#types">Sched, type</a></li>
+<li><a href="recipes.html#screw-holes-and-nuts">screw holes</a></li>
+<li class="k-3d"><a href="prelude-reference.html#fasteners">screws</a></li>
+<li class="k-3d"><a href="modules-reference.html#screws">screws</a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer">script buffer</a></li>
+<li><a href="writing-models.html#choices-without-if">selection</a></li>
+<li><a href="concepts.html#trees-and-shapes">Shape, type</a></li>
+<li><a href="shapes-reference.html">shapes</a></li>
+<li><a href="writing-models.html#calling-shapes">shapes, calling</a></li>
+<li><a href="recipes.html#shells-and-hollow-parts">shell</a></li>
+<li><a href="concepts.html#reading-signatures">signatures</a></li>
+<li><a href="editing-and-previewing.html#printing-in-resin">SL1</a></li>
+<li class="k-extrude"><a href="prelude-reference.html#helices-and-rings">spiral</a></li>
+<li><a href="editing-and-previewing.html#exporting">STL</a></li>
+<li><a href="writing-models.html#text-and-svg">SVG</a></li>
+<li><a href="editing-and-previewing.html#exporting-for-laser-cutting">SVG, export</a></li>
+<li class="k-extrude"><a href="prelude-reference.html#helices-and-rings">sweep</a></li>
+<li><a href="recipes.html#horizontal-holes">teardrop</a></li>
+<li><a href="writing-models.html#text-and-svg">text</a></li>
+<li class="k-3d"><a href="modules-reference.html#threads">threads</a></li>
+<li><a href="editing-and-previewing.html#views">tilted slice</a></li>
+<li><a href="editing-and-previewing.html#exporting">tolerance</a></li>
+<li><a href="writing-models.html#fields-and-trees">tracing</a></li>
+<li class="k-transform"><a href="shapes-reference.html#transforms">transforms</a></li>
+<li><a href="concepts.html#trees-and-shapes">tree</a></li>
+<li><a href="concepts.html#trees-and-shapes">Tree, type</a></li>
+<li><a href="troubleshooting.html">troubleshooting</a></li>
+<li><a href="concepts.html#types">types</a></li>
+<li><a href="concepts.html#units-and-axes">units</a></li>
+<li class="k-extrude"><a href="prelude-reference.html#profiles-over-height">vases</a></li>
+<li><a href="concepts.html#types">Vec2, type</a></li>
+<li><a href="concepts.html#types">Vec3, type</a></li>
+<li class="k-math"><a href="operators-and-math-reference.html#vectors-and-axes">vectors</a></li>
+<li><a href="editing-and-previewing.html#the-script-buffer">version</a></li>
+<li><a href="editing-and-previewing.html#views">views</a></li>
+<li><a href="troubleshooting.html#when-a-script-fails">warnings</a></li>
+<li class="k-3d"><a href="modules-reference.html#nuts-and-washers">washers</a></li>
+</ul>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

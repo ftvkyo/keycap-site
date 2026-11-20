@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>spacer</title>
+<meta name="description" content="Spacer: a round standoff for an M3 screw, its outer edges chamfered." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">spacer</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://tangled.org/rei.gay/keycap">keycap</a></span></p>
+
+<p>
+Spacer: a round standoff for an M3 screw, its outer edges chamfered.
+Written in fidget&rsquo;s own dialect, so fidget&rsquo;s viewer runs it as it is,
+and its CLI with <code>--type rhai</code>.
+</p>
+
+<a href="frames/spacer-d0ec9f671d40ca50.png"><img src="frames/spacer-d0ec9f671d40ca50.png" width="800" height="600" fetchpriority="high" alt="spacer, shaded, from the front right"></a>
+
+<a href="frames/spacer-e60369d59a06008d.png"><img src="frames/spacer-e60369d59a06008d.png" width="800" height="600" loading="lazy" alt="spacer, shaded, from the back left"></a>
+
+<a href="frames/spacer-cd16c9500dd0f761.png"><img src="frames/spacer-cd16c9500dd0f761.png" width="800" height="600" loading="lazy" alt="spacer, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/spacer.fidget"><code>spacer.fidget</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Spacer: a round standoff for an M3 screw, its outer edges chamfered.</span>
+<span class="hl-comment">// Written in fidget's own dialect, so fidget's viewer runs it as it is,</span>
+<span class="hl-comment">// and its CLI with `--type rhai`.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">D</span> <span class="hl-operator">=</span> <span class="hl-number">8.0</span><span class="hl-delimiter">;</span>              <span class="hl-comment">// outer diameter</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">H</span> <span class="hl-operator">=</span> <span class="hl-number">10.0</span><span class="hl-delimiter">;</span>             <span class="hl-comment">// height</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HOLE</span> <span class="hl-operator">=</span> <span class="hl-number">3.4</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// M3 clearance</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CHAMFER</span> <span class="hl-operator">=</span> <span class="hl-number">0.6</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Spacer ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-delimiter">.</span><span class="hl-function-call">square</span><span class="hl-bracket">()</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y</span><span class="hl-delimiter">.</span><span class="hl-function-call">square</span><span class="hl-bracket">())</span><span class="hl-delimiter">.</span><span class="hl-function-call">sqrt</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">tube</span> <span class="hl-operator">=</span> <span class="hl-builtin">difference</span><span class="hl-bracket">(</span>
+    <span class="hl-builtin">circle</span><span class="hl-bracket">(#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-property-name">radius</span><span class="hl-delimiter">:</span> <span class="hl-constant">D</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">})</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">circle</span><span class="hl-bracket">(#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-property-name">radius</span><span class="hl-delimiter">:</span> <span class="hl-constant">HOLE</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">})</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">body</span> <span class="hl-operator">=</span> <span class="hl-builtin">extrude_z</span><span class="hl-bracket">(</span><span class="hl-variable-use">tube</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">H</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// A cone at each end cuts the edge off at 45 degrees.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">bottom</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-constant">D</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-constant">CHAMFER</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-variable-use">z</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">top</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-constant">D</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-constant">CHAMFER</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-constant">H</span> <span class="hl-operator">-</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-builtin">intersection</span><span class="hl-bracket">([</span><span class="hl-variable-use">body</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bottom</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">top</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

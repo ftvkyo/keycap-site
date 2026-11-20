@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Recipes</title>
+<meta name="description" content="Printed parts, step by step." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="modules-reference.html">
+<link rel="next" href="coming-from-openscad.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Recipes</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html" aria-current="page">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+
+<p>
+The clearances here are starting points that suit most printers: print a test piece, and adjust them for yours.
+Nothing here has been tested for strength.
+</p>
+
+<nav id="table-of-contents" role="doc-toc">
+<h2>In this chapter</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#rounding-and-chamfering-2">Rounding and chamfering</a></li>
+<li><a href="#shells-and-hollow-parts">Shells and hollow parts</a></li>
+<li><a href="#clearances-and-fits">Clearances and fits</a></li>
+<li><a href="#screw-holes-and-nuts">Screw holes and nuts</a></li>
+<li><a href="#horizontal-holes">Horizontal holes</a></li>
+<li><a href="#patterns">Patterns</a></li>
+<li><a href="#reference-geometry">Reference geometry</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-rounding-and-chamfering-2" class="outline-2">
+<h2 id="rounding-and-chamfering-2"><a href="#rounding-and-chamfering-2">Rounding and chamfering</a></h2>
+<div class="outline-text-2" id="text-rounding-and-chamfering-2">
+<p>
+An exact field grown by <code>r</code> has every convex edge rounded with radius <code>r</code>.
+So a shape is rounded on the outside by building it <code>r</code> smaller, then offsetting it by <code>r</code>.
+The <code>round</code> options of the prelude&rsquo;s shapes and extrusions do this, and <code>chamfer</code> cuts the edges at 45 degrees instead.
+</p>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A block with every edge rounded by 2.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">2</span><span class="hl-bracket">})</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-rounding-and-chamfering-2-fb004c4be12f0c35.png" width="480" height="360" fetchpriority="high" alt="A block with every edge rounded by 2.">
+
+</div></figure>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A plate with round corners, its rims chamfered by 0.6, the bottom one against elephant&rsquo;s foot.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-bracket">})</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">chamfer</span><span class="hl-delimiter">:</span> <span class="hl-number">0.6</span><span class="hl-bracket">})</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-rounding-and-chamfering-2-2-003a890154414af8.png" width="480" height="360" loading="lazy" alt="A plate with round corners, its rims chamfered by 0.6, the bottom one against elephant's foot.">
+
+</div></figure>
+
+<p>
+Concave edges, where two parts meet, are filleted by the combination that joins them.
+<code>union_chamfer</code> chamfers them instead.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A post on a base, with a fillet of 3 round its foot.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">base</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-variable-use">base</span><span class="hl-delimiter">.</span><span class="hl-function-call">union_round</span><span class="hl-bracket">(</span><span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-rounding-and-chamfering-2-3-848980a0f5cb9e5a.png" width="480" height="360" loading="lazy" alt="A post on a base, with a fillet of 3 round its foot.">
+
+</div></figure>
+
+<p>
+The rim of a hole or a pocket is rounded or chamfered by the cut.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A plate with an M3 hole, chamfered by 0.5 at both ends.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">])</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">difference_chamfer</span><span class="hl-bracket">(</span><span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">1.7</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-rounding-and-chamfering-2-4-35eb2e4b815e78f0.png" width="480" height="360" loading="lazy" alt="A plate with an M3 hole, chamfered by 0.5 at both ends.">
+
+</div></figure>
+
+<p>
+In 2D, <code>rounded_polygon</code> rounds a polygon&rsquo;s corners: the convex ones by its radius, and the concave ones by its <code>concave</code> option.
+<code>union_round</code> fillets the corners where 2D shapes meet.
+</p>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+An angle bracket, its outer corners rounded by 1 and its inner corner by 4.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+    <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">rounded_polygon</span><span class="hl-bracket">(</span><span class="hl-variable-use">profile</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">concave</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-bracket">})</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-rounding-and-chamfering-2-5-86b2fc9647c61c35.png" width="480" height="360" loading="lazy" alt="An angle bracket, its outer corners rounded by 1 and its inner corner by 4.">
+
+</div></figure>
+</div>
+</section>
+<section id="outline-container-shells-and-hollow-parts" class="outline-2">
+<h2 id="shells-and-hollow-parts"><a href="#shells-and-hollow-parts">Shells and hollow parts</a></h2>
+<div class="outline-text-2" id="text-shells-and-hollow-parts">
+<p>
+<code>shell(s, t)</code> keeps a wall <code>t</code> thick inside the surface of <code>s</code>.
+It is exact when <code>s</code> is.
+A shell is closed, so it is opened by a cut.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A box with 2 mm walls and rounded edges, cut open at z = 25.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">outside</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">60</span><span class="hl-delimiter">,</span> <span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-variable-use">outside</span><span class="hl-delimiter">.</span><span class="hl-function-call">shell</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-number">25</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-shells-and-hollow-parts-874dead169fa02f5.png" width="480" height="360" loading="lazy" alt="A box with 2 mm walls and rounded edges, cut open at z = 25.">
+
+</div></figure>
+
+<p>
+A wall centred on the surface instead is <code>abs(s) - t / 2</code>.
+</p>
+</div>
+</section>
+<section id="outline-container-clearances-and-fits" class="outline-2">
+<h2 id="clearances-and-fits"><a href="#clearances-and-fits">Clearances and fits</a></h2>
+<div class="outline-text-2" id="text-clearances-and-fits">
+<p>
+Parts that fit together need a gap.
+On most printers, it is about 0.2 mm on a side for a sliding fit, and 0.1 mm for a press fit.
+<code>clearance(part, other, gap)</code> cuts <code>other</code>, grown by <code>gap</code>, out of <code>part</code>.
+On exact fields the gap is even all round, edges included.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A socket for a rounded peg, 0.2 larger than the peg all round.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">peg</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">1</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">12</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">15</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">clearance</span><span class="hl-bracket">(</span><span class="hl-variable-use">peg</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-clearances-and-fits-6b1a09c32b77d2c5.png" width="480" height="360" loading="lazy" alt="A socket for a rounded peg, 0.2 larger than the peg all round.">
+
+</div></figure>
+
+<p>
+Holes print smaller than drawn, by a few tenths for small ones.
+Grow them with <code>offset</code>, or draw them larger.
+</p>
+</div>
+</section>
+<section id="outline-container-screw-holes-and-nuts" class="outline-2">
+<h2 id="screw-holes-and-nuts"><a href="#screw-holes-and-nuts">Screw holes and nuts</a></h2>
+<div class="outline-text-2" id="text-screw-holes-and-nuts">
+<p>
+The fasteners are cutters, to subtract from a part.
+Each one&rsquo;s z = 0 is a plane its documentation names, such as where a screw&rsquo;s head rests.
+Above it, each is open without end, so it clears whatever lies over the hole, except <code>nut_slot</code>, whose pocket is centred on z = 0.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+Three M3 holes: one counterbored 2 mm, one countersunk flush, and one for a heat-set insert.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">holes</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+    <span class="hl-function-call">screw_hole</span><span class="hl-bracket">(</span><span class="hl-string">"M3"</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">12</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">screw_hole</span><span class="hl-bracket">(</span><span class="hl-string">"M3"</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">head</span><span class="hl-delimiter">:</span> <span class="hl-string">"countersunk"</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">insert_hole</span><span class="hl-bracket">(</span><span class="hl-string">"M3"</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">12</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-variable-use">plate</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-screw-holes-and-nuts-751592d5ddba12a9.png" width="480" height="360" loading="lazy" alt="Three M3 holes: one counterbored 2 mm, one countersunk flush, and one for a heat-set insert.">
+
+</div></figure>
+
+<p>
+A nut trap from below is a <code>nut_trap</code> turned over, with the screw&rsquo;s hole through it.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+An M3 nut trap in a plate&rsquo;s underside, seen from below.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">trap</span> <span class="hl-operator">=</span> <span class="hl-function-call">union</span><span class="hl-bracket">(</span>
+    <span class="hl-function-call">nut_trap</span><span class="hl-bracket">(</span><span class="hl-string">"M3"</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect_z</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">screw_hole</span><span class="hl-bracket">(</span><span class="hl-string">"M3"</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">head</span><span class="hl-delimiter">:</span> <span class="hl-string">"none"</span><span class="hl-bracket">})</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-variable-use">plate</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">trap</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-screw-holes-and-nuts-2-906e6f2e1b72fdd8.png" width="480" height="360" loading="lazy" alt="An M3 nut trap in a plate's underside, seen from below.">
+
+</div></figure>
+</div>
+</section>
+<section id="outline-container-horizontal-holes" class="outline-2">
+<h2 id="horizontal-holes"><a href="#horizontal-holes">Horizontal holes</a></h2>
+<div class="outline-text-2" id="text-horizontal-holes">
+<p>
+A round hole along X or Y has a flat overhang at its top.
+A <code>teardrop</code> cross-section puts a 45-degree point there instead.
+Extrude it along Z, then turn it so that its +Y becomes +Z: <code>rotate_x(90)</code> for a hole along Y, and <code>rotate_x(90).rotate_z(90)</code> for one along X.
+</p>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+An M3 hole along X through a block, its point up.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">hole</span> <span class="hl-operator">=</span> <span class="hl-function-call">teardrop</span><span class="hl-bracket">(</span><span class="hl-number">1.7</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">(</span><span class="hl-number">40</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">16</span><span class="hl-delimiter">,</span> <span class="hl-number">12</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">hole</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-horizontal-holes-0a2263b9feebdd9a.png" width="480" height="360" loading="lazy" alt="An M3 hole along X through a block, its point up.">
+
+</div></figure>
+</div>
+</section>
+<section id="outline-container-patterns" class="outline-2">
+<h2 id="patterns"><a href="#patterns">Patterns</a></h2>
+<div class="outline-text-2" id="text-patterns">
+<p>
+<code>linear_array</code> makes a row of copies, <code>grid_array</code> a grid, and <code>polar_array</code> a circle of them.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A flange: six holes round a circle of radius 20, and a bore.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">hole</span> <span class="hl-operator">=</span> <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">ring</span> <span class="hl-operator">=</span> <span class="hl-variable-use">hole</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">polar_array</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">cutters</span> <span class="hl-operator">=</span> <span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">ring</span><span class="hl-delimiter">,</span> <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">8</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">cutters</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-patterns-c4a8a304ced38fdb.png" width="480" height="360" loading="lazy" alt="A flange: six holes round a circle of radius 20, and a bore.">
+
+</div></figure>
+
+<p>
+For many small features, the <code>repeat</code> functions cost the same as one copy.
+Each copy must stay in its cell; for copies that overlap, use the <code>*_array</code> functions.
+<code>repeat</code>, which repeats without end, suits textures, cut to size with <code>intersection</code>.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+200 vent holes in a 2 mm plate.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">vents</span> <span class="hl-operator">=</span> <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">1.5</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">repeat_grid</span><span class="hl-bracket">([</span><span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">110</span><span class="hl-delimiter">,</span> <span class="hl-number">60</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">vents</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-patterns-2-53e7b65330de5a5a.png" width="480" height="360" loading="lazy" alt="200 vent holes in a 2 mm plate.">
+
+</div></figure>
+</div>
+</section>
+<section id="outline-container-reference-geometry" class="outline-2">
+<h2 id="reference-geometry"><a href="#reference-geometry">Reference geometry</a></h2>
+<div class="outline-text-2" id="text-reference-geometry">
+<p>
+Everything drawn is exported.
+To see a part among what it fits, draw the surroundings behind a constant, and set it to <code>false</code> before exporting.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A clip on a table&rsquo;s edge, the table drawn only while <code>PREVIEW</code> is true.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">table</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">60</span><span class="hl-delimiter">,</span> <span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">18</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">]})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">slot</span> <span class="hl-operator">=</span> <span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">18.4</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">3</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">clip</span> <span class="hl-operator">=</span> <span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">14</span><span class="hl-delimiter">,</span> <span class="hl-number">24</span><span class="hl-bracket">])</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">slot</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">1.8</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">9</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-function-call">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">clip</span><span class="hl-delimiter">,</span> <span class="hl-number">0.95</span><span class="hl-delimiter">,</span> <span class="hl-number">0.55</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">if</span> <span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">table</span><span class="hl-delimiter">,</span> <span class="hl-number">0.65</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.35</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-reference-geometry-84684f06fc0a9453.png" width="480" height="360" loading="lazy" alt="A clip on a table's edge, the table drawn only while PREVIEW is true.">
+
+</div></figure>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="modules-reference.html"><span>Previous</span> Modules reference</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="coming-from-openscad.html"><span>Next</span> Coming from OpenSCAD</a></nav>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

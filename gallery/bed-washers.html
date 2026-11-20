@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>bed-washers</title>
+<meta name="description" content="Bed-levelling washers, 0.5 to 1.0 mm thick, their outlines' sides telling the thickness in tenths: four rows of six." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">bed-washers</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/printer/bed-washers.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>printer/bed-washers.scad</code></a></p>
+
+<p>
+Bed-levelling washers, 0.5 to 1.0 mm thick, their outlines&rsquo; sides telling
+the thickness in tenths: four rows of six.
+</p>
+
+<p>
+Ported from <code>src/printer/bed-washers.scad</code>.  Differences:
+</p>
+<ul class="org-ul">
+<li>The hole is a circle; the original&rsquo;s is a 36-gon, a resolution rather
+than a mark (0.007 mm in at its corners).</li>
+</ul>
+
+<p>
+Compared with the original: within 0.0074 mm.
+</p>
+
+<a href="frames/bed-washers-c1bfc6d6a442812d.png"><img src="frames/bed-washers-c1bfc6d6a442812d.png" width="800" height="600" fetchpriority="high" alt="bed-washers, shaded, from the front right"></a>
+
+<a href="frames/bed-washers-456d8d7ebdd7db48.png"><img src="frames/bed-washers-456d8d7ebdd7db48.png" width="800" height="600" loading="lazy" alt="bed-washers, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/bed-washers.keycap"><code>bed-washers.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Bed-levelling washers, 0.5 to 1.0 mm thick, their outlines' sides telling</span>
+<span class="hl-comment">// the thickness in tenths: four rows of six.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/printer/bed-washers.scad`.  Differences:</span>
+<span class="hl-comment">// - The hole is a circle; the original's is a 36-gon, a resolution rather</span>
+<span class="hl-comment">//   than a mark (0.007 mm in at its corners).</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.0074 mm.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">L</span> <span class="hl-operator">=</span> <span class="hl-number">0.1</span><span class="hl-delimiter">;</span>               <span class="hl-comment">// a tenth of a millimetre</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">STEP</span> <span class="hl-operator">=</span> <span class="hl-number">16.0</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// between neighbouring washers</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">D_INNER</span> <span class="hl-operator">=</span> <span class="hl-number">3.9</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">D_OUTER</span> <span class="hl-operator">=</span> <span class="hl-number">12.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Washer ---</span>
+
+<span class="hl-doc">/// A washer `height` thick, standing on z = 0, its outline a polygon of</span>
+<span class="hl-doc">/// `mark` sides.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">washer</span><span class="hl-bracket">(</span><span class="hl-variable-name">height</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">mark</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">D_OUTER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">height</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">sides</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">mark</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">D_INNER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">height</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">]))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// One washer per thickness from 5 to 10 tenths, then four such rows, at</span>
+<span class="hl-comment">// the cost of one.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">set</span> <span class="hl-operator">=</span> <span class="hl-builtin">arrange_row</span><span class="hl-bracket">([</span>
+    <span class="hl-function-call">washer</span><span class="hl-bracket">(</span><span class="hl-constant">L</span> <span class="hl-operator">*</span> <span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">washer</span><span class="hl-bracket">(</span><span class="hl-constant">L</span> <span class="hl-operator">*</span> <span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">washer</span><span class="hl-bracket">(</span><span class="hl-constant">L</span> <span class="hl-operator">*</span> <span class="hl-number">7</span><span class="hl-delimiter">,</span> <span class="hl-number">7</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">washer</span><span class="hl-bracket">(</span><span class="hl-constant">L</span> <span class="hl-operator">*</span> <span class="hl-number">8</span><span class="hl-delimiter">,</span> <span class="hl-number">8</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">washer</span><span class="hl-bracket">(</span><span class="hl-constant">L</span> <span class="hl-operator">*</span> <span class="hl-number">9</span><span class="hl-delimiter">,</span> <span class="hl-number">9</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">washer</span><span class="hl-bracket">(</span><span class="hl-constant">L</span> <span class="hl-operator">*</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-constant">STEP</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">set</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_grid</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">STEP</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

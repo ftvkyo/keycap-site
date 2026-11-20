@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ivar-joiner</title>
+<meta name="description" content="IKEA IVAR joiner: a plate that screws across the tops of two side-by-side legs." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">ivar-joiner</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/ikea-ivar/joiner.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>ikea-ivar/joiner.scad</code></a></p>
+
+<p>
+IKEA IVAR joiner: a plate that screws across the tops of two side-by-side
+legs.
+</p>
+
+<p>
+The plate&rsquo;s top edge slopes like OpenSCAD&rsquo;s minkowski() with a cone; here
+the slope is a plane equation, intersected with the rounded slab.
+</p>
+
+<a href="frames/ivar-joiner-33fd7d390e0591f4.png"><img src="frames/ivar-joiner-33fd7d390e0591f4.png" width="800" height="600" fetchpriority="high" alt="ivar-joiner, shaded, from the front right"></a>
+
+<a href="frames/ivar-joiner-3a80d80a4a7b844a.png"><img src="frames/ivar-joiner-3a80d80a4a7b844a.png" width="800" height="600" loading="lazy" alt="ivar-joiner, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/ivar-joiner.keycap"><code>ivar-joiner.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// IKEA IVAR joiner: a plate that screws across the tops of two side-by-side</span>
+<span class="hl-comment">// legs, ported from OpenSCAD.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The plate's top edge slopes like OpenSCAD's minkowski() with a cone; here</span>
+<span class="hl-comment">// the slope is a plane equation, intersected with the rounded slab.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">LEG</span> <span class="hl-operator">=</span> <span class="hl-number">70.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// width of one leg's top, unverified</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">MARGIN</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>        <span class="hl-comment">// inset of the plate from the legs' outline</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// corner radius of the plate's footprint</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">4.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SLOPE_START</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>   <span class="hl-comment">// height where the top edge starts to slope in</span>
+
+<span class="hl-comment">// Wood screws: a 67-degree conical head, 2.8 mm deep</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREW_R</span> <span class="hl-operator">=</span> <span class="hl-number">1.9</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREW_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">19.2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HEAD_R</span> <span class="hl-operator">=</span> <span class="hl-number">3.75</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HEAD_H</span> <span class="hl-operator">=</span> <span class="hl-number">2.8</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parts ---</span>
+
+<span class="hl-comment">// A screw's hole, its head flush with z = 0 and room above it.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">wood_screw_hole</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">([</span>
+        <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_R</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_LENGTH</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_R</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HEAD_R</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HEAD_H</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HEAD_R</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The footprint covers both legs, less the margin; the top face is</span>
+<span class="hl-comment">// ROUNDING smaller all round, and the edge slopes from the footprint at</span>
+<span class="hl-comment">// SLOPE_START up to the top face.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">footprint</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-constant">LEG</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">MARGIN</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">LEG</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">MARGIN</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">top</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">footprint</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">ROUNDING</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">footprint</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">rise</span> <span class="hl-operator">=</span> <span class="hl-constant">THICKNESS</span> <span class="hl-operator">-</span> <span class="hl-constant">SLOPE_START</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">slab</span> <span class="hl-operator">=</span> <span class="hl-builtin">rect</span><span class="hl-bracket">(</span><span class="hl-variable-use">footprint</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">THICKNESS</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// rect(top) grows by ROUNDING as z falls by `rise`: the plane</span>
+<span class="hl-comment">// rise * d + ROUNDING * z = ROUNDING * THICKNESS, normalised to a distance.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">slope</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-variable-use">rise</span> <span class="hl-operator">*</span> <span class="hl-builtin">rect</span><span class="hl-bracket">(</span><span class="hl-variable-use">top</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-constant">ROUNDING</span> <span class="hl-operator">*</span> <span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-constant">THICKNESS</span><span class="hl-bracket">))</span> <span class="hl-operator">/</span> <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">rise</span><span class="hl-delimiter">,</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-builtin">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">slab</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">slope</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// Four screws per leg, in a square 40 mm across centred on the leg; one</span>
+<span class="hl-comment">// leg's group mirrored onto the other.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">spread</span> <span class="hl-operator">=</span> <span class="hl-constant">LEG</span> <span class="hl-operator">-</span> <span class="hl-number">6</span> <span class="hl-operator">*</span> <span class="hl-constant">MARGIN</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">group</span> <span class="hl-operator">=</span> <span class="hl-function-call">wood_screw_hole</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">grid_array</span><span class="hl-bracket">([</span><span class="hl-variable-use">spread</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">spread</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">holes</span> <span class="hl-operator">=</span> <span class="hl-variable-use">group</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">LEG</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">THICKNESS</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">symmetric_y</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">plate</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>dna-loop</title>
+<meta name="description" content="A double helix wound round a ring, its strands joined by rungs; ported from OpenSCAD, where each strand is 360 rings of 36 points, turned into place one by one and stitched into a polyhedron." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">dna-loop</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/shapes/dna-loop.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>shapes/dna-loop.scad</code></a></p>
+
+<p>
+A double helix wound round a ring, its strands joined by rungs; ported
+from OpenSCAD, where each strand is 360 rings of 36 points, turned into
+place one by one and stitched into a polyhedron.
+</p>
+
+<p>
+Here the model is built straight, along Z, and bent into the ring at the
+end: bend() makes the length along Z the length round the ring.
+Straight, a strand is a helix, whose wire helix() keeps round, square to
+the strand; the OpenSCAD design tilts each ring of points towards that
+by a guessed angle.  The rungs are one rung, repeated along Z, turned in
+each repeat to where the strands are.
+</p>
+
+<a href="frames/dna-loop-3bc1b1a042d74f40.png"><img src="frames/dna-loop-3bc1b1a042d74f40.png" width="800" height="600" fetchpriority="high" alt="dna-loop, shaded, from the front right"></a>
+
+<a href="frames/dna-loop-16ad9582427bb76b.png"><img src="frames/dna-loop-16ad9582427bb76b.png" width="800" height="600" loading="lazy" alt="dna-loop, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/dna-loop.keycap"><code>dna-loop.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// A double helix wound round a ring, its strands joined by rungs; ported</span>
+<span class="hl-comment">// from OpenSCAD, where each strand is 360 rings of 36 points, turned into</span>
+<span class="hl-comment">// place one by one and stitched into a polyhedron.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Here the model is built straight, along Z, and bent into the ring at the</span>
+<span class="hl-comment">// end: bend() makes the length along Z the length round the ring.</span>
+<span class="hl-comment">// Straight, a strand is a helix, whose wire helix() keeps round, square to</span>
+<span class="hl-comment">// the strand; the OpenSCAD design tilts each ring of points towards that</span>
+<span class="hl-comment">// by a guessed angle.  The rungs are one rung, repeated along Z, turned in</span>
+<span class="hl-comment">// each repeat to where the strands are.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">RING</span> <span class="hl-operator">=</span> <span class="hl-number">25.0</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// radius of the ring the helix winds round</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">OFFSET</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// how far the rungs sit off the helix's axis</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">GAP</span> <span class="hl-operator">=</span> <span class="hl-number">4.0</span><span class="hl-delimiter">;</span>             <span class="hl-comment">// between the strands, along a rung</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TWISTS</span> <span class="hl-operator">=</span> <span class="hl-number">6</span><span class="hl-delimiter">;</span>            <span class="hl-comment">// turns of the helix round the ring</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">RUNGS</span> <span class="hl-operator">=</span> <span class="hl-number">72</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">STRAND</span> <span class="hl-operator">=</span> <span class="hl-number">3.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// diameter of a strand</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">RUNG</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>            <span class="hl-comment">// and of a rung</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">false</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// show the ring</span>
+
+<span class="hl-comment">// --- Straight helix ---</span>
+
+<span class="hl-comment">// A turn of the helix takes this much length along Z, and runs clockwise</span>
+<span class="hl-comment">// looking along the ring, as in the OpenSCAD design: a negative pitch.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">pitch</span> <span class="hl-operator">=</span> <span class="hl-operator">-</span><span class="hl-constant">TAU</span> <span class="hl-operator">*</span> <span class="hl-constant">RING</span> <span class="hl-operator">/</span> <span class="hl-constant">TWISTS</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// Each strand passes OFFSET out from the axis and half a rung's length to</span>
+<span class="hl-comment">// one side of it.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">half</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-constant">GAP</span> <span class="hl-operator">+</span> <span class="hl-constant">STRAND</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">reach</span> <span class="hl-operator">=</span> <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-constant">OFFSET</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">half</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">phase</span> <span class="hl-operator">=</span> <span class="hl-builtin">atan2d</span><span class="hl-bracket">(</span><span class="hl-variable-use">half</span><span class="hl-delimiter">,</span> <span class="hl-constant">OFFSET</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">wire</span> <span class="hl-operator">=</span> <span class="hl-builtin">helix</span><span class="hl-bracket">(</span><span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-constant">STRAND</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">reach</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">pitch</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">strands</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">wire</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-variable-use">phase</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">wire</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">phase</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// One rung at every step along Z, turned with the strands: the step's</span>
+<span class="hl-comment">// index, its height and its turn are constant over the step, so each rung</span>
+<span class="hl-comment">// is a rigid copy and its field stays exact.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">step</span> <span class="hl-operator">=</span> <span class="hl-constant">TAU</span> <span class="hl-operator">*</span> <span class="hl-constant">RING</span> <span class="hl-operator">/</span> <span class="hl-constant">RUNGS</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">index</span> <span class="hl-operator">=</span> <span class="hl-builtin">round</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">/</span> <span class="hl-variable-use">step</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">turn</span> <span class="hl-operator">=</span> <span class="hl-variable-use">index</span> <span class="hl-operator">*</span> <span class="hl-variable-use">step</span> <span class="hl-operator">*</span> <span class="hl-constant">TAU</span> <span class="hl-operator">/</span> <span class="hl-variable-use">pitch</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">c</span> <span class="hl-operator">=</span> <span class="hl-builtin">cos</span><span class="hl-bracket">(</span><span class="hl-variable-use">turn</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-builtin">sin</span><span class="hl-bracket">(</span><span class="hl-variable-use">turn</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">rung</span> <span class="hl-operator">=</span> <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-constant">RUNG</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-constant">GAP</span> <span class="hl-operator">+</span> <span class="hl-constant">STRAND</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">OFFSET</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">rungs</span> <span class="hl-operator">=</span> <span class="hl-variable-use">rung</span><span class="hl-delimiter">.</span><span class="hl-function-call">remap</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">*</span> <span class="hl-variable-use">c</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y</span> <span class="hl-operator">*</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span> <span class="hl-operator">*</span> <span class="hl-variable-use">c</span> <span class="hl-operator">-</span> <span class="hl-variable-use">x</span> <span class="hl-operator">*</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-variable-use">index</span> <span class="hl-operator">*</span> <span class="hl-variable-use">step</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Ring ---</span>
+
+<span class="hl-comment">// The torus round it changes no value, but tells interval arithmetic where</span>
+<span class="hl-comment">// the model ends, which the turned rungs hide.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">model</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">strands</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">rungs</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">bend</span><span class="hl-bracket">(</span><span class="hl-constant">RING</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">model</span> <span class="hl-operator">=</span> <span class="hl-builtin">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">model</span><span class="hl-delimiter">,</span> <span class="hl-builtin">torus</span><span class="hl-bracket">(</span><span class="hl-constant">RING</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">reach</span> <span class="hl-operator">+</span> <span class="hl-constant">STRAND</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">33</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">33</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">7</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">33</span><span class="hl-delimiter">,</span> <span class="hl-number">33</span><span class="hl-delimiter">,</span> <span class="hl-number">7</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">resolution</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">model</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">if</span> <span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-builtin">torus</span><span class="hl-bracket">(</span><span class="hl-constant">RING</span><span class="hl-delimiter">,</span> <span class="hl-constant">STRAND</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.67</span><span class="hl-delimiter">,</span> <span class="hl-number">0.67</span><span class="hl-delimiter">,</span> <span class="hl-number">0.67</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

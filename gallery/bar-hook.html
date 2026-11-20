@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>bar-hook</title>
+<meta name="description" content="Bar hook: an S-hook that hangs over a round or square bar, such as a wardrobe rail or a towel bar, with a lip that snaps over the bar and a lower hook for bags or hangers." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">bar-hook</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://tangled.org/rei.gay/keycap">keycap</a></span></p>
+
+<p>
+Bar hook: an S-hook that hangs over a round or square bar, such as a
+wardrobe rail or a towel bar, with a lip that snaps over the bar and a
+lower hook for bags or hangers.
+</p>
+
+<p>
+The hook is drawn flat, as a pen would: arcs and lines of the same width
+joined end to end, extruded with rounded rims.  It prints lying flat, as
+drawn, so that the layers run along the hook and take its bending
+without supports.
+</p>
+
+<p>
+Unverified: the lip&rsquo;s snap over the bar, and the print.
+</p>
+
+<a href="frames/bar-hook-2e91fa0f38e7338e.png"><img src="frames/bar-hook-2e91fa0f38e7338e.png" width="800" height="600" fetchpriority="high" alt="bar-hook, camera -70 55"></a>
+
+<a href="frames/bar-hook-696c42a402db8256.png"><img src="frames/bar-hook-696c42a402db8256.png" width="800" height="600" loading="lazy" alt="bar-hook, camera top"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/bar-hook.keycap"><code>bar-hook.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Bar hook: an S-hook that hangs over a round or square bar, such as a</span>
+<span class="hl-comment">// wardrobe rail or a towel bar, with a lip that snaps over the bar and a</span>
+<span class="hl-comment">// lower hook for bags or hangers.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The hook is drawn flat, as a pen would: arcs and lines of the same width</span>
+<span class="hl-comment">// joined end to end, extruded with rounded rims.  It prints lying flat, as</span>
+<span class="hl-comment">// drawn, so that the layers run along the hook and take its bending</span>
+<span class="hl-comment">// without supports.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Unverified: the lip's snap over the bar, and the print.</span>
+
+<span class="hl-comment">// view: camera -70 55</span>
+<span class="hl-comment">// view: camera top</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// draw the bar the hook hangs on</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BAR</span> <span class="hl-operator">=</span> <span class="hl-number">25.0</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// the bar's diameter, or its side</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BAR_SHAPE</span> <span class="hl-operator">=</span> <span class="hl-string">"round"</span><span class="hl-delimiter">;</span>  <span class="hl-comment">// "round" or "square"</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CLEARANCE</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// between the bar and the hook, all round</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">T</span> <span class="hl-operator">=</span> <span class="hl-number">6.0</span><span class="hl-delimiter">;</span>              <span class="hl-comment">// the hook's thickness, in its plane</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">=</span> <span class="hl-number">12.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// and across it: the printed height</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// its edges</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DROP</span> <span class="hl-operator">=</span> <span class="hl-number">45.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// the straight run between the two hooks</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">LOAD</span> <span class="hl-operator">=</span> <span class="hl-number">30.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// the lower hook's inner diameter</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">LOAD_LIP</span> <span class="hl-operator">=</span> <span class="hl-number">10.0</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// how far the lower hook rises after its curve</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">WRAP</span> <span class="hl-operator">=</span> <span class="hl-number">210.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// degrees a round bar is wrapped by; over 180 it snaps on</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">LIP_R</span> <span class="hl-operator">=</span> <span class="hl-number">8.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// the lip that flares out at the upper tip</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">LIP_TURN</span> <span class="hl-operator">=</span> <span class="hl-number">60.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Upper hook ---</span>
+
+<span class="hl-comment">// The bar's centre is at the origin; the hook's centre line keeps half the</span>
+<span class="hl-comment">// thickness away from the bar's clearance.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">inner</span> <span class="hl-operator">=</span> <span class="hl-constant">BAR</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-constant">CLEARANCE</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">mid</span> <span class="hl-operator">=</span> <span class="hl-variable-use">inner</span> <span class="hl-operator">+</span> <span class="hl-constant">T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// A lip at a tip `at` that heads along `angle` degrees: an arc turning</span>
+<span class="hl-comment">// left, away from the bar.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">lip</span><span class="hl-bracket">(</span><span class="hl-variable-name">at</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">angle</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">LIP_R</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">centre</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">at</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-variable-use">angle</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">at</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-variable-use">angle</span><span class="hl-bracket">)]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">from</span> <span class="hl-operator">=</span> <span class="hl-variable-use">angle</span> <span class="hl-operator">-</span> <span class="hl-number">90</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">arc_stroke</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">from</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">from</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">LIP_TURN</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">(</span><span class="hl-variable-use">centre</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// Over a round bar: one arc from the back of the bar, over its top and</span>
+<span class="hl-comment">// down its front, then the lip, ending where the arc ends.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">over_round</span><span class="hl-bracket">(</span><span class="hl-variable-name">mid</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">from</span> <span class="hl-operator">=</span> <span class="hl-number">180</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">WRAP</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">tip</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">mid</span> <span class="hl-operator">*</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-variable-use">from</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">mid</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-variable-use">from</span><span class="hl-bracket">)]</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+        <span class="hl-builtin">arc_stroke</span><span class="hl-bracket">(</span><span class="hl-variable-use">mid</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">from</span><span class="hl-delimiter">,</span> <span class="hl-number">180</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-function-call">lip</span><span class="hl-bracket">(</span><span class="hl-variable-use">tip</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">from</span> <span class="hl-operator">-</span> <span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// Over a square bar: along its top, with round inner corners, and a third</span>
+<span class="hl-comment">// of the way down its front.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">over_square</span><span class="hl-bracket">(</span><span class="hl-variable-name">inner</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">mid</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">corner</span> <span class="hl-operator">=</span> <span class="hl-number">1.5</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">c</span> <span class="hl-operator">=</span> <span class="hl-variable-use">inner</span> <span class="hl-operator">-</span> <span class="hl-variable-use">corner</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-variable-use">corner</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">front</span> <span class="hl-operator">=</span> <span class="hl-variable-use">inner</span> <span class="hl-operator">*</span> <span class="hl-number">2</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">([</span>
+        <span class="hl-builtin">arc_stroke</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">90</span><span class="hl-delimiter">,</span> <span class="hl-number">180</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-variable-use">c</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">stroke</span><span class="hl-bracket">([[</span><span class="hl-operator">-</span><span class="hl-variable-use">c</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">mid</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">c</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">mid</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">arc_stroke</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">90</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">c</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">stroke</span><span class="hl-bracket">([[</span><span class="hl-variable-use">mid</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">mid</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c</span> <span class="hl-operator">-</span> <span class="hl-variable-use">front</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-function-call">lip</span><span class="hl-bracket">([</span><span class="hl-variable-use">mid</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c</span> <span class="hl-operator">-</span> <span class="hl-variable-use">front</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">top</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-constant">BAR_SHAPE</span> <span class="hl-operator">==</span> <span class="hl-string">"round"</span> <span class="hl-bracket">{</span> <span class="hl-number">0.0</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">inner</span> <span class="hl-operator">-</span> <span class="hl-number">1.5</span> <span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">upper</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-constant">BAR_SHAPE</span> <span class="hl-operator">==</span> <span class="hl-string">"round"</span> <span class="hl-bracket">{</span> <span class="hl-function-call">over_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">mid</span><span class="hl-bracket">)</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-function-call">over_square</span><span class="hl-bracket">(</span><span class="hl-variable-use">inner</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">mid</span><span class="hl-bracket">)</span> <span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Shank and lower hook ---</span>
+
+<span class="hl-comment">// Down the back of the bar, then a half turn the other way, so that the</span>
+<span class="hl-comment">// hook hangs as an S, and up into the lower lip.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">r_load</span> <span class="hl-operator">=</span> <span class="hl-constant">LOAD</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-constant">T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">bottom</span> <span class="hl-operator">=</span> <span class="hl-operator">-</span><span class="hl-constant">DROP</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">shank</span> <span class="hl-operator">=</span> <span class="hl-builtin">stroke</span><span class="hl-bracket">([[</span><span class="hl-operator">-</span><span class="hl-variable-use">mid</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">top</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-variable-use">mid</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bottom</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">load</span> <span class="hl-operator">=</span> <span class="hl-builtin">arc_stroke</span><span class="hl-bracket">(</span><span class="hl-variable-use">r_load</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">180</span><span class="hl-delimiter">,</span> <span class="hl-number">360</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-variable-use">mid</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r_load</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bottom</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">load_lip</span> <span class="hl-operator">=</span> <span class="hl-builtin">stroke</span><span class="hl-bracket">([[</span><span class="hl-operator">-</span><span class="hl-variable-use">mid</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-variable-use">r_load</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bottom</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-variable-use">mid</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-variable-use">r_load</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bottom</span> <span class="hl-operator">+</span> <span class="hl-constant">LOAD_LIP</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Hook ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">outline</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">([</span><span class="hl-variable-use">upper</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">shank</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">load</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">load_lip</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">outline</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">}))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Bar ---</span>
+
+<span class="hl-keyword">if</span> <span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bar</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-constant">BAR_SHAPE</span> <span class="hl-operator">==</span> <span class="hl-string">"round"</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-constant">BAR</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">+</span> <span class="hl-number">20</span><span class="hl-bracket">])</span>
+    <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-constant">BAR</span><span class="hl-delimiter">,</span> <span class="hl-constant">BAR</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">+</span> <span class="hl-number">40</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span>
+    <span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">bar</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.65</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

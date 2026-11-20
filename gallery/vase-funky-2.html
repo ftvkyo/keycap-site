@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>vase-funky-2</title>
+<meta name="description" content="Funky vase 2: a hexagon with two levels of hexagons at its corners, opened and closed by 3 mm, rising 120 mm while it twists along one Bézier schedule and widens along another." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">vase-funky-2</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/vases/funky_2.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>vases/funky_2.scad</code></a></p>
+
+<p>
+Funky vase 2: a hexagon with two levels of hexagons at its corners,
+opened and closed by 3 mm, rising 120 mm while it twists along one
+Bézier schedule and widens along another.
+</p>
+
+<p>
+Ported from <code>src/vases/funky_2.scad</code>.  What differs, and why:
+</p>
+
+<ul class="org-ul">
+<li>One solid instead of 36 stacked slices: the twist and the scale follow
+their Bézier schedules smoothly, where OpenSCAD&rsquo;s slices step through
+them linearly.  The twist differs by up to 0.65 degrees, 0.7 mm at the
+rim; the scale by under 0.1 mm.</li>
+<li>The open-close, OpenSCAD&rsquo;s offset(-r) offset(2r) offset(-r), cancels on
+a field.  Each hexagon is opened on its own instead, shrunk and grown
+back as an exact offset, and the closing is union_round of all 43.</li>
+<li>Round arcs where OpenSCAD&rsquo;s $fn = 12 leaves 12-gons.</li>
+</ul>
+
+<p>
+Compared with the original: within 0.98 mm, against slices worked out
+from its profile.
+</p>
+
+<a href="frames/vase-funky-2-682a06a25b60c20d.png"><img src="frames/vase-funky-2-682a06a25b60c20d.png" width="800" height="600" fetchpriority="high" alt="vase-funky-2, shaded, from the front right"></a>
+
+<a href="frames/vase-funky-2-94450a9693906192.png"><img src="frames/vase-funky-2-94450a9693906192.png" width="800" height="600" loading="lazy" alt="vase-funky-2, shaded, from the back left"></a>
+
+<a href="frames/vase-funky-2-949af0a9134f16c6.png"><img src="frames/vase-funky-2-949af0a9134f16c6.png" width="800" height="600" loading="lazy" alt="vase-funky-2, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/vase-funky-2.keycap"><code>vase-funky-2.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Funky vase 2: a hexagon with two levels of hexagons at its corners,</span>
+<span class="hl-comment">// opened and closed by 3 mm, rising 120 mm while it twists along one</span>
+<span class="hl-comment">// B&#233;zier schedule and widens along another.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/vases/funky_2.scad`.  What differs, and why:</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// - One solid instead of 36 stacked slices: the twist and the scale follow</span>
+<span class="hl-comment">//   their B&#233;zier schedules smoothly, where OpenSCAD's slices step through</span>
+<span class="hl-comment">//   them linearly.  The twist differs by up to 0.65 degrees, 0.7 mm at the</span>
+<span class="hl-comment">//   rim; the scale by under 0.1 mm.</span>
+<span class="hl-comment">// - The open-close, OpenSCAD's offset(-r) offset(2r) offset(-r), cancels on</span>
+<span class="hl-comment">//   a field.  Each hexagon is opened on its own instead, shrunk and grown</span>
+<span class="hl-comment">//   back as an exact offset, and the closing is union_round of all 43.</span>
+<span class="hl-comment">// - Round arcs where OpenSCAD's $fn = 12 leaves 12-gons.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.98 mm, against slices worked out</span>
+<span class="hl-comment">// from its profile.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">H</span> <span class="hl-operator">=</span> <span class="hl-number">120.0</span><span class="hl-delimiter">;</span>        <span class="hl-comment">// height</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SIDES</span> <span class="hl-operator">=</span> <span class="hl-number">6</span><span class="hl-delimiter">;</span>        <span class="hl-comment">// sides of the base polygon</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">R</span> <span class="hl-operator">=</span> <span class="hl-number">35.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// radius of the base polygon</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">LEVELS</span> <span class="hl-operator">=</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// levels of polygons at the corners</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">3.0</span><span class="hl-delimiter">;</span>   <span class="hl-comment">// the profile's open-close</span>
+
+<span class="hl-comment">// The schedules, as OpenSCAD's slices take them: the turn of each slice,</span>
+<span class="hl-comment">// in degrees, clockwise, times the number of slices, along a cubic B&#233;zier</span>
+<span class="hl-comment">// curve; and the scale.</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TWIST</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">120.0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">180.0</span><span class="hl-delimiter">,</span> <span class="hl-number">30.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCALE</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">1.0</span><span class="hl-delimiter">,</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">1.2</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Profile ---</span>
+
+<span class="hl-comment">// A polygon of radius r, its corners rounded as OpenSCAD's opening rounds</span>
+<span class="hl-comment">// them: shrunk by ROUNDING, then grown back by an offset, which is exact.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">polygon_opened</span><span class="hl-bracket">(</span><span class="hl-variable-name">r</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">n</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SIDES</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-variable-use">n</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">ROUNDING</span> <span class="hl-operator">/</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-number">180.0</span> <span class="hl-operator">/</span> <span class="hl-variable-use">n</span><span class="hl-bracket">))</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">ROUNDING</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The polygon of radius r and, at each of its corners, the same a third</span>
+<span class="hl-comment">// the size, `levels` deep: OpenSCAD's corners(r) corners(r / 3).</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">polygons</span><span class="hl-bracket">(</span><span class="hl-variable-name">r</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">levels</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">parts</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-function-call">polygon_opened</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span><span class="hl-bracket">)]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">levels</span> <span class="hl-operator">&gt;</span> <span class="hl-number">0</span> <span class="hl-bracket">{</span>
+        <span class="hl-keyword">for</span> <span class="hl-variable-name">i</span> <span class="hl-keyword">in</span> <span class="hl-number">0</span><span class="hl-operator">..</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SIDES</span> <span class="hl-bracket">{</span>
+            <span class="hl-keyword">for</span> <span class="hl-variable-name">p</span> <span class="hl-keyword">in</span> <span class="hl-function-call">polygons</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">levels</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+                <span class="hl-variable-use">parts</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-variable-use">p</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">360.0</span> <span class="hl-operator">*</span> <span class="hl-variable-use">i</span> <span class="hl-operator">/</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SIDES</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+            <span class="hl-bracket">}</span>
+        <span class="hl-bracket">}</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-variable-use">parts</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> <span class="hl-operator">=</span> <span class="hl-builtin">union_round</span><span class="hl-bracket">(</span><span class="hl-function-call">polygons</span><span class="hl-bracket">(</span><span class="hl-constant">R</span><span class="hl-delimiter">,</span> <span class="hl-constant">LEVELS</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Vase ---</span>
+
+<span class="hl-comment">// OpenSCAD turns each slice by TWIST's curve at that slice, so the turn at</span>
+<span class="hl-comment">// a height is the curve's integral.  Its turn is clockwise; extrude's is</span>
+<span class="hl-comment">// anticlockwise.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">vase</span> <span class="hl-operator">=</span> <span class="hl-variable-use">profile</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">H</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span>
+    <span class="hl-property-name">twist</span><span class="hl-delimiter">:</span> <span class="hl-bracket">|</span><span class="hl-variable-name">t</span><span class="hl-bracket">|</span> <span class="hl-operator">-</span><span class="hl-builtin">bezier_point</span><span class="hl-bracket">(</span><span class="hl-builtin">bezier_integral</span><span class="hl-bracket">(</span><span class="hl-constant">TWIST</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-bracket">|</span><span class="hl-variable-name">t</span><span class="hl-bracket">|</span> <span class="hl-builtin">bezier_point</span><span class="hl-bracket">(</span><span class="hl-constant">SCALE</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">vase</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

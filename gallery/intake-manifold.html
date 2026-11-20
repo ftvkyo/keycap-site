@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>intake-manifold</title>
+<meta name="description" content="Intake manifold: four runners from an inline row of ports, merging into one collector with a throttle body's flange on top; hollow, with thin walls." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">intake-manifold</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://tangled.org/rei.gay/keycap">keycap</a></span></p>
+
+<p>
+Intake manifold: four runners from an inline row of ports, merging into
+one collector with a throttle body&rsquo;s flange on top; hollow, with thin
+walls.
+</p>
+
+<p>
+Each runner is a 3D Bézier curve made a tube: <code>points::bezier</code> walks the
+curve and <code>capsule</code> draws a round rod through the points.  The runners
+and the collector are blended together and then hollowed in one go,
+so the bores merge as smoothly as the outside does.  The flanges are
+added after the hollowing, so that they stay solid.
+</p>
+
+<p>
+Prints standing on the port flanges, without supports: the runners lean
+at most 43 degrees from vertical, the collector starts with a 45-degree
+cone, and the outlet flange sits on a 45-degree flare.
+</p>
+
+<p>
+Unverified: the print without supports.
+</p>
+
+<a href="frames/intake-manifold-ab5fa87d49c8dafc.png"><img src="frames/intake-manifold-ab5fa87d49c8dafc.png" width="800" height="600" fetchpriority="high" alt="intake-manifold, camera -60 20"></a>
+
+<a href="frames/intake-manifold-563a651ca6206e3d.png"><img src="frames/intake-manifold-563a651ca6206e3d.png" width="800" height="600" loading="lazy" alt="intake-manifold, camera 150 -20"></a>
+
+<a href="frames/intake-manifold-809391f86c3f1cc7.png"><img src="frames/intake-manifold-809391f86c3f1cc7.png" width="800" height="600" loading="lazy" alt="intake-manifold, sdf, slice y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/intake-manifold.keycap"><code>intake-manifold.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Intake manifold: four runners from an inline row of ports, merging into</span>
+<span class="hl-comment">// one collector with a throttle body's flange on top; hollow, with thin</span>
+<span class="hl-comment">// walls.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Each runner is a 3D B&#233;zier curve made a tube: `points::bezier` walks the</span>
+<span class="hl-comment">// curve and `capsule` draws a round rod through the points.  The runners</span>
+<span class="hl-comment">// and the collector are blended together and then hollowed in one go,</span>
+<span class="hl-comment">// so the bores merge as smoothly as the outside does.  The flanges are</span>
+<span class="hl-comment">// added after the hollowing, so that they stay solid.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Prints standing on the port flanges, without supports: the runners lean</span>
+<span class="hl-comment">// at most 43 degrees from vertical, the collector starts with a 45-degree</span>
+<span class="hl-comment">// cone, and the outlet flange sits on a 45-degree flare.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Unverified: the print without supports.</span>
+
+<span class="hl-comment">// view: camera -60 20</span>
+<span class="hl-comment">// view: camera 150 -20</span>
+<span class="hl-comment">// view: sdf, slice y</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/points"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">points</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PORTS</span> <span class="hl-operator">=</span> <span class="hl-number">4</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PITCH</span> <span class="hl-operator">=</span> <span class="hl-number">30.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// between the ports' centres</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">RUNNER</span> <span class="hl-operator">=</span> <span class="hl-number">18.0</span><span class="hl-delimiter">;</span>        <span class="hl-comment">// runners' outer diameter</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">COLLECTOR</span> <span class="hl-operator">=</span> <span class="hl-number">38.0</span><span class="hl-delimiter">;</span>     <span class="hl-comment">// collector's outer diameter</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">WALL</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">FILLET</span> <span class="hl-operator">=</span> <span class="hl-number">3.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// where the runners, the collector and the flanges meet</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">MERGE</span> <span class="hl-operator">=</span> <span class="hl-number">80.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// height where the runners end, inside the collector</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TOP</span> <span class="hl-operator">=</span> <span class="hl-number">110.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// height of the outlet flange's underside</span>
+
+<span class="hl-comment">// Port flanges: one per runner, two M5 bolts each</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">FLANGE</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">24.0</span><span class="hl-delimiter">,</span> <span class="hl-number">50.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">FLANGE_T</span> <span class="hl-operator">=</span> <span class="hl-number">8.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BOLT</span> <span class="hl-operator">=</span> <span class="hl-string">"M5"</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BOLT_SPREAD</span> <span class="hl-operator">=</span> <span class="hl-number">38.0</span><span class="hl-delimiter">;</span>   <span class="hl-comment">// between a port's two bolts</span>
+
+<span class="hl-comment">// Outlet flange: four tapped M5 holes on a square</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">OUTLET_D</span> <span class="hl-operator">=</span> <span class="hl-number">70.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">OUTLET_T</span> <span class="hl-operator">=</span> <span class="hl-number">8.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">OUTLET_BOLTS</span> <span class="hl-operator">=</span> <span class="hl-number">40.0</span><span class="hl-delimiter">;</span>  <span class="hl-comment">// the square's side</span>
+
+<span class="hl-comment">// Each runner's curve is drawn with this many straight pieces.</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">STEPS</span> <span class="hl-operator">=</span> <span class="hl-number">64</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-constant">RUNNER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">rc</span> <span class="hl-operator">=</span> <span class="hl-constant">COLLECTOR</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Runners ---</span>
+
+<span class="hl-comment">// The ports' centres along X.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">port_x</span><span class="hl-bracket">(</span><span class="hl-variable-name">i</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-bracket">(</span><span class="hl-variable-use">i</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PORTS</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PITCH</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// Where runner `i` ends: the ends packed in a square round the collector's</span>
+<span class="hl-comment">// axis, as far out as keeps a fillet's width clear of its wall: a blend</span>
+<span class="hl-comment">// bulges where two surfaces run side by side within it.  The outer</span>
+<span class="hl-comment">// runners take the back corners and the inner ones the front, so no two</span>
+<span class="hl-comment">// runners cross.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">runner_end</span><span class="hl-bracket">(</span><span class="hl-variable-name">i</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">a</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">COLLECTOR</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FILLET</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">RUNNER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">2.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">side</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-variable-use">i</span> <span class="hl-operator">&lt;</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PORTS</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-bracket">{</span> <span class="hl-operator">-</span><span class="hl-variable-use">a</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">a</span> <span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">outer</span> <span class="hl-operator">=</span> <span class="hl-variable-use">i</span> <span class="hl-operator">==</span> <span class="hl-number">0</span> <span class="hl-operator">||</span> <span class="hl-variable-use">i</span> <span class="hl-operator">==</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PORTS</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">side</span><span class="hl-delimiter">,</span> <span class="hl-keyword">if</span> <span class="hl-variable-use">outer</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">a</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-operator">-</span><span class="hl-variable-use">a</span> <span class="hl-bracket">}</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">MERGE</span><span class="hl-bracket">]</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// A runner's path: straight up through its flange, so that the bore cut</span>
+<span class="hl-comment">// through the flange meets it square, then a cubic B&#233;zier curve over to</span>
+<span class="hl-comment">// its place in the collector, arriving straight up too.  The control</span>
+<span class="hl-comment">// points a third of the way up and down spread the lean over the whole</span>
+<span class="hl-comment">// rise, which keeps it under 45 degrees.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">runner_path</span><span class="hl-bracket">(</span><span class="hl-variable-name">i</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">x</span> <span class="hl-operator">=</span> <span class="hl-function-call">port_x</span><span class="hl-bracket">(</span><span class="hl-variable-use">i</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">start</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FLANGE_T</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FILLET</span> <span class="hl-operator">+</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">end</span> <span class="hl-operator">=</span> <span class="hl-function-call">runner_end</span><span class="hl-bracket">(</span><span class="hl-variable-use">i</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">reach</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">MERGE</span> <span class="hl-operator">-</span> <span class="hl-variable-use">start</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">curve</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">start</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">start</span> <span class="hl-operator">+</span> <span class="hl-variable-use">reach</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">end</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">end</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">end</span><span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-variable-use">reach</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-variable-use">end</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">[[</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]]</span> <span class="hl-operator">+</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-function-call">bezier</span><span class="hl-bracket">(</span><span class="hl-variable-use">curve</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">STEPS</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The capsules' round ends reach below the bed and into the collector;</span>
+<span class="hl-comment">// the bed cuts the first and the collector covers the others.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">runners</span> <span class="hl-operator">=</span> <span class="hl-bracket">[]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">for</span> <span class="hl-variable-name">i</span> <span class="hl-keyword">in</span> <span class="hl-number">0</span><span class="hl-operator">..</span><span class="hl-constant">PORTS</span> <span class="hl-bracket">{</span>
+    <span class="hl-variable-use">runners</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-builtin">capsule</span><span class="hl-bracket">(</span><span class="hl-function-call">runner_path</span><span class="hl-bracket">(</span><span class="hl-variable-use">i</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Collector ---</span>
+
+<span class="hl-comment">// A 45-degree cone up from within the runners' cluster to the collector's</span>
+<span class="hl-comment">// width, then straight up to the outlet.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">tip</span> <span class="hl-operator">=</span> <span class="hl-function-call">runner_end</span><span class="hl-bracket">(</span><span class="hl-number">0</span><span class="hl-bracket">)[</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">collector</span> <span class="hl-operator">=</span> <span class="hl-builtin">revolve</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">MERGE</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-variable-use">rc</span> <span class="hl-operator">-</span> <span class="hl-variable-use">tip</span><span class="hl-bracket">)]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">tip</span><span class="hl-delimiter">,</span> <span class="hl-constant">MERGE</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-variable-use">rc</span> <span class="hl-operator">-</span> <span class="hl-variable-use">tip</span><span class="hl-bracket">)]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">rc</span><span class="hl-delimiter">,</span> <span class="hl-constant">MERGE</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">rc</span><span class="hl-delimiter">,</span> <span class="hl-constant">TOP</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">TOP</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Hollow body ---</span>
+
+<span class="hl-comment">// The bores are where the joined field is below -WALL, so the walls are as</span>
+<span class="hl-comment">// even as the field is a distance.  smooth_union's field is a bound: the</span>
+<span class="hl-comment">// walls measure 2.0 to 3.7 mm, the most in the crotches between runners.</span>
+<span class="hl-comment">// union_round's is steeper than a distance where the runners meet the</span>
+<span class="hl-comment">// cone, and its walls thin to 1.4 mm there.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">body</span> <span class="hl-operator">=</span> <span class="hl-builtin">smooth_union</span><span class="hl-bracket">(</span><span class="hl-variable-use">runners</span> <span class="hl-operator">+</span> <span class="hl-bracket">[</span><span class="hl-variable-use">collector</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-constant">FILLET</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">kind</span><span class="hl-delimiter">:</span> <span class="hl-string">"circular"</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">shell</span><span class="hl-bracket">(</span><span class="hl-constant">WALL</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Flanges ---</span>
+
+<span class="hl-comment">// A port's flange: a plate with its bottom edge chamfered against</span>
+<span class="hl-comment">// elephant's foot, a bolt either side of the bore.  A hole is open above</span>
+<span class="hl-comment">// without end, so it is cut off just over the plate, short of the runners</span>
+<span class="hl-comment">// leaning over it.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">port_flange</span><span class="hl-bracket">(</span><span class="hl-variable-name">x</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-builtin">rect</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FLANGE</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FLANGE_T</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-property-name">chamfer</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]})</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bolts</span> <span class="hl-operator">=</span> <span class="hl-builtin">screw_hole</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BOLT</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FLANGE_T</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">head</span><span class="hl-delimiter">:</span> <span class="hl-string">"none"</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FLANGE_T</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">linear_array</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BOLT_SPREAD</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FLANGE_T</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-variable-use">plate</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">bolts</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">ports</span> <span class="hl-operator">=</span> <span class="hl-bracket">[]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">for</span> <span class="hl-variable-name">i</span> <span class="hl-keyword">in</span> <span class="hl-number">0</span><span class="hl-operator">..</span><span class="hl-constant">PORTS</span> <span class="hl-bracket">{</span>
+    <span class="hl-variable-use">ports</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-function-call">port_flange</span><span class="hl-bracket">(</span><span class="hl-function-call">port_x</span><span class="hl-bracket">(</span><span class="hl-variable-use">i</span><span class="hl-bracket">)))</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The outlet flange on a 45-degree flare, so that it prints without</span>
+<span class="hl-comment">// support; its holes are for a tap, or for heat-set inserts.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">outlet_r</span> <span class="hl-operator">=</span> <span class="hl-constant">OUTLET_D</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">flare</span> <span class="hl-operator">=</span> <span class="hl-constant">TOP</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-variable-use">outlet_r</span> <span class="hl-operator">-</span> <span class="hl-variable-use">rc</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">tapped</span> <span class="hl-operator">=</span> <span class="hl-builtin">screw_hole</span><span class="hl-bracket">(</span><span class="hl-constant">BOLT</span><span class="hl-delimiter">,</span> <span class="hl-number">12</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">head</span><span class="hl-delimiter">:</span> <span class="hl-string">"none"</span><span class="hl-delimiter">,</span> <span class="hl-property-name">fit</span><span class="hl-delimiter">:</span> <span class="hl-string">"tap"</span><span class="hl-bracket">})</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">TOP</span> <span class="hl-operator">+</span> <span class="hl-constant">OUTLET_T</span><span class="hl-bracket">])</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">grid_array</span><span class="hl-bracket">([</span><span class="hl-constant">OUTLET_BOLTS</span><span class="hl-delimiter">,</span> <span class="hl-constant">OUTLET_BOLTS</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">outlet</span> <span class="hl-operator">=</span> <span class="hl-builtin">revolve</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">flare</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">rc</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">flare</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">outlet_r</span><span class="hl-delimiter">,</span> <span class="hl-constant">TOP</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">outlet_r</span><span class="hl-delimiter">,</span> <span class="hl-constant">TOP</span> <span class="hl-operator">+</span> <span class="hl-constant">OUTLET_T</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">TOP</span> <span class="hl-operator">+</span> <span class="hl-constant">OUTLET_T</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">1</span><span class="hl-bracket">})</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">tapped</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Bores ---</span>
+
+<span class="hl-comment">// The solid flanges, and the fillets that join them to the body, cover the</span>
+<span class="hl-comment">// bores' ends; these cut them open again, as wide as the hollow body's.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">bores</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-variable-use">rc</span> <span class="hl-operator">-</span> <span class="hl-constant">WALL</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">flare</span> <span class="hl-operator">-</span> <span class="hl-constant">FILLET</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-constant">TOP</span> <span class="hl-operator">+</span> <span class="hl-constant">OUTLET_T</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">])]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">for</span> <span class="hl-variable-name">i</span> <span class="hl-keyword">in</span> <span class="hl-number">0</span><span class="hl-operator">..</span><span class="hl-constant">PORTS</span> <span class="hl-bracket">{</span>
+    <span class="hl-variable-use">bores</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span> <span class="hl-operator">-</span> <span class="hl-constant">WALL</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-constant">FLANGE_T</span> <span class="hl-operator">+</span> <span class="hl-constant">FILLET</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-function-call">port_x</span><span class="hl-bracket">(</span><span class="hl-variable-use">i</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Manifold ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">manifold</span> <span class="hl-operator">=</span> <span class="hl-builtin">union_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">body</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">ports</span> <span class="hl-operator">+</span> <span class="hl-bracket">[</span><span class="hl-variable-use">outlet</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-constant">FILLET</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">bores</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">z</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">manifold</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

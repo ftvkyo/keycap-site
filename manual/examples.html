@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Examples</title>
+<meta name="description" content="The models in examples/." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="troubleshooting.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Examples</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html" aria-current="page">Examples</a></li></ol></nav>
+<p>
+The package&rsquo;s <code>examples/</code> directory holds complete models:
+</p>
+
+<dl class="org-dl">
+<dt><code>spacer.fidget</code></dt><dd>a round standoff for an M3 screw, in fidget&rsquo;s own dialect, so that fidget&rsquo;s viewer and CLI run it unchanged.</dd>
+<dt><code>ivar-joiner.keycap</code></dt><dd>a plate that joins two IKEA IVAR legs: a sloped edge written as a plane equation, wood screw holes, <code>grid_array</code> and <code>symmetric_y</code>.</dd>
+<dt><code>table-cable-hook.keycap</code></dt><dd>a cable tray under a table&rsquo;s edge: <code>union_round</code> fillets, a cutter array, <code>draw_rgb</code> and reference geometry.</dd>
+<dt><code>menger-sponge.keycap</code></dt><dd>a Menger sponge three levels deep: one cross of bars per level, repeated without end and cut from the cube, so the cost grows with the levels and not with the 8000 cubes.</dd>
+<dt><code>fan-grill.keycap</code></dt><dd>a 2D drawing of a fan grill: a honeycomb from <code>hex_grid</code>, best seen in the sdf view.</dd>
+<dt><code>skadis-towel-hook.keycap</code></dt><dd>a hook for an IKEA SKÅDIS pegboard, importing the board and its peg from <code>skadis.rhai</code>.</dd>
+<dt><code>knob.keycap</code></dt><dd>the handle of a knob, with a waist and a dished top: a revolved profile cut with ellipses, its cusps opened with <code>smooth_difference</code>, and a ring of <code>ellipsoid</code> bumps tilted with the dish.</dd>
+<dt><code>hex-bowl.keycap</code></dt><dd>a hexagonal bowl pierced by a honeycomb: a rounded prism from <code>offset</code>, a hollow revolved from <code>points::bezier</code>, holes from <code>hex_grid</code>.</dd>
+<dt><code>badge.keycap</code></dt><dd>a pin badge and its strap bracket: artwork drawn as strokes, imported with <code>svg</code> and turned into printable lines with <code>offset</code>.</dd>
+<dt><code>vase-interpolate.keycap</code></dt><dd>a vase whose outline turns from hexagon to hexagram, back, and into a circle, swaying and widening as it rises: <code>star</code> with a <code>keyframes</code> inner radius, <code>lerp</code> of fields, <code>loft</code> and a <code>shell</code> of even thickness.</dd>
+<dt><code>vase-koch.keycap</code></dt><dd>a vase on a Koch snowflake, widening and turning: a fold by mirrors at each level of the fractal, <code>loft</code>.</dd>
+<dt><code>gear-involute.keycap</code></dt><dd>an involute spur gear, from module, teeth, clearance and pressure angle, both flanks of every tooth exact; <code>HELIX</code> makes it a herringbone.</dd>
+<dt><code>dna-loop.keycap</code></dt><dd>a double helix wound round a ring, with rungs: <code>helix</code>, <code>bend</code>, and one rung repeated and turned with the strands.</dd>
+<dt><code>feather.keycap</code></dt><dd>a feather the length of a bed&rsquo;s diagonal, with two hundred barbs of Bézier curves whose control points run along Bézier curves: <code>bezier_stroke</code> with a tapering width, the stem&rsquo;s ends cut square with <code>intersection_round</code>, <code>bezier_point</code>.</dd>
+<dt><code>bed-washers.keycap</code></dt><dd>bed-levelling washers, 0.5 to 1.0 mm thick, their outlines&rsquo; sides telling the thickness: a row by <code>arrange_row</code>, repeated by <code>repeat_grid</code>.</dd>
+<dt><code>scraper.keycap</code></dt><dd>a bed scraper with scallops for the fingers and a label: an outline from <code>points::difference</code> of circles, its corners rounded by <code>rounded_polygon</code>, <code>text</code>.</dd>
+<dt><code>phone-stand.keycap</code></dt><dd>a phone stand with every edge rounded: OpenSCAD&rsquo;s minkowski sum with a sphere, exactly, as prisms grown by <code>offset</code> and extruded with rounded rims.</dd>
+<dt><code>laptop-stand.keycap</code></dt><dd>two laser-cut legs crossed on printed hinges, and a lock: <code>rounded_polygon</code> outlines with arcs, the 2D parts laid out on <code>keycap/lasercut</code>&rsquo;s <code>sheet</code> for <code>keycap-export-2d</code>.</dd>
+<dt><code>laptop-stand-2.keycap</code></dt><dd>the laptop stand&rsquo;s second version, its hinges&rsquo; arms rounded: a profile from <code>points::union</code> and <code>points::intersection</code>, opened exactly by <code>rounded_polygon</code>.</dd>
+<dt><code>vase-funky-2.keycap</code></dt><dd>a vase of hexagons on hexagons, twisting and widening along Bézier schedules: <code>union_round</code> of 43 opened hexagons, a twist from <code>bezier_integral</code>.</dd>
+<dt><code>vase-practical.keycap</code></dt><dd>a vase on a hexagram rounded both ways, turning a sixth as it rises: <code>star</code> with rounded points, <code>loft</code>.</dd>
+<dt><code>whistle.keycap</code></dt><dd>a whistle with its sizes printed on top, and a slider that tunes it: <code>text</code> from numbers, <code>stroke</code> and <code>union_round</code>, a part to slice across Z.</dd>
+<dt><code>fidget-magnetic.keycap</code></dt><dd>a magnetic fidget spinner on a printed bearing: <code>bearing.rhai</code> imported as a module, <code>difference_round</code>, magnets from <code>keycap/magnets</code>.</dd>
+<dt><code>fidget-flower.keycap</code></dt><dd>twelve spiral petals on cogs round a housing, on the same bearing: <code>loft</code> through a petal&rsquo;s slices, <code>repeat_polar</code>.</dd>
+<dt><code>allen-key-handle.keycap</code></dt><dd>a T-handle for a bent Allen key: one <code>sweep</code> for the bar, its bends and the stem, its tips tapered by <code>sweep_length</code>, mirrored with <code>symmetric_y</code>.</dd>
+<dt><code>spike.keycap</code></dt><dd>a stud that screws through fabric, and the drivers that hold it: a twisted-ellipse thread, <code>revolve</code> from a profile&rsquo;s points.</dd>
+<dt><code>pointer.keycap</code></dt><dd>a pointing hand of square prisms and octahedra, in halves to print: <code>elongate</code> of an <code>octahedron</code>.</dd>
+<dt><code>bendy-sheet.keycap</code></dt><dd>a plywood sheet that bends into a half pipe, and its supports: <code>keycap/lasercut</code>&rsquo;s <code>living_hinge</code> and <code>cross_lap</code>.</dd>
+<dt><code>intake-manifold.keycap</code></dt><dd>four runners merging into a collector, hollow: tubes along 3D Bézier curves from <code>points::bezier</code> and <code>capsule</code>, blended with <code>smooth_union</code>, then a <code>shell</code>.</dd>
+<dt><code>bar-hook.keycap</code></dt><dd>an S-hook for a round or square bar, drawn flat as a pen would: <code>arc_stroke</code> and <code>stroke</code>, extruded with rounded rims.</dd>
+<dt><code>desk-cable-clip.keycap</code></dt><dd>a clamp for a desk&rsquo;s edge with a ring a cable snaps into, drawn as its side: <code>arc_stroke</code>, <code>stroke</code> and <code>union_round</code>.</dd>
+<dt><code>command-strip-hook.keycap</code></dt><dd>a hook on a back sized for an adhesive strip: a <code>bezier_stroke</code> hook filleted into the back with <code>union_round</code>.</dd>
+<dt><code>zip-tie-mount.keycap</code></dt><dd>a base with a bridge for a cable tie, screwed or stuck down: a <code>polygon</code> gable for the tunnel, <code>screw_hole</code> countersunk.</dd>
+</dl>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="troubleshooting.html"><span>Previous</span> Troubleshooting</a><a rel="up" href="index.html"><span>Up</span> Contents</a><span></span></nav>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

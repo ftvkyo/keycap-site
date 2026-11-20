@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>spike</title>
+<meta name="description" content="A stud that screws through fabric: a base with a twisted-ellipse thread passes through the fabric's hole and a hexagonal spike screws onto it; two drivers hold the parts while they are screwed together." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">spike</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/fabric/spike.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>fabric/spike.scad</code></a></p>
+
+<p>
+A stud that screws through fabric: a base with a twisted-ellipse thread
+passes through the fabric&rsquo;s hole and a hexagonal spike screws onto it;
+two drivers hold the parts while they are screwed together.
+</p>
+
+<p>
+Ported from <code>src/fabric/spike.scad</code>.  Differences:
+</p>
+<ul class="org-ul">
+<li>Circles are round: the original&rsquo;s are 24-gons, the thread&rsquo;s twist is
+OpenSCAD&rsquo;s default slices (under 0.03 mm).</li>
+<li>The base&rsquo;s profile is revolved from its points, from the axis out, so
+its field is exact inside too.</li>
+<li>The fabric, a reference drawing in the original, is not drawn.</li>
+</ul>
+
+<p>
+Compared with the original: within 0.024 mm.
+</p>
+
+<a href="frames/spike-0b51b2bfd5aae675.png"><img src="frames/spike-0b51b2bfd5aae675.png" width="800" height="600" fetchpriority="high" alt="spike, shaded, from the front right"></a>
+
+<a href="frames/spike-78a730ebb947bae7.png"><img src="frames/spike-78a730ebb947bae7.png" width="800" height="600" loading="lazy" alt="spike, shaded, from the back left"></a>
+
+<a href="frames/spike-9774b8a55747031f.png"><img src="frames/spike-9774b8a55747031f.png" width="800" height="600" loading="lazy" alt="spike, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/spike.keycap"><code>spike.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// A stud that screws through fabric: a base with a twisted-ellipse thread</span>
+<span class="hl-comment">// passes through the fabric's hole and a hexagonal spike screws onto it;</span>
+<span class="hl-comment">// two drivers hold the parts while they are screwed together.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/fabric/spike.scad`.  Differences:</span>
+<span class="hl-comment">// - Circles are round: the original's are 24-gons, the thread's twist is</span>
+<span class="hl-comment">//   OpenSCAD's default slices (under 0.03 mm).</span>
+<span class="hl-comment">// - The base's profile is revolved from its points, from the axis out, so</span>
+<span class="hl-comment">//   its field is exact inside too.</span>
+<span class="hl-comment">// - The fabric, a reference drawing in the original, is not drawn.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.024 mm.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PART</span> <span class="hl-operator">=</span> <span class="hl-string">"all"</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// "all", "slice", "spike-base", "spike-tip", "driver-base" or "driver-tip"</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">FABRIC_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">1.6</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">FABRIC_HOLE_R</span> <span class="hl-operator">=</span> <span class="hl-number">2.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">SPIKE_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">20.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SPIKE_BASE_R</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREW_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">6.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREW_PITCH</span> <span class="hl-operator">=</span> <span class="hl-number">2.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREW_FACTOR</span> <span class="hl-operator">=</span> <span class="hl-number">1.25</span><span class="hl-delimiter">;</span>   <span class="hl-comment">// the thread's ellipse, its long axis over its short one</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">COUNTER_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">2.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">COUNTER_R</span> <span class="hl-operator">=</span> <span class="hl-number">7.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DRIVER_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">15.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">E</span> <span class="hl-operator">=</span> <span class="hl-number">0.01</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">T</span> <span class="hl-operator">=</span> <span class="hl-number">0.15</span><span class="hl-delimiter">;</span>              <span class="hl-comment">// the gap of a hole round its part</span>
+
+<span class="hl-comment">// --- Parts ---</span>
+
+<span class="hl-comment">// The thread: an ellipse twisted a turn per pitch, cut to a cone; `o` grows</span>
+<span class="hl-comment">// it, for the hole it screws into.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">screw</span><span class="hl-bracket">(</span><span class="hl-variable-name">o</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FABRIC_HOLE_R</span> <span class="hl-operator">/</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_FACTOR</span> <span class="hl-operator">+</span> <span class="hl-variable-use">o</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">h</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_LENGTH</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">ellipse</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_FACTOR</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">twist</span><span class="hl-delimiter">:</span> <span class="hl-number">360</span> <span class="hl-operator">*</span> <span class="hl-variable-use">h</span> <span class="hl-operator">/</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_PITCH</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-variable-use">h</span> <span class="hl-operator">-</span> <span class="hl-number">1</span> <span class="hl-operator">+</span> <span class="hl-variable-use">o</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FABRIC_HOLE_R</span> <span class="hl-operator">-</span> <span class="hl-number">1</span> <span class="hl-operator">+</span> <span class="hl-variable-use">o</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">]))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The footprint of the base and the drivers' grip.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">base_rect</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">COUNTER_R</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FABRIC_HOLE_R</span> <span class="hl-operator">*</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-number">0.7</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">spike_base</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FABRIC_HOLE_R</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">t</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FABRIC_THICKNESS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">c</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">COUNTER_THICKNESS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> <span class="hl-operator">=</span> <span class="hl-bracket">[[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">t</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">COUNTER_R</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">t</span> <span class="hl-operator">-</span> <span class="hl-variable-use">c</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">t</span> <span class="hl-operator">-</span> <span class="hl-variable-use">c</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">t</span> <span class="hl-operator">-</span> <span class="hl-variable-use">c</span><span class="hl-bracket">]]</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">revolve</span><span class="hl-bracket">(</span><span class="hl-variable-use">profile</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">screw</span><span class="hl-bracket">(</span><span class="hl-number">0.0</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-function-call">base_rect</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_LENGTH</span> <span class="hl-operator">*</span> <span class="hl-number">3</span><span class="hl-bracket">))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The spike, a hexagonal frustum; with `hole`, threaded inside.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">spike_tip</span><span class="hl-bracket">(</span><span class="hl-variable-name">hole</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">tip</span> <span class="hl-operator">=</span> <span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SPIKE_BASE_R</span><span class="hl-delimiter">,</span> <span class="hl-number">1.5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SPIKE_LENGTH</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">sides</span><span class="hl-delimiter">:</span> <span class="hl-number">6</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">hole</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">tip</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-function-call">screw</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">))</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">tip</span> <span class="hl-bracket">}</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The base's driver: a rounded block whose rim grips the base's foot.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">driver_base</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">outside</span> <span class="hl-operator">=</span> <span class="hl-function-call">base_rect</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">grip</span> <span class="hl-operator">=</span> <span class="hl-variable-use">outside</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-function-call">base_rect</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">T</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">outside</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DRIVER_LENGTH</span> <span class="hl-operator">-</span> <span class="hl-number">3</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">grip</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DRIVER_LENGTH</span><span class="hl-bracket">]))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The spike's driver: a hexagonal block with the spike's shape cut into it.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">driver_tip</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DRIVER_LENGTH</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">sides</span><span class="hl-delimiter">:</span> <span class="hl-number">6</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-function-call">spike_tip</span><span class="hl-bracket">(</span><span class="hl-constant">false</span><span class="hl-bracket">))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Display ---</span>
+
+<span class="hl-keyword">switch</span> <span class="hl-constant">PART</span> <span class="hl-bracket">{</span>
+    <span class="hl-string">"all"</span> <span class="hl-operator">=&gt;</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">spike_base</span><span class="hl-bracket">())</span><span class="hl-delimiter">;</span>
+        <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">spike_tip</span><span class="hl-bracket">(</span><span class="hl-constant">true</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-string">"slice"</span> <span class="hl-warning">=&gt;</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">spike_base</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">y</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+        <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">spike_tip</span><span class="hl-bracket">(</span><span class="hl-constant">true</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">y</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-string">"spike-base"</span> <span class="hl-warning">=&gt;</span> <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">spike_base</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">))</span><span class="hl-warning">,</span>
+    <span class="hl-string">"spike-tip"</span> <span class="hl-warning">=&gt;</span> <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">spike_tip</span><span class="hl-bracket">(</span><span class="hl-constant">true</span><span class="hl-bracket">))</span><span class="hl-warning">,</span>
+    <span class="hl-string">"driver-base"</span> <span class="hl-warning">=&gt;</span> <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">driver_base</span><span class="hl-bracket">())</span><span class="hl-warning">,</span>
+    <span class="hl-string">"driver-tip"</span> <span class="hl-warning">=&gt;</span> <span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">driver_tip</span><span class="hl-bracket">())</span><span class="hl-warning">,
+}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

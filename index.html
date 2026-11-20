@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>keycap</title>
+<meta name="description" content="An Emacs IDE for fidget's Rhai scripts, with a live preview of the model next to the script." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="style.449e415602.css">
+<link rel="preload" href="fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="tutorial/index.html">Tutorial</a><a href="manual/index.html">Manual</a><a href="gallery/index.html">Gallery</a><a href="install.html">Install</a><a href="about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">keycap<span class="ide">IDE</span></h1>
+<p class="subtitle" role="doc-subtitle">Solid modelling with signed distance fields, in Emacs</p>
+<div class="review-reviewed"><p>Reviewed 2026-11-17</p></div>
+</header><pre class="field" aria-hidden="true" style="--frames: 36"><span>      :::   ========================                         ::::
+     :::   ===                    =========================    :::
+    :::   ===   **************                           ====   :::
+   :::   ===  ***<span class="surface">##########</span>*********                        ==   :::
+  :::   ==   ***<span class="surface">##@@@@@@@@###</span>*****************************  ===   ::
+ :::  ===   ***<span class="surface">##@@@@@@@@@@############################</span>***   ==   ::
+:::   ==   ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@@@@@@@#</span>***   ==   ::
+:::  ===  ***<span class="surface">##@@@@@@@@@@@@@@@#####@@@@@@@@@@@@@@@@@@@#</span>***   ==   ::
+:::   ==   ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@@@@@@@#</span>***   ==   ::
+ :::  ===   ***<span class="surface">##@@@@@@@@@@############################</span>***   ==   ::
+  :::   ==   ***<span class="surface">##@@@@@@@@###</span>*****************************  ===   ::
+   :::   ===  ***<span class="surface">##########</span>*********                        ==   :::
+    :::   ===   **************                           ====   :::
+     :::   ===                    =========================    :::
+      :::   ========================                         ::::
+      :::   ==============   =========                     :::::
+     :::   ===                     ===================        ::::
+    :::   ===  ****************                ==============   :::
+   :::   ===  ***<span class="surface">##########</span>*************                   ===   :::
+  :::   ==   ***<span class="surface">##@@@@@@@@###</span>****<span class="surface">##</span>**********************   ===   ::
+ :::   ==   ***<span class="surface">##@@@@@@@@@@############################</span>***   ==   ::
+ ::   ==   ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@@@@@@@##</span>**   ==   ::
+:::  ===  ***<span class="surface">##@@@@@@@@@@@@@@@#####@@@@@@@@@@@@@@@@@@@##</span>**   ==   ::
+:::   ==   ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@@@@@@##</span>***  ===  :::
+ :::  ===   ***<span class="surface">##@@@@@@@@@@############################</span>***  ===  :::
+  ::   ===   ***<span class="surface">###@@@@@@@###</span>*****************************  ===  :::
+   :::   ===   ***<span class="surface">##########</span>*****                ********   ==   ::
+    :::   ===   **************        ====                ===   :::
+     :::   ===                   ===========================   :::
+      :::   =======================                          ::::
+      :::   =============     ==========             ::::::::::
+     :::   ===                       =============           ::::
+    :::   ==   *******************            =============    ::::
+   :::   ==   ***<span class="surface">##########</span>****************              =====   :::
+  :::   ==   ***<span class="surface">##@@@@@@@@###</span>*****<span class="surface">#####</span>**************       ===   ::
+ :::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@###########</span>********   ===  :::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@@@######</span>***  ===  :::
+:::  ===   **<span class="surface">##@@@@@@@@@@@@@@@#####@@@@@@@@@@@@@@@@@@@##</span>**   ==   ::
+:::   ==   ***<span class="surface">##@@@@@@@@@@@@@##########@@@@@@@@@@@@@@##</span>***  ===   ::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@#####</span>******<span class="surface">###########@@@##</span>***  ===  :::
+ :::   ===   ***<span class="surface">###@@@@@@@@##</span>*********************<span class="surface">#####</span>**   ==   ::
+   :::   ===   ***<span class="surface">##########</span>****              ***********  ===   ::
+    :::   ===   **************      =======                ==   :::
+     :::   ===                  ====================== =====   :::
+      :::    ===== ================               ========    :::
+      :::   ============       ===========         ::::::::::
+     :::  ====                         ==========          :::::
+    :::   ==   **********************         ==========       :::
+   :::   ==   ***<span class="surface">##########</span>*****************         ========   :::
+  :::   ==   ***<span class="surface">##@@@@@@@@###</span>*****<span class="surface">#######</span>**********        ====   ::
+ :::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@#######</span>**********   ===  :::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@########</span>***  ===  :::
+:::  ===   **<span class="surface">##@@@@@@@@@@@@@@@#####@@@@@@@@@@@@@@@@@@@##</span>**   ===  :::
+:::   ==   ***<span class="surface">##@@@@@@@@@@@@@############@@@@@@@@@@@@##</span>***   ==   ::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@###</span>**********<span class="surface">#######@@@@@##</span>**   ===  :::
+ :::   ===   ***<span class="surface">###@@@@@@@@##</span>*******************<span class="surface">######</span>***   ==   ::
+  :::    ===   ***<span class="surface">##########</span>****             ***********   ===  :::
+    :::   ===   **************     ========         ***   ===   ::
+     :::   ===                  ==================       ===   :::
+      ::::   ====   ==============             ===========    :::
+      :::   ============            =======        :::::::
+     ::   ====                           ========       :::::::
+    :::  ===   ***************  *******        =======       ::::
+   :::   ==   ****<span class="surface">#########</span>********<span class="surface">##</span>*******        =======     :::
+  :::   ==   ***<span class="surface">##@@@@@@@@##</span>******<span class="surface">########</span>********       =====   :::
+ :::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@######</span>*******     ===   :::
+ ::   ===   **<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@######</span>******  ===  :::
+:::   ==   **<span class="surface">###@@@@@@@@@@@@@@######@@@@@@@@@@@@@@@@@###</span>***  ===  :::
+:::  ===   ***<span class="surface">##@@@@@@@@@@@@@############@@@@@@@@@@@@##</span>***   ===  :::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@##</span>***********<span class="surface">######@@@@@@##</span>**   ===   ::
+ :::   ===   ***<span class="surface">###@@@@@@@@##</span>*****     *******<span class="surface">########</span>***  ===   ::
+  :::   ====   ***<span class="surface">#########</span>****             ********<span class="surface">#</span>***   ==   :::
+    :::   ===   **************    ========        *****   ===  :::
+     :::   ====                =================         ===   ::
+       :::   ====    =============            =============   :::
+     :::    ===========                ======      ::::::
+     ::   ====                             ======      ::::::
+    :::  ===   **************    ********      ======      :::::
+   :::   ==   ****<span class="surface">#########</span>*********<span class="surface">###</span>******      ======     ::::
+  :::   ==   ***<span class="surface">##@@@@@@@@##</span>*******<span class="surface">##@@####</span>******      ======   :::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@@####</span>******      ====   ::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@#####</span>*****    ===  :::
+ ::   ==   ***<span class="surface">##@@@@@@@@@@@@@@########@@@@@@@@@@@@@#####</span>***  ===   ::
+:::   ==   **<span class="surface">###@@@@@@@@@@@@####</span>*****<span class="surface">#####@@@@@@@@@@@@##</span>**   ===  :::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@##</span>************<span class="surface">####@@@@@@@##</span>***  ===   :::
+ :::   ===   ****<span class="surface">##@@@@@@@###</span>****       ******<span class="surface">####@@##</span>***  ===   :::
+  :::   ====   ***<span class="surface">########</span>*****             ******<span class="surface">###</span>***   ==   :::
+    :::   ===   *************     ========      *******   ==   :::
+     :::   ====                ===============           ===  :::
+       :::   ====     ============          ======     ====  :::
+     :::    ===========      ====        =====     :::::
+    :::   ====                      ***     =====     :::::
+    ::   ===   **************     ********     =====     :::::
+   :::  ===   *****<span class="surface">########</span>*********<span class="surface">#####</span>*****     =====     ::::
+  :::   ==   ***<span class="surface">###@@@@@@@##</span>*******<span class="surface">##@@@####</span>*****     =====    ::::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@@####</span>*****     =====   :::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@####</span>*****    ===   :::
+ ::   ==   ***<span class="surface">##@@@@@@@@@@@@@##########@@@@@@@@@@@####</span>****   ===  :::
+:::   ==   **<span class="surface">###@@@@@@@@@@@@###</span>*******<span class="surface">####@@@@@@@@@@@###</span>***  ===  :::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@##</span>************<span class="surface">###@@@@@@@@##</span>***   ===  :::
+ :::   ===   ****<span class="surface">##@@@@@@@###</span>****       *****<span class="surface">####@@@##</span>***   ===  :::
+  :::   ====   ***<span class="surface">########</span>*****            *****<span class="surface">#####</span>***   ==   :::
+   ::::   ===   *************     ========     ********  ===   :::
+     :::    ===                ==============     ***   ===   :::
+       :::   ====     ===========          =====       ===   :::
+     :::    ==========      =====         =====    ::::
+    :::   ====                      *****    ====     ::::
+    ::   ===    *************     ****<span class="surface">#</span>****     ====     ::::
+   :::  ===   *****<span class="surface">########</span>*********<span class="surface">######</span>****    =====    :::::
+  :::   ==   ***<span class="surface">###@@@@@@@###</span>******<span class="surface">##@@@@###</span>*****    =====    ::::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@@@###</span>*****    ====    :::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@@#######@@@@@@@@@@###</span>****     ===   :::
+ ::   ==   ***<span class="surface">##@@@@@@@@@@@@@#####</span>*<span class="surface">#####@@@@@@@@@####</span>****    ==   :::
+ ::   ==   **<span class="surface">###@@@@@@@@@@@@###</span>********<span class="surface">###@@@@@@@@@@###</span>****  ===  :::
+ ::   ==   ****<span class="surface">##@@@@@@@@@@@##</span>************<span class="surface">###@@@@@@@@##</span>***   ===  :::
+ :::   ===   ****<span class="surface">##@@@@@@@###</span>***        ****<span class="surface">####@@@@##</span>***   ===   ::
+  :::   ====   ***<span class="surface">########</span>*****            ****<span class="surface">######</span>***   ===   :::
+   ::::   ===    ************     =======     ****<span class="surface">#</span>***   ===   ::::
+     :::    ===                =============    *****   ===   :::
+       :::   ====      ==========         =====        ===   :::
+     :::    ==========      ======          ====   ::::
+    :::   ====           *          ******    ====    ::::
+    ::   ===     ************     ****<span class="surface">##</span>****    ====    ::::
+   :::  ===   *****<span class="surface">#######</span>***********<span class="surface">##@###</span>****   ====    ::::
+  :::   ==   ***<span class="surface">###@@@@@@@###</span>*****<span class="surface">###@@@@@###</span>****    ====    ::::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@@@###</span>****    ====    :::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@#########@@@@@@@@@###</span>***    ====   :::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@@###</span>*****<span class="surface">###@@@@@@@@@###</span>****    ===  :::
+ ::   ==   **<span class="surface">###@@@@@@@@@@@@###</span>********<span class="surface">###@@@@@@@@@###</span>****   ==   ::
+ ::   ==   ****<span class="surface">##@@@@@@@@@@@##</span>****   *****<span class="surface">###@@@@@@@@###</span>**   ==   :::
+ :::   ===   ****<span class="surface">##@@@@@@####</span>***        ****<span class="surface">###@@@@@##</span>***   ===   ::
+  :::   ===    ***<span class="surface">#######</span>******           ****<span class="surface">###@##</span>****   ===   :::
+   :::    ===    ***********      =======    ****<span class="surface">##</span>***   ====   :::
+     :::    ===    *           ============    *****    ===   ::::
+       :::   ====      ==========        ====         ===    :::
+     :::    ==========      =======    **    ===    :::
+    :::   ====          **           ******    ===    :::
+   :::   ===     ************     ****<span class="surface">####</span>***    ===    :::
+   :::  ===  ******<span class="surface">#######</span>***********<span class="surface">##@@##</span>****    ===    :::
+  :::   ==   **<span class="surface">#####@@@@@@###</span>*****<span class="surface">###@@@@@@##</span>****   ====    :::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@##########@@@@@@@@##</span>****   ====    :::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@##########@@@@@@@@##</span>****   ====   :::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@@##</span>*******<span class="surface">##@@@@@@@@###</span>****   ====   ::
+ ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>**********<span class="surface">##@@@@@@@@###</span>****   ===  :::
+ ::   ==   ****<span class="surface">##@@@@@@@@@@@##</span>****    ****<span class="surface">##@@@@@@@@###</span>***   ==   ::
+ :::  ===    ****<span class="surface">##@@@@@@####</span>***        ****<span class="surface">##@@@@@@##</span>****  ===   ::
+  :::   ===    ****<span class="surface">######</span>******           ***<span class="surface">###@@##</span>****   ===   :::
+   :::    ===    ***********      ======    ***<span class="surface">###</span>****    ===   :::
+     :::    ===    **         ============    ******    ===    :::
+      ::::    ===      ==========       ====    **    ===    :::
+     :::     ========       =======    ****   ===   ::::
+    :::   =====         **           *******    ===   :::
+   :::   ===     ************     *****<span class="surface">####</span>***   ===    :::
+   ::   ===  *******<span class="surface">######</span>**********<span class="surface">###@@@##</span>***    ===   ::::
+  :::   ==   **<span class="surface">#####@@@@@####</span>****<span class="surface">####@@@@@@###</span>***   ====   :::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@###########@@@@@@@##</span>****   ===    :::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@###</span>****<span class="surface">###@@@@@@@@##</span>***    ===   :::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@@##</span>*******<span class="surface">###@@@@@@@###</span>***   ===    :::
+ ::   ==   ***<span class="surface">#@@@@@@@@@@@@@##</span>**********<span class="surface">##@@@@@@@@##</span>****   ===   ::
+ ::   ==   ****<span class="surface">##@@@@@@@@@@@##</span>***     ****<span class="surface">##@@@@@@@###</span>***   ===  :::
+ :::  ===    ****<span class="surface">##@@@@@@####</span>***        ***<span class="surface">###@@@@@@###</span>***  ===  :::
+  :::   ===    ****<span class="surface">######</span>******          ****<span class="surface">##@@###</span>****    ==   :::
+   :::    ===    ***********      ======   ***<span class="surface">####</span>****    ===   :::
+    ::::    ===    **         ===========    *******    ====   :::
+      ::::    ====      =========      ====   ***    ====    ::::
+     :::     ========       =======     ****   ===   :::
+    :::   =====        **            ********   ===   ::::
+   :::   ===     ************    ******<span class="surface">####</span>****   ===   :::
+   ::   ===  *******<span class="surface">######</span>**********<span class="surface">####@@@##</span>***   ===   :::
+  :::   ==   **<span class="surface">#####@@@@@###</span>******<span class="surface">###@@@@@@@##</span>***   ===   ::::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@@####</span>***<span class="surface">###@@@@@@@###</span>***   ===   :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@###</span>*****<span class="surface">###@@@@@@@##</span>***   ===   :::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@@##</span>***   ===    :::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@##</span>**********<span class="surface">##@@@@@@@###</span>***   ===   ::
+ ::   ==   ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">###@@@@@@@##</span>***   ===  :::
+ :::  ===    ****<span class="surface">##@@@@@@#####</span>**        ***<span class="surface">##@@@@@@@##</span>***   ==   ::
+  :::   ===    ****<span class="surface">######</span>*******         ***<span class="surface">##@@@####</span>****  ===   ::
+   :::    ===    **********       =====   ***<span class="surface">#####</span>****    ===   :::
+    ::::    ===    ***        ===========   ********    ====   :::
+      ::::    ====      =========     ====   ****    =====    :::
+     :::     ========       =======      ****   ===   :::
+    :::   =====        **            *****<span class="surface">#</span>***   ===   :::
+   :::  ====      **********    *******<span class="surface">#####</span>***   ===   :::
+   ::   ==   *******<span class="surface">######</span>**********<span class="surface">####@@@##</span>***   ===   :::
+  :::  ===   **<span class="surface">#####@@@@@###</span>*******<span class="surface">###@@@@@@###</span>**   ===   :::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@@###</span>*****<span class="surface">###@@@@@@@##</span>***   ==   :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*******<span class="surface">##@@@@@@@##</span>***   ===  :::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@@##</span>***   ===   ::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@##</span>**********<span class="surface">##@@@@@@@##</span>***   ===   :::
+ ::   ===  ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">##@@@@@@@##</span>***   ===   ::
+ :::  ===    ****<span class="surface">##@@@@@@#####</span>**       ***<span class="surface">###@@@@@@##</span>***   ==   :::
+  ::   ====    ****<span class="surface">######</span>*******         **<span class="surface">###@@@####</span>****  ===  :::
+   :::   ====    **********       ====    ***<span class="surface">#####</span>*****   ===   ::
+    ::::    ====    **       ===========   ***<span class="surface">#</span>*****     ===   :::
+      ::::    ====      =========   =====   ****     =====    :::
+     :::      ======       =======       *****   ===   ::
+    :::   ======      ***            ******<span class="surface">#</span>***   ===  :::
+   :::  ====      **********    *******<span class="surface">######</span>***   ===  :::
+   ::   ==   *******<span class="surface">######</span>**********<span class="surface">###@@@@@##</span>***   ==   :::
+  :::  ===  ***<span class="surface">#####@@@@@###</span>********<span class="surface">###@@@@@@##</span>***   ==   :::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@@###</span>******<span class="surface">###@@@@@@##</span>***  ===   :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*******<span class="surface">##@@@@@@@##</span>***  ===   :::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@@##</span>**   ===   :::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@##</span>****  ****<span class="surface">##@@@@@@###</span>**   ===   ::
+ :::  ===  ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">##@@@@@@##</span>***   ===   ::
+ :::  ===   *****<span class="surface">###@@@@@#####</span>**       ***<span class="surface">##@@@@@@##</span>***   ===  :::
+  ::   ====    ****<span class="surface">######</span>*******        ***<span class="surface">##@@@@@###</span>***  ===  :::
+   :::   ====    **********        ==    ***<span class="surface">######</span>*****   ===  :::
+    ::::    ====    **       ==========   ***<span class="surface">#</span>******     ===   ::
+      ::::    ====      ================   *****      =====   :::
+     :::      ======       ======         *****   ===  :::
+    :::   ======      ***           ********<span class="surface">#</span>***   ==   :::
+   :::  ====      **********     ******<span class="surface">#######</span>***  ===   ::
+  :::   ==   *******<span class="surface">######</span>***********<span class="surface">##@@@@@@##</span>**   ===  :::
+  :::  ===  ***<span class="surface">#####@@@@@###</span>*********<span class="surface">##@@@@@@##</span>***   ==   :::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@@###</span>*******<span class="surface">##@@@@@@##</span>***  ===   ::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@##</span>**   ===   ::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@##</span>***   ===  :::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@@#</span>****   ***<span class="surface">##@@@@@@##</span>***   ==   :::
+ :::  ===  ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">##@@@@@@##</span>***  ===   ::
+ :::  ===   ****<span class="surface">####@@@@@#####</span>***      ***<span class="surface">##@@@@@@##</span>**   ===  :::
+  ::   ====    ****<span class="surface">######</span>******         **<span class="surface">##@@@@@@##</span>***   ==   ::
+   :::   ====    **********             ***<span class="surface">#######</span>*****   ==   ::
+    :::     ====    ***      =========   ***<span class="surface">#</span>*******     ===  :::
+      ::::    ====       ==============   *****       =====   ::
+     ::::     ======      =======         ******   ===  :::
+    :::   ======      ***          **********<span class="surface">#</span>***  ===   ::
+   ::   ====      *********       ****<span class="surface">#########</span>**   ===  :::
+  :::  ===    ******<span class="surface">######</span>***********<span class="surface">##@@@@@@##</span>***  ===   ::
+  :::  ===  ***<span class="surface">#####@@@@@###</span>**********<span class="surface">##@@@@@@##</span>**   ===  :::
+  ::   ==   ***<span class="surface">#@@@@@@@@@@@@###</span>********<span class="surface">#@@@@@@##</span>***   ==   ::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@##</span>**   ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*********<span class="surface">##@@@@@##</span>***   ==   ::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@@#</span>****   ***<span class="surface">##@@@@@@##</span>**   ===  :::
+ :::  ===  ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">##@@@@@##</span>***   ==   ::
+ :::  ===   ****<span class="surface">####@@@@@####</span>****     ***<span class="surface">##@@@@@@##</span>**   ===  :::
+  ::   ===     ****<span class="surface">######</span>******        ***<span class="surface">##@@@@@##</span>***   ==   ::
+   ::    ====    **********             **<span class="surface">#########</span>***   ==   ::
+    :::    =====    ***      ========   ***<span class="surface">#</span>*********   ===   ::
+      ::::    =====      =============   ******        ===   :::
+     ::::     ======      =======          ******   ===  :::
+    :::   ======      **            **********<span class="surface">#</span>***  ===  :::
+   ::   ====      *********        ***<span class="surface">##########</span>**   ==   ::
+  :::  ===    *****<span class="surface">#######</span>*****   ****<span class="surface">##@@@@@@##</span>**   ===  :::
+  ::   ==   ****<span class="surface">####@@@@@####</span>**********<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@###</span>********<span class="surface">##@@@@@@##</span>**   ==   ::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@##</span>**   ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*********<span class="surface">##@@@@@##</span>***  ===  :::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@#</span>****   ***<span class="surface">##@@@@@@##</span>**   ==   ::
+ :::  ===  ***<span class="surface">###@@@@@@@@@@@##</span>***    ***<span class="surface">##@@@@@@##</span>**   ===  :::
+ :::   ==   ****<span class="surface">####@@@@@####</span>****     ***<span class="surface">##@@@@@##</span>***  ===   ::
+  ::   ===     ****<span class="surface">######</span>******       ***<span class="surface">##@@@@@@##</span>**   ==   ::
+   ::    ====     *********            **<span class="surface">##########</span>***  ===  :::
+    :::    =====    ***      ======    ***<span class="surface">#</span>**********   ==   :::
+     :::::    =====      ============   ******         ===  :::
+     ::::     ======      ========         *******   ==   :::
+    :::    =====     ***            ***************  ===  :::
+   ::   ====      *********         ***<span class="surface">#########</span>***  ===  :::
+  :::  ===    *****<span class="surface">#######</span>*****    ****<span class="surface">##@@@@@@##</span>**   ==   ::
+  ::   ==   ****<span class="surface">####@@@@@####</span>**********<span class="surface">##@@@@@@##</span>**   ==   ::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@###</span>********<span class="surface">##@@@@@@##</span>**   ==   :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*********<span class="surface">#@@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>***  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>***  ****<span class="surface">##@@@@@##</span>***  ===  :::
+ :::   ==   **<span class="surface">###@@@@@@@@@@@@#</span>****   ***<span class="surface">##@@@@@@##</span>**   ==   ::
+  ::   ==   ****<span class="surface">####@@@@@####</span>****    ***<span class="surface">##@@@@@@##</span>**   ==   ::
+  :::  ===    *****<span class="surface">######</span>******       **<span class="surface">##@@@@@@##</span>**   ==   :::
+   ::    ====     *********           ***<span class="surface">#########</span>***  ===  :::
+    :::    =====     ***     =====    **************   ===  :::
+     ::::     =====      ===========   *******        ===   ::
+     ::::     =====       =========    ***********    ==   :::
+    :::    =====     ***     ====    ***************  ===  :::
+   ::   =====     *********          ***<span class="surface">#########</span>***  ===  :::
+  :::  ===    *****<span class="surface">######</span>******      ***<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   ****<span class="surface">####@@@@@####</span>*****  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@###</span>***  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>***  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>***  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>***  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@###</span>***  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   ****<span class="surface">####@@@@@####</span>*****  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  :::  ===    *****<span class="surface">######</span>******      ***<span class="surface">##@@@@@##</span>***  ===  :::
+   ::   =====     *********          ***<span class="surface">#########</span>***  ===  :::
+    :::    =====     ***     ====    ***************  ===  :::
+     ::::     =====       =========    ***********    ==   :::
+     ::::     =====      ===========   *******        ===   ::
+    :::    =====     ***     =====    **************   ===  :::
+   ::    ====     *********           ***<span class="surface">#########</span>***  ===  :::
+  :::  ===    *****<span class="surface">######</span>******       **<span class="surface">##@@@@@@##</span>**   ==   :::
+  ::   ==   ****<span class="surface">####@@@@@####</span>****    ***<span class="surface">##@@@@@@##</span>**   ==   ::
+ :::   ==   **<span class="surface">###@@@@@@@@@@@@#</span>****   ***<span class="surface">##@@@@@@##</span>**   ==   ::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>***  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>***  ****<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*********<span class="surface">#@@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@###</span>********<span class="surface">##@@@@@@##</span>**   ==   :::
+  ::   ==   ****<span class="surface">####@@@@@####</span>**********<span class="surface">##@@@@@@##</span>**   ==   ::
+  :::  ===    *****<span class="surface">#######</span>*****    ****<span class="surface">##@@@@@@##</span>**   ==   ::
+   ::   ====      *********         ***<span class="surface">#########</span>***  ===  :::
+    :::    =====     ***            ***************  ===  :::
+     ::::     ======      ========         *******   ==   :::
+     :::::    =====      ============   ******         ===  :::
+    :::    =====    ***      ======    ***<span class="surface">#</span>**********   ==   :::
+   ::    ====     *********            **<span class="surface">##########</span>***  ===  :::
+  ::   ===     ****<span class="surface">######</span>******       ***<span class="surface">##@@@@@@##</span>**   ==   ::
+ :::   ==   ****<span class="surface">####@@@@@####</span>****     ***<span class="surface">##@@@@@##</span>***  ===   ::
+ :::  ===  ***<span class="surface">###@@@@@@@@@@@##</span>***    ***<span class="surface">##@@@@@@##</span>**   ===  :::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@#</span>****   ***<span class="surface">##@@@@@@##</span>**   ==   ::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*********<span class="surface">##@@@@@##</span>***  ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@##</span>**   ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@###</span>********<span class="surface">##@@@@@@##</span>**   ==   ::
+  ::   ==   ****<span class="surface">####@@@@@####</span>**********<span class="surface">##@@@@@##</span>***  ===  :::
+  :::  ===    *****<span class="surface">#######</span>*****   ****<span class="surface">##@@@@@@##</span>**   ===  :::
+   ::   ====      *********        ***<span class="surface">##########</span>**   ==   ::
+    :::   ======      **            **********<span class="surface">#</span>***  ===  :::
+     ::::     ======      =======          ******   ===  :::
+      ::::    =====      =============   ******        ===   :::
+    :::    =====    ***      ========   ***<span class="surface">#</span>*********   ===   ::
+   ::    ====    **********             **<span class="surface">#########</span>***   ==   ::
+  ::   ===     ****<span class="surface">######</span>******        ***<span class="surface">##@@@@@##</span>***   ==   ::
+ :::  ===   ****<span class="surface">####@@@@@####</span>****     ***<span class="surface">##@@@@@@##</span>**   ===  :::
+ :::  ===  ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">##@@@@@##</span>***   ==   ::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@@#</span>****   ***<span class="surface">##@@@@@@##</span>**   ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*********<span class="surface">##@@@@@##</span>***   ==   ::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@##</span>**   ===  :::
+  ::   ==   ***<span class="surface">#@@@@@@@@@@@@###</span>********<span class="surface">#@@@@@@##</span>***   ==   ::
+  :::  ===  ***<span class="surface">#####@@@@@###</span>**********<span class="surface">##@@@@@@##</span>**   ===  :::
+  :::  ===    ******<span class="surface">######</span>***********<span class="surface">##@@@@@@##</span>***  ===   ::
+   ::   ====      *********       ****<span class="surface">#########</span>**   ===  :::
+    :::   ======      ***          **********<span class="surface">#</span>***  ===   ::
+     ::::     ======      =======         ******   ===  :::
+      ::::    ====       ==============   *****       =====   ::
+    :::     ====    ***      =========   ***<span class="surface">#</span>*******     ===  :::
+   :::   ====    **********             ***<span class="surface">#######</span>*****   ==   ::
+  ::   ====    ****<span class="surface">######</span>******         **<span class="surface">##@@@@@@##</span>***   ==   ::
+ :::  ===   ****<span class="surface">####@@@@@#####</span>***      ***<span class="surface">##@@@@@@##</span>**   ===  :::
+ :::  ===  ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">##@@@@@@##</span>***  ===   ::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@@#</span>****   ***<span class="surface">##@@@@@@##</span>***   ==   :::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@##</span>***   ===  :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@##</span>**   ===   ::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@@###</span>*******<span class="surface">##@@@@@@##</span>***  ===   ::
+  :::  ===  ***<span class="surface">#####@@@@@###</span>*********<span class="surface">##@@@@@@##</span>***   ==   :::
+  :::   ==   *******<span class="surface">######</span>***********<span class="surface">##@@@@@@##</span>**   ===  :::
+   :::  ====      **********     ******<span class="surface">#######</span>***  ===   ::
+    :::   ======      ***           ********<span class="surface">#</span>***   ==   :::
+     :::      ======       ======         *****   ===  :::
+      ::::    ====      ================   *****      =====   :::
+    ::::    ====    **       ==========   ***<span class="surface">#</span>******     ===   ::
+   :::   ====    **********        ==    ***<span class="surface">######</span>*****   ===  :::
+  ::   ====    ****<span class="surface">######</span>*******        ***<span class="surface">##@@@@@###</span>***  ===  :::
+ :::  ===   *****<span class="surface">###@@@@@#####</span>**       ***<span class="surface">##@@@@@@##</span>***   ===  :::
+ :::  ===  ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">##@@@@@@##</span>***   ===   ::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@##</span>****  ****<span class="surface">##@@@@@@###</span>**   ===   ::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@@##</span>**   ===   :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*******<span class="surface">##@@@@@@@##</span>***  ===   :::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@@###</span>******<span class="surface">###@@@@@@##</span>***  ===   :::
+  :::  ===  ***<span class="surface">#####@@@@@###</span>********<span class="surface">###@@@@@@##</span>***   ==   :::
+   ::   ==   *******<span class="surface">######</span>**********<span class="surface">###@@@@@##</span>***   ==   :::
+   :::  ====      **********    *******<span class="surface">######</span>***   ===  :::
+    :::   ======      ***            ******<span class="surface">#</span>***   ===  :::
+     :::      ======       =======       *****   ===   ::
+      ::::    ====      =========   =====   ****     =====    :::
+    ::::    ====    **       ===========   ***<span class="surface">#</span>*****     ===   :::
+   :::   ====    **********       ====    ***<span class="surface">#####</span>*****   ===   ::
+  ::   ====    ****<span class="surface">######</span>*******         **<span class="surface">###@@@####</span>****  ===  :::
+ :::  ===    ****<span class="surface">##@@@@@@#####</span>**       ***<span class="surface">###@@@@@@##</span>***   ==   :::
+ ::   ===  ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">##@@@@@@@##</span>***   ===   ::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@##</span>**********<span class="surface">##@@@@@@@##</span>***   ===   :::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@@##</span>***   ===   ::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>*******<span class="surface">##@@@@@@@##</span>***   ===  :::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@@###</span>*****<span class="surface">###@@@@@@@##</span>***   ==   :::
+  :::  ===   **<span class="surface">#####@@@@@###</span>*******<span class="surface">###@@@@@@###</span>**   ===   :::
+   ::   ==   *******<span class="surface">######</span>**********<span class="surface">####@@@##</span>***   ===   :::
+   :::  ====      **********    *******<span class="surface">#####</span>***   ===   :::
+    :::   =====        **            *****<span class="surface">#</span>***   ===   :::
+     :::     ========       =======      ****   ===   :::
+      ::::    ====      =========     ====   ****    =====    :::
+    ::::    ===    ***        ===========   ********    ====   :::
+   :::    ===    **********       =====   ***<span class="surface">#####</span>****    ===   :::
+  :::   ===    ****<span class="surface">######</span>*******         ***<span class="surface">##@@@####</span>****  ===   ::
+ :::  ===    ****<span class="surface">##@@@@@@#####</span>**        ***<span class="surface">##@@@@@@@##</span>***   ==   ::
+ ::   ==   ***<span class="surface">###@@@@@@@@@@@##</span>***     ***<span class="surface">###@@@@@@@##</span>***   ===  :::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@##</span>**********<span class="surface">##@@@@@@@###</span>***   ===   ::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@@##</span>********<span class="surface">##@@@@@@@##</span>***   ===    :::
+  ::   ==   **<span class="surface">##@@@@@@@@@@@@@###</span>*****<span class="surface">###@@@@@@@##</span>***   ===   :::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@@####</span>***<span class="surface">###@@@@@@@###</span>***   ===   :::
+  :::   ==   **<span class="surface">#####@@@@@###</span>******<span class="surface">###@@@@@@@##</span>***   ===   ::::
+   ::   ===  *******<span class="surface">######</span>**********<span class="surface">####@@@##</span>***   ===   :::
+   :::   ===     ************    ******<span class="surface">####</span>****   ===   :::
+    :::   =====        **            ********   ===   ::::
+     :::     ========       =======     ****   ===   :::
+      ::::    ====      =========      ====   ***    ====    ::::
+    ::::    ===    **         ===========    *******    ====   :::
+   :::    ===    ***********      ======   ***<span class="surface">####</span>****    ===   :::
+  :::   ===    ****<span class="surface">######</span>******          ****<span class="surface">##@@###</span>****    ==   :::
+ :::  ===    ****<span class="surface">##@@@@@@####</span>***        ***<span class="surface">###@@@@@@###</span>***  ===  :::
+ ::   ==   ****<span class="surface">##@@@@@@@@@@@##</span>***     ****<span class="surface">##@@@@@@@###</span>***   ===  :::
+ ::   ==   ***<span class="surface">#@@@@@@@@@@@@@##</span>**********<span class="surface">##@@@@@@@@##</span>****   ===   ::
+ :::  ===  ***<span class="surface">##@@@@@@@@@@@@@##</span>*******<span class="surface">###@@@@@@@###</span>***   ===    :::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@###</span>****<span class="surface">###@@@@@@@@##</span>***    ===   :::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@###########@@@@@@@##</span>****   ===    :::
+  :::   ==   **<span class="surface">#####@@@@@####</span>****<span class="surface">####@@@@@@###</span>***   ====   :::
+   ::   ===  *******<span class="surface">######</span>**********<span class="surface">###@@@##</span>***    ===   ::::
+   :::   ===     ************     *****<span class="surface">####</span>***   ===    :::
+    :::   =====         **           *******    ===   :::
+     :::     ========       =======    ****   ===   ::::
+      ::::    ===      ==========       ====    **    ===    :::
+     :::    ===    **         ============    ******    ===    :::
+   :::    ===    ***********      ======    ***<span class="surface">###</span>****    ===   :::
+  :::   ===    ****<span class="surface">######</span>******           ***<span class="surface">###@@##</span>****   ===   :::
+ :::  ===    ****<span class="surface">##@@@@@@####</span>***        ****<span class="surface">##@@@@@@##</span>****  ===   ::
+ ::   ==   ****<span class="surface">##@@@@@@@@@@@##</span>****    ****<span class="surface">##@@@@@@@@###</span>***   ==   ::
+ ::   ==   **<span class="surface">##@@@@@@@@@@@@@##</span>**********<span class="surface">##@@@@@@@@###</span>****   ===  :::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@@##</span>*******<span class="surface">##@@@@@@@@###</span>****   ====   ::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@##########@@@@@@@@##</span>****   ====   :::
+  :::  ===  ***<span class="surface">##@@@@@@@@@@##########@@@@@@@@##</span>****   ====    :::
+  :::   ==   **<span class="surface">#####@@@@@@###</span>*****<span class="surface">###@@@@@@##</span>****   ====    :::
+   :::  ===  ******<span class="surface">#######</span>***********<span class="surface">##@@##</span>****    ===    :::
+   :::   ===     ************     ****<span class="surface">####</span>***    ===    :::
+    :::   ====          **           ******    ===    :::
+     :::    ==========      =======    **    ===    :::
+       :::   ====      ==========        ====         ===    :::
+     :::    ===    *           ============    *****    ===   ::::
+   :::    ===    ***********      =======    ****<span class="surface">##</span>***   ====   :::
+  :::   ===    ***<span class="surface">#######</span>******           ****<span class="surface">###@##</span>****   ===   :::
+ :::   ===   ****<span class="surface">##@@@@@@####</span>***        ****<span class="surface">###@@@@@##</span>***   ===   ::
+ ::   ==   ****<span class="surface">##@@@@@@@@@@@##</span>****   *****<span class="surface">###@@@@@@@@###</span>**   ==   :::
+ ::   ==   **<span class="surface">###@@@@@@@@@@@@###</span>********<span class="surface">###@@@@@@@@@###</span>****   ==   ::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@@###</span>*****<span class="surface">###@@@@@@@@@###</span>****    ===  :::
+ :::   ==   **<span class="surface">##@@@@@@@@@@@@@#########@@@@@@@@@###</span>***    ====   :::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@@@###</span>****    ====    :::
+  :::   ==   ***<span class="surface">###@@@@@@@###</span>*****<span class="surface">###@@@@@###</span>****    ====    ::::
+   :::  ===   *****<span class="surface">#######</span>***********<span class="surface">##@###</span>****   ====    ::::
+    ::   ===     ************     ****<span class="surface">##</span>****    ====    ::::
+    :::   ====           *          ******    ====    ::::
+     :::    ==========      ======          ====   ::::
+       :::   ====      ==========         =====        ===   :::
+     :::    ===                =============    *****   ===   :::
+   ::::   ===    ************     =======     ****<span class="surface">#</span>***   ===   ::::
+  :::   ====   ***<span class="surface">########</span>*****            ****<span class="surface">######</span>***   ===   :::
+ :::   ===   ****<span class="surface">##@@@@@@@###</span>***        ****<span class="surface">####@@@@##</span>***   ===   ::
+ ::   ==   ****<span class="surface">##@@@@@@@@@@@##</span>************<span class="surface">###@@@@@@@@##</span>***   ===  :::
+ ::   ==   **<span class="surface">###@@@@@@@@@@@@###</span>********<span class="surface">###@@@@@@@@@@###</span>****  ===  :::
+ ::   ==   ***<span class="surface">##@@@@@@@@@@@@@#####</span>*<span class="surface">#####@@@@@@@@@####</span>****    ==   :::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@@#######@@@@@@@@@@###</span>****     ===   :::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@@@###</span>*****    ====    :::
+  :::   ==   ***<span class="surface">###@@@@@@@###</span>******<span class="surface">##@@@@###</span>*****    =====    ::::
+   :::  ===   *****<span class="surface">########</span>*********<span class="surface">######</span>****    =====    :::::
+    ::   ===    *************     ****<span class="surface">#</span>****     ====     ::::
+    :::   ====                      *****    ====     ::::
+     :::    ==========      =====         =====    ::::
+       :::   ====     ===========          =====       ===   :::
+     :::    ===                ==============     ***   ===   :::
+   ::::   ===   *************     ========     ********  ===   :::
+  :::   ====   ***<span class="surface">########</span>*****            *****<span class="surface">#####</span>***   ==   :::
+ :::   ===   ****<span class="surface">##@@@@@@@###</span>****       *****<span class="surface">####@@@##</span>***   ===  :::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@##</span>************<span class="surface">###@@@@@@@@##</span>***   ===  :::
+:::   ==   **<span class="surface">###@@@@@@@@@@@@###</span>*******<span class="surface">####@@@@@@@@@@@###</span>***  ===  :::
+ ::   ==   ***<span class="surface">##@@@@@@@@@@@@@##########@@@@@@@@@@@####</span>****   ===  :::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@####</span>*****    ===   :::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@@####</span>*****     =====   :::
+  :::   ==   ***<span class="surface">###@@@@@@@##</span>*******<span class="surface">##@@@####</span>*****     =====    ::::
+   :::  ===   *****<span class="surface">########</span>*********<span class="surface">#####</span>*****     =====     ::::
+    ::   ===   **************     ********     =====     :::::
+    :::   ====                      ***     =====     :::::
+     :::    ===========      ====        =====     :::::
+       :::   ====     ============          ======     ====  :::
+     :::   ====                ===============           ===  :::
+    :::   ===   *************     ========      *******   ==   :::
+  :::   ====   ***<span class="surface">########</span>*****             ******<span class="surface">###</span>***   ==   :::
+ :::   ===   ****<span class="surface">##@@@@@@@###</span>****       ******<span class="surface">####@@##</span>***  ===   :::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@##</span>************<span class="surface">####@@@@@@@##</span>***  ===   :::
+:::   ==   **<span class="surface">###@@@@@@@@@@@@####</span>*****<span class="surface">#####@@@@@@@@@@@@##</span>**   ===  :::
+ ::   ==   ***<span class="surface">##@@@@@@@@@@@@@@########@@@@@@@@@@@@@#####</span>***  ===   ::
+ :::  ===   **<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@#####</span>*****    ===  :::
+  ::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@@####</span>******      ====   ::
+  :::   ==   ***<span class="surface">##@@@@@@@@##</span>*******<span class="surface">##@@####</span>******      ======   :::
+   :::   ==   ****<span class="surface">#########</span>*********<span class="surface">###</span>******      ======     ::::
+    :::  ===   **************    ********      ======      :::::
+     ::   ====                             ======      ::::::
+     :::    ===========                ======      ::::::
+       :::   ====    =============            =============   :::
+     :::   ====                =================         ===   ::
+    :::   ===   **************    ========        *****   ===  :::
+  :::   ====   ***<span class="surface">#########</span>****             ********<span class="surface">#</span>***   ==   :::
+ :::   ===   ***<span class="surface">###@@@@@@@@##</span>*****     *******<span class="surface">########</span>***  ===   ::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@##</span>***********<span class="surface">######@@@@@@##</span>**   ===   ::
+:::  ===   ***<span class="surface">##@@@@@@@@@@@@@############@@@@@@@@@@@@##</span>***   ===  :::
+:::   ==   **<span class="surface">###@@@@@@@@@@@@@@######@@@@@@@@@@@@@@@@@###</span>***  ===  :::
+ ::   ===   **<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@######</span>******  ===  :::
+ :::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@@######</span>*******     ===   :::
+  :::   ==   ***<span class="surface">##@@@@@@@@##</span>******<span class="surface">########</span>********       =====   :::
+   :::   ==   ****<span class="surface">#########</span>********<span class="surface">##</span>*******        =======     :::
+    :::  ===   ***************  *******        =======       ::::
+     ::   ====                           ========       :::::::
+      :::   ============            =======        :::::::
+      ::::   ====   ==============             ===========    :::
+     :::   ===                  ==================       ===   :::
+    :::   ===   **************     ========         ***   ===   ::
+  :::    ===   ***<span class="surface">##########</span>****             ***********   ===  :::
+ :::   ===   ***<span class="surface">###@@@@@@@@##</span>*******************<span class="surface">######</span>***   ==   ::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@###</span>**********<span class="surface">#######@@@@@##</span>**   ===  :::
+:::   ==   ***<span class="surface">##@@@@@@@@@@@@@############@@@@@@@@@@@@##</span>***   ==   ::
+:::  ===   **<span class="surface">##@@@@@@@@@@@@@@@#####@@@@@@@@@@@@@@@@@@@##</span>**   ===  :::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@########</span>***  ===  :::
+ :::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@@@#######</span>**********   ===  :::
+  :::   ==   ***<span class="surface">##@@@@@@@@###</span>*****<span class="surface">#######</span>**********        ====   ::
+   :::   ==   ***<span class="surface">##########</span>*****************         ========   :::
+    :::   ==   **********************         ==========       :::
+     :::  ====                         ==========          :::::
+      :::   ============       ===========         ::::::::::
+      :::    ===== ================               ========    :::
+     :::   ===                  ====================== =====   :::
+    :::   ===   **************      =======                ==   :::
+   :::   ===   ***<span class="surface">##########</span>****              ***********  ===   ::
+ :::   ===   ***<span class="surface">###@@@@@@@@##</span>*********************<span class="surface">#####</span>**   ==   ::
+ ::   ===   ***<span class="surface">##@@@@@@@@@@@#####</span>******<span class="surface">###########@@@##</span>***  ===  :::
+:::   ==   ***<span class="surface">##@@@@@@@@@@@@@##########@@@@@@@@@@@@@@##</span>***  ===   ::
+:::  ===   **<span class="surface">##@@@@@@@@@@@@@@@#####@@@@@@@@@@@@@@@@@@@##</span>**   ==   ::
+ ::   ===  ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@@@######</span>***  ===  :::
+ :::   ===  ***<span class="surface">##@@@@@@@@@@#########@@@###########</span>********   ===  :::
+  :::   ==   ***<span class="surface">##@@@@@@@@###</span>*****<span class="surface">#####</span>**************       ===   ::
+   :::   ==   ***<span class="surface">##########</span>****************              =====   :::
+    :::   ==   *******************            =============    ::::
+     :::   ===                       =============           ::::
+      :::   =============     ==========             ::::::::::
+      :::   =======================                          ::::
+     :::   ===                   ===========================   :::
+    :::   ===   **************        ====                ===   :::
+   :::   ===   ***<span class="surface">##########</span>*****                ********   ==   ::
+  ::   ===   ***<span class="surface">###@@@@@@@###</span>*****************************  ===  :::
+ :::  ===   ***<span class="surface">##@@@@@@@@@@############################</span>***  ===  :::
+:::   ==   ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@@@@@@##</span>***  ===  :::
+:::  ===  ***<span class="surface">##@@@@@@@@@@@@@@@#####@@@@@@@@@@@@@@@@@@@##</span>**   ==   ::
+ ::   ==   ***<span class="surface">##@@@@@@@@@@@@@######@@@@@@@@@@@@@@@@@@@##</span>**   ==   ::
+ :::   ==   ***<span class="surface">##@@@@@@@@@@############################</span>***   ==   ::
+  :::   ==   ***<span class="surface">##@@@@@@@@###</span>****<span class="surface">##</span>**********************   ===   ::
+   :::   ===  ***<span class="surface">##########</span>*************                   ===   :::
+    :::   ===  ****************                ==============   :::
+     :::   ===                     ===================        ::::
+      :::   ==============   =========                     :::::</span></pre>
+
+<p class="lead">
+keycap is an Emacs IDE for designing parts for 3D printing and laser cutting.
+You write a script, and the model it describes is shown next to it, updating as you type.
+</p>
+
+<figure class="ef"><div class="ef-window ef-code"><div class="ef-tabline"><span class="ef-tab">knob.keycap</span> ×</div><div class="ef-text"><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">27</span><span class="ef-lc"><span class="hl-comment">// OpenSCAD's offset(r) offset(-r) rounds every convex corner with radius r</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">28</span><span class="ef-lc"><span class="hl-comment">// and drops whatever is thinner than 2r.  On a field the pair cancels out,</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">29</span><span class="ef-lc"><span class="hl-comment">// but a smooth difference comes close: where two surfaces run close, the</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">30</span><span class="ef-lc"><span class="hl-comment">// blend eats the sliver between them and rounds the edge it leaves.  With</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">31</span><span class="ef-lc"><span class="hl-comment">// a width of 2r the profile stays within 0.6 mm of OpenSCAD's, at the</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">32</span><span class="ef-lc"><span class="hl-comment">// cusps.</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">33</span><span class="ef-lc"><span class="hl-comment">//</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">34</span><span class="ef-lc"><span class="hl-comment">// The dish takes everything above it, and the rectangle reaches past it: a</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">35</span><span class="ef-lc"><span class="hl-comment">// top face just above the shallow dish would otherwise blend with it all</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">36</span><span class="ef-lc"><span class="hl-comment">// the way across and lower it.</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">37</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">waist</span> = <span class="hl-builtin">ellipse</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">D</span> / <span class="hl-number">6</span>, <span class="hl-constant">H</span> / <span class="hl-number">2</span><span class="ef-d2">]</span><span class="ef-d1">)</span>.<span class="hl-function-call">move</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">D</span> / <span class="hl-number">2</span>, <span class="hl-constant">H</span> / <span class="hl-number">2</span><span class="ef-d2">]</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">38</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">dish</span> = <span class="hl-builtin">min</span><span class="ef-d1">(</span><span class="hl-builtin">ellipse</span><span class="ef-d2">(</span><span class="ef-d3">[</span><span class="hl-constant">D</span> / <span class="hl-number">2</span>, <span class="hl-constant">H</span> / <span class="hl-number">12</span><span class="ef-d3">]</span><span class="ef-d2">)</span>.<span class="hl-function-call">move</span><span class="ef-d2">(</span><span class="ef-d3">[</span><span class="hl-number">0</span>, <span class="hl-constant">H</span><span class="ef-d3">]</span><span class="ef-d2">)</span>, <span class="hl-constant">H</span> - y<span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">39</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> = <span class="hl-builtin">rect</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">D</span>, <span class="hl-number">2.0</span> * <span class="hl-constant">H</span><span class="ef-d2">]</span><span class="ef-d1">)</span>.<span class="hl-function-call">move</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-number">0</span>, <span class="hl-constant">H</span><span class="ef-d2">]</span><span class="ef-d1">)</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">40</span><span class="ef-lc">    .<span class="hl-function-call">smooth_difference</span><span class="ef-d1">(</span><span class="ef-d2">[</span>waist, dish<span class="ef-d2">]</span>, <span class="hl-number">2.0</span> * <span class="hl-constant">ROUNDING</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">41</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">handle</span> = profile.<span class="hl-function-call">revolve</span><span class="ef-d1">()</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">42</span><span class="ef-lc"></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">43</span><span class="ef-lc"><span class="hl-comment">// Bumps half sunk into the dish, centred on its surface and tilted with it.</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">44</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">bump_z</span> = <span class="hl-constant">H</span> - <span class="hl-constant">H</span> / <span class="hl-number">12</span> * <span class="hl-builtin">sin</span><span class="ef-d1">(</span><span class="hl-builtin">acos</span><span class="ef-d2">(</span><span class="hl-constant">BUMP_RING</span> / <span class="hl-constant">D</span><span class="ef-d2">)</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">45</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">bump_tilt</span> = <span class="hl-builtin">acosd</span><span class="ef-d1">(</span><span class="hl-constant">BUMP_RING</span> / <span class="hl-constant">D</span> / <span class="hl-number">12</span><span class="ef-d1">)</span> + <span class="hl-number">90.0</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">46</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">bump</span> = <span class="hl-builtin">ellipsoid</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">BUMP</span> / <span class="hl-number">2</span>, <span class="hl-constant">BUMP</span> / <span class="hl-number">2</span>, <span class="hl-constant">BUMP</span> / <span class="hl-number">4</span><span class="ef-d2">]</span><span class="ef-d1">)</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">47</span><span class="ef-lc">    .<span class="hl-function-call">rotate_y</span><span class="ef-d1">(</span>bump_tilt<span class="ef-d1">)</span></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">48</span><span class="ef-lc">    .<span class="hl-function-call">move</span><span class="ef-d1">(</span><span class="ef-d2">[</span><span class="hl-constant">BUMP_RING</span> / <span class="hl-number">2</span>, <span class="hl-number">0</span>, bump_z<span class="ef-d2">]</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">49</span><span class="ef-lc"><span class="hl-keyword">let</span> <span class="hl-variable-name">bumps</span> = bump.<span class="hl-function-call">polar_array</span><span class="ef-d1">(</span><span class="hl-constant">BUMPS</span><span class="ef-d1">)</span>;</span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">50</span><span class="ef-lc"></span></div><div class="ef-line"><span class="ef-fringe"></span><span class="ef-ln">51</span><span class="ef-lc"><span class="hl-builtin">draw</span><span class="ef-d1">(</span><span class="hl-builtin">union</span><span class="ef-d2">(</span>handle, bumps<span class="ef-d2">)</span><span class="ef-d1">)</span>;</span></div><div class="ef-line ef-current"><span class="ef-fringe"></span><span class="ef-ln">52</span><span class="ef-lc"><span class="ef-cursor"> </span></span></div></div><div class="ef-modeline"><span class="ef-flag"></span><span class="ef-buffer"><span class="ef-dir">examples/</span>knob.keycap</span><span>Bot</span><span class="ef-fill"></span><span class="ef-mode">keycap</span><span class="ef-counters"><span class="ef-error-count">⊗0</span><span class="ef-warning-count">⚠0</span><span class="ef-note-count"><span class="ef-i">i</span>0</span></span></div></div><div class="ef-window ef-preview"><div class="ef-headerline">shaded iso  ·  fitted bounds 54.7 × 54.7 × 31.1</div><div class="ef-image"><a href="frames/knob-706757421464b086.png"><img src="frames/knob-706757421464b086.png" width="960" height="960" fetchpriority="high" alt="The knob the script draws: a round handle with a waist, and a ring of twelve bumps on its top"></a></div><div class="ef-modeline ef-inactive"><span class="ef-buffer">*keycap: knob.keycap*</span><span>All</span><span class="ef-fill"></span><span>keycap preview</span></div></div><div class="ef-echo"></div></figure>
+
+<p>
+The scripts are written in <a href="https://rhai.rs">Rhai</a> and run by Matt Keeter&rsquo;s <a href="https://github.com/mkeeter/fidget">fidget</a>.
+In fidget, a shape is a formula: a function of <code>x</code>, <code>y</code> and <code>z</code> that is negative inside the shape, positive outside, and tells how far away the surface is.
+Rounded edges, walls of even thickness and fits with a clearance are easy to make this way, and surfaces have no facets however close you zoom in.
+</p>
+<section id="outline-container-what-it-is-like" class="outline-2">
+<h2 id="what-it-is-like"><a href="#what-it-is-like">Features</a></h2>
+<div class="outline-text-2" id="text-what-it-is-like">
+<ul class="org-ul">
+<li>Two windows: the script on the left, its preview on the right.</li>
+<li>The preview updates as you type.
+It takes about 0.3 s from the last key press to a new frame, and most of that is the pause that waits for you to stop typing.</li>
+<li>Everything can be done from the keyboard; the mouse can also turn and zoom the model.</li>
+<li>Errors are marked on the exact token, together with the call that led there.</li>
+<li>Completion and ElDoc know every shape and function, and the fields of the shape whose map you are typing.</li>
+<li><code>C-c C-n</code> nudges the number at point and the model updates, so you can try a few values for a dimension instead of guessing.</li>
+<li>2D views slice the model anywhere and show its distance field, e.g. how much clearance there is around a hole.</li>
+<li><code>C-c C-e</code> exports an STL, simplified to a given tolerance.
+For example, a vase that meshes into 1.5 million triangles is exported as 49,000 within 0.04 mm.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-why-fields" class="outline-2">
+<h2 id="why-fields"><a href="#why-fields">Compared to OpenSCAD</a></h2>
+<div class="outline-text-2" id="text-why-fields">
+<p>
+Most of the models on this site are ports of my older designs, so the two can be compared directly.
+Almost every port was checked against its original&rsquo;s export, by slices or by points on its surface.
+Most agree within 0.3 mm, and the larger differences are mostly where a port rounds a corner that its original left sharp or faceted.
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Design</th>
+<th scope="col" class="org-left">OpenSCAD</th>
+<th scope="col" class="org-left">keycap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Twisted vase</td>
+<td class="org-left">72 layers of 180 points stitched by hand</td>
+<td class="org-left">60 lines of maths, smooth at any zoom</td>
+</tr>
+
+<tr>
+<td class="org-left">DNA loop</td>
+<td class="org-left">a polyhedron</td>
+<td class="org-left">helices that stay round</td>
+</tr>
+
+<tr>
+<td class="org-left">Wall thickness</td>
+<td class="org-left">even across each layer</td>
+<td class="org-left">even square to the surface, however it leans</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Some things are worse, though.
+Meshes are made on a grid, so some shapes take longer to export.
+There is also no <code>hull()</code> and no STL import.
+The <a href="manual/coming-from-openscad.html#porting-from-openscad">porting table</a> in the manual lists what translates and what doesn&rsquo;t.
+</p>
+</div>
+</section>
+<section id="outline-container-the-parts" class="outline-2">
+<h2 id="the-parts"><a href="#the-parts">The parts</a></h2>
+<div class="outline-text-2" id="text-the-parts">
+<dl class="org-dl">
+<dt>keycap</dt><dd>the major mode, the preview and the export, in Emacs Lisp.</dd>
+<dt>rhai-ts-mode</dt><dd>a general Emacs mode for Rhai on tree-sitter; it can be used on its own.</dd>
+<dt>keycap-server</dt><dd>a small Rust server that evaluates, renders and meshes scripts with fidget, on the GPU if there is one and on all CPU cores otherwise.
+It also draws text and imports SVG.</dd>
+<dt>The prelude</dt><dd>a library of shapes written in Rhai: rounded and chamfered combinations, fasteners with print clearances, gears, helices, Bézier strokes, easing and lofts.
+Its modules add screws, nuts, threads, heat-set inserts, bearings, magnets, aluminium extrusions and laser-cut joints.</dd>
+<dt>The manual</dt><dd>all of the above in one document, as Info in Emacs and as <a href="manual/index.html">web pages</a> here, with a picture of every shape.</dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-start-here" class="outline-2">
+<h2 id="start-here"><a href="#start-here">Start here</a></h2>
+<div class="outline-text-2" id="text-start-here">
+<ol class="org-ol">
+<li><a href="install.html">Install</a> it.
+With Nix, it is one package; without Nix, it is a Rust build and a load path.</li>
+<li>Follow the <a href="tutorial/index.html">tutorial</a>.
+It starts with a first model typed from scratch, then goes through the examples step by step.</li>
+<li>Look through the <a href="gallery/index.html">gallery</a> for something close to what you want to make.</li>
+</ol>
+</div>
+</section>
+<section id="outline-container-status" class="outline-2">
+<h2 id="status"><a href="#status">Status</a></h2>
+<div class="outline-text-2" id="text-status">
+<p>
+keycap is at version 0.1 and is not on MELPA yet; fidget itself is not at 1.0 yet either.
+Not every example here has been printed.
+</p>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

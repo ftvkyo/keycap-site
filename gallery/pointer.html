@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>pointer</title>
+<meta name="description" content="A pointing hand of square prisms and octahedra, split in two halves to print flat side down." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">pointer</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/experimental/pointer.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>experimental/pointer.scad</code></a></p>
+
+<p>
+A pointing hand of square prisms and octahedra, split in two halves to
+print flat side down.
+</p>
+
+<p>
+Ported from <code>src/experimental/pointer.scad</code>.  Differences: none
+in shape.  The original&rsquo;s palm is a minkowski of a box and an octahedron,
+here a chamfered cuboid; a finger, a square prism with an octahedron on
+each end, is one octahedron elongated.
+</p>
+
+<p>
+Compared with the original: within 0.0003 mm.
+</p>
+
+<a href="frames/pointer-32e38df0af9a3187.png"><img src="frames/pointer-32e38df0af9a3187.png" width="800" height="600" fetchpriority="high" alt="pointer, shaded, from the front right"></a>
+
+<a href="frames/pointer-152e2621c87cb9eb.png"><img src="frames/pointer-152e2621c87cb9eb.png" width="800" height="600" loading="lazy" alt="pointer, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/pointer.keycap"><code>pointer.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// A pointing hand of square prisms and octahedra, split in two halves to</span>
+<span class="hl-comment">// print flat side down.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/experimental/pointer.scad`.  Differences: none</span>
+<span class="hl-comment">// in shape.  The original's palm is a minkowski of a box and an octahedron,</span>
+<span class="hl-comment">// here a chamfered cuboid; a finger, a square prism with an octahedron on</span>
+<span class="hl-comment">// each end, is one octahedron elongated.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.0003 mm.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">false</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// the whole hand, not the halves to print</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">FINGER_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">50.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">FINGER_R</span> <span class="hl-operator">=</span> <span class="hl-number">10.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">ARM_R</span> <span class="hl-operator">=</span> <span class="hl-number">12.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ARM_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">80.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Hand ---</span>
+
+<span class="hl-doc">/// A finger `l` long from the origin up Z, its square section's corners on</span>
+<span class="hl-doc">/// the axes, with a pointed end either side.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">finger</span><span class="hl-bracket">(</span><span class="hl-variable-name">l</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">octahedron</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FINGER_R</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">elongate</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">l</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">l</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-doc">/// The hand, its palm centred on the origin, pointing along +X.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">pointer</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FINGER_R</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">l</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FINGER_LENGTH</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">arm</span> <span class="hl-operator">=</span> <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">ARM_R</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">ARM_LENGTH</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">sides</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_y</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">5</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">palm</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">3</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">6</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">chamfer</span><span class="hl-delimiter">:</span> <span class="hl-number">5</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">thumb</span> <span class="hl-operator">=</span> <span class="hl-function-call">finger</span><span class="hl-bracket">(</span><span class="hl-variable-use">l</span> <span class="hl-operator">*</span> <span class="hl-number">2</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">3</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">index</span> <span class="hl-operator">=</span> <span class="hl-function-call">finger</span><span class="hl-bracket">(</span><span class="hl-variable-use">l</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_y</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">5</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">1.5</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">middle</span> <span class="hl-operator">=</span> <span class="hl-function-call">finger</span><span class="hl-bracket">(</span><span class="hl-variable-use">l</span> <span class="hl-operator">*</span> <span class="hl-number">4</span> <span class="hl-operator">/</span> <span class="hl-number">5</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_y</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">5</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">little</span> <span class="hl-operator">=</span> <span class="hl-function-call">finger</span><span class="hl-bracket">(</span><span class="hl-variable-use">l</span> <span class="hl-operator">*</span> <span class="hl-number">3</span> <span class="hl-operator">/</span> <span class="hl-number">5</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_y</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">5</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">1.5</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">([</span><span class="hl-variable-use">arm</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">palm</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">thumb</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">index</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">middle</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">little</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">hand</span> <span class="hl-operator">=</span> <span class="hl-function-call">pointer</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The hand cut in two at y = 0, each half turned onto its cut face and</span>
+<span class="hl-comment">// moved 40 out from the middle.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">halves</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+    <span class="hl-variable-use">hand</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">40</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-variable-use">hand</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">40</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">half</span><span class="hl-bracket">(</span><span class="hl-string">"z+"</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-keyword">if</span> <span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">hand</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">halves</span> <span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

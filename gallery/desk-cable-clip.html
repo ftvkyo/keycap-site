@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>desk-cable-clip</title>
+<meta name="description" content="Desk cable clip: a clamp that pushes onto a desk's edge, with a ring in front that a cable snaps into, so that a charger's lead waits at the edge instead of falling behind the desk." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">desk-cable-clip</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://tangled.org/rei.gay/keycap">keycap</a></span></p>
+
+<p>
+Desk cable clip: a clamp that pushes onto a desk&rsquo;s edge, with a ring
+in front that a cable snaps into, so that a charger&rsquo;s lead waits at the
+edge instead of falling behind the desk.
+</p>
+
+<p>
+The clamp&rsquo;s jaws close in a little towards their tips, so that they
+spring open over the desk and grip it; no screws, nothing left on the
+desk.  The ring&rsquo;s opening is narrower than the cable, which pushes in
+past it.
+</p>
+
+<p>
+The clip is drawn as its side, a pen&rsquo;s strokes, extruded with rounded
+rims.  It prints lying on that side, as drawn, so that the layers run
+round the clamp and the ring, the way they flex.
+</p>
+
+<p>
+Unverified: the clamp&rsquo;s grip, the cable&rsquo;s snap into the ring, and the
+print.
+</p>
+
+<a href="frames/desk-cable-clip-046d538fd88ee11e.png"><img src="frames/desk-cable-clip-046d538fd88ee11e.png" width="800" height="600" fetchpriority="high" alt="desk-cable-clip, camera -70 55"></a>
+
+<a href="frames/desk-cable-clip-d9fdb98d4e6e3a2c.png"><img src="frames/desk-cable-clip-d9fdb98d4e6e3a2c.png" width="800" height="600" loading="lazy" alt="desk-cable-clip, camera top"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/desk-cable-clip.keycap"><code>desk-cable-clip.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Desk cable clip: a clamp that pushes onto a desk's edge, with a ring</span>
+<span class="hl-comment">// in front that a cable snaps into, so that a charger's lead waits at the</span>
+<span class="hl-comment">// edge instead of falling behind the desk.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The clamp's jaws close in a little towards their tips, so that they</span>
+<span class="hl-comment">// spring open over the desk and grip it; no screws, nothing left on the</span>
+<span class="hl-comment">// desk.  The ring's opening is narrower than the cable, which pushes in</span>
+<span class="hl-comment">// past it.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The clip is drawn as its side, a pen's strokes, extruded with rounded</span>
+<span class="hl-comment">// rims.  It prints lying on that side, as drawn, so that the layers run</span>
+<span class="hl-comment">// round the clamp and the ring, the way they flex.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Unverified: the clamp's grip, the cable's snap into the ring, and the</span>
+<span class="hl-comment">// print.</span>
+
+<span class="hl-comment">// view: camera -70 55</span>
+<span class="hl-comment">// view: camera top</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PREVIEW</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// draw the desk's edge and the cable</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DESK</span> <span class="hl-operator">=</span> <span class="hl-number">18.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// the desk's thickness</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DEPTH</span> <span class="hl-operator">=</span> <span class="hl-number">22.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// how far the jaws reach in over the desk</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SQUEEZE</span> <span class="hl-operator">=</span> <span class="hl-number">0.8</span><span class="hl-delimiter">;</span>        <span class="hl-comment">// how much each jaw closes in at its tip</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">CABLE</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// the cable's diameter</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">OPENING</span> <span class="hl-operator">=</span> <span class="hl-number">0.75</span><span class="hl-delimiter">;</span>       <span class="hl-comment">// the ring's opening, as a fraction of the cable</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">T</span> <span class="hl-operator">=</span> <span class="hl-number">3.5</span><span class="hl-delimiter">;</span>              <span class="hl-comment">// the clamp's thickness</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">RING_T</span> <span class="hl-operator">=</span> <span class="hl-number">2.4</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// the ring's, thinner so that it flexes</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">=</span> <span class="hl-number">12.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// along the desk's edge: the printed height</span>
+
+<span class="hl-comment">// --- Clamp ---</span>
+
+<span class="hl-comment">// The desk's edge is at X = 0, the desk at X &lt; 0, its top at Y = DESK.</span>
+<span class="hl-comment">// The jaws' centre lines run half a thickness off the desk, closing in</span>
+<span class="hl-comment">// towards their tips.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">top</span> <span class="hl-operator">=</span> <span class="hl-constant">DESK</span> <span class="hl-operator">+</span> <span class="hl-constant">T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">bottom</span> <span class="hl-operator">=</span> <span class="hl-operator">-</span><span class="hl-constant">T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">front</span> <span class="hl-operator">=</span> <span class="hl-constant">T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">clamp</span> <span class="hl-operator">=</span> <span class="hl-builtin">stroke</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-constant">DEPTH</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">top</span> <span class="hl-operator">-</span> <span class="hl-constant">SQUEEZE</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">front</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">top</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">front</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bottom</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-constant">DEPTH</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bottom</span> <span class="hl-operator">+</span> <span class="hl-constant">SQUEEZE</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Ring ---</span>
+
+<span class="hl-comment">// In front of the clamp, halfway up; its opening faces down and forward,</span>
+<span class="hl-comment">// so that the cable hangs out of it towards the floor.  The opening's</span>
+<span class="hl-comment">// half angle comes from its chord on the ring's inside.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-constant">CABLE</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">centre</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-constant">T</span> <span class="hl-operator">+</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-constant">DESK</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">half</span> <span class="hl-operator">=</span> <span class="hl-builtin">asind</span><span class="hl-bracket">(</span><span class="hl-constant">OPENING</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">facing</span> <span class="hl-operator">=</span> <span class="hl-operator">-</span><span class="hl-number">45</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">ring</span> <span class="hl-operator">=</span> <span class="hl-builtin">arc_stroke</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span> <span class="hl-operator">+</span> <span class="hl-constant">RING_T</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">facing</span> <span class="hl-operator">+</span> <span class="hl-variable-use">half</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">facing</span> <span class="hl-operator">+</span> <span class="hl-number">360</span> <span class="hl-operator">-</span> <span class="hl-variable-use">half</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-constant">RING_T</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">(</span><span class="hl-variable-use">centre</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Clip ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">side</span> <span class="hl-operator">=</span> <span class="hl-builtin">union_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">clamp</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">ring</span><span class="hl-delimiter">,</span> <span class="hl-number">1.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">side</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">1</span><span class="hl-bracket">}))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Desk and cable ---</span>
+
+<span class="hl-keyword">if</span> <span class="hl-constant">PREVIEW</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">desk</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-constant">DEPTH</span> <span class="hl-operator">+</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-constant">DESK</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">+</span> <span class="hl-number">10</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-bracket">(</span><span class="hl-constant">DEPTH</span> <span class="hl-operator">+</span> <span class="hl-number">10</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">DESK</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">desk</span><span class="hl-delimiter">,</span> <span class="hl-number">0.65</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.35</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">+</span> <span class="hl-number">10</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">centre</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">centre</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

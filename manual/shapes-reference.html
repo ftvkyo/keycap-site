@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Shapes reference</title>
+<meta name="description" content="fidget's built-in shapes and transforms." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="concepts.html">
+<link rel="next" href="operators-and-math-reference.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Shapes reference</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html" aria-current="page">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+<p>
+fidget&rsquo;s own shapes, as of fidget a386417.
+Each is documented with its fields, in order; <code>C-c C-d</code> shows the same, from fidget itself.
+Which fields may be left out depends on the form of the call; see <a href="writing-models.html#calling-shapes">Calling shapes</a>.
+Signatures and their types are explained in <a href="concepts.html">Concepts</a>.
+</p>
+
+<nav id="table-of-contents" role="doc-toc">
+<h2>In this chapter</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li class="k-2d"><a href="#built-in-2d-shapes">Built-in 2D shapes</a></li>
+<li class="k-3d"><a href="#built-in-3d-shapes">Built-in 3D shapes</a></li>
+<li class="k-csg"><a href="#combinations">Combinations</a></li>
+<li class="k-transform"><a href="#transforms">Transforms</a></li>
+<li class="k-extrude"><a href="#from-2d-to-3d">From 2D to 3D</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-built-in-2d-shapes" class="outline-2 k-2d">
+<h2 id="built-in-2d-shapes"><a href="#built-in-2d-shapes">Built-in 2D shapes</a></h2>
+<div class="outline-text-2" id="text-built-in-2d-shapes">
+<dl class="org-dl">
+<dt id="fn-circle" class="entry k-2d sig"><span class="label"><span class="kind">2D</span> · fidget<a class="permalink" href="#fn-circle" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">circle</span>(<span class="hl-variable-name p">center</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a><span class="p"> = [</span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">]</span>, <span class="hl-variable-name p">radius</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">1</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">circle</span>(#{ <span class="hl-variable-name p">center</span><span class="p">?: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>, <span class="hl-variable-name p">radius</span><span class="p">?: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-2d"><p>
+A circle in the XY plane.
+</p>
+
+<dl class="org-dl">
+<dt><code>center</code></dt><dd>its centre, <code>[x, y]</code></dd>
+<dt><code>radius</code></dt><dd>its radius</dd>
+</dl>
+
+<p>
+The two have different types, so they may come in either order, and either may be left out.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>ellipse</code>, <code>annulus</code>, <code>sphere</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A plate with a hole of radius 3, its centre at x = 10.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">16</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-function-call">circle</span><span class="hl-bracket">([</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-circle-f03b337c09341526.png" width="480" height="360" fetchpriority="high" alt="A plate with a hole of radius 3, its centre at x = 10.">
+
+</div></figure></dd>
+
+<dt id="fn-rectangle" class="entry k-2d sig"><span class="label"><span class="kind">2D</span> · fidget<a class="permalink" href="#fn-rectangle" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">rectangle</span>(<span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">rectangle</span>(#{ <span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-2d"><p>
+A rectangle from one corner to the opposite one.
+</p>
+
+<dl class="org-dl">
+<dt><code>lower</code></dt><dd>the corner of the lowest X and Y, <code>[x, y]</code></dd>
+<dt><code>upper</code></dt><dd>the corner of the highest X and Y, <code>[x, y]</code></dd>
+</dl>
+
+<p>
+Both corners are needed, in this order.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact inside and beside the edges, a bound beyond the corners.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>rect</code>, which is exact everywhere and rounds or chamfers its corners.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A rectangle 40 by 20, from the origin up.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">rectangle</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">])</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-rectangle-c89ec8e548916d2b.png" width="480" height="360" loading="lazy" alt="A rectangle 40 by 20, from the origin up.">
+
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-built-in-3d-shapes" class="outline-2 k-3d">
+<h2 id="built-in-3d-shapes"><a href="#built-in-3d-shapes">Built-in 3D shapes</a></h2>
+<div class="outline-text-2" id="text-built-in-3d-shapes">
+<dl class="org-dl">
+<dt id="fn-sphere" class="entry k-3d sig"><span class="label"><span class="kind">3D</span> · fidget<a class="permalink" href="#fn-sphere" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">sphere</span>(<span class="hl-variable-name p">center</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a><span class="p"> = [</span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">]</span>, <span class="hl-variable-name p">radius</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">1</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">sphere</span>(#{ <span class="hl-variable-name p">center</span><span class="p">?: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>, <span class="hl-variable-name p">radius</span><span class="p">?: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-3d"><p>
+A sphere.
+</p>
+
+<dl class="org-dl">
+<dt><code>center</code></dt><dd>its centre, <code>[x, y, z]</code></dd>
+<dt><code>radius</code></dt><dd>its radius</dd>
+</dl>
+
+<p>
+The two have different types, so they may come in either order, and either may be left out.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>ellipsoid</code>, <code>circle</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A ball on a post.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">union</span><span class="hl-bracket">(</span>
+    <span class="hl-function-call">sphere</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-sphere-f16d39cc39614877.png" width="480" height="360" loading="lazy" alt="A ball on a post.">
+
+</div></figure></dd>
+
+<dt id="fn-box" class="entry k-3d sig"><span class="label"><span class="kind">3D</span> · fidget<a class="permalink" href="#fn-box" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">box</span>(<span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">box</span>(#{ <span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-3d"><p>
+A box from one corner to the opposite one.
+</p>
+
+<dl class="org-dl">
+<dt><code>lower</code></dt><dd>the corner of the lowest X, Y and Z, <code>[x, y, z]</code></dd>
+<dt><code>upper</code></dt><dd>the corner of the highest X, Y and Z, <code>[x, y, z]</code></dd>
+</dl>
+
+<p>
+Both corners are needed, in this order.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact inside and off the faces, a bound beyond the edges and corners.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>cuboid</code>, which is exact everywhere and rounds or chamfers its edges.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A box 40 by 20 by 5, standing on z = 0.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">box</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">])</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-box-496ca4621898b3ed.png" width="480" height="360" loading="lazy" alt="A box 40 by 20 by 5, standing on z = 0.">
+
+</div></figure></dd>
+
+<dt id="fn-plane" class="entry k-3d sig"><span class="label"><span class="kind">3D</span> · fidget<a class="permalink" href="#fn-plane" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">plane</span>(<span class="hl-variable-name p">axis</span><span class="p">: </span><a class="type" href="concepts.html#type-Axis"><span class="hl-type p">Axis</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">plane</span>(#{ <span class="hl-variable-name p">axis</span><span class="p">: </span><a class="type" href="concepts.html#type-Axis"><span class="hl-type p">Axis</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-3d"><p>
+The half-space behind a plane, as a shape; or a plane, as a value for <code>reflect</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>axis</code></dt><dd>the plane&rsquo;s normal, as <code>axis</code> takes it</dd>
+<dt><code>offset</code></dt><dd>the plane&rsquo;s distance from the origin along <code>axis</code></dd>
+<dt><code>p</code></dt><dd><code>"xy"</code>, <code>"yz"</code> or <code>"zx"</code>, or an axis, the plane&rsquo;s normal</dd>
+</dl>
+
+<p>
+The shape is everything where the distance along <code>axis</code> is below <code>offset</code>.
+Only the map, with both keys, builds the shape.
+Called with a name or an axis, and a float offset or none, <code>plane</code> builds a Plane value instead.
+Called with an integer offset, it builds the shape.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact.</li>
+<li>The value <code>plane("xy")</code>&rsquo;s normal is Y, not Z, as of fidget a386417.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>half_space</code>, <code>slab</code>, <code>reflect</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A sphere cut by the plane z = 2.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span>
+    <span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">plane</span><span class="hl-bracket">(#{</span><span class="hl-property-name">axis</span><span class="hl-delimiter">:</span> <span class="hl-string">"z"</span><span class="hl-delimiter">,</span> <span class="hl-property-name">offset</span><span class="hl-delimiter">:</span> <span class="hl-number">2</span><span class="hl-bracket">})</span>
+<span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-plane-a5f922378432ac32.png" width="480" height="360" loading="lazy" alt="A sphere cut by the plane z = 2.">
+
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-combinations" class="outline-2 k-csg">
+<h2 id="combinations"><a href="#combinations">Combinations</a></h2>
+<div class="outline-text-2" id="text-combinations">
+<dl class="org-dl">
+<dt id="fn-union" class="entry k-csg sig"><span class="label"><span class="kind">CSG</span> · fidget<a class="permalink" href="#fn-union" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">union</span>(<span class="p">...</span><span class="hl-variable-name p">input</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p">[]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">union</span>(<span class="hl-variable-name p">input</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p">[]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-csg"><p>
+The union of shapes: everything inside any of them.
+</p>
+
+<dl class="org-dl">
+<dt><code>input</code></dt><dd>the shapes, up to eight as arguments, or an array of any length</dd>
+</dl>
+
+<p>
+It is <code>min</code> over the shapes.
+An empty array is empty space.
+A single shape is an error, <code class="long">missing argument of type Vec&lt;Tree&gt;</code>; a single array is fine.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact outside, a bound inside where the shapes overlap.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>min</code>, <code>union_round</code>, <code>intersection</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+Three bars crossing at the origin.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">union</span><span class="hl-bracket">(</span>
+    <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">24</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">24</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">24</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-union-3b86dd24d4bcccf6.png" width="480" height="360" loading="lazy" alt="Three bars crossing at the origin.">
+
+</div></figure></dd>
+
+<dt id="fn-intersection" class="entry k-csg sig"><span class="label"><span class="kind">CSG</span> · fidget<a class="permalink" href="#fn-intersection" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">intersection</span>(<span class="p">...</span><span class="hl-variable-name p">input</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p">[]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">intersection</span>(<span class="hl-variable-name p">input</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p">[]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-csg"><p>
+The intersection of shapes: only what is inside all of them.
+</p>
+
+<dl class="org-dl">
+<dt><code>input</code></dt><dd>the shapes, up to eight as arguments, or an array of any length</dd>
+</dl>
+
+<p>
+It is <code>max</code> over the shapes.
+An empty array is all of space.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact inside, a bound outside near the edges where the surfaces meet.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>max</code>, <code>intersection_round</code>, <code>union</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A cube with its corners rounded off by a sphere.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-number">12</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">(</span><span class="hl-number">18</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-intersection-5172c4c029fa0254.png" width="480" height="360" loading="lazy" alt="A cube with its corners rounded off by a sphere.">
+
+</div></figure></dd>
+
+<dt id="fn-difference" class="entry k-csg sig"><span class="label"><span class="kind">CSG</span> · fidget<a class="permalink" href="#fn-difference" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">difference</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">cutout</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">difference</span>(<span class="hl-variable-name p">cutout</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-csg"><p>
+<code>shape</code> with <code>cutout</code> cut away.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape to cut</dd>
+<dt><code>cutout</code></dt><dd>what to cut away; an array of shapes cuts their union</dd>
+</dl>
+
+<p>
+It is <code>max(shape, -cutout)</code>.
+It takes exactly two arguments.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact inside, a bound outside near the cut&rsquo;s edges.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>difference_round</code>, <code>inverse</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A plate with two holes.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">holes</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+    <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">plate</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">holes</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-difference-be2b0c5a77c70a85.png" width="480" height="360" loading="lazy" alt="A plate with two holes.">
+
+</div></figure></dd>
+
+<dt id="fn-inverse" class="entry k-csg sig"><span class="label"><span class="kind">CSG</span> · fidget<a class="permalink" href="#fn-inverse" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">inverse</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">inverse</span>(): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-csg"><p>
+The shape with its inside and outside swapped.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+</dl>
+
+<p>
+It is <code>-shape</code>.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, negated, so an exact field stays exact.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>difference</code>, <code>-</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A square with a round hole, a circle&rsquo;s inverse cut to the square.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">outside</span> <span class="hl-operator">=</span> <span class="hl-function-call">inverse</span><span class="hl-bracket">(</span><span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">outside</span><span class="hl-delimiter">,</span> <span class="hl-function-call">rect</span><span class="hl-bracket">(</span><span class="hl-number">30</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-inverse-d0307d4fdec11a65.png" width="480" height="360" loading="lazy" alt="A square with a round hole, a circle's inverse cut to the square.">
+
+</div></figure></dd>
+
+<dt id="fn-blend" class="entry k-csg sig"><span class="label"><span class="kind">CSG</span> · fidget<a class="permalink" href="#fn-blend" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 2; --hang: 6"><span class="hl-function-name">blend</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">radius</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 6"><span class="hl-variable-name">a</span>.<span class="hl-function-name">blend</span>(<span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">radius</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-csg"><p>
+A smooth union of two shapes, blended over a distance.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>the shapes</dd>
+<dt><code>radius</code></dt><dd>how far from where they meet the blend reaches</dd>
+</dl>
+
+<p>
+The blend is Inigo Quilez&rsquo;s quadratic smooth minimum.
+It swells the shapes a little where they meet, and has no fixed radius.
+By position, all three come, in this order.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: a bound.</li>
+<li><code>smooth_union</code> with its default <code>kind</code> is this same blend, and takes arrays of shapes, a width that varies over space, other profiles, and a difference and an intersection to match; prefer it in scripts.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>union_round</code>, which makes a circular fillet, <code>smooth_union</code>, <code>smooth_difference</code>, <code>smooth_intersection</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li>Inigo Quilez, <a href="https://iquilezles.org/articles/smin/">Smooth minimum</a></li>
+</ul>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A post blended into a plate.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">base</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">blend</span><span class="hl-bracket">(</span><span class="hl-variable-use">base</span><span class="hl-delimiter">,</span> <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-blend-5c1e4db579928f6f.png" width="480" height="360" loading="lazy" alt="A post blended into a plate.">
+
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-transforms" class="outline-2 k-transform">
+<h2 id="transforms"><a href="#transforms">Transforms</a></h2>
+<div class="outline-text-2" id="text-transforms">
+<p>
+Transforms take the shape first, so they chain: <code>s.move([1, 0, 0]).rotate_z(45)</code>.
+Moves, rotations and reflections keep a field exact.
+</p>
+
+<dl class="org-dl">
+<dt id="fn-move" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-move" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">move</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a><span class="p"> = [</span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">move</span>(<span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a><span class="p"> = [</span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">move</span>(#{ <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape moved.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>offset</code></dt><dd>the move, <code>[x, y, z]</code>; <code>[x, y]</code> moves in the XY plane</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, moved.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>remap</code>.
+</p>
+</div>
+
+<div class="part quiet"><span>From OpenSCAD</span>
+<p>
+<code>translate(v)</code> is <code>.move(v)</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A sphere moved up onto a cube.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">union</span><span class="hl-bracket">(</span>
+    <span class="hl-function-call">cuboid</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">7</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-move-591b4e192103838d.png" width="480" height="360" loading="lazy" alt="A sphere moved up onto a cube.">
+
+</div></figure></dd>
+
+<dt id="fn-rotate" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-rotate" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">rotate</span>(</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">shape</span>:  <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">axis</span>:   <a class="type" href="concepts.html#type-Axis"><span class="hl-type">Axis</span></a>   = [<span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">1</span>],</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">angle</span>:  <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a> = <span class="hl-number">0</span>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">center</span>: <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a>   = [<span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>],</span><span style="--indent: 6; --hang: 10">): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">rotate</span>(</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">axis</span>:   <a class="type" href="concepts.html#type-Axis"><span class="hl-type">Axis</span></a>   = [<span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">1</span>],</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">angle</span>:  <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a> = <span class="hl-number">0</span>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">center</span>: <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a>   = [<span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>],</span><span style="--indent: 6; --hang: 10">): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">rotate</span>(#{ <span class="hl-variable-name p">axis</span><span class="p">: </span><a class="type" href="concepts.html#type-Axis"><span class="hl-type p">Axis</span></a>, <span class="hl-variable-name p">angle</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">center</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape turned about an axis through a centre.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>axis</code></dt><dd>the axis, <code>"x"</code>, <code>"y"</code> or <code>"z"</code>, an <code>axis</code> value, or a vector</dd>
+<dt><code>angle</code></dt><dd>the turn, in degrees, anticlockwise looking down the axis towards the centre</dd>
+<dt><code>center</code></dt><dd>a point on the axis, <code>[x, y, z]</code></dd>
+</dl>
+
+<p>
+By position, <code>axis</code>, <code>angle</code> and <code>center</code> may come in any order, and any of them may be left out.
+An array by position is taken for <code>center</code>, so a vector axis goes through <code>axis</code> or the map.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, turned.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>rotate_x</code>, <code>rotate_xyz</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A bar turned 30 degrees about Y.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate</span><span class="hl-bracket">(</span><span class="hl-string">"y"</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-rotate-d23bf3bf89fde0d3.png" width="480" height="360" loading="lazy" alt="A bar turned 30 degrees about Y.">
+
+</div></figure></dd>
+
+<dt id="fn-rotate_x" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-rotate_x" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">rotate_x</span>(</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">shape</span>:  <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">angle</span>:  <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a> = <span class="hl-number">0</span>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">center</span>: <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a>   = [<span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>],</span><span style="--indent: 6; --hang: 10">): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">rotate_x</span>(<span class="hl-variable-name p">angle</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>, <span class="hl-variable-name p">center</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a><span class="p"> = [</span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">rotate_x</span>(#{ <span class="hl-variable-name p">angle</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">center</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape turned about an axis parallel to X.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>angle</code></dt><dd>the turn, in degrees, anticlockwise looking from +X</dd>
+<dt><code>center</code></dt><dd>a point on the axis, <code>[x, y, z]</code></dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, turned.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>rotate</code>, <code>rotate_xyz</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A rod tilted 45 degrees about X.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">45</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-rotate_x-eb23da19365581b5.png" width="480" height="360" loading="lazy" alt="A rod tilted 45 degrees about X.">
+
+</div></figure></dd>
+
+<dt id="fn-rotate_y" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-rotate_y" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">rotate_y</span>(</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">shape</span>:  <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">angle</span>:  <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a> = <span class="hl-number">0</span>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">center</span>: <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a>   = [<span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>],</span><span style="--indent: 6; --hang: 10">): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">rotate_y</span>(<span class="hl-variable-name p">angle</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>, <span class="hl-variable-name p">center</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a><span class="p"> = [</span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">rotate_y</span>(#{ <span class="hl-variable-name p">angle</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">center</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape turned about an axis parallel to Y.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>angle</code></dt><dd>the turn, in degrees, anticlockwise looking from +Y</dd>
+<dt><code>center</code></dt><dd>a point on the axis, <code>[x, y, z]</code></dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, turned.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>rotate</code>, <code>rotate_xyz</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A rod tilted 45 degrees about Y.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_y</span><span class="hl-bracket">(</span><span class="hl-number">45</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-rotate_y-e8404f23acea4603.png" width="480" height="360" loading="lazy" alt="A rod tilted 45 degrees about Y.">
+
+</div></figure></dd>
+
+<dt id="fn-rotate_z" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-rotate_z" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">rotate_z</span>(</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">shape</span>:  <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">angle</span>:  <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a> = <span class="hl-number">0</span>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">center</span>: <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a>   = [<span class="hl-number">0</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>],</span><span style="--indent: 6; --hang: 10">): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">rotate_z</span>(<span class="hl-variable-name p">angle</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>, <span class="hl-variable-name p">center</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a><span class="p"> = [</span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">rotate_z</span>(#{ <span class="hl-variable-name p">angle</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">center</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape turned about an axis parallel to Z.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>angle</code></dt><dd>the turn, in degrees, anticlockwise looking down from +Z</dd>
+<dt><code>center</code></dt><dd>a point on the axis, <code>[x, y, z]</code></dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, turned.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>rotate</code>, <code>rotate_xyz</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A bar turned 45 degrees about Z.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">45</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-rotate_z-582a0ceccc260c8b.png" width="480" height="360" loading="lazy" alt="A bar turned 45 degrees about Z.">
+
+</div></figure></dd>
+
+<dt id="fn-scale" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-scale" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">scale</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">scale</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a><span class="p"> = [</span><span class="hl-number p">1</span><span class="p">, </span><span class="hl-number p">1</span><span class="p">, </span><span class="hl-number p">1</span><span class="p">]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">scale</span>(<span class="hl-variable-name p">scale</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a><span class="p"> = [</span><span class="hl-number p">1</span><span class="p">, </span><span class="hl-number p">1</span><span class="p">, </span><span class="hl-number p">1</span><span class="p">]</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">scale</span>(#{ <span class="hl-variable-name p">scale</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape stretched by a factor along each axis, about the origin.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>scale</code></dt><dd>the factors, <code>[x, y, z]</code>; <code>[x, y]</code> leaves Z as it is</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: a bound where every factor is at least 1; along an axis with a factor <code>s</code> below 1, steep <code>1 / s</code>.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>scale_bound</code>, <code>scale_exact</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A sphere stretched into an ellipsoid.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">scale</span><span class="hl-bracket">([</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-bracket">])</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-scale-a95c3fff8f6d0c13.png" width="480" height="360" loading="lazy" alt="A sphere stretched into an ellipsoid.">
+
+</div></figure></dd>
+
+<dt id="fn-scale_uniform" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-scale_uniform" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">scale_uniform</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">scale</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">1</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">scale_uniform</span>(<span class="hl-variable-name p">scale</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">1</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">scale_uniform</span>(#{ <span class="hl-variable-name p">scale</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape grown by one factor along every axis, about the origin.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>scale</code></dt><dd>the factor, a number</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, not rescaled, so <code>scale</code> times too small: a bound for a factor above 1, steep <code>1 / scale</code> below 1.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>scale_exact</code>, which keeps the field a distance.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A sphere with a copy half its size on top.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">ball</span> <span class="hl-operator">=</span> <span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">small</span> <span class="hl-operator">=</span> <span class="hl-variable-use">ball</span><span class="hl-delimiter">.</span><span class="hl-function-call">scale_uniform</span><span class="hl-bracket">(</span><span class="hl-number">0.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">8</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">ball</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">small</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-scale_uniform-7281ee814d395899.png" width="480" height="360" loading="lazy" alt="A sphere with a copy half its size on top.">
+
+</div></figure></dd>
+
+<dt id="fn-reflect" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-reflect" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">reflect</span>(</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">shape</span>: <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">plane</span>: <a class="type" href="concepts.html#type-Plane"><span class="hl-type">Plane</span></a> = #{<span class="hl-variable-name">axis</span>: [<span class="hl-number">1</span>, <span class="hl-number">0</span>, <span class="hl-number">0</span>], <span class="hl-variable-name">offset</span>: <span class="hl-number">0</span>},</span><span style="--indent: 6; --hang: 10">): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect</span>(<span class="hl-variable-name p">plane</span><span class="p">: </span><a class="type" href="concepts.html#type-Plane"><span class="hl-type p">Plane</span></a><span class="p"> = #{</span><span class="hl-variable-name p">axis</span><span class="p">: [</span><span class="hl-number p">1</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">, </span><span class="hl-number p">0</span><span class="p">], </span><span class="hl-variable-name p">offset</span><span class="p">: </span><span class="hl-number p">0</span><span class="p">}</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect</span>(#{ <span class="hl-variable-name p">plane</span><span class="p">: </span><a class="type" href="concepts.html#type-Plane"><span class="hl-type p">Plane</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape mirrored across a plane.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>plane</code></dt><dd>the plane, a <code>plane</code> value, or a name</dd>
+</dl>
+
+<p>
+A name gives a plane through the origin: <code>"yz"</code> or <code>"x"</code> mirrors across X, <code>"zx"</code> or <code>"y"</code> across Y, <code>"z"</code> across Z.
+A <code>plane</code> value with an offset gives a plane off the origin.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, mirrored.</li>
+<li>As of fidget a386417, <code>"xy"</code> mirrors across Y, not Z; <code>"z"</code> and <code>reflect_z</code> mirror across Z.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>reflect_x</code>, <code>symmetric_x</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A tilted rod and its mirror image across Y.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">30</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect</span><span class="hl-bracket">(</span><span class="hl-string">"zx"</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-reflect-ebe591c2cf2560b8.png" width="480" height="360" loading="lazy" alt="A tilted rod and its mirror image across Y.">
+
+</div></figure></dd>
+
+<dt id="fn-reflect_x" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-reflect_x" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">reflect_x</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect_x</span>(<span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect_x</span>(#{ <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape mirrored across the plane x = <code>offset</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>offset</code></dt><dd>the X of the plane</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, mirrored.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>reflect</code>, <code>symmetric_x</code>.
+</p>
+</div>
+
+<div class="part quiet"><span>From OpenSCAD</span>
+<p>
+<code>mirror([1, 0, 0])</code> is <code>.reflect_x()</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A tilted rod and its mirror image across X.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_y</span><span class="hl-bracket">(</span><span class="hl-number">30</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect_x</span><span class="hl-bracket">())</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-reflect_x-b1973ad285e21013.png" width="480" height="360" loading="lazy" alt="A tilted rod and its mirror image across X.">
+
+</div></figure></dd>
+
+<dt id="fn-reflect_y" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-reflect_y" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">reflect_y</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect_y</span>(<span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect_y</span>(#{ <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape mirrored across the plane y = <code>offset</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>offset</code></dt><dd>the Y of the plane</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, mirrored.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>reflect</code>, <code>symmetric_y</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A tilted cone and its mirror image across Y.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">cone</span><span class="hl-bracket">([</span><span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">12</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-number">60</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">8</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect_y</span><span class="hl-bracket">())</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-reflect_y-13e818921271f209.png" width="480" height="360" loading="lazy" alt="A tilted cone and its mirror image across Y.">
+
+</div></figure></dd>
+
+<dt id="fn-reflect_z" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-reflect_z" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">reflect_z</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect_z</span>(<span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect_z</span>(#{ <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape mirrored across the plane z = <code>offset</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>offset</code></dt><dd>the Z of the plane</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, mirrored.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>reflect</code>, <code>symmetric_z</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A cone and its mirror image across Z.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">cone</span><span class="hl-bracket">([</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect_z</span><span class="hl-bracket">())</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-reflect_z-9b3676a7fa6df19b.png" width="480" height="360" loading="lazy" alt="A cone and its mirror image across Z.">
+
+</div></figure></dd>
+
+<dt id="fn-reflect_xy" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-reflect_xy" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">reflect_xy</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect_xy</span>(<span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">reflect_xy</span>(#{ <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape mirrored across the plane x = y, so that X and Y swap.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>offset</code></dt><dd>how far the plane is moved along its normal</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, mirrored.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>reflect</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A bar along X and its mirror image along Y.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">12</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect_xy</span><span class="hl-bracket">())</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-reflect_xy-8393471ea24de483.png" width="480" height="360" loading="lazy" alt="A bar along X and its mirror image along Y.">
+
+</div></figure></dd>
+
+<dt id="fn-repeat_x" class="entry k-transform sig"><span class="label"><span class="kind">transform</span> · fidget<a class="permalink" href="#fn-repeat_x" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">repeat_x</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">radius</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">repeat_x</span>(<span class="hl-variable-name p">radius</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">repeat_x</span>(#{ <span class="hl-variable-name p">radius</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 6; --hang: 10"><span class="hl-function-name">repeat_x</span>(#{</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">shape</span>:   <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">radius</span>?: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">offset</span>?: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a>,</span><span style="--indent: 6; --hang: 10">}): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-transform"><p>
+The shape repeated without end along X.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape</dd>
+<dt><code>radius</code></dt><dd>half the length of a cell; copies are <code>2 * radius</code> apart</dd>
+<dt><code>offset</code></dt><dd>the X of the cell&rsquo;s centre</dd>
+</dl>
+
+<p>
+The part of the shape within <code>radius</code> of <code>offset</code> is copied into every cell.
+By position, all three come, in this order; only the map with <code>shape</code> leaves <code>radius</code> or <code>offset</code> out.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, as long as the shape stays inside its cell with some margin; the field jumps at the cells&rsquo; edges where the shape&rsquo;s differs there.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>repeat</code>, <code>repeat_grid</code>, <code>%</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li>Inigo Quilez, <a href="https://iquilezles.org/articles/sdfrepetition/">Domain repetition</a></li>
+</ul>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A row of spheres 10 apart, cut to a length.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">balls</span> <span class="hl-operator">=</span> <span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_x</span><span class="hl-bracket">(</span><span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">balls</span><span class="hl-delimiter">,</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">50</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">]))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-repeat_x-96b9c88e2dc849a3.png" width="480" height="360" loading="lazy" alt="A row of spheres 10 apart, cut to a length.">
+
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-from-2d-to-3d" class="outline-2 k-extrude">
+<h2 id="from-2d-to-3d"><a href="#from-2d-to-3d">From 2D to 3D</a></h2>
+<div class="outline-text-2" id="text-from-2d-to-3d">
+<dl class="org-dl">
+<dt id="fn-extrude_z" class="entry k-extrude sig"><span class="label"><span class="kind">2D to 3D</span> · fidget<a class="permalink" href="#fn-extrude_z" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">extrude_z</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">extrude_z</span>(<span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">extrude_z</span>(#{ <span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 6; --hang: 10"><span class="hl-function-name">extrude_z</span>(#{</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">shape</span>:  <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">lower</span>?: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a>,</span><span style="--indent: 10; --hang: 14"><span class="hl-variable-name">upper</span>?: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a>,</span><span style="--indent: 6; --hang: 10">}): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-extrude"><p>
+A 2D shape extruded along Z, from z = <code>lower</code> up to <code>upper</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the 2D shape; its slice at z = 0 is the one extruded</dd>
+<dt><code>lower</code>, <code>upper</code></dt><dd>the heights of the bottom and the top</dd>
+</dl>
+
+<p>
+By position, all three come, in this order.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact inside and beside the walls, a bound beyond the rims.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>extrude</code>, which is exact at the rims and rounds or chamfers them.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A hexagonal plate 5 thick.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">hexagon_af</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude_z</span><span class="hl-bracket">(</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-extrude_z-35d2c7b212694935.png" width="480" height="360" loading="lazy" alt="A hexagonal plate 5 thick.">
+
+</div></figure></dd>
+
+<dt id="fn-loft_z" class="entry k-extrude sig"><span class="label"><span class="kind">2D to 3D</span> · fidget<a class="permalink" href="#fn-loft_z" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 2; --hang: 6"><span class="hl-function-name">loft_z</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 6"><span class="hl-variable-name">a</span>.<span class="hl-function-name">loft_z</span>(<span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 2; --hang: 6"><span class="hl-function-name">loft_z</span>(#{ <span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">lower</span><span class="p">?: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">upper</span><span class="p">?: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-extrude"><p>
+A solid that turns from one 2D shape into another as it rises.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>the 2D shape at the bottom</dd>
+<dt><code>b</code></dt><dd>the 2D shape at the top</dd>
+<dt><code>lower</code>, <code>upper</code></dt><dd>the heights of the bottom and the top</dd>
+</dl>
+
+<p>
+Between the two heights, the field is interpolated linearly from <code>a</code>&rsquo;s to <code>b</code>&rsquo;s.
+By position, all four come, in this order.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: not a distance, though close to one for similar shapes.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>loft</code>, which keeps a distance where the walls lean and eases between the shapes.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A circle that becomes a square as it rises.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">loft_z</span><span class="hl-bracket">(</span><span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">rect</span><span class="hl-bracket">(</span><span class="hl-number">16</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-loft_z-81720aa91e13ff9d.png" width="480" height="360" loading="lazy" alt="A circle that becomes a square as it rises.">
+
+</div></figure></dd>
+
+<dt id="fn-revolve_y" class="entry k-extrude sig"><span class="label"><span class="kind">2D to 3D</span> · fidget<a class="permalink" href="#fn-revolve_y" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">revolve_y</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">revolve_y</span>(<span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p"> = </span><span class="hl-number p">0</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">revolve_y</span>(#{ <span class="hl-variable-name p">offset</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a> }): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-extrude"><p>
+Meant to revolve a 2D shape about the Y axis; as of fidget a386417 it does not.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the 2D shape</dd>
+<dt><code>offset</code></dt><dd>the X of the axis</dd>
+</dl>
+
+<p>
+It evaluates the shape at (√(x² + y²), y, z), which is no solid of revolution.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>revolve</code>, which revolves a 2D shape about Z.
+</p>
+</div></dd>
+</dl>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="concepts.html"><span>Previous</span> Concepts</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="operators-and-math-reference.html"><span>Next</span> Operators and math reference</a></nav>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

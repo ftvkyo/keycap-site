@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>scraper</title>
+<meta name="description" content="Bed scraper: a blade with a sharp tip, a handle with scallops for the fingers and a bite for the thumb, and a label." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">scraper</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/printer/scraper.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>printer/scraper.scad</code></a></p>
+
+<p>
+Bed scraper: a blade with a sharp tip, a handle with scallops for the
+fingers and a bite for the thumb, and a label.
+</p>
+
+<p>
+Ported from <code>src/printer/scraper.scad</code>.  Differences:
+</p>
+<ul class="org-ul">
+<li>The outline is found by keycap/points when the script runs, the circles
+as arcs, and rounded_polygon rounds its corners by ROUNDING, convex
+and concave: the original&rsquo;s closing and opening, exactly except where
+the two orders could differ.</li>
+<li>The blade&rsquo;s half-size triangle, sticking out of the rounded outline as
+the sharp tip, is a polygon of its own.</li>
+<li>The circles are round where the original&rsquo;s $fn = 48 makes polygons.</li>
+<li>The label is set in the Nerd Font build of JetBrains Mono.</li>
+</ul>
+
+<p>
+Compared with the original: within 0.0375 mm, the label left out.
+</p>
+
+<a href="frames/scraper-aa482038f5b15018.png"><img src="frames/scraper-aa482038f5b15018.png" width="800" height="600" fetchpriority="high" alt="scraper, its distance field"></a>
+
+<a href="frames/scraper-7cb15cc9bea01e17.png"><img src="frames/scraper-7cb15cc9bea01e17.png" width="800" height="600" loading="lazy" alt="scraper, inside and outside"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/scraper.keycap"><code>scraper.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Bed scraper: a blade with a sharp tip, a handle with scallops for the</span>
+<span class="hl-comment">// fingers and a bite for the thumb, and a label.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/printer/scraper.scad`.  Differences:</span>
+<span class="hl-comment">// - The outline is found by keycap/points when the script runs, the circles</span>
+<span class="hl-comment">//   as arcs, and rounded_polygon rounds its corners by ROUNDING, convex</span>
+<span class="hl-comment">//   and concave: the original's closing and opening, exactly except where</span>
+<span class="hl-comment">//   the two orders could differ.</span>
+<span class="hl-comment">// - The blade's half-size triangle, sticking out of the rounded outline as</span>
+<span class="hl-comment">//   the sharp tip, is a polygon of its own.</span>
+<span class="hl-comment">// - The circles are round where the original's $fn = 48 makes polygons.</span>
+<span class="hl-comment">// - The label is set in the Nerd Font build of JetBrains Mono.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.0375 mm, the label left out.</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/points"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">points</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">SCRAPER_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">60.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCRAPER_ANGLE</span> <span class="hl-operator">=</span> <span class="hl-number">20.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">HANDLE_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">100.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HANDLE_ANGLE</span> <span class="hl-operator">=</span> <span class="hl-number">30.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">FINGER_DIAMETER</span> <span class="hl-operator">=</span> <span class="hl-number">20.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">THUMB_DIAMETER</span> <span class="hl-operator">=</span> <span class="hl-number">30.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-constant">SCRAPER_LENGTH</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-constant">SCRAPER_ANGLE</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HANDLE_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-constant">SCRAPER_LENGTH</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-constant">SCRAPER_ANGLE</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Outline ---</span>
+
+<span class="hl-comment">// A point given in the handle's frame: turned by HANDLE_ANGLE about the</span>
+<span class="hl-comment">// blade's back.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">handle_at</span><span class="hl-bracket">(</span><span class="hl-variable-name">x</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">y</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">a</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_ANGLE</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">[</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCRAPER_LENGTH</span> <span class="hl-operator">+</span> <span class="hl-variable-use">x</span> <span class="hl-operator">*</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-variable-use">y</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">x</span> <span class="hl-operator">*</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y</span> <span class="hl-operator">*</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)]</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// A circle as two half arcs</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">circle_points</span><span class="hl-bracket">(</span><span class="hl-variable-name">center</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">r</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-bracket">[[</span><span class="hl-variable-use">center</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">center</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">arc</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-bracket">}]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">center</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">center</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">arc</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-bracket">}]]</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The blade's triangle, `scale` times its size</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">blade</span><span class="hl-bracket">(</span><span class="hl-variable-name">scale</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">l</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCRAPER_LENGTH</span> <span class="hl-operator">*</span> <span class="hl-variable-use">scale</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">[[</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">l</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">l</span> <span class="hl-operator">*</span> <span class="hl-builtin">tand</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCRAPER_ANGLE</span><span class="hl-bracket">)]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">l</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]]</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">handle_points</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bar</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+        <span class="hl-function-call">handle_at</span><span class="hl-bracket">(</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-function-call">handle_at</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_LENGTH</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-function-call">handle_at</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_LENGTH</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_THICKNESS</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-function-call">handle_at</span><span class="hl-bracket">(</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_THICKNESS</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">outline</span> <span class="hl-operator">=</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">blade</span><span class="hl-bracket">(</span><span class="hl-number">1.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bar</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">d</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">FINGER_DIAMETER</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">for</span> <span class="hl-variable-name">finger</span> <span class="hl-keyword">in</span> <span class="hl-number">0</span><span class="hl-operator">..</span><span class="hl-number">4</span> <span class="hl-bracket">{</span>
+        <span class="hl-keyword">let</span> <span class="hl-variable-name">at</span> <span class="hl-operator">=</span> <span class="hl-function-call">handle_at</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_LENGTH</span> <span class="hl-operator">-</span> <span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-variable-use">d</span> <span class="hl-operator">*</span> <span class="hl-variable-use">finger</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+        <span class="hl-variable-use">outline</span> <span class="hl-operator">=</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">outline</span><span class="hl-delimiter">,</span> <span class="hl-function-call">circle_points</span><span class="hl-bracket">(</span><span class="hl-variable-use">at</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">thumb</span> <span class="hl-operator">=</span> <span class="hl-function-call">handle_at</span><span class="hl-bracket">(</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_THICKNESS</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">THUMB_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">outline</span><span class="hl-delimiter">,</span> <span class="hl-function-call">circle_points</span><span class="hl-bracket">(</span><span class="hl-variable-use">thumb</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">THUMB_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">label</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">at</span> <span class="hl-operator">=</span> <span class="hl-function-call">handle_at</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_LENGTH</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_THICKNESS</span> <span class="hl-operator">*</span> <span class="hl-number">2</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">text</span><span class="hl-bracket">(</span><span class="hl-string">"Scraper"</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">size</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_THICKNESS</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-property-name">font</span><span class="hl-delimiter">:</span> <span class="hl-string">"JetBrainsMono Nerd Font"</span><span class="hl-delimiter">,</span> <span class="hl-property-name">halign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-delimiter">,</span> <span class="hl-property-name">valign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_ANGLE</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">(</span><span class="hl-variable-use">at</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Output ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">handle</span> <span class="hl-operator">=</span> <span class="hl-builtin">rounded_polygon</span><span class="hl-bracket">(</span><span class="hl-function-call">handle_points</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">handle</span><span class="hl-delimiter">,</span> <span class="hl-builtin">polygon</span><span class="hl-bracket">(</span><span class="hl-function-call">blade</span><span class="hl-bracket">(</span><span class="hl-number">0.5</span><span class="hl-bracket">)))</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-function-call">label</span><span class="hl-bracket">()))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

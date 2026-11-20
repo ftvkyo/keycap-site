@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>feather</title>
+<meta name="description" content="A feather the length of a printer bed's diagonal: a tapering stem and two hundred barbs, every one a cubic Bézier curve, where each curve is cut into straight segments and drawn as a polygon." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">feather</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/feather/feather-bezier.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>feather/feather-bezier.scad</code></a></p>
+
+<p>
+A feather the length of a printer bed&rsquo;s diagonal: a tapering stem and
+two hundred barbs, every one a cubic Bézier curve,
+where each curve is cut into straight segments and drawn as a polygon.
+</p>
+
+<p>
+The barbs&rsquo; control points are themselves points on Bézier curves: four
+curves run from the quill to the tip, and a barb at t joins their points
+at t, so the barbs sweep and bend as they go along the stem.
+bezier_stroke() draws each as a smooth curve, with round ends, at the
+stroke&rsquo;s true width all along.  The barbs keep the round ends, half a
+barb&rsquo;s width past OpenSCAD&rsquo;s square ones; the stem&rsquo;s are cut square.
+The text is in the default font: the OpenSCAD design names JetBrains
+Mono Bold, which a <code>font</code> option gives where it is installed.
+</p>
+
+<a href="frames/feather-a9343ae4fec9ae70.png"><img src="frames/feather-a9343ae4fec9ae70.png" width="800" height="600" fetchpriority="high" alt="feather, shaded, from the front right"></a>
+
+<a href="frames/feather-5836a659a88548e3.png"><img src="frames/feather-5836a659a88548e3.png" width="800" height="600" loading="lazy" alt="feather, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/feather.keycap"><code>feather.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// A feather the length of a printer bed's diagonal: a tapering stem and</span>
+<span class="hl-comment">// two hundred barbs, every one a cubic B&#233;zier curve; ported from OpenSCAD,</span>
+<span class="hl-comment">// where each curve is cut into straight segments and drawn as a polygon.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The barbs' control points are themselves points on B&#233;zier curves: four</span>
+<span class="hl-comment">// curves run from the quill to the tip, and a barb at t joins their points</span>
+<span class="hl-comment">// at t, so the barbs sweep and bend as they go along the stem.</span>
+<span class="hl-comment">// bezier_stroke() draws each as a smooth curve, with round ends, at the</span>
+<span class="hl-comment">// stroke's true width all along.  The barbs keep the round ends, half a</span>
+<span class="hl-comment">// barb's width past OpenSCAD's square ones; the stem's are cut square.</span>
+<span class="hl-comment">// The text is in the default font: the OpenSCAD design names JetBrains</span>
+<span class="hl-comment">// Mono Bold, which a `font` option gives where it is installed.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">N</span> <span class="hl-operator">=</span> <span class="hl-number">0.4</span><span class="hl-delimiter">;</span>               <span class="hl-comment">// nozzle width</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">L</span> <span class="hl-operator">=</span> <span class="hl-constant">N</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// layer height</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BED</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">225.0</span><span class="hl-delimiter">,</span> <span class="hl-number">225.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">STEM_LAYERS</span> <span class="hl-operator">=</span> <span class="hl-number">6</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BARB_LAYERS</span> <span class="hl-operator">=</span> <span class="hl-number">3</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">COVERAGE</span> <span class="hl-operator">=</span> <span class="hl-number">0.8</span><span class="hl-delimiter">;</span>        <span class="hl-comment">// how much of the stem has barbs</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BARBS</span> <span class="hl-operator">=</span> <span class="hl-number">125</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// barbs per side, were the whole stem covered</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">FLAVOUR</span> <span class="hl-operator">=</span> <span class="hl-string">"ftvkyo.me"</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">stem</span> <span class="hl-operator">=</span> <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-constant">BED</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-constant">BED</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">])</span> <span class="hl-operator">-</span> <span class="hl-number">15.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Curves ---</span>
+
+<span class="hl-doc">/// Control points from the quill at the origin to the tip at [stem, 0],</span>
+<span class="hl-doc">/// leaving the quill at `a0` degrees with strength `s0` and arriving at</span>
+<span class="hl-doc">/// `a1` degrees with strength `s1`.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">curve</span><span class="hl-bracket">(</span><span class="hl-variable-name">stem</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">a0</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">s0</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">a1</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">s1</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-bracket">[</span>
+        <span class="hl-bracket">[</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-variable-use">a0</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-variable-use">s0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-variable-use">a0</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-variable-use">s0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">stem</span> <span class="hl-operator">-</span> <span class="hl-builtin">cosd</span><span class="hl-bracket">(</span><span class="hl-variable-use">a1</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-variable-use">s1</span><span class="hl-delimiter">,</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-variable-use">a1</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-variable-use">s1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">[</span><span class="hl-variable-use">stem</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">]</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">c_stem</span> <span class="hl-operator">=</span> <span class="hl-function-call">curve</span><span class="hl-bracket">(</span><span class="hl-variable-use">stem</span><span class="hl-delimiter">,</span> <span class="hl-number">10.0</span><span class="hl-delimiter">,</span> <span class="hl-number">100.0</span><span class="hl-delimiter">,</span> <span class="hl-number">10.0</span><span class="hl-delimiter">,</span> <span class="hl-number">75.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// Each side's bend nearer the stem, the bend farther out, and the edge.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">top</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+    <span class="hl-function-call">curve</span><span class="hl-bracket">(</span><span class="hl-variable-use">stem</span><span class="hl-delimiter">,</span> <span class="hl-number">20.0</span><span class="hl-delimiter">,</span> <span class="hl-number">125.0</span><span class="hl-delimiter">,</span> <span class="hl-number">20.0</span><span class="hl-delimiter">,</span> <span class="hl-number">67.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">curve</span><span class="hl-bracket">(</span><span class="hl-variable-use">stem</span><span class="hl-delimiter">,</span> <span class="hl-number">30.0</span><span class="hl-delimiter">,</span> <span class="hl-number">120.0</span><span class="hl-delimiter">,</span> <span class="hl-number">20.0</span><span class="hl-delimiter">,</span> <span class="hl-number">75.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">curve</span><span class="hl-bracket">(</span><span class="hl-variable-use">stem</span><span class="hl-delimiter">,</span> <span class="hl-number">35.0</span><span class="hl-delimiter">,</span> <span class="hl-number">140.0</span><span class="hl-delimiter">,</span> <span class="hl-number">40.0</span><span class="hl-delimiter">,</span> <span class="hl-number">63.75</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">bottom</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+    <span class="hl-function-call">curve</span><span class="hl-bracket">(</span><span class="hl-variable-use">stem</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">120.0</span><span class="hl-delimiter">,</span> <span class="hl-number">5.0</span><span class="hl-delimiter">,</span> <span class="hl-number">67.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">curve</span><span class="hl-bracket">(</span><span class="hl-variable-use">stem</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">10.0</span><span class="hl-delimiter">,</span> <span class="hl-number">110.0</span><span class="hl-delimiter">,</span> <span class="hl-number">2.5</span><span class="hl-delimiter">,</span> <span class="hl-number">71.25</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">curve</span><span class="hl-bracket">(</span><span class="hl-variable-use">stem</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">15.0</span><span class="hl-delimiter">,</span> <span class="hl-number">125.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">67.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Stem ---</span>
+
+<span class="hl-comment">// Wide at the quill, tapering to two nozzle widths before the tip.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">stroke</span> <span class="hl-operator">=</span> <span class="hl-builtin">bezier_stroke</span><span class="hl-bracket">(</span><span class="hl-variable-use">c_stem</span><span class="hl-delimiter">,</span> <span class="hl-bracket">|</span><span class="hl-variable-name">t</span><span class="hl-bracket">|</span> <span class="hl-builtin">clamp</span><span class="hl-bracket">((</span><span class="hl-number">1.0</span> <span class="hl-operator">-</span> <span class="hl-variable-use">t</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-constant">N</span> <span class="hl-operator">*</span> <span class="hl-number">20.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">N</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">N</span> <span class="hl-operator">*</span> <span class="hl-number">16.0</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The OpenSCAD stroke ends square across the curve, its corners rounded by</span>
+<span class="hl-comment">// offset(N / 2) offset(-N / 2): a cut at each end, along the curve's first</span>
+<span class="hl-comment">// and last control legs, trims the round ends to match.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">out</span> <span class="hl-operator">=</span> <span class="hl-variable-use">c_stem</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">back</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">c_stem</span><span class="hl-bracket">[</span><span class="hl-number">3</span><span class="hl-bracket">][</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-variable-use">c_stem</span><span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-bracket">][</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">c_stem</span><span class="hl-bracket">[</span><span class="hl-number">3</span><span class="hl-bracket">][</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-variable-use">c_stem</span><span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-bracket">][</span><span class="hl-number">1</span><span class="hl-bracket">]]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">quill_cut</span> <span class="hl-operator">=</span> <span class="hl-operator">-</span><span class="hl-bracket">(</span><span class="hl-variable-use">out</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-variable-use">x</span> <span class="hl-operator">+</span> <span class="hl-variable-use">out</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">out</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">out</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">tip_cut</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-variable-use">back</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">-</span> <span class="hl-variable-use">stem</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-variable-use">back</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">back</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">back</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">stem_shape</span> <span class="hl-operator">=</span> <span class="hl-variable-use">stroke</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">quill_cut</span><span class="hl-delimiter">,</span> <span class="hl-constant">N</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">tip_cut</span><span class="hl-delimiter">,</span> <span class="hl-constant">N</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// Two holes near the quill, to tie it on.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">holes</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+    <span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-number">1.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">(</span><span class="hl-builtin">bezier_point</span><span class="hl-bracket">(</span><span class="hl-variable-use">c_stem</span><span class="hl-delimiter">,</span> <span class="hl-number">0.02</span><span class="hl-bracket">))</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-number">1.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">(</span><span class="hl-builtin">bezier_point</span><span class="hl-bracket">(</span><span class="hl-variable-use">c_stem</span><span class="hl-delimiter">,</span> <span class="hl-number">0.14</span><span class="hl-bracket">))</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Barbs ---</span>
+
+<span class="hl-doc">/// The barbs between the stem and the curves in `side`: a barb at every</span>
+<span class="hl-doc">/// step of t, its control points the four curves' points at t.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">barbs</span><span class="hl-bracket">(</span><span class="hl-variable-name">c_stem</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">side</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">out</span> <span class="hl-operator">=</span> <span class="hl-bracket">[]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">t</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">COVERAGE</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">while</span> <span class="hl-variable-use">t</span> <span class="hl-operator">&lt;</span> <span class="hl-number">0.999</span> <span class="hl-bracket">{</span>
+        <span class="hl-keyword">let</span> <span class="hl-variable-name">points</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-builtin">bezier_point</span><span class="hl-bracket">(</span><span class="hl-variable-use">c_stem</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span><span class="hl-bracket">)]</span><span class="hl-delimiter">;</span>
+        <span class="hl-keyword">for</span> <span class="hl-variable-name">c</span> <span class="hl-keyword">in</span> <span class="hl-variable-use">side</span> <span class="hl-bracket">{</span>
+            <span class="hl-variable-use">points</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-builtin">bezier_point</span><span class="hl-bracket">(</span><span class="hl-variable-use">c</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">t</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+        <span class="hl-bracket">}</span>
+        <span class="hl-keyword">let</span> <span class="hl-variable-name">ends</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">points</span><span class="hl-bracket">[</span><span class="hl-number">3</span><span class="hl-bracket">][</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-variable-use">points</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">][</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">points</span><span class="hl-bracket">[</span><span class="hl-number">3</span><span class="hl-bracket">][</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-variable-use">points</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">][</span><span class="hl-number">1</span><span class="hl-bracket">]]</span><span class="hl-delimiter">;</span>
+        <span class="hl-keyword">if</span> <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">ends</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">ends</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">])</span> <span class="hl-operator">&gt;</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">N</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-bracket">{</span>
+            <span class="hl-variable-use">out</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span><span class="hl-builtin">bezier_stroke</span><span class="hl-bracket">(</span><span class="hl-variable-use">points</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">N</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+        <span class="hl-bracket">}</span>
+        <span class="hl-variable-use">t</span> <span class="hl-operator">+=</span> <span class="hl-number">1.0</span> <span class="hl-operator">/</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BARBS</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">}</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">out</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Feather ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">flavour</span> <span class="hl-operator">=</span> <span class="hl-builtin">text</span><span class="hl-bracket">(</span><span class="hl-constant">FLAVOUR</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">size</span><span class="hl-delimiter">:</span> <span class="hl-number">3.5</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">8.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">12.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.4</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">22</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">0.5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">stem</span> <span class="hl-operator">+</span> <span class="hl-number">5.0</span><span class="hl-delimiter">,</span> <span class="hl-number">55</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">resolution</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">stem_shape</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">L</span> <span class="hl-operator">*</span> <span class="hl-constant">STEM_LAYERS</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">barbs</span><span class="hl-bracket">(</span><span class="hl-variable-use">c_stem</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">top</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">barbs</span><span class="hl-bracket">(</span><span class="hl-variable-use">c_stem</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">bottom</span><span class="hl-bracket">))</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">L</span> <span class="hl-operator">*</span> <span class="hl-constant">BARB_LAYERS</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-number">0.3</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.3</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">flavour</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">L</span> <span class="hl-operator">*</span> <span class="hl-bracket">(</span><span class="hl-constant">STEM_LAYERS</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">)])</span><span class="hl-delimiter">,</span> <span class="hl-number">0.1</span><span class="hl-delimiter">,</span> <span class="hl-number">0.1</span><span class="hl-delimiter">,</span> <span class="hl-number">0.1</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

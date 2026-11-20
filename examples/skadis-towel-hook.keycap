@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: 0BSD
+//
+// Towel hook for an IKEA SKÅDIS pegboard: two pegs in one column of holes,
+// a back plate and a rod angled up.
+//
+// The board's dimensions and the peg live in `skadis.rhai` next to this
+// file; `import` finds it relative to this script.
+//
+// Unverified: the board's dimensions, and the pegs' fit in its holes.
+
+import "skadis" as skadis;
+
+const PREVIEW = true;      // draw a piece of board around the hook
+const CLEARANCE = 0.3;
+const ROD_R = 5.0;
+const ROD_LENGTH = 70.0;
+const ROD_TILT = 5.0;      // degrees upwards, so towels stay on
+
+// --- Hook ---
+
+let column = skadis::PITCH[1];
+
+// Pegs in two holes of one column, 40 mm apart.
+let pegs = skadis::peg(CLEARANCE).linear_array([0, 0, -column], 2);
+
+// The plate in front of the board, 4 mm thick, covering both holes.
+let plate = rect([3 * ROD_R, column + 18], #{round: 4})
+    .extrude([0, 4])
+    .rotate_x(90)
+    .move([0, 0, -column / 2 - 3]);
+
+// The rod, from the plate's lower end out and up, joined with a fillet.
+let rise = ROD_LENGTH * sind(ROD_TILT);
+let rod = capsule([0, -2, -column], [0, -ROD_LENGTH, -column + rise], ROD_R);
+
+draw(union(pegs, plate.union_round(rod, 3)));
+
+// --- Board ---
+
+if PREVIEW {
+    draw_rgb(skadis::board(3, 3).move([-skadis::PITCH[0], 0, column / 2]), 0.85, 0.85, 0.8);
+}

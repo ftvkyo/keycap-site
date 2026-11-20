@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Writing models</title>
+<meta name="description" content="How scripts become shapes." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="editing-and-previewing.html">
+<link rel="next" href="concepts.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Writing models</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html" aria-current="page">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+
+<p>
+A script is <a href="https://rhai.rs/book/">Rhai</a>, a small scripting language with Rust-like syntax: <code>let</code>, <code>fn</code>, <code>if</code>, <code>for</code>, arrays (<code>[1, 2]</code>), maps (<code>#{a: 1}</code>) and closures.
+This chapter is about what is particular to modelling with it.
+</p>
+
+<nav id="table-of-contents" role="doc-toc">
+<h2>In this chapter</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#fields-and-trees">Fields and trees</a></li>
+<li><a href="#exact-distances-and-bounds">Exact distances and bounds</a></li>
+<li><a href="#numbers-and-trees">Numbers and trees</a></li>
+<li><a href="#choices-without-if">Choices without if</a></li>
+<li><a href="#functions-and-constants">Functions and constants</a></li>
+<li><a href="#methods-and-chaining">Methods and chaining</a></li>
+<li><a href="#calling-shapes">Calling shapes</a></li>
+<li><a href="#drawing-and-colours">Drawing and colours</a></li>
+<li><a href="#bounds-and-resolution">Bounds and resolution</a></li>
+<li><a href="#2d-drawings">2D drawings</a></li>
+<li><a href="#text-and-svg">Text and SVG</a></li>
+<li><a href="#dialects">Dialects</a></li>
+<li><a href="#imports">Imports</a></li>
+<li><a href="#the-prelude">The prelude</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-fields-and-trees" class="outline-2">
+<h2 id="fields-and-trees"><a href="#fields-and-trees">Fields and trees</a></h2>
+<div class="outline-text-2" id="text-fields-and-trees">
+<p>
+A script runs once.
+It does not compute shapes.
+It builds one expression per shape, a <i>tree</i>, which fidget evaluates later at millions of points to render or mesh it.
+</p>
+
+<p>
+The variables <code>x</code>, <code>y</code> and <code>z</code> are trees for the coordinates.
+Arithmetic on a tree builds a bigger tree.
+The tree&rsquo;s value at a point is the field there: negative inside, positive outside, zero on the surface.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A sphere of radius 10, written out from the coordinates.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">sqrt</span><span class="hl-bracket">(</span><span class="hl-function-call">square</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-function-call">square</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-function-call">square</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span><span class="hl-bracket">))</span> <span class="hl-operator">-</span> <span class="hl-number">10</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-fields-and-trees-1ee0fa1d5863c639.png" width="480" height="360" fetchpriority="high" alt="A sphere of radius 10, written out from the coordinates.">
+
+</div></figure>
+
+<p>
+Shapes such as <code>sphere</code> and the prelude&rsquo;s <code>cuboid</code> are functions that build such trees.
+Transforms such as <code>move</code> build trees that evaluate their input at moved coordinates.
+<code>min</code> and <code>max</code> of two fields are their union and their intersection.
+</p>
+</div>
+</section>
+<section id="outline-container-exact-distances-and-bounds" class="outline-2">
+<h2 id="exact-distances-and-bounds"><a href="#exact-distances-and-bounds">Exact distances and bounds</a></h2>
+<div class="outline-text-2" id="text-exact-distances-and-bounds">
+<p>
+Only the sign of the field decides the shape, but its values matter too:
+</p>
+
+<ul class="org-ul">
+<li>an <i>exact</i> field is the Euclidean distance to the surface, everywhere</li>
+<li>a <i>bound</i> never exceeds that distance, but may be smaller: its slope is at most 1</li>
+</ul>
+
+<p>
+Offsets, shells, rounded combinations and clearances read the field as a distance.
+<code>offset(s, 1)</code> grows a shape by exactly 1 only where the field of <code>s</code> is exact.
+fidget&rsquo;s <code>box</code> and <code>rectangle</code> are bounds beyond their edges and corners, so their offsets keep sharp corners.
+The prelude&rsquo;s <code>cuboid</code> and <code>rect</code> are exact, so their offsets have round corners.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+Fidget&rsquo;s <code>rectangle</code> and the prelude&rsquo;s <code>rect</code>, both offset by 4; only the exact one gets round corners.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">sharp</span> <span class="hl-operator">=</span> <span class="hl-function-call">rectangle</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">10</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">exact</span> <span class="hl-operator">=</span> <span class="hl-function-call">rect</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">sharp</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">exact</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-exact-distances-and-bounds-776c4da83e9551ab.png" width="480" height="360" loading="lazy" alt="Fidget's rectangle and the prelude's rect, both offset by 4; only the exact one gets round corners.">
+
+</div></figure>
+
+<p>
+Every prelude function&rsquo;s documentation says how exact its field is.
+Rules of thumb:
+</p>
+
+<ul class="org-ul">
+<li>moves, rotations and mirrors keep a field exact</li>
+<li><code>min</code> (union) of exact fields is exact outside, and a bound inside</li>
+<li><code>max</code> (intersection, difference) of exact fields is exact inside and near flat faces, and a bound beyond new edges</li>
+<li>scaling multiplies distances (see <code>scale_exact</code>), and twisting or bending distorts them</li>
+<li>a field steeper than a distance, its slope above 1, breaks offsets: <code>offset(s, 1)</code> moves its surface by less than 1</li>
+</ul>
+
+<p>
+The sdf view shows how exact a field is: on an exact field the lines are evenly spaced, and round outside convex corners.
+</p>
+</div>
+</section>
+<section id="outline-container-numbers-and-trees" class="outline-2">
+<h2 id="numbers-and-trees"><a href="#numbers-and-trees">Numbers and trees</a></h2>
+<div class="outline-text-2" id="text-numbers-and-trees">
+<p>
+Rhai has integers and floats, and keeps them apart:
+</p>
+
+<ul class="org-ul">
+<li><code>5 / 2</code> is <code>2</code>, an integer division; write <code>5.0 / 2</code> or <code>5 * 0.5</code></li>
+<li><code>-7 % 3</code> is <code>-1</code> for numbers, but <code>x % 3</code> at x = -7 is <code>2</code>: fidget&rsquo;s remainder on trees is never negative, and <code>mod</code> is that for numbers too</li>
+<li>math functions give a number of numbers, integers too, and a tree of a tree: <code>sqrt(2)</code> is a number, <code>sqrt(x)</code> a tree</li>
+<li><code>compare</code>, <code>and</code>, <code>or</code>, <code>not</code>, <code>mix</code> and <code>rand</code> are fidget&rsquo;s alone: given only numbers, they return a tree or fail</li>
+</ul>
+
+<p>
+A tree where a shape wants a number fails with <code class="long">shape does not have an argument of type Tree</code>.
+In a <code>.fidget</code> script, fidget&rsquo;s math functions turn an integer into a tree, so write <code>sqrt(2.0)</code> there.
+The prelude&rsquo;s functions take integers anywhere, and convert them.
+</p>
+
+<p>
+Trees are 32-bit floats inside, and script arithmetic on numbers is 64-bit.
+</p>
+</div>
+</section>
+<section id="outline-container-choices-without-if" class="outline-2">
+<h2 id="choices-without-if"><a href="#choices-without-if">Choices without if</a></h2>
+<div class="outline-text-2" id="text-choices-without-if">
+<p>
+An <code>if</code>, a loop or a function call happens once, while the script runs.
+The tree is evaluated later, at every point.
+So <code>if</code> can depend on numbers, but never on a tree:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">teeth</span> <span class="hl-operator">=</span> <span class="hl-number">12</span><span class="hl-delimiter">;</span>                        <span class="hl-comment">// a number: if and for work</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">gear</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-variable-use">teeth</span> <span class="hl-operator">&gt;</span> <span class="hl-number">10</span> <span class="hl-bracket">{</span> <span class="hl-warning">...</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-warning">...</span> <span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">if</span> <span class="hl-variable-use">x</span> <span class="hl-operator">&lt;</span> <span class="hl-number">0</span> <span class="hl-bracket">{</span> <span class="hl-warning">...</span> <span class="hl-bracket">}</span>                       <span class="hl-comment">// a tree: an error</span>
+</pre>
+</div>
+
+<p>
+The second fails with <code class="long">cannot compare Tree types during function tracing</code>.
+Choices inside a tree are made by functions that the tree evaluates at every point:
+</p>
+
+<ul class="org-ul">
+<li><code>min(a, b)</code> and <code>max(a, b)</code>: the smaller or the larger value</li>
+<li><code>compare(a, b)</code>: -1, 0 or 1</li>
+<li><code>not(a)</code>: 1 where <code>a</code> is 0, else 0</li>
+<li><code>and(a, b)</code> and <code>or(a, b)</code>: logical operators on 0 and other values, which return one of their operands</li>
+</ul>
+
+<p>
+<code>if a &lt; b { p } else { q }</code> with trees becomes a sum: <code>p</code> times a factor that is 1 where <code>a &lt; b</code> and 0 elsewhere, plus <code>q</code> times the opposite.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A post of radius 6 below z = 10 and of radius 3 above, chosen at every point.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">below</span> <span class="hl-operator">=</span> <span class="hl-function-call">not</span><span class="hl-bracket">(</span><span class="hl-function-call">compare</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>   <span class="hl-comment">// 1 where z &lt; 10, else 0</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-variable-use">below</span> <span class="hl-operator">*</span> <span class="hl-number">6</span> <span class="hl-operator">+</span> <span class="hl-bracket">(</span><span class="hl-number">1</span> <span class="hl-operator">-</span> <span class="hl-variable-use">below</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-number">3</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">(</span><span class="hl-function-call">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-function-call">slab</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">]))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-choices-without-if-d98004b5d7c81acc.png" width="480" height="360" loading="lazy" alt="A post of radius 6 below z = 10 and of radius 3 above, chosen at every point.">
+
+</div></figure>
+
+<p>
+Many choices are <code>min</code> or <code>max</code> in disguise: <code>abs(x)</code> is a mirror, <code>clamp</code> is two of them, and a union is <code>min</code>.
+</p>
+</div>
+</section>
+<section id="outline-container-functions-and-constants" class="outline-2">
+<h2 id="functions-and-constants"><a href="#functions-and-constants">Functions and constants</a></h2>
+<div class="outline-text-2" id="text-functions-and-constants">
+<p>
+A Rhai <code>fn</code> sees its parameters, other functions, <code>x</code>, <code>y</code>, <code>z</code> and fidget&rsquo;s constants.
+It does not see the script&rsquo;s <code>let</code> variables, and a function that reads one fails with <code>Variable not found</code>.
+Declare such values with <code>const</code> at the top level, and read them as <code>global::NAME</code> inside functions.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A tray whose wall is a constant, read inside the function that makes it.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">const</span> <span class="hl-constant">WALL</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">tray</span><span class="hl-bracket">(</span><span class="hl-variable-name">size</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">cuboid</span><span class="hl-bracket">(</span><span class="hl-variable-use">size</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">shell</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">WALL</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">WALL</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">tray</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">15</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-functions-and-constants-97f108e750017423.png" width="480" height="360" loading="lazy" alt="A tray whose wall is a constant, read inside the function that makes it.">
+
+</div></figure>
+
+<p>
+Closures, such as <code>|r| circle(r + wall)</code>, capture the <code>let</code> variables around them, and are called with <code>.call(...)</code>.
+Rhai has no default arguments.
+A function can have several definitions with different numbers of parameters instead.
+</p>
+</div>
+</section>
+<section id="outline-container-methods-and-chaining" class="outline-2">
+<h2 id="methods-and-chaining"><a href="#methods-and-chaining">Methods and chaining</a></h2>
+<div class="outline-text-2" id="text-methods-and-chaining">
+<p>
+Any of fidget&rsquo;s functions can be called as a method on its first argument: <code>circle(5).move([1, 2])</code> is <code>move(circle(5), [1, 2])</code>.
+A chain reads in the order the transforms apply.
+</p>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A pin along Z, laid along Y, then raised by 10.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">])</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-methods-and-chaining-5ca02dfb49258eb0.png" width="480" height="360" loading="lazy" alt="A pin along Z, laid along Y, then raised by 10.">
+
+</div></figure>
+
+<p>
+Rhai calls a function defined in a script as a method only through <code>this</code>.
+<code>fn grow(s, d)</code> cannot be called as <code>s.grow(d)</code>, which fails with <code class="long">Function not found: grow (Tree, ...)</code>.
+Every prelude function whose first argument is a shape also has such a method form.
+For a function of your own, write the method form as a second definition.
+</p>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A function and its method form, which grows a square by 2.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">fn</span> <span class="hl-function-name">grow</span><span class="hl-bracket">(</span><span class="hl-variable-name">s</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">d</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-variable-use">d</span><span class="hl-bracket">)</span> <span class="hl-bracket">}</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">grow</span><span class="hl-bracket">(</span><span class="hl-variable-name">d</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span> <span class="hl-function-call">grow</span><span class="hl-bracket">(</span><span class="hl-keyword">this</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">d</span><span class="hl-bracket">)</span> <span class="hl-bracket">}</span>
+
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">rect</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">grow</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-methods-and-chaining-2-1813947fc272bd50.png" width="480" height="360" loading="lazy" alt="A function and its method form, which grows a square by 2.">
+
+</div></figure>
+</div>
+</section>
+<section id="outline-container-calling-shapes" class="outline-2">
+<h2 id="calling-shapes"><a href="#calling-shapes">Calling shapes</a></h2>
+<div class="outline-text-2" id="text-calling-shapes">
+<p>
+fidget&rsquo;s shapes take their fields as a map, or positionally.
+Fields left out take their defaults: <code>circle(3)</code> is centred on the origin.
+</p>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+Two circles, the first with its fields in a map, the second with them in order.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">union</span><span class="hl-bracket">(</span>
+    <span class="hl-function-call">circle</span><span class="hl-bracket">(#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-property-name">radius</span><span class="hl-delimiter">:</span> <span class="hl-number">3</span><span class="hl-bracket">})</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">circle</span><span class="hl-bracket">([</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-calling-shapes-eba810b45ca15b88.png" width="480" height="360" loading="lazy" alt="Two circles, the first with its fields in a map, the second with them in order.">
+
+</div></figure>
+
+<ul class="org-ul">
+<li>Positional arguments are matched by type, so their order is free when every field&rsquo;s type is different.</li>
+<li>A 2D vector stands in for a 3D one, the missing Z taking the field&rsquo;s default.</li>
+<li>Two values of the same type are ambiguous: <code>circle(1, 2)</code> quietly makes a circle of radius 2.</li>
+<li>Shapes whose fields share types take every field, in order, as <code>rectangle(lower, upper)</code> and <code>extrude_z(shape, lower, upper)</code> do: <code>s.repeat_x(5, 0)</code>, never <code>s.repeat_x(5)</code>.</li>
+<li>A transform called with a shape and a map, as in <code>s.rotate_x(#{angle: 30})</code>, needs every field in the map, defaults included, or fails with <code class="long">field center must be provided for RotateX</code>.
+Without the map, defaults apply: <code>s.rotate_x(30)</code>.</li>
+<li>Vectors are arrays, <code>[1, 2]</code> or <code>[1, 2, 3]</code>, or <code>vec2</code> and <code>vec3</code> values.</li>
+<li>A field of type Tree takes an array of trees in the map form, as their union.
+Positional transforms reject arrays with <code>missing argument of type Tree</code>, so wrap them: <code>union(parts).move(...)</code>.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-drawing-and-colours" class="outline-2">
+<h2 id="drawing-and-colours"><a href="#drawing-and-colours">Drawing and colours</a></h2>
+<div class="outline-text-2" id="text-drawing-and-colours">
+<p>
+A script shows a shape by passing it to <code>draw</code>, any number of times.
+<code>draw_rgb(shape, r, g, b)</code> draws it in a colour, each component from 0 to 1.
+An array of shapes is drawn as their union.
+The preview shows each drawn shape in its colour, and an export meshes the union of all of them.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+An orange plate and a grey boss on it, drawn apart.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">base</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">post</span> <span class="hl-operator">=</span> <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">base</span><span class="hl-delimiter">,</span> <span class="hl-number">0.95</span><span class="hl-delimiter">,</span> <span class="hl-number">0.55</span><span class="hl-delimiter">,</span> <span class="hl-number">0.2</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">post</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.65</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-drawing-and-colours-08b3303dbe584de3.png" width="480" height="360" loading="lazy" alt="An orange plate and a grey boss on it, drawn apart.">
+
+</div></figure>
+
+<p>
+<code>draw(shape, #{role: "score"})</code> says what a laser does along the shape&rsquo;s outline in a 2D export; see <a href="editing-and-previewing.html#exporting-for-laser-cutting">Exporting for laser cutting</a>.
+</p>
+
+<p>
+The value of the script&rsquo;s last expression is not drawn.
+A script that draws nothing gets a warning.
+</p>
+</div>
+</section>
+<section id="outline-container-bounds-and-resolution" class="outline-2">
+<h2 id="bounds-and-resolution"><a href="#bounds-and-resolution">Bounds and resolution</a></h2>
+<div class="outline-text-2" id="text-bounds-and-resolution">
+<p>
+<code>bounds(lower, upper)</code> sets the region to preview and export, from corner to corner.
+A script calls it at most once.
+Without it, the region is fitted to the drawn shapes; see <a href="editing-and-previewing.html#bounds">Bounds</a>.
+A shape that pokes out of the script&rsquo;s bounds gets a warning naming the sides, since export would cut it off.
+</p>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A gyroid, a surface without end, shown and exported within a cube.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">15</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">15</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">15</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">15</span><span class="hl-delimiter">,</span> <span class="hl-number">15</span><span class="hl-delimiter">,</span> <span class="hl-number">15</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">k</span> <span class="hl-operator">=</span> <span class="hl-number">0.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">gyroid</span> <span class="hl-operator">=</span> <span class="hl-function-call">sin</span><span class="hl-bracket">(</span><span class="hl-variable-use">k</span> <span class="hl-operator">*</span> <span class="hl-variable-use">x</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-function-call">cos</span><span class="hl-bracket">(</span><span class="hl-variable-use">k</span> <span class="hl-operator">*</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span>
+    <span class="hl-operator">+</span> <span class="hl-function-call">sin</span><span class="hl-bracket">(</span><span class="hl-variable-use">k</span> <span class="hl-operator">*</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-function-call">cos</span><span class="hl-bracket">(</span><span class="hl-variable-use">k</span> <span class="hl-operator">*</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span>
+    <span class="hl-operator">+</span> <span class="hl-function-call">sin</span><span class="hl-bracket">(</span><span class="hl-variable-use">k</span> <span class="hl-operator">*</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-function-call">cos</span><span class="hl-bracket">(</span><span class="hl-variable-use">k</span> <span class="hl-operator">*</span> <span class="hl-variable-use">x</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">abs</span><span class="hl-bracket">(</span><span class="hl-variable-use">gyroid</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-number">0.3</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-bounds-and-resolution-d15710080efb2ac3.png" width="480" height="360" loading="lazy" alt="A gyroid, a surface without end, shown and exported within a cube.">
+
+</div></figure>
+
+<p>
+<code>resolution(n)</code> sets the export&rsquo;s mesh cells per unit: 10 makes cells of 0.1 mm.
+</p>
+</div>
+</section>
+<section id="outline-container-2d-drawings" class="outline-2">
+<h2 id="2d-drawings"><a href="#2d-drawings">2D drawings</a></h2>
+<div class="outline-text-2" id="text-2d-drawings">
+<p>
+A 2D shape is a tree that never mentions <code>z</code>: <code>circle</code>, <code>rectangle</code>, and the prelude&rsquo;s <code>rect</code>, <code>polygon</code>, <code>stroke</code> and others.
+Drawn as it is, it is an endless prism along Z.
+The preview opens it in the sdf view, sliced at z = 0.
+</p>
+
+<p>
+2D shapes combine as 3D ones do, with <code>min</code>, <code>max</code>, <code>difference</code> and the prelude&rsquo;s rounded combinations.
+They become solids in several ways:
+</p>
+
+<ul class="org-ul">
+<li><code>extrude</code>, straight up, or twisting, scaling and moving as it rises, with rounded or chamfered rims</li>
+<li><code>revolve</code>, around the Z axis, a whole turn or part of one</li>
+<li><code>loft</code>, through several profiles stacked along Z</li>
+<li><code>sweep</code>, along a path of lines, arcs and helices, and <code>helix</code></li>
+<li>fidget&rsquo;s own <code>extrude_z</code> and <code>loft_z</code></li>
+</ul>
+
+<p>
+Each takes the profile&rsquo;s slice at z = 0, so any 2D tree can be made a solid.
+</p>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A plate with a slot, drawn in 2D, then extruded 3 high.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">3</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">slot</span> <span class="hl-operator">=</span> <span class="hl-function-call">stroke</span><span class="hl-bracket">([[</span><span class="hl-operator">-</span><span class="hl-number">8</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">8</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-variable-use">plate</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">slot</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">])</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-2d-drawings-6dfbac9c43aff4b6.png" width="480" height="360" loading="lazy" alt="A plate with a slot, drawn in 2D, then extruded 3 high.">
+
+</div></figure>
+</div>
+</section>
+<section id="outline-container-text-and-svg" class="outline-2">
+<h2 id="text-and-svg"><a href="#text-and-svg">Text and SVG</a></h2>
+<div class="outline-text-2" id="text-text-and-svg">
+<p>
+<code>text</code> and <code>svg</code> make 2D shapes from outlines: letters in a font, and the shapes of an SVG file.
+Both are exact distance fields, so <code>offset</code>, <code>shell</code> and the rounded combinations work on them as they do on <code>rect</code>.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A tag with its label sunk 0.6 mm into it.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">label</span> <span class="hl-operator">=</span> <span class="hl-function-call">text</span><span class="hl-bracket">(</span><span class="hl-string">"M3"</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span>
+    <span class="hl-property-name">size</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">halign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">valign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-variable-use">plate</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">label</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">1.4</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">]))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-text-and-svg-2c1c66cee105da33.png" width="480" height="360" loading="lazy" alt="A tag with its label sunk 0.6 mm into it.">
+
+</div></figure>
+
+<p>
+<code>text(string, options)</code> takes a map of options, any of them left out:
+</p>
+
+<dl class="org-dl">
+<dt><code>size</code></dt><dd>About the height of a capital letter above the baseline, 10 by default.
+A font&rsquo;s em is drawn <code>size / 0.72</code> tall, so Liberation Sans&rsquo;s capitals come out 0.955 of the size.</dd>
+<dt><code>font</code></dt><dd>A font file, relative to the script, such as <code>fonts/Iosevka-Light.ttf</code>.
+Or an installed font: a family, then <code>:</code>-separated properties, such as <code>JetBrains Mono:style=Bold</code> or <code>Iosevka:style=Light Extended</code>.
+Liberation Sans by default.
+<code>"libfive"</code> is Matt Keeter&rsquo;s font from libfive, each glyph a few rectangles, triangles and rings: ASCII only and one look, and a bound rather than an exact field, but a tenth of the work to render.</dd>
+<dt><code>halign</code></dt><dd><code>"left"</code> (the default), <code>"center"</code> or <code>"right"</code>, by the advance of the whole string.</dd>
+<dt><code>valign</code></dt><dd><code>"baseline"</code> (the default), <code>"top"</code>, <code>"center"</code> or <code>"bottom"</code>, by the highest and lowest points of its glyphs.</dd>
+<dt><code>spacing</code></dt><dd>A factor on the advance from one letter to the next, 1 by default.</dd>
+</dl>
+
+<p>
+Letters are shaped by HarfBuzz, with the font&rsquo;s kerning and ligatures, on one line.
+Curves become lines within a thousandth of the size.
+</p>
+
+<p>
+<code>svg(path, options)</code> imports an SVG file, relative to the script:
+</p>
+
+<ul class="org-ul">
+<li>Its units become millimetres at 96 pixels to the inch.
+Documents in millimetres, as Inkscape and KiCad save them, keep their numbers.</li>
+<li>The document&rsquo;s bottom left corner is the origin, Y up.</li>
+<li>Every closed path is filled whatever its paint, so an outline drawn as a stroke imports as an area.
+A filled path keeps its <code>fill-rule</code>, and a path without a fill is filled even-odd.</li>
+<li>An open path imports as its stroke, its <code>stroke-width</code> wide, or 1 pixel without one.</li>
+<li>Overlapping paths make their union, and text in the file becomes its glyphs.</li>
+<li>Curves become lines within 0.01 mm.</li>
+</ul>
+
+<p>
+Its options:
+</p>
+
+<dl class="org-dl">
+<dt><code>center</code></dt><dd><code>true</code> puts the centre of the shapes&rsquo; bounding box at the origin.</dd>
+<dt><code>id</code></dt><dd>Import only the element with this <code>id</code>: one path, or one Inkscape layer&rsquo;s group.</dd>
+</dl>
+
+<p>
+A plate drawn in two files, its outline and its holes, is a difference of the two:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">svg</span><span class="hl-bracket">(</span><span class="hl-string">"plate-edge.svg"</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-function-call">svg</span><span class="hl-bracket">(</span><span class="hl-string">"plate-holes.svg"</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">plate</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">1.5</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+
+<p>
+The preview reloads when a file the script reads changes on disk, as it does when the script itself changes: an SVG file, a font file or an imported script.
+</p>
+</div>
+</section>
+<section id="outline-container-dialects" class="outline-2">
+<h2 id="dialects"><a href="#dialects">Dialects</a></h2>
+<div class="outline-text-2" id="text-dialects">
+<p>
+keycap reads two dialects of fidget&rsquo;s Rhai, both in <code>keycap-mode</code>, told apart by the file&rsquo;s extension.
+</p>
+
+<dl class="org-dl">
+<dt><code>.keycap</code></dt><dd>fidget&rsquo;s functions and shapes, plus everything this manual describes: the prelude, <code>text</code> and <code>svg</code>, <code>bounds</code> and <code>resolution</code>, the roles of <code>draw</code>.</dd>
+<dt><code>.fidget</code></dt><dd>only what fidget&rsquo;s own tools run: fidget&rsquo;s functions and shapes, <code>draw</code> and <code>draw_rgb</code>, and imports.
+Such a script runs unchanged in fidget&rsquo;s viewer, and with one <code>draw</code> in its CLI with <code>--type rhai</code>, which draws one shape.
+The preview fits its bounds to the shapes; completion, ElDoc and <code>C-c C-d</code> know only fidget&rsquo;s names.</dd>
+</dl>
+
+<p>
+Both draw any number of shapes.
+Calling one of keycap&rsquo;s functions in a <code>.fidget</code> script is an error that says so: &ldquo;<code>text</code> is a keycap extension: rename the file to .keycap&rdquo;.
+fidget&rsquo;s own tools stop a script after 50,000 operations, where keycap allows millions; a <code>.fidget</code> script that runs longer gets a warning on its first line, as it runs in the preview but not in them.
+</p>
+
+<p>
+The buffer-local <code>keycap-dialect</code> holds the dialect, <code>keycap</code> or <code>fidget</code>; a file-local variable sets it for one file, as in <code class="long">// -*- keycap-dialect: fidget -*-</code>.
+Imported files are read in the importing script&rsquo;s dialect.
+The example <code>spacer.fidget</code> is written for fidget&rsquo;s tools; the other examples are <code>.keycap</code> files.
+</p>
+</div>
+</section>
+<section id="outline-container-imports" class="outline-2">
+<h2 id="imports"><a href="#imports">Imports</a></h2>
+<div class="outline-text-2" id="text-imports">
+<p>
+<code>import "name" as m;</code> runs the file <code>name</code> when it has an extension, else <code>name.keycap</code>, <code>name.fidget</code> or <code>name.rhai</code> (<code>.keycap</code> only in a <code>.keycap</code> script), looked up relative to the importing file, and makes its functions available as <code>m::f(...)</code>.
+Imported files are read again on every evaluation, and the preview reloads when one is saved, so editing one updates the model.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-comment">// parts.rhai</span>
+<span class="hl-keyword">export</span> <span class="hl-keyword">const</span> <span class="hl-constant">WALL</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">bracket</span><span class="hl-bracket">(</span><span class="hl-variable-name">size</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">cuboid</span><span class="hl-bracket">(</span><span class="hl-variable-use">size</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">shell</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">WALL</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-comment">// model.keycap</span>
+<span class="hl-keyword">import</span> <span class="hl-string">"parts"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">parts</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-type">parts</span><span class="hl-delimiter">::</span><span class="hl-function-call">bracket</span><span class="hl-bracket">([</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-type">parts</span><span class="hl-delimiter">::</span><span class="hl-constant">WALL</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>A module&rsquo;s <code>let</code> and <code>const</code> are private unless declared with <code>export</code>; importers read exported ones as <code>m::NAME</code>.</li>
+<li>The module&rsquo;s own functions read its constants as <code>global::NAME</code>.</li>
+<li>A module&rsquo;s <code>draw</code> calls draw too, so a library module should only define functions.</li>
+<li>An import cycle is an error naming the files in it.</li>
+<li>A public function&rsquo;s <code>///</code> comments document it as <code>m::f</code> for completion, ElDoc and <code>C-c C-d</code>, the way the prelude&rsquo;s are written; a <code>private fn</code> stays out of them.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-the-prelude" class="outline-2">
+<h2 id="the-prelude"><a href="#the-prelude">The prelude</a></h2>
+<div class="outline-text-2" id="text-the-prelude">
+<p>
+Every <code>.rhai</code> file in <code>keycap-prelude-directory</code> is loaded before the script, and its functions are available without an import.
+They are shapes with exact fields, rounded and chamfered combinations, extrusions, lofts and sweeps, arrays, easings, Bézier curves, gears and metric fasteners.
+They are described in <a href="prelude-reference.html">Prelude reference</a>.
+Functions named with a leading <code>_</code> are the prelude&rsquo;s internals.
+</p>
+
+<p>
+The files in its <code>modules</code> directory load only when a script imports them by name, as in <code class="long">import "keycap/screws" as screws;</code>.
+They hold standard parts, such as threads, screws, nuts, inserts, magnets, bearings and aluminium extrusions, joints for laser cutting, and arithmetic on lists of points.
+They are described in <a href="modules-reference.html">Modules reference</a>.
+</p>
+
+<p>
+To add your own library everywhere, copy the prelude directory, add files to it and point <code>keycap-prelude-directory</code> there.
+</p>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="editing-and-previewing.html"><span>Previous</span> Editing and previewing</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="concepts.html"><span>Next</span> Concepts</a></nav>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

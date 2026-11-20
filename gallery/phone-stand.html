@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>phone-stand</title>
+<meta name="description" content="Phone stand: a tilted prism with a pocket under it and a slot for the phone, every edge rounded." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">phone-stand</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/organisation/phone-stand.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>organisation/phone-stand.scad</code></a></p>
+
+<p>
+Phone stand: a tilted prism with a pocket under it and a slot for the
+phone, every edge rounded.
+</p>
+
+<p>
+Ported from <code class="long">src/organisation/phone-stand.scad</code>.  Differences:
+</p>
+<ul class="org-ul">
+<li>The original&rsquo;s minkowski of the base with a sphere is exact here: the
+base is cut into the prisms it is made of (the two side walls and the
+two pieces of the middle the pocket leaves), and each is its profile
+grown by ROUNDING, extruded with its rims rounded by the same.  Their
+union is the minkowski sum.</li>
+<li>The phone&rsquo;s rounded boxes are cuboids with round edges, not minkowskis.</li>
+<li>The original&rsquo;s <code>enrounden</code> switch and its unrounded variant are gone.</li>
+<li>The spheres are round where the original&rsquo;s $fn = 72 and 36 make
+polygons.</li>
+</ul>
+
+<p>
+Compared with the original: within 0.051 mm.
+</p>
+
+<a href="frames/phone-stand-9309a7d13027ed0f.png"><img src="frames/phone-stand-9309a7d13027ed0f.png" width="800" height="600" fetchpriority="high" alt="phone-stand, shaded, from the front right"></a>
+
+<a href="frames/phone-stand-938bdcb23e662007.png"><img src="frames/phone-stand-938bdcb23e662007.png" width="800" height="600" loading="lazy" alt="phone-stand, shaded, from the back left"></a>
+
+<a href="frames/phone-stand-49ab2b63549970e3.png"><img src="frames/phone-stand-49ab2b63549970e3.png" width="800" height="600" loading="lazy" alt="phone-stand, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/phone-stand.keycap"><code>phone-stand.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Phone stand: a tilted prism with a pocket under it and a slot for the</span>
+<span class="hl-comment">// phone, every edge rounded.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/organisation/phone-stand.scad`.  Differences:</span>
+<span class="hl-comment">// - The original's minkowski of the base with a sphere is exact here: the</span>
+<span class="hl-comment">//   base is cut into the prisms it is made of (the two side walls and the</span>
+<span class="hl-comment">//   two pieces of the middle the pocket leaves), and each is its profile</span>
+<span class="hl-comment">//   grown by ROUNDING, extruded with its rims rounded by the same.  Their</span>
+<span class="hl-comment">//   union is the minkowski sum.</span>
+<span class="hl-comment">// - The phone's rounded boxes are cuboids with round edges, not minkowskis.</span>
+<span class="hl-comment">// - The original's `enrounden` switch and its unrounded variant are gone.</span>
+<span class="hl-comment">// - The spheres are round where the original's $fn = 72 and 36 make</span>
+<span class="hl-comment">//   polygons.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.051 mm.</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/points"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">points</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PHONE</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">75.7</span><span class="hl-delimiter">,</span> <span class="hl-number">8.9</span><span class="hl-delimiter">,</span> <span class="hl-number">165.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PHONE_TILT</span> <span class="hl-operator">=</span> <span class="hl-number">20.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PHONE_LIFT</span> <span class="hl-operator">=</span> <span class="hl-number">15.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PHONE_ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREEN_ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREEN_MARGIN</span> <span class="hl-operator">=</span> <span class="hl-number">4.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BASE_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">10.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BASE_ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Base ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">=</span> <span class="hl-constant">PHONE</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-constant">BASE_THICKNESS</span> <span class="hl-operator">*</span> <span class="hl-number">2</span> <span class="hl-operator">-</span> <span class="hl-constant">BASE_ROUNDING</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DEPTH</span> <span class="hl-operator">=</span> <span class="hl-builtin">sind</span><span class="hl-bracket">(</span><span class="hl-constant">PHONE_TILT</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-constant">PHONE</span><span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-constant">BASE_THICKNESS</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-constant">PHONE_LIFT</span> <span class="hl-operator">+</span> <span class="hl-constant">BASE_THICKNESS</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The pocket under the base, along the width, before the rounding</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">POCKET_WIDTH</span> <span class="hl-operator">=</span> <span class="hl-constant">WIDTH</span> <span class="hl-operator">-</span> <span class="hl-constant">BASE_THICKNESS</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">POCKET_DEPTH</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-constant">DEPTH</span> <span class="hl-operator">-</span> <span class="hl-constant">BASE_THICKNESS</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-constant">BASE_THICKNESS</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">POCKET_BACK</span> <span class="hl-operator">=</span> <span class="hl-constant">DEPTH</span> <span class="hl-operator">-</span> <span class="hl-constant">BASE_THICKNESS</span> <span class="hl-operator">-</span> <span class="hl-constant">BASE_THICKNESS</span> <span class="hl-operator">/</span> <span class="hl-number">6</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// A rectangle's corners, centered</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">rect_points</span><span class="hl-bracket">(</span><span class="hl-variable-name">center</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">size</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-bracket">[[</span><span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">]]</span><span class="hl-delimiter">.</span><span class="hl-function-call">map</span><span class="hl-bracket">(|</span><span class="hl-variable-name">corner</span><span class="hl-bracket">|</span> <span class="hl-bracket">[</span>
+        <span class="hl-variable-use">center</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-variable-use">corner</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span>
+        <span class="hl-variable-use">center</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-variable-use">corner</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">*</span> <span class="hl-variable-use">size</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The base's side: the square the phone's tilt cuts, less the slot behind</span>
+<span class="hl-comment">// it.  The original's X runs away from the phone; here it is Y, mirrored.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">profile</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">t</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BASE_THICKNESS</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">h</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HEIGHT</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">d</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DEPTH</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">tilt</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE_TILT</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">block</span> <span class="hl-operator">=</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">intersection</span><span class="hl-bracket">(</span>
+        <span class="hl-function-call">rect_points</span><span class="hl-bracket">([</span><span class="hl-variable-use">t</span> <span class="hl-operator">-</span> <span class="hl-variable-use">d</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">d</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+        <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">rotate</span><span class="hl-bracket">(</span><span class="hl-function-call">rect_points</span><span class="hl-bracket">([</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">d</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">tilt</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">slot</span> <span class="hl-operator">=</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">rotate</span><span class="hl-bracket">(</span><span class="hl-function-call">rect_points</span><span class="hl-bracket">([</span><span class="hl-variable-use">t</span> <span class="hl-operator">*</span> <span class="hl-number">7</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">t</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">tilt</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-function-call">mirror</span><span class="hl-bracket">(</span><span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">block</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">slot</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-string">"x"</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The profile cut to a range of Y</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">profile_between</span><span class="hl-bracket">(</span><span class="hl-variable-name">y0</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">y1</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">big</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DEPTH</span> <span class="hl-operator">*</span> <span class="hl-number">4</span><span class="hl-delimiter">;</span>
+    <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-builtin">intersection</span><span class="hl-bracket">(</span><span class="hl-function-call">profile</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-function-call">rect_points</span><span class="hl-bracket">([(</span><span class="hl-variable-use">y0</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y1</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">y1</span> <span class="hl-operator">-</span> <span class="hl-variable-use">y0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">big</span><span class="hl-bracket">]))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// A prism of `loops` (Y, Z) from x0 to x1, grown by `r` every way: the</span>
+<span class="hl-comment">// minkowski sum of the prism with a sphere.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">grown</span><span class="hl-bracket">(</span><span class="hl-variable-name">loops</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">x0</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">x1</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BASE_ROUNDING</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">polygon</span><span class="hl-bracket">(</span><span class="hl-variable-use">loops</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-variable-use">x0</span> <span class="hl-operator">-</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">x1</span> <span class="hl-operator">+</span> <span class="hl-variable-use">r</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-bracket">})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_xyz</span><span class="hl-bracket">([</span><span class="hl-number">90</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">90</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">base</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">w</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">WIDTH</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">p</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">POCKET_WIDTH</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">front</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">POCKET_BACK</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">POCKET_DEPTH</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">whole</span> <span class="hl-operator">=</span> <span class="hl-function-call">profile</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+        <span class="hl-function-call">grown</span><span class="hl-bracket">(</span><span class="hl-variable-use">whole</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">p</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">w</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">symmetric_x</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span>
+        <span class="hl-function-call">grown</span><span class="hl-bracket">(</span><span class="hl-function-call">profile_between</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DEPTH</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">front</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">p</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">p</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-function-call">grown</span><span class="hl-bracket">(</span><span class="hl-function-call">profile_between</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">POCKET_BACK</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DEPTH</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">p</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">p</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Phone ---</span>
+
+<span class="hl-comment">// The slot for the phone and its screen, standing at the stand's tilt</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">phone</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">size</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE</span><span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">screen</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+        <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREEN_MARGIN</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BASE_THICKNESS</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE</span><span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREEN_MARGIN</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+        <span class="hl-builtin">cuboid</span><span class="hl-bracket">(</span><span class="hl-variable-use">size</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE_ROUNDING</span><span class="hl-bracket">})</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">cuboid</span><span class="hl-bracket">(</span><span class="hl-variable-use">screen</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREEN_ROUNDING</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-bracket">(</span><span class="hl-variable-use">screen</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREEN_ROUNDING</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE</span><span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-bracket">]</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_xyz</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE_TILT</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PHONE_LIFT</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Output ---</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">base</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-builtin">half_space</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-bracket">]))</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-function-call">phone</span><span class="hl-bracket">()))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

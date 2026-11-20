@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Overview</title>
+<meta name="description" content="What keycap is, and a first model." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="index.html">
+<link rel="next" href="editing-and-previewing.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Overview</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html" aria-current="page">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+
+<p>
+keycap edits, previews and exports models for <a href="https://github.com/mkeeter/fidget">fidget</a>, Matt Keeter&rsquo;s library for implicit surfaces.
+A model is a Rhai script.
+It builds a signed distance field: a function of space that is negative inside the shape, positive outside and zero on its surface.
+fidget renders such fields directly, so the preview needs no mesh and follows every edit.
+A mesh is made only to export an STL.
+</p>
+
+<p>
+The script is on the left and its preview on the right:
+</p>
+
+<ul class="org-ul">
+<li>the preview follows the script as it is typed, and an error is marked on the token that caused it</li>
+<li>completion, ElDoc and <code>C-c C-d</code> know every function, every shape and every shape&rsquo;s fields</li>
+<li>a number can be nudged up and down, by keys or with the mouse, while the preview follows</li>
+</ul>
+
+<p>
+A prelude of shapes, rounded and chamfered combinations, extrusions, arrays and metric fasteners is always loaded.
+Modules of standard parts and laser-cut joints are imported by name.
+</p>
+
+<p>
+keycap and its parts come without warranty of any kind.
+Check a standard part&rsquo;s dimensions against the part you have, print or cut a test piece before relying on a fit, and don&rsquo;t use a printed or cut part where its failing could hurt someone.
+</p>
+
+<p>
+keycap was written with Claude Code (Anthropic).
+It is not affiliated with fidget, libfive or Rhai, nor endorsed by their authors.
+</p>
+
+<nav id="table-of-contents" role="doc-toc">
+<h2>In this chapter</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#quick-start">Quick start</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-requirements" class="outline-2">
+<h2 id="requirements"><a href="#requirements">Requirements</a></h2>
+<div class="outline-text-2" id="text-requirements">
+<ul class="org-ul">
+<li>Emacs 30.1 or later, with tree-sitter support</li>
+<li><code>rhai-ts-mode</code>, which keycap derives from, and its tree-sitter grammar</li>
+<li><code>keycap-server</code>, the server that evaluates, renders and meshes scripts, built with the package; <code>keycap-server-program</code> names it</li>
+<li>a Vulkan driver for GPU rendering; without one, the CPU renders</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-quick-start" class="outline-2">
+<h2 id="quick-start"><a href="#quick-start">Quick start</a></h2>
+<div class="outline-text-2" id="text-quick-start">
+<p>
+A file whose name ends in <code>.keycap</code> opens in <code>keycap-mode</code>.
+A <code>.rhai</code> file opens in <code>rhai-ts-mode</code>.
+For keycap there, use <code>M-x keycap-mode</code>, or a <code>-*- mode: keycap -*-</code> cookie on the first line.
+</p>
+
+<p>
+Visit <code>plate.keycap</code> and type a model, such as this one.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A plate with rounded corners and four countersunk M3 holes.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">4</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">hole</span> <span class="hl-operator">=</span> <span class="hl-function-call">screw_hole</span><span class="hl-bracket">(</span><span class="hl-string">"M3"</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">head</span><span class="hl-delimiter">:</span> <span class="hl-string">"countersunk"</span><span class="hl-bracket">})</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">holes</span> <span class="hl-operator">=</span> <span class="hl-variable-use">hole</span><span class="hl-delimiter">.</span><span class="hl-function-call">grid_array</span><span class="hl-bracket">([</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">plate</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-quick-start-06c31e29b73ac873.png" width="480" height="360" fetchpriority="high" alt="A plate with rounded corners and four countersunk M3 holes.">
+
+</div></figure>
+
+<p>
+Press <code>C-c C-c</code>.
+The preview opens beside the script and shows the plate.
+Turn it with the arrow keys or by dragging, and zoom with the wheel or <code>+</code> and <code>-</code>.
+</p>
+
+<p>
+Change <code>4</code> to <code>6</code>, and the corners follow.
+With point on the <code>30</code>, <code>C-c C-n</code> and <code>C-c C-p</code> step it up and down.
+Press <code>C-c C-e</code> to export <code>plate.stl</code>.
+</p>
+
+<p>
+<code>C-c C-d</code> on any name shows its documentation, and <code>M-x keycap-guide</code> opens this manual.
+The <a href="examples.html">examples</a> are complete models to start from.
+</p>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="index.html"><span>Previous</span> Contents</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="editing-and-previewing.html"><span>Next</span> Editing and previewing</a></nav>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

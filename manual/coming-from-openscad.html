@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Coming from OpenSCAD</title>
+<meta name="description" content="OpenSCAD's constructs, and how a field differs from a mesh." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="recipes.html">
+<link rel="next" href="performance.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Coming from OpenSCAD</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html" aria-current="page">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+<p>
+Most of an OpenSCAD design ports line by line.
+This chapter lists what each construct becomes, and what works differently.
+</p>
+
+<nav id="table-of-contents" role="doc-toc">
+<h2>In this chapter</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#what-is-different">What is different</a></li>
+<li><a href="#porting-from-openscad">OpenSCAD&rsquo;s constructs</a></li>
+<li><a href="#text-imports-and-exports">Text, imports and exports</a></li>
+<li><a href="#porting-point-layer-and-polyhedron-designs">Porting point-layer and polyhedron designs</a>
+<ul>
+<li><a href="#profiles-that-change-with-height">Profiles that change with height</a></li>
+<li><a href="#sweeps-helices-and-rings">Sweeps, helices and rings</a></li>
+<li><a href="#copies-placed-by-loops">Copies placed by loops</a></li>
+<li><a href="#curves-and-closed-forms">Curves and closed forms</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-what-is-different" class="outline-2">
+<h2 id="what-is-different"><a href="#what-is-different">What is different</a></h2>
+<div class="outline-text-2" id="text-what-is-different">
+<ul class="org-ul">
+<li>A model is one field, evaluated wherever it is needed.
+There is no <code>$fn</code>: surfaces are smooth at any zoom, and facets appear only at export, at the mesh&rsquo;s resolution.</li>
+<li>Offsets, shells, fillets and clearances are a few operations on an exact field, in 3D as in 2D.
+They need the field to be a distance, so the manual says for every function how exact its field is; see <a href="writing-models.html#exact-distances-and-bounds">Exact distances and bounds</a>.</li>
+<li>A mesh knows its extent, but a field does not.
+The extent is found by interval arithmetic, and a field that hides it needs <code>bounds</code>.</li>
+<li>Shapes are centred on the origin, along Z too, where OpenSCAD&rsquo;s <code>cube</code> and <code>cylinder</code> stand on z = 0 by default.</li>
+<li><code>cylinder(r, h)</code> takes the radius first, and OpenSCAD&rsquo;s <code>cylinder(h, r)</code> the height.</li>
+<li>OpenSCAD reads inside out: <code>translate(v) rotate(a) shape();</code>.
+A chain of methods reads in order: <code>shape.rotate_xyz(a).move(v)</code>.</li>
+<li>Copies placed by a <code>for</code> loop cost one each.
+A fold of space, as the <code>repeat</code> functions make, costs one copy for all of them.</li>
+<li>Numbers that get divided should be floats: Rhai&rsquo;s <code>5 / 2</code> is 2.</li>
+<li>The <code>E = 0.01</code> overlaps are unnecessary: coincident faces do not flicker in a field.
+Cutters still need to reach past the material, or a skin of zero thickness can remain.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-porting-from-openscad" class="outline-2">
+<h2 id="porting-from-openscad"><a href="#porting-from-openscad">OpenSCAD&rsquo;s constructs</a></h2>
+<div class="outline-text-2" id="text-porting-from-openscad">
+<p>
+Transforms are methods on the shape they apply to.
+</p>
+
+<table class="map">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">OpenSCAD</th>
+<th scope="col" class="org-left">keycap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>cube(s, center = true)</code></td>
+<td data-label="keycap" class="org-left"><code>cuboid(s)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>cube([a, b, c])</code></td>
+<td data-label="keycap" class="org-left"><code class="long">cuboid([a, b, c], #{anchor: [-1, -1, -1]})</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code class="long">cylinder(h, r = r, center = true)</code></td>
+<td data-label="keycap" class="org-left"><code>cylinder(r, h)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>cylinder(h, r)</code>, <code>cylinder(h, r, $fn = 6)</code></td>
+<td data-label="keycap" class="org-left"><code>cylinder(r, [0, h])</code>, <code>cylinder(r, [0, h], #{sides: 6})</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>cylinder(h, r1, r2)</code></td>
+<td data-label="keycap" class="org-left"><code>cone([r1, r2], [0, h])</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>sphere(r)</code></td>
+<td data-label="keycap" class="org-left"><code>sphere(r)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>circle(r)</code>, <code>circle(r, $fn = 6)</code></td>
+<td data-label="keycap" class="org-left"><code>circle(r)</code>, <code>regular_polygon(6, r)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>scale([a, b]) circle(1)</code>, <code>sphere(1)</code></td>
+<td data-label="keycap" class="org-left"><code>ellipse([a, b])</code>, <code>ellipsoid([a, b, c])</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>square(s, center = true)</code></td>
+<td data-label="keycap" class="org-left"><code>rect(s)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>square([a, b])</code></td>
+<td data-label="keycap" class="org-left"><code class="long">rect([a, b], #{anchor: [-1, -1]})</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>polygon(points)</code></td>
+<td data-label="keycap" class="org-left"><code>polygon(points)</code>, or <code>rounded_polygon</code> for round corners</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>polygon</code> of several paths, holes included</td>
+<td data-label="keycap" class="org-left"><code>polygon([outline, hole, ...])</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>union()</code>, <code>difference()</code> of polygons</td>
+<td data-label="keycap" class="org-left"><code>points::union(a, b)</code>, on their points</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>rotate_extrude() polygon(points)</code></td>
+<td data-label="keycap" class="org-left"><code>revolve(points)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>polyhedron(points, faces)</code></td>
+<td data-label="keycap" class="org-left">none; see <a href="#porting-point-layer-and-polyhedron-designs">Porting point-layer and polyhedron designs</a></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>translate(v)</code></td>
+<td data-label="keycap" class="org-left"><code>move(v)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>rotate([a, b, c])</code>, <code>rotate(a)</code></td>
+<td data-label="keycap" class="org-left"><code>rotate_xyz([a, b, c])</code>, <code>rotate_z(a)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>rotate(a, v)</code></td>
+<td data-label="keycap" class="org-left"><code class="long">rotate(#{axis: v, angle: a, center: [0, 0, 0]})</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>mirror([1, 0, 0])</code></td>
+<td data-label="keycap" class="org-left"><code>reflect_x()</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code class="long">children(); mirror([1, 0, 0]) children();</code></td>
+<td data-label="keycap" class="org-left"><code>symmetric_x()</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>scale(k)</code></td>
+<td data-label="keycap" class="org-left"><code>scale_exact(k)</code>; <code>scale_bound([a, b, c])</code> when not uniform</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>union() { a; b; }</code></td>
+<td data-label="keycap" class="org-left"><code>union(a, b)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>difference() { a; b; c; }</code></td>
+<td data-label="keycap" class="org-left"><code>difference(a, union(b, c))</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>intersection() { a; b; }</code></td>
+<td data-label="keycap" class="org-left"><code>intersection(a, b)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>linear_extrude(h, center = true)</code></td>
+<td data-label="keycap" class="org-left"><code>extrude(h)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>linear_extrude(h)</code></td>
+<td data-label="keycap" class="org-left"><code>extrude([0, h])</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code class="long">linear_extrude(h, twist = t, scale = k)</code></td>
+<td data-label="keycap" class="org-left"><code class="long">extrude([0, h], #{twist: -t, scale: k})</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>rotate_extrude()</code></td>
+<td data-label="keycap" class="org-left"><code>revolve()</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>rotate_extrude(angle = a)</code>, with <code>$fn = n</code></td>
+<td data-label="keycap" class="org-left"><code>revolve(a)</code>, <code>revolve(a, #{sides: n})</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>offset(r = d)</code></td>
+<td data-label="keycap" class="org-left"><code>offset(d)</code>, on an exact field</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>offset(delta = d)</code></td>
+<td data-label="keycap" class="org-left"><code class="long">polygon(points::miter_offset(points, d))</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>offset(-r) offset(r)</code>, closing</td>
+<td data-label="keycap" class="org-left"><code class="long">rounded_polygon(points, 0, #{concave: r})</code>, or <code>union_round</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>offset(r) offset(-r)</code>, opening</td>
+<td data-label="keycap" class="org-left"><code class="long">rounded_polygon(points, r, #{concave: 0})</code>, <code>smooth_difference</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>minkowski() { s; sphere(r); }</code></td>
+<td data-label="keycap" class="org-left"><code>offset(s, r)</code>, on an exact field</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>minkowski()</code> with a cone or a cylinder</td>
+<td data-label="keycap" class="org-left">a rim: <code>extrude(h, #{chamfer: c})</code>, <code>#{round: r}</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>hull()</code> of two circles or spheres</td>
+<td data-label="keycap" class="org-left"><code>stroke([a, b], 2 * r)</code>, <code>capsule(a, b, r)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>hull()</code> of anything else</td>
+<td data-label="keycap" class="org-left">none; see below</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>projection(cut = true)</code></td>
+<td data-label="keycap" class="org-left">the slice at z = 0: <code>remap(s, x, y, 0.0 * x)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>projection()</code></td>
+<td data-label="keycap" class="org-left">none</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code class="long">text(t, size = s, font = "F:style=Bold")</code></td>
+<td data-label="keycap" class="org-left"><code class="long">text(t, #{size: s, font: "F:style=Bold"})</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code class="long">import("file.svg", center = true)</code></td>
+<td data-label="keycap" class="org-left"><code>svg("file.svg", #{center: true})</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>import("file.stl")</code></td>
+<td data-label="keycap" class="org-left">none</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>$fn</code>, <code>$fa</code>, <code>$fs</code></td>
+<td data-label="keycap" class="org-left">none; <code>resolution</code> sets the export&rsquo;s mesh</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>module m() { ... children(); }</code></td>
+<td data-label="keycap" class="org-left">a <code>fn</code> taking shapes as arguments</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code class="long">for (i = [0 : n - 1]) translate(i * v)</code></td>
+<td data-label="keycap" class="org-left"><code>linear_array(v, n)</code>, or a Rhai <code>for</code> collecting into an array</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left">nested <code>for</code> loops of smaller copies</td>
+<td data-label="keycap" class="org-left">a fold per level: <code>repeat_polar</code>, <code>repeat</code>, <code>recurse</code>, or mirrors</td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>sin(a)</code>, <code>cos(a)</code>, <code>atan2(y, x)</code></td>
+<td data-label="keycap" class="org-left"><code>sind(a)</code>, <code>cosd(a)</code>, <code>atan2d(y, x)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>color("red")</code></td>
+<td data-label="keycap" class="org-left"><code>draw_rgb(s, 1, 0, 0)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>%</code> and <code>#</code> modifiers</td>
+<td data-label="keycap" class="org-left"><a href="recipes.html#reference-geometry">Reference geometry</a></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>include</code>, <code>use</code></td>
+<td data-label="keycap" class="org-left"><code>import "file" as m;</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>assert(c, msg)</code></td>
+<td data-label="keycap" class="org-left"><code>if !c { throw msg; }</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>echo(...)</code></td>
+<td data-label="keycap" class="org-left"><code>print(...)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left"><code>linear_extrude(twist = t)</code> of an offset circle</td>
+<td data-label="keycap" class="org-left"><code>helix(circle(r), radius, pitch)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left">point layers stitched into a <code>polyhedron</code></td>
+<td data-label="keycap" class="org-left"><code>loft</code>, or <code>keyframes</code> of <code>z</code> and <code>normalize_z</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left">point layers on tilted planes, as keycaps have</td>
+<td data-label="keycap" class="org-left"><code>loft_tilted(profile, top, tilt)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left">a profile carried along a path of points</td>
+<td data-label="keycap" class="org-left"><code>sweep</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left">a strand built ring by ring round a ring</td>
+<td data-label="keycap" class="org-left"><code>helix</code>, then <code>bend</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left">a Bézier curve&rsquo;s points stroked as a <code>polygon</code></td>
+<td data-label="keycap" class="org-left"><code>bezier_stroke(points, width)</code></td>
+</tr>
+
+<tr>
+<td data-label="OpenSCAD" class="org-left">an involute traced point by point</td>
+<td data-label="keycap" class="org-left"><code>involute_gear(teeth, m)</code></td>
+</tr>
+</tbody>
+</table>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li><code>linear_extrude</code>&rsquo;s <code>twist</code> turns clockwise looking down, and <code>extrude</code>&rsquo;s anticlockwise, hence <code>-t</code>.</li>
+<li><code>hull()</code> has no counterpart: a convex hull is made from a shape&rsquo;s points, and a field has none to list.
+Write the hull&rsquo;s outline as points for <code>polygon</code>, or use <code>stroke</code>, <code>capsule</code> or <code>rod</code> where the hull is of round ends.</li>
+<li><code>projection()</code> without <code>cut</code> would need the field&rsquo;s minimum along Z, which has no closed form; slice instead.</li>
+<li>Opening and closing in one step, <code class="long">offset(-r) offset(2 * r) offset(-r)</code>, is <code>rounded_polygon(points, r)</code>.
+On an SDF, offsetting twice does nothing: <code>offset(offset(s, -r), r)</code> is <code>s</code> again.
+For a shape that is not a polygon, cut the cutters away with <code class="long">body.smooth_difference(cutters, 2.0 * r)</code>; <code>knob.keycap</code> does this, within about 0.6 mm of OpenSCAD&rsquo;s result.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="outline-container-text-imports-and-exports" class="outline-2">
+<h2 id="text-imports-and-exports"><a href="#text-imports-and-exports">Text, imports and exports</a></h2>
+<div class="outline-text-2" id="text-text-imports-and-exports">
+<ul class="org-ul">
+<li><code>text</code>&rsquo;s <code>size</code> is OpenSCAD&rsquo;s, and fonts are named as OpenSCAD names them, with Liberation Sans by default.
+OpenSCAD 2021.01 places letters by metrics 1/1.024 of the font&rsquo;s, 2.3% tighter than its design; keycap does the same, so labels fit where they fitted.</li>
+<li><code>svg</code> fills paths as OpenSCAD does, even-odd for a path without a fill, and <code>center</code> is OpenSCAD&rsquo;s <code>center = true</code>.</li>
+<li>A 2D export traces outlines into lines and arcs: the first leg of <code>laptop-stand.keycap</code> exports as 7 lines and 23 arcs, within 0.0011 mm of OpenSCAD&rsquo;s own export at <code>$fn = 360</code>, which has 4078 lines.</li>
+</ul>
+
+<p>
+Most of the <a href="examples.html">examples</a> are ports of OpenSCAD designs, commented where the translation is not literal; a header that says how its port was checked gives the distance from the original.
+</p>
+</div>
+</section>
+<section id="outline-container-porting-point-layer-and-polyhedron-designs" class="outline-2">
+<h2 id="porting-point-layer-and-polyhedron-designs"><a href="#porting-point-layer-and-polyhedron-designs">Porting point-layer and polyhedron designs</a></h2>
+<div class="outline-text-2" id="text-porting-point-layer-and-polyhedron-designs">
+<p>
+OpenSCAD&rsquo;s richest designs compute their own geometry: layers of points stitched into a <code>polyhedron</code>, curves sampled into a <code>polygon</code>, copies placed by nested loops.
+The points come from some maths: a profile that changes with height, a curve, a sweep.
+Porting such a design means writing that maths as a field, without the points.
+It says what the shape is at every point, so there is no resolution to choose, and offsets and shells work on the result as on any exact shape.
+</p>
+</div>
+<div id="outline-container-profiles-that-change-with-height" class="outline-3">
+<h3 id="profiles-that-change-with-height"><a href="#profiles-that-change-with-height">Profiles that change with height</a></h3>
+<div class="outline-text-3" id="text-profiles-that-change-with-height">
+<p>
+A vase built from point layers is a 2D outline whose parameters change with the layer.
+Its field:
+</p>
+
+<ol class="org-ol">
+<li>Make the layer index a coordinate: usually <code>z</code>, through <code>linstep(z0, z1, z)</code>, the <code>t</code> from 0 to 1 that OpenSCAD&rsquo;s layer loops run over.</li>
+<li>Write the outline as an exact 2D field whose parameters are trees of it.
+<code>keyframes</code> and the easings give the schedules.
+<code>star</code> with an inner radius that is a tree interpolates the points of two outlines whose corners pair up, such as a hexagon and a hexagram.
+<code>lerp</code> blends two unrelated outlines as fields.</li>
+<li>Apply the layer&rsquo;s transform to the coordinates, inverted.
+An outline scaled by <code>k(z)</code> and turned by <code>a(z)</code> is evaluated at the point turned by <code>-a(z)</code> and divided by <code>k(z)</code>, and its field multiplied by <code>k(z)</code> to stay in true units.</li>
+<li>Correct the slope.
+A field that is exact within every slice measures across the slice, and on a leaning or turning wall the distance square to the wall is shorter.
+<code>normalize_z</code> divides by <code>sqrt(1 + (df/dz)^2)</code>, which makes it that distance to first order: exact for a straight leaning wall, and close for a curved one.</li>
+<li>Cut the ends.</li>
+</ol>
+
+<p>
+<code>loft</code> does steps 3 to 5 for a list of key slices, and <code>extrude</code>&rsquo;s <code>twist</code>, <code>scale</code> and <code>move</code> options for one profile.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A vase that turns from a hexagon into a hexagram and back as it rises, shelled 1.2 thick.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">inner</span> <span class="hl-operator">=</span> <span class="hl-function-call">keyframes</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span>
+    <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.866</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">25</span><span class="hl-delimiter">,</span> <span class="hl-number">0.577</span><span class="hl-delimiter">,</span> <span class="hl-string">"in_out_cubic"</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">50</span><span class="hl-delimiter">,</span> <span class="hl-number">0.866</span><span class="hl-delimiter">,</span> <span class="hl-string">"in_out_cubic"</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">vase</span> <span class="hl-operator">=</span> <span class="hl-function-call">loft</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">shape</span><span class="hl-delimiter">:</span> <span class="hl-function-call">star</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">1.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">inner</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-number">30</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-number">25</span><span class="hl-delimiter">,</span> <span class="hl-property-name">angle</span><span class="hl-delimiter">:</span> <span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-property-name">ease</span><span class="hl-delimiter">:</span> <span class="hl-string">"in_out_sine"</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-number">50</span><span class="hl-delimiter">,</span> <span class="hl-property-name">angle</span><span class="hl-delimiter">:</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-property-name">ease</span><span class="hl-delimiter">:</span> <span class="hl-string">"in_out_sine"</span><span class="hl-delimiter">,</span> <span class="hl-property-name">ease_scale</span><span class="hl-delimiter">:</span> <span class="hl-string">"out_quadratic"</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-variable-use">vase</span><span class="hl-delimiter">.</span><span class="hl-function-call">shell</span><span class="hl-bracket">(</span><span class="hl-number">1.2</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-number">48.8</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/ex-profiles-that-change-with-height-1d965b8322626bbd.png" width="480" height="360" fetchpriority="high" alt="A vase that turns from a hexagon into a hexagram and back as it rises, shelled 1.2 thick.">
+
+</div></figure>
+
+<p>
+The shell&rsquo;s wall is 1.2 mm square to the surface everywhere.
+A wall offset in 2D before extruding, as OpenSCAD would make it, is 1.2 mm across each layer, and thinner wherever the wall leans or turns.
+Between outlines whose points do not pair up, a field blend draws slightly different in-between outlines than the points did: rounder, and without the creases where the points&rsquo; paths cross.
+</p>
+</div>
+</div>
+<div id="outline-container-sweeps-helices-and-rings" class="outline-3">
+<h3 id="sweeps-helices-and-rings"><a href="#sweeps-helices-and-rings">Sweeps, helices and rings</a></h3>
+<div class="outline-text-3" id="text-sweeps-helices-and-rings">
+<ul class="org-ul">
+<li>A profile extruded with a twist is the profile evaluated at the point turned back by the twist.
+For a helix, <code>helix</code> measures square to the wire instead, which keeps a round wire round, where a twisted extrusion flattens it on steep helices.</li>
+<li>Something wound round a ring is built straight along Z and bent with <code>bend</code>.
+A pattern that repeats a whole number of times round the ring closes without a seam.</li>
+<li>A profile moved along a path of lines, arcs and helices is a <code>sweep</code>.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-copies-placed-by-loops" class="outline-3">
+<h3 id="copies-placed-by-loops"><a href="#copies-placed-by-loops">Copies placed by loops</a></h3>
+<div class="outline-text-3" id="text-copies-placed-by-loops">
+<ul class="org-ul">
+<li>When each copy is the same piece moved, the loop becomes a fold: the copy&rsquo;s index comes from the coordinates with <code>round</code>, its transform from the index, and one copy is evaluated at the transformed coordinates.
+Every copy is then a rigid motion of one, so the field stays exact, at the cost of one copy; <code>dna-loop.keycap</code> turns each rung with the helix this way.</li>
+<li>A fractal of nested loops, each placing smaller copies round the last, is a fold at every level, as <code>recurse</code> makes it: one copy per level, whatever the count.
+Folding by mirrors costs less than <code>repeat_polar</code>&rsquo;s trigonometry for shapes symmetric about their axis; <code>vase-koch.keycap</code> folds its snowflake that way.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-curves-and-closed-forms" class="outline-3">
+<h3 id="curves-and-closed-forms"><a href="#curves-and-closed-forms">Curves and closed forms</a></h3>
+<div class="outline-text-3" id="text-curves-and-closed-forms">
+<ul class="org-ul">
+<li>A curve sampled into a polygon, a Bézier stroke for instance, is <code>bezier_stroke</code>: the distance to the curve itself, smooth at any zoom, tapering by a function of <code>t</code>.</li>
+<li>A curve with a known distance needs no points at all.
+An involute&rsquo;s normals are tangents of its base circle, so its distance is the base radius times an angle, and <code>involute_gear</code> draws both flanks of every tooth from the gear&rsquo;s four numbers.</li>
+</ul>
+
+<p>
+The examples <code>vase-interpolate.keycap</code>, <code>vase-koch.keycap</code>, <code>gear-involute.keycap</code>, <code>dna-loop.keycap</code> and <code>feather.keycap</code> are ports of such designs.
+</p>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="recipes.html"><span>Previous</span> Recipes</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="performance.html"><span>Next</span> Performance</a></nav>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

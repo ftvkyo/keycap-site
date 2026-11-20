@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>About</title>
+<meta name="description" content="Who made keycap, how, and whose work it is built on." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="style.449e415602.css">
+<link rel="preload" href="fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="tutorial/index.html">Tutorial</a><a href="manual/index.html">Manual</a><a href="gallery/index.html">Gallery</a><a href="install.html">Install</a><a href="about.html" aria-current="page">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">About</h1>
+<div class="review-reviewed"><p>Reviewed 2026-11-17</p></div>
+</header><section id="outline-container-who-made-it-and-how-it-was-made" class="outline-2">
+<h2 id="who-made-it-and-how-it-was-made"><a href="#who-made-it-and-how-it-was-made">Who made it and how it was made</a></h2>
+<div class="outline-text-2" id="text-who-made-it-and-how-it-was-made">
+<aside class="human">
+<p class="human-label">Written by Rei</p>
+<p>
+I&rsquo;m Rei (<a href="https://ftvkyo.me">ftvkyo</a>).
+I design functional parts for 3D printing, and I wanted a better way to write them than OpenSCAD.
+</p>
+
+<p>
+keycap is written using <a href="https://claude.com/claude-code">Claude Code</a>, an AI coding assistant.
+I set the goals and made the design decisions.
+Claude Code wrote most of the code, the tests and the manual.
+Not every line has been read by a person yet.
+</p>
+
+<p>
+Most of the designs in the gallery are mine, and most of their <code>.keycap</code> scripts are Claude Code&rsquo;s ports of my OpenSCAD originals.
+Every picture of a model on this site is rendered by <code>keycap</code> from a script, so the docs should be at least somewhat reliable.
+</p>
+
+<p>
+<code>keycap</code> does not need AI to run.
+It is ordinary Emacs Lisp, Rust and Rhai (Rust-inspired scripting language).
+It works offline and is decently readable.
+My goal here is using AI to build a tool that does not depend on it.
+</p>
+
+</div>
+
+</aside>
+</div>
+</section>
+<section id="outline-container-goals-and-plans" class="outline-2">
+<h2 id="goals-and-plans"><a href="#goals-and-plans">Goals and Plans</a></h2>
+<div class="outline-text-2" id="text-goals-and-plans">
+<aside class="human">
+<p class="human-label">Written by Rei</p>
+<p>
+I want to use <code>keycap</code> to create practical and impractical 2D and 3D designs.
+I felt like OpenSCAD had exhausted itself as a hobby, and I often wanted to model things that were awkward or borderline impossible to do using OpenSCAD.
+</p>
+
+<p>
+I plan to continue using and expanding <code>keycap</code>.
+Currently, it works around some of the issues in its dependencies, and I hope to find the time to contribute improvements upstream, where they are welcome.
+</p>
+
+<p>
+First and foremost, I hope that this package is useful for my friends.
+</p>
+
+</div>
+
+</aside>
+</div>
+</section>
+<section id="outline-container-on-whose-work-it-stands" class="outline-2">
+<h2 id="on-whose-work-it-stands"><a href="#on-whose-work-it-stands">Credits</a></h2>
+<div class="outline-text-2" id="text-on-whose-work-it-stands">
+<p>
+keycap is an independent project.
+It isn&rsquo;t affiliated with or endorsed by fidget, Halfspace or libfive, nor by Rhai or tree-sitter-rhai.
+</p>
+
+<ul class="org-ul">
+<li><a href="https://github.com/mkeeter/fidget">fidget</a>, by Matt Keeter, evaluates, renders and meshes the implicit surfaces, and does it fast.
+It does most of the actual work.</li>
+<li><a href="https://github.com/mkeeter/halfspace">Halfspace</a> is Matt Keeter&rsquo;s modelling environment for fidget, and it showed what an editor for fidget could look like.
+The colours of the distance field in the 2D view are taken from it.</li>
+<li><a href="https://libfive.com">libfive</a> is Matt Keeter&rsquo;s earlier library.
+keycap&rsquo;s built-in font is ported from libfive&rsquo;s.</li>
+<li><a href="https://rhai.rs">Rhai</a> is the scripting language, and <a href="https://github.com/elkowar/tree-sitter-rhai">tree-sitter-rhai</a>, by elkowar, is the grammar used to highlight it.</li>
+<li>Many distance formulas follow Inigo Quilez&rsquo;s articles and Mercury&rsquo;s hg_sdf.</li>
+<li>The site&rsquo;s font is <a href="https://github.com/subframe7536/maple-font">Maple Mono</a>, under the SIL Open Font License 1.1 (<a href="fonts/OFL.txt">its licence</a>).</li>
+</ul>
+
+<p>
+Names of products, companies and standards &#x2013; Cherry MX, Kailh Choc, OLKB Preonic, QMK, IKEA SKÅDIS and IVAR, Gridfinity, Misumi, SKF, Ruthex, CNC Kitchen, OpenBuilds V-Slot, Steam Deck, Mazda MX-5, Singer, NixOS, LightBurn, Glowforge, ISO, DIN and others &#x2013; belong to their owners and are used only to say what a part fits or where a number comes from.
+None of them made, tested or endorse keycap or the designs here.
+</p>
+</div>
+</section>
+<section id="outline-container-no-warranty" class="outline-2">
+<h2 id="no-warranty"><a href="#no-warranty">No warranty</a></h2>
+<div class="outline-text-2" id="text-no-warranty">
+<p>
+keycap, its parts library and the designs here come as they are, without warranty of any kind.
+The dimensions of standard parts are from tables that makers and distributors publish, not from the standards themselves; they can be wrong or out of date.
+Check them against the part you have, and print or cut a test piece before relying on a fit.
+Nothing here has been tested for strength: printed threads, heat-set inserts, hinges and joints can fail in ways a model doesn&rsquo;t show.
+Don&rsquo;t use a printed or cut part to carry a load, or where its failing could hurt someone.
+</p>
+
+<p>
+3D printing and laser cutting have hazards of their own, fumes and fire among them; follow your machine&rsquo;s and your workspace&rsquo;s rules.
+Never laser-cut PVC, vinyl or polycarbonate; the manual&rsquo;s <a href="manual/editing-and-previewing.html#exporting-for-laser-cutting">laser cutting</a> section says more.
+</p>
+</div>
+</section>
+<section id="outline-container-licences" class="outline-2">
+<h2 id="licences"><a href="#licences">Licences</a></h2>
+<div class="outline-text-2" id="text-licences">
+<p>
+keycap&rsquo;s Emacs package is free software under the GNU GPL, version 3 or later.
+Its server and prelude are MPL-2.0, like fidget, and what keycap ports from Matt Keeter&rsquo;s code keeps its MPL-2.0 notice: libfive&rsquo;s built-in font, fidget&rsquo;s ambient occlusion and Halfspace&rsquo;s colour map.
+Its examples are 0BSD and may be used without attribution.
+keycap&rsquo;s manual is GPL-3.0-or-later, like its Emacs package.
+The text of this site and my designs are CC BY-SA 4.0; the code in the tutorial is 0BSD.
+The site&rsquo;s own code, which builds it, is GPL-3.0-or-later.
+</p>
+</div>
+</section>
+<section id="outline-container-privacy" class="outline-2">
+<h2 id="privacy"><a href="#privacy">Privacy</a></h2>
+<div class="outline-text-2" id="text-privacy">
+<p>
+This site sets no cookies, runs no analytics and loads nothing from other sites.
+It&rsquo;s hosted on GitHub Pages, which logs visitors&rsquo; IP addresses for security; see <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub&rsquo;s privacy statement</a>.
+Links to Printables, GitHub and other sites leave this one.
+</p>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

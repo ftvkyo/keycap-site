@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Operators and math reference</title>
+<meta name="description" content="Variables, operators and functions on trees." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+<link rel="prev" href="shapes-reference.html">
+<link rel="next" href="prelude-reference.html">
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html" aria-current="page">Manual</a><a href="../gallery/index.html">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">Operators and math reference</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><nav class="manual-nav" aria-label="Manual"><ol><li><a href="index.html">Contents</a></li><li><a href="overview.html">Overview</a></li><li><a href="editing-and-previewing.html">Editing and previewing</a></li><li><a href="writing-models.html">Writing models</a></li><li><a href="concepts.html">Concepts</a></li><li><a href="shapes-reference.html">Shapes reference</a></li><li><a href="operators-and-math-reference.html" aria-current="page">Operators and math reference</a></li><li><a href="prelude-reference.html">Prelude reference</a></li><li><a href="modules-reference.html">Modules reference</a></li><li><a href="recipes.html">Recipes</a></li><li><a href="coming-from-openscad.html">Coming from OpenSCAD</a></li><li><a href="performance.html">Performance</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="examples.html">Examples</a></li></ol></nav>
+
+<p>
+fidget adds these to Rhai, and keycap the number forms of fidget&rsquo;s functions and the tree forms of Rhai&rsquo;s.
+Most work on both numbers and trees, and return a tree when an argument is a tree; see <a href="writing-models.html#numbers-and-trees">Numbers and trees</a>.
+Signatures and their types are explained in <a href="concepts.html">Concepts</a>.
+</p>
+
+<nav id="table-of-contents" role="doc-toc">
+<h2>In this chapter</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li class="k-math"><a href="#coordinates-and-constants">Coordinates and constants</a></li>
+<li class="k-math"><a href="#arithmetic">Arithmetic</a></li>
+<li class="k-math"><a href="#comparison-and-selection">Comparison and selection</a></li>
+<li class="k-math"><a href="#math-functions">Math functions</a></li>
+<li class="k-math"><a href="#random-numbers">Random numbers</a></li>
+<li class="k-math"><a href="#remapping">Remapping</a></li>
+<li class="k-math"><a href="#vectors-and-axes">Vectors and axes</a></li>
+<li class="k-script"><a href="#script-api">Script API</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-coordinates-and-constants" class="outline-2 k-math">
+<h2 id="coordinates-and-constants"><a href="#coordinates-and-constants">Coordinates and constants</a></h2>
+<div class="outline-text-2" id="text-coordinates-and-constants">
+<dl class="org-dl">
+<dt id="fn-x" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-x" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">x</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The X coordinate, as a tree: what every shape is built from.
+</p>
+
+<p>
+Arithmetic and functions on <code>x</code>, <code>y</code> and <code>z</code> build a tree instead of computing a number.
+The tree is evaluated later, at every point the preview or the export asks about.
+A shape is such a tree, below 0 inside and above 0 outside.
+</p>
+
+<p>
+<code>x</code>, <code>y</code> and <code>z</code> are defined everywhere, inside functions too.
+A variable of the same name hides one.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>y</code>, <code>z</code>, <code>axes</code>, <code>remap</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A circle of radius 10, written as its distance from the origin minus 10.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">sqrt</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">*</span> <span class="hl-variable-use">x</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y</span> <span class="hl-operator">*</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-number">10</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-x-8fec54d260b712fb.png" width="480" height="360" fetchpriority="high" alt="A circle of radius 10, written as its distance from the origin minus 10.">
+
+</div></figure></dd>
+
+<dt id="fn-y" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-y" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">y</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The Y coordinate, as a tree.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>x</code>, <code>z</code>.
+</p>
+</div></dd>
+
+<dt id="fn-z" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-z" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">z</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The Z coordinate, as a tree.
+</p>
+
+<p>
+A shape whose tree has no <code>z</code> is the same at every height.
+The preview shows such a shape as 2D, in the XY plane.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>x</code>, <code>y</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A sphere cut flat at z = 4, its field the larger of the sphere&rsquo;s and the height above the cut.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-number">4</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-z-afabbd22189dd6f5.png" width="480" height="360" loading="lazy" alt="A sphere cut flat at z = 4, its field the larger of the sphere's and the height above the cut.">
+
+</div></figure></dd>
+
+<dt id="fn-axes" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-axes" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">axes</span>(): #{ <span class="hl-variable-name">x</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a>, <span class="hl-variable-name">y</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a>, <span class="hl-variable-name">z</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a> }</span></code></dt><dd class="entry k-math"><p>
+The three coordinates in a map.
+</p>
+
+<p>
+The map&rsquo;s <code>x</code>, <code>y</code> and <code>z</code> are the same trees as the variables <code>x</code>, <code>y</code> and <code>z</code>.
+They stay at hand in a script that uses those names for numbers.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>x</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A sphere of radius <code>x</code>, cut at half its height, where <code>x</code> is a number.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">x</span> <span class="hl-operator">=</span> <span class="hl-number">12</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">p</span> <span class="hl-operator">=</span> <span class="hl-function-call">axes</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">p</span><span class="hl-delimiter">.</span><span class="hl-property-use">z</span> <span class="hl-operator">-</span> <span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-axes-d29901c84c64baad.png" width="480" height="360" loading="lazy" alt="A sphere of radius x, cut at half its height, where x is a number.">
+
+</div></figure></dd>
+
+<dt id="fn-PI" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-PI" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">PI</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">TAU</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">E</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">PHI</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">GOLDEN_RATIO</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">SQRT_2</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">FRAC_1_SQRT_2</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">FRAC_PI_2</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">FRAC_PI_3</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">FRAC_PI_4</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">FRAC_PI_6</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">FRAC_PI_8</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">FRAC_1_PI</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">FRAC_2_PI</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">FRAC_2_SQRT_PI</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">LN_2</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">LN_10</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">LOG2_E</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-variable-name">LOG10_E</span>: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a></span></code></dt><dd class="entry k-math"><p>
+fidget&rsquo;s mathematical constants.
+</p>
+
+<dl class="org-dl">
+<dt><code>PI</code></dt><dd>π, 3.14159&#x2026;, half a turn in radians</dd>
+<dt><code>TAU</code></dt><dd>τ = 2π, 6.28318&#x2026;, a full turn in radians</dd>
+<dt><code>E</code></dt><dd>Euler&rsquo;s number e, 2.71828&#x2026;</dd>
+<dt><code>PHI</code>, <code>GOLDEN_RATIO</code></dt><dd>the golden ratio φ, 1.61803&#x2026;</dd>
+<dt><code>SQRT_2</code></dt><dd>√2, 1.41421&#x2026;</dd>
+<dt><code>FRAC_1_SQRT_2</code></dt><dd>1/√2, 0.70710&#x2026;</dd>
+<dt><code>FRAC_PI_2</code>, <code>FRAC_PI_3</code>, <code>FRAC_PI_4</code>, <code>FRAC_PI_6</code>, <code>FRAC_PI_8</code></dt><dd>π/2, π/3, π/4, π/6 and π/8; 90, 60, 45, 30 and 22.5 degrees in radians</dd>
+<dt><code>FRAC_1_PI</code></dt><dd>1/π, 0.31830&#x2026;</dd>
+<dt><code>FRAC_2_PI</code></dt><dd>2/π, 0.63661&#x2026;</dd>
+<dt><code>FRAC_2_SQRT_PI</code></dt><dd>2/√π, 1.12837&#x2026;</dd>
+<dt><code>LN_2</code></dt><dd>the natural logarithm of 2, 0.69314&#x2026;</dd>
+<dt><code>LN_10</code></dt><dd>the natural logarithm of 10, 2.30258&#x2026;</dd>
+<dt><code>LOG2_E</code></dt><dd>the logarithm of e to base 2, 1.44269&#x2026;</dd>
+<dt><code>LOG10_E</code></dt><dd>the logarithm of e to base 10, 0.43429&#x2026;</dd>
+</dl>
+
+<p>
+In the names, <code>SQRT</code> is a square root, <code>FRAC_a_b</code> the fraction a/b, <code>LN</code> a natural logarithm, and <code>LOG2</code> and <code>LOG10</code> logarithms to base 2 and 10.
+They are Rust&rsquo;s 64-bit constants of the same names.
+</p>
+
+<p>
+fidget&rsquo;s transforms take angles in degrees, but its trigonometric functions take radians.
+A variable of the same name hides a constant.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>There is no <code>SQRT_3</code>, although fidget&rsquo;s own documentation lists it.
+<code>sqrt(3.0)</code> is the same number.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>sin</code>, <code>atan2</code>, <code>sind</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li><a href="https://doc.rust-lang.org/std/f64/consts/index.html">Constants in <code>std::f64::consts</code>, the Rust standard library</a></li>
+</ul>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+The sine of 30 degrees, the angle turned into radians first.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">sin</span><span class="hl-bracket">(</span><span class="hl-number">30.0</span> <span class="hl-operator">*</span> <span class="hl-constant">PI</span> <span class="hl-operator">/</span> <span class="hl-number">180.0</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-value"><code>0.49999999999999994</code>
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-arithmetic" class="outline-2 k-math">
+<h2 id="arithmetic"><a href="#arithmetic">Arithmetic</a></h2>
+<div class="outline-text-2" id="text-arithmetic">
+<dl class="org-dl">
+<dt id="fn-plus" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-plus" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4">a + <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4">a + <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a> | <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span></code></dt><dd class="entry k-math"><p>
+The sum of two numbers, trees or vectors.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>numbers or trees, or a vector and a vector or number</dd>
+</dl>
+
+<p>
+With a tree on either side, the sum is a tree.
+Two numbers add as Rhai adds them.
+Vectors add component by component, and a number adds to every component.
+</p>
+
+<p>
+Adding a number to a shape&rsquo;s field shrinks the shape by that much, and subtracting one grows it.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: a distance stays a distance when a number is added.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>-</code>, <code>offset</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A square shrunk by 2 on every side, the number added to its field.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">rect</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-number">2</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-plus-0e2b365bf0c8f368.png" width="480" height="360" loading="lazy" alt="A square shrunk by 2 on every side, the number added to its field.">
+
+</div></figure></dd>
+
+<dt id="fn--" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn--" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4">a - <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4">-a: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4">a - <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a> | <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span><span style="--indent: 0; --hang: 4">-a: <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a> | <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span></code></dt><dd class="entry k-math"><p>
+The difference of two numbers, trees or vectors, or the negation of one.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>numbers or trees, or a vector and a vector or number</dd>
+</dl>
+
+<p>
+With a tree on either side, the result is a tree.
+Vectors subtract component by component.
+</p>
+
+<p>
+Negating a shape&rsquo;s field swaps its inside and outside.
+So <code>max(a, -b)</code> is <code>a</code> with <code>b</code> cut away.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: a negated distance is a distance.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>+</code>, <code>inverse</code>, <code>difference</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A square plate with a round hole, the hole&rsquo;s field negated.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-function-call">rect</span><span class="hl-bracket">(</span><span class="hl-number">30</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">8</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn---f256eeb1466dd61d.png" width="480" height="360" loading="lazy" alt="A square plate with a round hole, the hole's field negated.">
+
+</div></figure></dd>
+
+<dt id="fn-*" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-*" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4">a * <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4">a * <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a> | <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span></code></dt><dd class="entry k-math"><p>
+The product of two numbers, trees or vectors.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>numbers or trees, or a vector and a vector or number</dd>
+</dl>
+
+<p>
+With a tree on either side, the product is a tree.
+Vectors multiply component by component, and a number scales every component.
+</p>
+
+<p>
+A shape&rsquo;s field times a positive number has the same surface.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: <code>k</code> times the shape&rsquo;s, so steep <code>k</code> for a factor <code>k</code> above 1, and a bound below 1.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>scale_exact</code>, <code>remap</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+An ellipse, from a circle whose X is multiplied by 2.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">remap</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">*</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-*-86455681b89a357e.png" width="480" height="360" loading="lazy" alt="An ellipse, from a circle whose X is multiplied by 2.">
+
+</div></figure></dd>
+
+<dt id="fn-/" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-/" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4">a / <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4">a / <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a> | <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span></code></dt><dd class="entry k-math"><p>
+The quotient of two numbers, trees or vectors.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>numbers or trees, or a vector and a vector or number</dd>
+</dl>
+
+<p>
+With a tree on either side, the quotient is a tree.
+Vectors divide component by component.
+</p>
+
+<p>
+Between two integers it is Rhai&rsquo;s integer division, which drops the fraction.
+Write one of them with a decimal point when the fraction matters.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+Two integers divided, the fraction dropped.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-number">7</span> <span class="hl-operator">/</span> <span class="hl-number">2</span>
+</pre>
+</div>
+</div><div class="example-value"><code>3</code>
+</div></figure>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+The same with a decimal point.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-number">7.0</span> <span class="hl-operator">/</span> <span class="hl-number">2</span>
+</pre>
+</div>
+</div><div class="example-value"><code>3.5</code>
+</div></figure></dd>
+
+<dt id="fn-percent" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-percent" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4">a % <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The remainder of <code>a</code> divided by <code>b</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>numbers or trees</dd>
+</dl>
+
+<p>
+With a tree on either side, it is the Euclidean remainder: from 0 up to <code>b</code>, for a negative <code>a</code> too.
+Between two numbers, it is Rhai&rsquo;s remainder, which has the sign of <code>a</code>; <code>mod</code> is Euclidean for both.
+</p>
+
+<p>
+A remainder of a coordinate repeats space: every cell <code>b</code> wide maps onto the first one.
+A shape evaluated at such a coordinate repeats without end.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: the shape&rsquo;s, as long as the shape stays inside its cell with some margin.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>mod</code>, <code>repeat_x</code>, <code>repeat</code>, <code>repeat_grid</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li><a href="https://en.wikipedia.org/wiki/Euclidean_division">Euclidean division, Wikipedia</a></li>
+<li>Inigo Quilez, <a href="https://iquilezles.org/articles/sdfrepetition/">Domain repetition</a></li>
+</ul>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A row of spheres 10 apart, its X folded into cells from -5 to 5, cut to a length.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">cells</span> <span class="hl-operator">=</span> <span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">remap</span><span class="hl-bracket">((</span><span class="hl-variable-use">x</span> <span class="hl-operator">+</span> <span class="hl-number">5</span><span class="hl-bracket">)</span> <span class="hl-operator">%</span> <span class="hl-number">10</span> <span class="hl-operator">-</span> <span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">cells</span><span class="hl-delimiter">,</span> <span class="hl-function-call">abs</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-number">30</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-percent-b40a0f16613d066f.png" width="480" height="360" loading="lazy" alt="A row of spheres 10 apart, its X folded into cells from -5 to 5, cut to a length.">
+
+</div></figure></dd>
+
+<dt id="fn-**" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-**" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4">a ** <span class="hl-variable-name">n</span>: <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+<code>a</code> to the power <code>n</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>n</code></dt><dd>numbers or trees</dd>
+</dl>
+
+<p>
+With a tree on either side, the power is a tree, as <code>pow</code> describes.
+Between two numbers it is Rhai&rsquo;s own: between two integers an integer, and a negative <code>n</code> is an error.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>pow</code>, <code>square</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A solid paraboloid 10 high, its top 40 across.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">bowl</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">**</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y</span> <span class="hl-operator">**</span> <span class="hl-number">2</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">40</span> <span class="hl-operator">-</span> <span class="hl-variable-use">z</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">bowl</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-number">10</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-**-a058734766bf9e13.png" width="480" height="360" loading="lazy" alt="A solid paraboloid 10 high, its top 40 across.">
+
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-comparison-and-selection" class="outline-2 k-math">
+<h2 id="comparison-and-selection"><a href="#comparison-and-selection">Comparison and selection</a></h2>
+<div class="outline-text-2" id="text-comparison-and-selection">
+<dl class="org-dl">
+<dt id="fn-min" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-min" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">min</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">min</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>): <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">min</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>): <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span></code></dt><dd class="entry k-math"><p>
+The smaller of two values at every point: for shapes, their union.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>numbers or trees, or vectors</dd>
+</dl>
+
+<p>
+Of two numbers, it is Rhai&rsquo;s own <code>min</code>, a number.
+Of two vectors, it is taken component by component; a number with a vector stands for a vector of that number.
+It takes exactly two values; <code>union</code> takes more.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact outside both shapes, a bound inside where they overlap.</li>
+<li>NaN (not a number) on either side gives NaN.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>max</code>, <code>union</code>, <code>union_round</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+Two circles joined.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">min</span><span class="hl-bracket">(</span><span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">circle</span><span class="hl-bracket">([</span><span class="hl-number">12</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-min-32705c3b029e00f9.png" width="480" height="360" loading="lazy" alt="Two circles joined.">
+
+</div></figure></dd>
+
+<dt id="fn-max" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-max" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">max</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">max</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>): <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">max</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>): <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span></code></dt><dd class="entry k-math"><p>
+The larger of two values at every point: for shapes, their intersection.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>numbers or trees, or vectors</dd>
+</dl>
+
+<p>
+Of two numbers, it is Rhai&rsquo;s own <code>max</code>, a number.
+Of two vectors, it is taken component by component; a number with a vector stands for a vector of that number.
+It takes exactly two values; <code>intersection</code> takes more.
+</p>
+
+<p>
+<code>max(a, -b)</code> is <code>a</code> with <code>b</code> cut away.
+<code>max(s, z - h)</code> is the part of <code>s</code> below the plane z = <code>h</code>.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact inside, a bound outside near the edges where the two surfaces meet.</li>
+<li>NaN (not a number) on either side gives NaN.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>min</code>, <code>intersection</code>, <code>difference</code>, <code>intersection_round</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A lens, where two circles overlap.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">max</span><span class="hl-bracket">(</span>
+    <span class="hl-function-call">circle</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">circle</span><span class="hl-bracket">([</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-max-69c60235a8903f57.png" width="480" height="360" loading="lazy" alt="A lens, where two circles overlap.">
+
+</div></figure></dd>
+
+<dt id="fn-compare" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-compare" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">compare</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The sign of <code>a - b</code> at every point: -1 where <code>a</code> is smaller, 0 where they are equal, 1 where <code>a</code> is larger.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>trees, or a tree and a number</dd>
+</dl>
+
+<p>
+It stands in for <code>&lt;</code> and its kin, which cannot compare trees.
+Arithmetic on its result chooses between values, such as a height that depends on the side of a plane.
+</p>
+
+<p>
+At least one of <code>a</code> and <code>b</code> must be a tree: of two numbers it is an error, <code>Function not found</code>.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>NaN (not a number) on either side gives NaN.</li>
+<li>Its gradient is 0 everywhere, so it adds nothing to a shape&rsquo;s normals.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>and</code>, <code>or</code>, <code>not</code>, <code>&lt;</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A block 4 high left of x = 0 and 8 high right of it.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">block</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">12</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">block</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-number">6</span> <span class="hl-operator">+</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-function-call">compare</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-compare-f10ba92297d3409e.png" width="480" height="360" loading="lazy" alt="A block 4 high left of x = 0 and 8 high right of it.">
+
+</div></figure></dd>
+
+<dt id="fn-and" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-and" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">and</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+Logical and on 0 and non-zero: <code>b</code> where <code>a</code> is non-zero, 0 where <code>a</code> is 0.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>trees, or a tree and a number</dd>
+</dl>
+
+<p>
+The result is <code>b</code> itself, not 1, so it carries a value where a condition holds.
+Where both are 0 or 1, it is their product.
+</p>
+
+<p>
+At least one of <code>a</code> and <code>b</code> must be a tree: of two numbers it is an error, <code>Function not found</code>.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>or</code>, <code>not</code>, <code>compare</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A block 3 high, raised by 5 right of x = 0.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">block</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">12</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">block</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-number">3</span> <span class="hl-operator">+</span> <span class="hl-function-call">and</span><span class="hl-bracket">(</span><span class="hl-function-call">compare</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">)))</span>
+</pre>
+</div>
+</div></figure></dd>
+
+<dt id="fn-or" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-or" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">or</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+Logical or on 0 and non-zero: <code>a</code> where it is non-zero, <code>b</code> where <code>a</code> is 0.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>trees, or a tree and a number</dd>
+</dl>
+
+<p>
+The result is a value, not 1: <code>b</code> fills in where <code>a</code> is 0.
+</p>
+
+<p>
+At least one of <code>a</code> and <code>b</code> must be a tree: of two numbers it is an error, <code>Function not found</code>.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>and</code>, <code>not</code>, <code>compare</code>.
+</p>
+</div></dd>
+
+<dt id="fn-not" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-not" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">not</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+Logical not: 1 where <code>a</code> is 0, and 0 elsewhere, NaN (not a number) included.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a tree or a number</dd>
+</dl>
+
+<p>
+It is a tree even of a number.
+On a Rhai boolean, <code>!</code> is the logical not.
+</p>
+
+<p>
+With <code>compare</code>, it tests an order: <code>not(compare(a, b) + 1)</code> is 1 where <code>a</code> is smaller than <code>b</code>, and 0 elsewhere.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>and</code>, <code>or</code>, <code>compare</code>.
+</p>
+</div></dd>
+
+<dt id="fn-less" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-less" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4">a &lt; <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-bool"><span class="hl-type">bool</span></a></span><span style="--indent: 0; --hang: 4">a &lt;= <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-bool"><span class="hl-type">bool</span></a></span><span style="--indent: 0; --hang: 4">a &gt; <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-bool"><span class="hl-type">bool</span></a></span><span style="--indent: 0; --hang: 4">a &gt;= <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-bool"><span class="hl-type">bool</span></a></span><span style="--indent: 0; --hang: 4">a == <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-bool"><span class="hl-type">bool</span></a></span><span style="--indent: 0; --hang: 4">a != <span class="hl-variable-name">b</span>: <a class="type" href="concepts.html#type-bool"><span class="hl-type">bool</span></a></span></code></dt><dd class="entry k-math"><p>
+Comparisons of numbers, which fail on trees.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>numbers</dd>
+</dl>
+
+<p>
+On a tree, each raises &ldquo;cannot compare Tree types during function tracing&rdquo;.
+</p>
+
+<p>
+A script runs once and builds a tree, and the tree is evaluated later, at every point.
+So a script cannot branch on a tree&rsquo;s value with <code>if</code>: while it runs, the tree has no value yet.
+<code>min</code>, <code>max</code>, <code>compare</code>, <code>and</code>, <code>or</code> and <code>not</code> build the choice into the tree instead.
+<code>max(a, b)</code> stands for <code>if a &gt; b { a } else { b }</code>.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>min</code>, <code>max</code>, <code>compare</code>.
+</p>
+</div></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-math-functions" class="outline-2 k-math">
+<h2 id="math-functions"><a href="#math-functions">Math functions</a></h2>
+<div class="outline-text-2" id="text-math-functions">
+<p>
+Every math function, here and among the prelude&rsquo;s <a href="prelude-reference.html#math-helpers">Math helpers</a>, takes numbers and trees alike: of numbers it gives a number, and of a tree a tree.
+</p>
+
+<ul class="org-ul">
+<li>Angles are in radians: <code>sin</code>, <code>atan2</code> and the others; the prelude&rsquo;s <code>sind</code>, <code>atan2d</code> and the others take degrees, and <code>to_degrees</code> and <code>to_radians</code> convert.</li>
+<li><code>%</code> has the sign of <code>a</code> between numbers, and is never negative on trees; <code>mod</code> is never negative on either.</li>
+<li><code>pow</code> and <code>**</code> take any base with a whole exponent, and a base above 0 with any other; at 0 and below, a tree&rsquo;s power is then 0, and a number&rsquo;s below 0 NaN.</li>
+<li><code>log</code> is to base 10, as Rhai has it; <code>ln</code> is the natural logarithm.</li>
+<li>Where a function is undefined, as <code>sqrt</code> and <code>ln</code> are below 0, its interval is NaN, and so is that of a division by an interval that holds 0; the preview then cannot skip such regions as empty.</li>
+</ul>
+
+<p>
+fidget&rsquo;s functions take trees, Rhai&rsquo;s take numbers, and keycap adds what either lacks; a <code>.fidget</code> script has only theirs.
+</p>
+
+<dl class="org-dl">
+<dt id="fn-abs" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-abs" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">abs</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">abs</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>): <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">abs</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>): <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span></code></dt><dd class="entry k-math"><p>
+The absolute value.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number, a tree or a vector</dd>
+</dl>
+
+<p>
+Of a number, it is Rhai&rsquo;s own <code>abs</code>, a number.
+Of a vector, it is taken component by component.
+</p>
+
+<p>
+On a coordinate, it mirrors: a shape evaluated at <code>abs(x)</code> has its +X half copied onto -X.
+On a shape&rsquo;s field, it gives a shell of no thickness around the surface, which a number subtracted makes thick.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: <code>abs</code> of a distance is a distance.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>symmetric_x</code>, <code>shell</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A ring 1 wide, the shell of a circle.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">abs</span><span class="hl-bracket">(</span><span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">10</span><span class="hl-bracket">))</span> <span class="hl-operator">-</span> <span class="hl-number">0.5</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-abs-14025be28061cbe9.png" width="480" height="360" loading="lazy" alt="A ring 1 wide, the shell of a circle.">
+
+</div></figure></dd>
+
+<dt id="fn-sign" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-sign" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">sign</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The sign of <code>a</code>: -1 where it is below 0, 0 where it is 0, and 1 where it is above.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<p>
+Of a number, it is Rhai&rsquo;s own <code>sign</code>, an integer.
+On a tree, it is <code>compare(a, 0)</code>, whose gradient is 0.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>NaN (not a number) gives NaN on a tree, and is an error in Rhai&rsquo;s <code>sign</code>.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>abs</code>, <code>compare</code>, <code>step</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A plate whose top edge steps up and down by 3, with the sign of a wave.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">60</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span> <span class="hl-operator">-</span> <span class="hl-number">3</span> <span class="hl-operator">*</span> <span class="hl-function-call">sign</span><span class="hl-bracket">(</span><span class="hl-function-call">sin</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-bracket">)))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-sign-8b835dc823540fb5.png" width="480" height="360" loading="lazy" alt="A plate whose top edge steps up and down by 3, with the sign of a wave.">
+
+</div></figure></dd>
+
+<dt id="fn-sqrt" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-sqrt" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">sqrt</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">sqrt</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>): <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">sqrt</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>): <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span></code></dt><dd class="entry k-math"><p>
+The square root.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number, a tree or a vector</dd>
+</dl>
+
+<p>
+Of a vector, it is taken component by component.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>NaN (not a number) below 0.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>square</code>, <code>cbrt</code>, <code>pow</code>, <code>hypot</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A sphere of radius 10, written as its distance from the origin minus 10.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">sqrt</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">*</span> <span class="hl-variable-use">x</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y</span> <span class="hl-operator">*</span> <span class="hl-variable-use">y</span> <span class="hl-operator">+</span> <span class="hl-variable-use">z</span> <span class="hl-operator">*</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-number">10</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-sqrt-681088f2a80ac8e1.png" width="480" height="360" loading="lazy" alt="A sphere of radius 10, written as its distance from the origin minus 10.">
+
+</div></figure></dd>
+
+<dt id="fn-cbrt" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-cbrt" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">cbrt</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The cube root: the number whose cube is <code>a</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<p>
+Unlike <code>a ** (1.0 / 3)</code>, it takes a negative <code>a</code>: <code>cbrt(-8)</code> is -2.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>On a tree, it is the sign of <code>a</code> times <code>exp(ln(abs(a)) / 3)</code>, and its gradient is 0 where <code>a</code> is 0.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>sqrt</code>, <code>pow</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+The side of a cube of 1000 cubic mm.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">cbrt</span><span class="hl-bracket">(</span><span class="hl-number">1000</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-value"><code>10.0</code>
+</div></figure></dd>
+
+<dt id="fn-square" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-square" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">square</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+<code>a</code> times itself.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>sqrt</code>, <code>pow</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+An ellipse 40 by 20, from its implicit equation.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">square</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">20</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-function-call">square</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span> <span class="hl-operator">/</span> <span class="hl-number">10</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-number">1</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-square-5575a41b6d473990.png" width="480" height="360" loading="lazy" alt="An ellipse 40 by 20, from its implicit equation.">
+
+</div></figure></dd>
+
+<dt id="fn-pow" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-pow" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">pow</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">n</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+<code>a</code> to the power <code>n</code>, the same as <code>a ** n</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>the base, a number or a tree</dd>
+<dt><code>n</code></dt><dd>the exponent, a number or a tree</dd>
+</dl>
+
+<p>
+Of two numbers, it is Rhai&rsquo;s <code>**</code>: of two integers an integer, and a negative <code>n</code> is then an error, so write <code>2.0 ** -1</code>.
+On a tree, a whole <code>n</code> multiplies <code>a</code> by itself, by repeated squaring, and takes any <code>a</code>: <code>x ** 2</code> is <code>square(x)</code>, and <code>x ** -1</code> is <code>1 / x</code>.
+Any other <code>n</code>, or one that is a tree, gives <code>exp(n * ln(a))</code>, which takes an <code>a</code> above 0: where <code>a</code> is 0 or less, the power of a tree is 0, and that of a number below 0 is NaN (not a number).
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>A negative <code>n</code> divides by <code>a</code>: where an interval of <code>a</code> holds 0, that of the power is NaN, and the preview cannot skip the region.</li>
+<li>An odd <code>n</code> is <code>a</code> times an even power of it, whose interval is wider than the power&rsquo;s across 0.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>square</code>, <code>sqrt</code>, <code>cbrt</code>, <code>exp</code>, <code>ease_in_pow</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li><a href="https://en.wikipedia.org/wiki/Exponentiation_by_squaring">Exponentiation by squaring, Wikipedia</a></li>
+</ul>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A squircle 40 across, from its implicit equation.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">20</span><span class="hl-bracket">)</span> <span class="hl-operator">**</span> <span class="hl-number">4</span> <span class="hl-operator">+</span> <span class="hl-bracket">(</span><span class="hl-variable-use">y</span> <span class="hl-operator">/</span> <span class="hl-number">20</span><span class="hl-bracket">)</span> <span class="hl-operator">**</span> <span class="hl-number">4</span> <span class="hl-operator">-</span> <span class="hl-number">1</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-pow-121bdf51b7095f78.png" width="480" height="360" loading="lazy" alt="A squircle 40 across, from its implicit equation.">
+
+</div></figure></dd>
+
+<dt id="fn-sin" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-sin" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">sin</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The sine of an angle in radians.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>the angle, a number or a tree</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>cos</code>, <code>tan</code>, <code>asin</code>, <code>sind</code>, <code>PI</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A plate with a wavy edge.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">wave</span> <span class="hl-operator">=</span> <span class="hl-variable-use">y</span> <span class="hl-operator">-</span> <span class="hl-number">6</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-function-call">sin</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">60</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">wave</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-sin-cd2ec586cce6ebfc.png" width="480" height="360" loading="lazy" alt="A plate with a wavy edge.">
+
+</div></figure>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+The graph of <code>sin</code>, inside below the curve
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-variable-use">y</span> <span class="hl-operator">-</span> <span class="hl-number">8</span> <span class="hl-operator">*</span> <span class="hl-function-call">sin</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-sin-graph-c53fa54597c03c99.png" width="480" height="360" loading="lazy" alt="The graph of sin, inside below the curve">
+
+</div></figure></dd>
+
+<dt id="fn-cos" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-cos" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">cos</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The cosine of an angle in radians.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>the angle, a number or a tree</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>sin</code>, <code>tan</code>, <code>acos</code>, <code>cosd</code>, <code>PI</code>.
+</p>
+</div></dd>
+
+<dt id="fn-tan" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-tan" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">tan</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The tangent of an angle in radians.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>the angle, a number or a tree</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>sin</code>, <code>cos</code>, <code>atan</code>, <code>tand</code>, <code>PI</code>.
+</p>
+</div></dd>
+
+<dt id="fn-asin" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-asin" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">asin</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The arcsine: the angle whose sine is <code>a</code>, in radians from -π/2 to π/2.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree, from -1 to 1</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>NaN (not a number) outside -1 to 1.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>sin</code>, <code>acos</code>, <code>atan</code>, <code>asind</code>.
+</p>
+</div></dd>
+
+<dt id="fn-acos" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-acos" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">acos</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The arccosine: the angle whose cosine is <code>a</code>, in radians from 0 to π.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree, from -1 to 1</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>NaN (not a number) outside -1 to 1.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>cos</code>, <code>asin</code>, <code>atan</code>, <code>acosd</code>.
+</p>
+</div></dd>
+
+<dt id="fn-atan" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-atan" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">atan</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">atan</span>(<span class="hl-variable-name p">y</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">x</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The arctangent: the angle whose tangent is <code>a</code>, in radians from -π/2 to π/2.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<p>
+For the angle of a point, all the way round, <code>atan2(y, x)</code> takes both coordinates; <code>atan(y, x)</code> is the same, as Rhai has it.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>tan</code>, <code>atan2</code>, <code>atand</code>.
+</p>
+</div></dd>
+
+<dt id="fn-atan2" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-atan2" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">atan2</span>(<span class="hl-variable-name p">y</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">x</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The two-argument arctangent: the angle of the point (<code>x</code>, <code>y</code>) from +X, in radians from -π to π.
+</p>
+
+<dl class="org-dl">
+<dt><code>y</code>, <code>x</code></dt><dd>the point&rsquo;s coordinates, <code>y</code> first</dd>
+</dl>
+
+<p>
+The angle jumps from π to -π across -X.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>atan</code>, <code>atan2d</code>, <code>repeat_polar</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li><a href="https://en.wikipedia.org/wiki/Atan2">atan2, Wikipedia</a></li>
+</ul>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A round ramp that climbs from 0 to 10 high once around Z, with a step on -X.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">disc</span> <span class="hl-operator">=</span> <span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">z</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">disc</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-number">5</span> <span class="hl-operator">+</span> <span class="hl-number">5</span> <span class="hl-operator">*</span> <span class="hl-function-call">atan2</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">x</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-constant">PI</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-atan2-af31ca534e61f4d2.png" width="480" height="360" loading="lazy" alt="A round ramp that climbs from 0 to 10 high once around Z, with a step on -X.">
+
+</div></figure></dd>
+
+<dt id="fn-sinh" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-sinh" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">sinh</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The hyperbolic sine: <code>(exp(a) - exp(-a)) / 2</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>cosh</code>, <code>tanh</code>, <code>exp</code>.
+</p>
+</div></dd>
+
+<dt id="fn-cosh" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-cosh" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">cosh</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The hyperbolic cosine: <code>(exp(a) + exp(-a)) / 2</code>, 1 at 0 and rising on either side.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<p>
+<code>c * cosh(x / c)</code> is a catenary, the curve of a hanging chain.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>sinh</code>, <code>tanh</code>, <code>exp</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li><a href="https://en.wikipedia.org/wiki/Catenary">Catenary, Wikipedia</a></li>
+</ul>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A plate with a catenary arch cut through it.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">arch</span> <span class="hl-operator">=</span> <span class="hl-variable-use">y</span> <span class="hl-operator">-</span> <span class="hl-number">30</span> <span class="hl-operator">+</span> <span class="hl-number">10</span> <span class="hl-operator">*</span> <span class="hl-function-call">cosh</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">60</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"front"</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">arch</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-cosh-eabaab5395420860.png" width="480" height="360" loading="lazy" alt="A plate with a catenary arch cut through it.">
+
+</div></figure></dd>
+
+<dt id="fn-tanh" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-tanh" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">tanh</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The hyperbolic tangent: from -1 to 1, 0 at 0, with a slope of 1 there.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<p>
+<code>k * tanh(a / k)</code> follows <code>a</code> near 0 and levels off at -<code>k</code> and <code>k</code>: a smooth <code>clamp</code>.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>clamp</code>, <code>sinh</code>, <code>cosh</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A plate whose top edge rises with x near 0 and levels off 5 above and below.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">60</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span> <span class="hl-operator">-</span> <span class="hl-number">5</span> <span class="hl-operator">*</span> <span class="hl-function-call">tanh</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">5</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-tanh-78abe7507964bffd.png" width="480" height="360" loading="lazy" alt="A plate whose top edge rises with x near 0 and levels off 5 above and below.">
+
+</div></figure></dd>
+
+<dt id="fn-to_degrees" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-to_degrees" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">to_degrees</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+An angle in radians, in degrees: <code>a * 180 / PI</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>the angle, in radians, a number or a tree</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>to_radians</code>, <code>atan2d</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+Each point&rsquo;s angle about the Z axis, from -180 to 180 degrees, as <code>atan2d(y, x)</code> gives it.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">to_degrees</span><span class="hl-bracket">(</span><span class="hl-function-call">atan2</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">x</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-to_degrees-9d7f27ef243596ec.png" width="480" height="360" loading="lazy" alt="Each point's angle about the Z axis, from -180 to 180 degrees, as atan2d(y, x) gives it.">
+
+</div></figure></dd>
+
+<dt id="fn-to_radians" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-to_radians" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">to_radians</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+An angle in degrees, in radians: <code>a * PI / 180</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>the angle, in degrees, a number or a tree</dd>
+</dl>
+
+<p>
+fidget&rsquo;s <code>sin</code>, <code>cos</code> and <code>tan</code> take radians; the prelude&rsquo;s <code>sind</code>, <code>cosd</code> and <code>tand</code> take degrees.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>to_degrees</code>, <code>sind</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A quarter turn, in radians.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">to_radians</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-value"><code>1.5707963267948966</code>
+</div></figure></dd>
+
+<dt id="fn-exp" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-exp" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">exp</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The exponential function: e, Euler&rsquo;s number, to the power <code>a</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>exp2</code>, <code>ln</code>, <code>pow</code>, <code>E</code>.
+</p>
+</div></dd>
+
+<dt id="fn-exp2" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-exp2" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">exp2</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+2 to the power <code>a</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>exp</code>, <code>log2</code>, <code>pow</code>.
+</p>
+</div></dd>
+
+<dt id="fn-ln" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-ln" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">ln</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The natural logarithm, to base e.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree, above 0</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>NaN (not a number) below 0, and minus infinity at 0.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>exp</code>, <code>log</code>, <code>log2</code>, <code>log10</code>, <code>LN_2</code>.
+</p>
+</div></dd>
+
+<dt id="fn-log" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-log" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">log</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">log</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">base</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The logarithm to base 10, or to <code>base</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree, above 0</dd>
+<dt><code>base</code></dt><dd>the base, above 0 and not 1</dd>
+</dl>
+
+<p>
+<code>log(a)</code> is <code>log10(a)</code>, as Rhai has it; <code>ln</code> is the natural logarithm.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>NaN (not a number) below 0, and minus infinity at 0, as for <code>ln</code>.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>ln</code>, <code>log2</code>, <code>log10</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+How many times 3 goes into 81 as a factor.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">log</span><span class="hl-bracket">(</span><span class="hl-number">81</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-value"><code>4.0</code>
+</div></figure></dd>
+
+<dt id="fn-log2" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-log2" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">log2</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The logarithm to base 2.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree, above 0</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>NaN (not a number) below 0, and minus infinity at 0, as for <code>ln</code>.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>exp2</code>, <code>log</code>, <code>ln</code>.
+</p>
+</div></dd>
+
+<dt id="fn-log10" class="entry k-math sig"><span class="label"><span class="kind">math</span> · keycap<a class="permalink" href="#fn-log10" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">log10</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The logarithm to base 10.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree, above 0</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>NaN (not a number) below 0, and minus infinity at 0, as for <code>ln</code>.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>log</code>, <code>ln</code>.
+</p>
+</div></dd>
+
+<dt id="fn-floor" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-floor" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">floor</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The largest integer not above <code>a</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<p>
+A floor of a coordinate numbers the cells of a grid, for a pattern that changes from cell to cell.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: a step at every integer, so a field with <code>floor</code> in it is no distance across the steps.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>ceil</code>, <code>round</code>, <code>rand</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li><a href="https://en.wikipedia.org/wiki/Floor_and_ceiling_functions">Floor and ceiling functions, Wikipedia</a></li>
+</ul>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A staircase, a block whose height steps up by 5 every 8 along X.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">wall</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">40</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">wall</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-number">5</span> <span class="hl-operator">*</span> <span class="hl-bracket">(</span><span class="hl-function-call">floor</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">8</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-number">4</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-floor-f9d108b91155c38f.png" width="480" height="360" loading="lazy" alt="A staircase, a block whose height steps up by 5 every 8 along X.">
+
+</div></figure>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+The graph of <code>floor</code>, inside below the curve
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-variable-use">y</span> <span class="hl-operator">-</span> <span class="hl-number">4</span> <span class="hl-operator">*</span> <span class="hl-function-call">floor</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">4</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-floor-graph-4137a5f2c14ccf0c.png" width="480" height="360" loading="lazy" alt="The graph of floor, inside below the curve">
+
+</div></figure></dd>
+
+<dt id="fn-ceil" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-ceil" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">ceil</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The ceiling: the smallest integer not below <code>a</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: a step at every integer, as for <code>floor</code>.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>floor</code>, <code>round</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li><a href="https://en.wikipedia.org/wiki/Floor_and_ceiling_functions">Floor and ceiling functions, Wikipedia</a></li>
+</ul>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+The number of 8 mm cells that covers 30 mm.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">ceil</span><span class="hl-bracket">(</span><span class="hl-number">30.0</span> <span class="hl-operator">/</span> <span class="hl-number">8</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-value"><code>4.0</code>
+</div></figure></dd>
+
+<dt id="fn-round" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-round" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">round</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+The nearest integer to <code>a</code>, halves away from 0.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<p>
+<code>x - s * round(x / s)</code> folds X into cells <code>s</code> wide, centred on the multiples of <code>s</code>, for a shape repeated along X.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: a step halfway between integers, as for <code>floor</code>.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>floor</code>, <code>ceil</code>, <code>repeat</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li>Inigo Quilez, <a href="https://iquilezles.org/articles/sdfrepetition/">Domain repetition</a></li>
+</ul>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A plate with a row of holes 10 apart.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">strip</span> <span class="hl-operator">=</span> <span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">70</span><span class="hl-delimiter">,</span> <span class="hl-number">12</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">dot</span> <span class="hl-operator">=</span> <span class="hl-function-call">circle</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">remap</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">-</span> <span class="hl-number">10</span> <span class="hl-operator">*</span> <span class="hl-function-call">round</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">strip</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">dot</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-round-f41ebf955544aacf.png" width="480" height="360" loading="lazy" alt="A plate with a row of holes 10 apart.">
+
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-random-numbers" class="outline-2 k-math">
+<h2 id="random-numbers"><a href="#random-numbers">Random numbers</a></h2>
+<div class="outline-text-2" id="text-random-numbers">
+<dl class="org-dl">
+<dt id="fn-rand" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-rand" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">rand</span>(<span class="hl-variable-name p">seed</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+A random number from 0 up to 1, made from <code>seed</code>.
+</p>
+
+<dl class="org-dl">
+<dt><code>seed</code></dt><dd>a number or a tree</dd>
+</dl>
+
+<p>
+The number is a hash of the bits of <code>seed</code>, so the same seed always gives the same number.
+Seeds that differ by a little give unrelated numbers.
+A seed that is the same across a cell, such as the <code>floor</code> of a coordinate, gives each cell its own number.
+<code>mix</code> makes one seed of two values.
+</p>
+
+<p>
+It is a tree even of a number.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>mix</code>, <code>floor</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A 20 mm tile with about half of its 2 mm squares, picked at random.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">noise</span> <span class="hl-operator">=</span> <span class="hl-function-call">rand</span><span class="hl-bracket">(</span><span class="hl-function-call">mix</span><span class="hl-bracket">(</span><span class="hl-function-call">floor</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">floor</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">)))</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-function-call">rect</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">noise</span> <span class="hl-operator">-</span> <span class="hl-number">0.5</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-rand-43cef4d518b25e5e.png" width="480" height="360" loading="lazy" alt="A 20 mm tile with about half of its 2 mm squares, picked at random.">
+
+</div></figure></dd>
+
+<dt id="fn-mix" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-mix" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">mix</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type">Tree</span></a></span></code></dt><dd class="entry k-math"><p>
+One seed for <code>rand</code>, made by hashing the bits of <code>a</code> and <code>b</code> together.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code>, <code>b</code></dt><dd>trees, or a tree and a number</dd>
+</dl>
+
+<p>
+The result is raw bits, any number or NaN (not a number), only good as a seed.
+It does not blend <code>a</code> and <code>b</code> as the OpenGL Shading Language&rsquo;s <code>mix</code> does; the prelude&rsquo;s <code>lerp</code> does that.
+</p>
+
+<p>
+At least one of <code>a</code> and <code>b</code> must be a tree: of two numbers it is an error, <code>Function not found</code>.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>rand</code>, <code>lerp</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A block of 10 mm pillars, each of a random height, seeded by its cell in X and Y.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">40</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"bottom"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">noise</span> <span class="hl-operator">=</span> <span class="hl-number">10</span> <span class="hl-operator">*</span> <span class="hl-function-call">rand</span><span class="hl-bracket">(</span><span class="hl-function-call">mix</span><span class="hl-bracket">(</span><span class="hl-function-call">floor</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span> <span class="hl-operator">/</span> <span class="hl-number">10</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">floor</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span> <span class="hl-operator">/</span> <span class="hl-number">10</span><span class="hl-bracket">)))</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">plate</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-number">5</span> <span class="hl-operator">-</span> <span class="hl-variable-use">noise</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-remapping" class="outline-2 k-math">
+<h2 id="remapping"><a href="#remapping">Remapping</a></h2>
+<div class="outline-text-2" id="text-remapping">
+<dl class="org-dl">
+<dt id="fn-remap" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-remap" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 6; --hang: 10"><span class="hl-function-name">remap</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">x</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">y</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">z</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 6; --hang: 10"><span class="hl-function-name">remap</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a>, <span class="hl-variable-name p">x</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">y</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">remap</span>(<span class="hl-variable-name p">x</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">y</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">z</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 10"><span class="hl-variable-name">shape</span>.<span class="hl-function-name">remap</span>(<span class="hl-variable-name p">x</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>, <span class="hl-variable-name p">y</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-math"><p>
+The shape evaluated at other coordinates: <code>x</code>, <code>y</code> and <code>z</code> in its tree replaced by the given trees.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>the shape to transform</dd>
+<dt><code>x</code>, <code>y</code>, <code>z</code></dt><dd>the new coordinates, trees of the old ones; without <code>z</code>, Z stays as it is</dd>
+</dl>
+
+<p>
+Every transform is a remap.
+The shape moves the opposite way to its coordinates: <code>s.remap(x - 5, y, z)</code> is <code>s</code> moved 5 along +X.
+</p>
+
+<p>
+A coordinate may be a number: <code>s.remap(x, y, 0)</code> is the slice of <code>s</code> at z = 0, at every Z.
+In a <code>.fidget</code> script it must be a tree, such as <code>0.0 * x</code>.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: a distance stays a distance under a rigid motion, a move, turn or mirror; a scale or a bend changes the field&rsquo;s slope.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>move</code>, <code>rotate</code>, <code>scale</code>, <code>%</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A bar twisted by a quarter turn over its height.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">21</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">21</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">a</span> <span class="hl-operator">=</span> <span class="hl-variable-use">z</span> <span class="hl-operator">*</span> <span class="hl-constant">PI</span> <span class="hl-operator">/</span> <span class="hl-number">80</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">u</span> <span class="hl-operator">=</span> <span class="hl-variable-use">x</span> <span class="hl-operator">*</span> <span class="hl-function-call">cos</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y</span> <span class="hl-operator">*</span> <span class="hl-function-call">sin</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">v</span> <span class="hl-operator">=</span> <span class="hl-variable-use">y</span> <span class="hl-operator">*</span> <span class="hl-function-call">cos</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-variable-use">x</span> <span class="hl-operator">*</span> <span class="hl-function-call">sin</span><span class="hl-bracket">(</span><span class="hl-variable-use">a</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-delimiter">,</span> <span class="hl-number">40</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">remap</span><span class="hl-bracket">(</span><span class="hl-variable-use">u</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">v</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-remap-3b117d23395868ff.png" width="480" height="360" loading="lazy" alt="A bar twisted by a quarter turn over its height.">
+
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-vectors-and-axes" class="outline-2 k-math">
+<h2 id="vectors-and-axes"><a href="#vectors-and-axes">Vectors and axes</a></h2>
+<div class="outline-text-2" id="text-vectors-and-axes">
+<dl class="org-dl">
+<dt id="fn-vec2" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-vec2" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">vec2</span>(<span class="hl-variable-name p">x</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">y</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">vec2</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p">[]</span>): <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">vec2</span>(<span class="hl-variable-name p">v</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a>): <a class="type" href="concepts.html#type-Vec2"><span class="hl-type">Vec2</span></a></span></code></dt><dd class="entry k-math"><p>
+A 2D vector, of two 32-bit floats.
+</p>
+
+<dl class="org-dl">
+<dt><code>x</code>, <code>y</code></dt><dd>its components</dd>
+<dt><code>a</code></dt><dd>an array of exactly two numbers</dd>
+<dt><code>v</code></dt><dd>a vector, returned as it is</dd>
+</dl>
+
+<p>
+fidget&rsquo;s shapes take <code>[x, y]</code> arrays for their 2D fields, so a script seldom needs <code>vec2</code>.
+Its components are its properties <code>.x</code> and <code>.y</code>, numbers.
+A component is set to a float: setting it to an integer is an error.
+</p>
+
+<p>
+<code>+</code>, <code>-</code>, <code>*</code> and <code>/</code> work component by component, with another vector or with a number for every component.
+<code>min</code>, <code>max</code>, <code>abs</code>, <code>sqrt</code> and <code>-</code> on one vector work component by component too.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>fidget has no dot product, length or normalisation; the prelude&rsquo;s <code>dot</code>, <code>norm</code> and <code>normalize</code> take vectors as well as arrays.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>vec3</code>, <code>dot</code>, <code>norm</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+The length of a vector, from the prelude&rsquo;s <code>norm</code>.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">norm</span><span class="hl-bracket">(</span><span class="hl-function-call">vec2</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">))</span>
+</pre>
+</div>
+</div><div class="example-value"><code>5.0</code>
+</div></figure></dd>
+
+<dt id="fn-vec3" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-vec3" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">vec3</span>(<span class="hl-variable-name p">x</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">y</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">z</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>): <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">vec3</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a><span class="p">[]</span>): <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">vec3</span>(<span class="hl-variable-name p">v</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>): <a class="type" href="concepts.html#type-Vec3"><span class="hl-type">Vec3</span></a></span></code></dt><dd class="entry k-math"><p>
+A 3D vector, of three 32-bit floats.
+</p>
+
+<dl class="org-dl">
+<dt><code>x</code>, <code>y</code>, <code>z</code></dt><dd>its components</dd>
+<dt><code>a</code></dt><dd>an array of two or three numbers; without a third, Z is 0</dd>
+<dt><code>v</code></dt><dd>a vector, returned as it is</dd>
+</dl>
+
+<p>
+fidget&rsquo;s shapes take <code>[x, y, z]</code> arrays for their 3D fields, so a script seldom needs <code>vec3</code>.
+A 3D field given two numbers takes the third from its default, 0 for a position and 1 for a scale.
+Its components are its properties <code>.x</code>, <code>.y</code> and <code>.z</code>, numbers, set as <code>vec2</code>&rsquo;s are.
+Operators and functions work as they do on <code>vec2</code>.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>vec2</code>, <code>cross</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A vector&rsquo;s components halved, the result a vector.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-bracket">(</span><span class="hl-function-call">vec3</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">to_string</span><span class="hl-bracket">()</span>
+</pre>
+</div>
+</div><div class="example-value"><code>"[2, 3, 5]"</code>
+</div></figure></dd>
+
+<dt id="fn-axis" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-axis" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">axis</span>(<span class="hl-variable-name p">a</span><span class="p">: </span><a class="type" href="concepts.html#type-string"><span class="hl-type p">string</span></a><span class="p"> | </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a><span class="p"> | </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>): <a class="type" href="concepts.html#type-Axis"><span class="hl-type">Axis</span></a></span></code></dt><dd class="entry k-math"><p>
+A direction, of length 1.
+</p>
+
+<dl class="org-dl">
+<dt><code>a</code></dt><dd><code>"x"</code>, <code>"y"</code> or <code>"z"</code>, or the tree <code>x</code>, <code>y</code> or <code>z</code>, or a vector, which is scaled to length 1</dd>
+</dl>
+
+<p>
+A field of type <code>Axis</code>, such as <code>rotate</code>&rsquo;s <code>axis</code>, takes the same values directly.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>A vector of length 0, NaN (not a number) or one too long to scale is an error.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>rotate</code>, <code>plane</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A rod turned 45 degrees about the diagonal of the XY plane.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">rotate</span><span class="hl-bracket">(</span><span class="hl-function-call">axis</span><span class="hl-bracket">([</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-number">45</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-axis-f3c8763072800b2f.png" width="480" height="360" loading="lazy" alt="A rod turned 45 degrees about the diagonal of the XY plane.">
+
+</div></figure></dd>
+
+<dt id="fn-to_string" class="entry k-math sig"><span class="label"><span class="kind">math</span> · fidget<a class="permalink" href="#fn-to_string" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 2; --hang: 6"><span class="hl-function-name">to_string</span>(<span class="hl-variable-name p">t</span><span class="p">: </span><a class="type" href="concepts.html#type-Tree"><span class="hl-keycap-tree-type p">Tree</span></a>): <a class="type" href="concepts.html#type-string"><span class="hl-type">string</span></a></span><span style="--indent: 2; --hang: 6"><span class="hl-function-name">to_string</span>(<span class="hl-variable-name p">v</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec2"><span class="hl-type p">Vec2</span></a><span class="p"> | </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a><span class="p"> | </span><a class="type" href="concepts.html#type-Axis"><span class="hl-type p">Axis</span></a><span class="p"> | </span><a class="type" href="concepts.html#type-Plane"><span class="hl-type p">Plane</span></a>): <a class="type" href="concepts.html#type-string"><span class="hl-type">string</span></a></span><span style="--indent: 0; --hang: 6"><span class="hl-variable-name">t</span>.<span class="hl-function-name">to_string</span>(): <a class="type" href="concepts.html#type-string"><span class="hl-type">string</span></a></span><span style="--indent: 0; --hang: 6"><span class="hl-variable-name">v</span>.<span class="hl-function-name">to_string</span>(): <a class="type" href="concepts.html#type-string"><span class="hl-type">string</span></a></span></code></dt><dd class="entry k-math"><p>
+A short text for a tree, a vector, an axis or a plane.
+</p>
+
+<dl class="org-dl">
+<dt><code>t</code></dt><dd>a tree, written <code>x</code>, <code>y</code> or <code>z</code> for a coordinate and <code>Tree(..)</code> for any other</dd>
+<dt><code>v</code></dt><dd>a vector, written as an array, or an axis or plane, written as the call that makes it</dd>
+</dl>
+
+<p>
+<code>print</code> uses it, so printing a tree tells only that it is one.
+</p>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A vector, as text.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">vec3</span><span class="hl-bracket">(</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">to_string</span><span class="hl-bracket">()</span>
+</pre>
+</div>
+</div><div class="example-value"><code>"[1, 2, 3]"</code>
+</div></figure></dd>
+</dl>
+</div>
+</section>
+<section id="outline-container-script-api" class="outline-2 k-script">
+<h2 id="script-api"><a href="#script-api">Script API</a></h2>
+<div class="outline-text-2" id="text-script-api">
+<p>
+These come from <code>keycap-server</code>, not from fidget; scripts written for <code>fidget-cli</code> or fidget&rsquo;s viewer use the same <code>draw</code> and <code>draw_rgb</code>.
+A <code>.fidget</code> script has those two only, without <code>draw</code>&rsquo;s options; see <a href="writing-models.html#dialects">Dialects</a>.
+</p>
+
+<dl class="org-dl">
+<dt id="fn-draw" class="entry k-script sig"><span class="label"><span class="kind">script</span> · keycap<a class="permalink" href="#fn-draw" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">draw</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p"> | </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p">[]</span>)</span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">draw</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p"> | </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p">[]</span>, <span class="hl-variable-name p">opts</span><span class="p">: #{ </span><span class="hl-variable-name p">role</span><span class="p">?: </span><a class="type" href="concepts.html#type-string"><span class="hl-type p">string</span></a><span class="p"> }</span>)</span></code></dt><dd class="entry k-script"><p>
+Draws <code>shape</code>, for the preview to show and an export to write.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>a shape, or an array of shapes, drawn as their union</dd>
+<dt><code>opts</code></dt><dd>in a <code>.keycap</code> script only
+<dl class="org-dl">
+<dt><code>role</code></dt><dd>what a laser does along the outline in a 2D export: <code>"cut"</code>, the default, <code>"score"</code> or <code>"engrave"</code></dd>
+</dl></dd>
+</dl>
+
+<p>
+A script may draw any number of shapes.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>draw_rgb</code>, <code>bounds</code>.
+</p>
+</div>
+
+<figure class="example"><figcaption><span>Example</span>
+<p>
+A plate with a label engraved on it, for a laser cutter.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">label</span> <span class="hl-operator">=</span> <span class="hl-function-call">text</span><span class="hl-bracket">(</span><span class="hl-string">"A1"</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span>
+    <span class="hl-property-name">size</span><span class="hl-delimiter">:</span> <span class="hl-number">5</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">halign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">valign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-function-call">rect</span><span class="hl-bracket">([</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">12</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">label</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">role</span><span class="hl-delimiter">:</span> <span class="hl-string">"engrave"</span><span class="hl-bracket">})</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-draw-e287d8a7c61445b8.png" width="480" height="360" loading="lazy" alt="A plate with a label engraved on it, for a laser cutter.">
+
+</div></figure></dd>
+
+<dt id="fn-draw_rgb" class="entry k-script sig"><span class="label"><span class="kind">script</span> · keycap<a class="permalink" href="#fn-draw_rgb" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">draw_rgb</span>(<span class="hl-variable-name p">shape</span><span class="p">: </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p"> | </span><a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type p">Shape</span></a><span class="p">[]</span>, <span class="hl-variable-name p">r</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">g</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>, <span class="hl-variable-name p">b</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>)</span></code></dt><dd class="entry k-script"><p>
+Draws <code>shape</code> in a colour, given by its red, green and blue.
+</p>
+
+<dl class="org-dl">
+<dt><code>shape</code></dt><dd>a shape, or an array of shapes, drawn as their union</dd>
+<dt><code>r</code>, <code>g</code>, <code>b</code></dt><dd>the colour&rsquo;s red, green and blue, each from 0 to 1; values outside are clamped</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>draw</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A grey plate with an orange peg.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"top"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">boss</span> <span class="hl-operator">=</span> <span class="hl-function-call">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">10</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">plate</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-variable-use">boss</span><span class="hl-delimiter">,</span> <span class="hl-number">1.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-draw_rgb-e7e5130750818b1c.png" width="480" height="360" loading="lazy" alt="A grey plate with an orange peg.">
+
+</div></figure></dd>
+
+<dt id="fn-bounds" class="entry k-script sig"><span class="label"><span class="kind">script</span> · keycap<a class="permalink" href="#fn-bounds" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">bounds</span>(<span class="hl-variable-name p">lower</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>, <span class="hl-variable-name p">upper</span><span class="p">: </span><a class="type" href="concepts.html#type-Vec3"><span class="hl-type p">Vec3</span></a>)</span></code></dt><dd class="entry k-script"><p>
+Sets the region the preview shows and an export writes.
+</p>
+
+<dl class="org-dl">
+<dt><code>lower</code>, <code>upper</code></dt><dd><code>[x, y, z]</code>, the region&rsquo;s lowest and highest corners</dd>
+</dl>
+
+<p>
+Without it, the region is fitted to the drawn shapes.
+A script sets it at most once.
+A shape whose region cannot be fitted, such as one repeated without end, needs it.
+</p>
+
+<div class="part"><span>See also</span>
+<p>
+<code>draw</code>, <code>resolution</code>.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A plane of spheres repeated without end, cut to a region to look at.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-function-call">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">20</span><span class="hl-delimiter">,</span> <span class="hl-number">5</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">sphere</span><span class="hl-bracket">(</span><span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">remap</span><span class="hl-bracket">((</span><span class="hl-variable-use">x</span> <span class="hl-operator">+</span> <span class="hl-number">5</span><span class="hl-bracket">)</span> <span class="hl-operator">%</span> <span class="hl-number">10</span> <span class="hl-operator">-</span> <span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-bracket">(</span><span class="hl-variable-use">y</span> <span class="hl-operator">+</span> <span class="hl-number">5</span><span class="hl-bracket">)</span> <span class="hl-operator">%</span> <span class="hl-number">10</span> <span class="hl-operator">-</span> <span class="hl-number">5</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-bounds-46fed8b0dbfee335.png" width="480" height="360" loading="lazy" alt="A plane of spheres repeated without end, cut to a region to look at.">
+
+</div></figure></dd>
+
+<dt id="fn-resolution" class="entry k-script sig"><span class="label"><span class="kind">script</span> · keycap<a class="permalink" href="#fn-resolution" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">resolution</span>(<span class="hl-variable-name p">cells</span><span class="p">: </span><a class="type" href="concepts.html#type-number"><span class="hl-type p">number</span></a>)</span></code></dt><dd class="entry k-script"><p>
+Sets the resolution of an export, in mesh cells per unit.
+</p>
+
+<dl class="org-dl">
+<dt><code>cells</code></dt><dd>the cells per unit, above 0</dd>
+</dl>
+
+<div class="part"><span>See also</span>
+<p>
+<code>bounds</code>.
+</p>
+</div></dd>
+
+<dt id="fn-text" class="entry k-script sig"><span class="label"><span class="kind">script</span> · keycap<a class="permalink" href="#fn-text" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">text</span>(<span class="hl-variable-name p">string</span><span class="p">: </span><a class="type" href="concepts.html#type-string"><span class="hl-type p">string</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">text</span>(</span><span style="--indent: 4; --hang: 8"><span class="hl-variable-name">string</span>: <a class="type" href="concepts.html#type-string"><span class="hl-type">string</span></a>,</span><span style="--indent: 4; --hang: 8"><span class="hl-variable-name">opts</span>:   #{ <span class="hl-variable-name">size</span>?: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a>, <span class="hl-variable-name">font</span>?: <a class="type" href="concepts.html#type-string"><span class="hl-type">string</span></a>, <span class="hl-variable-name">halign</span>?: <a class="type" href="concepts.html#type-string"><span class="hl-type">string</span></a>, <span class="hl-variable-name">valign</span>?: <a class="type" href="concepts.html#type-string"><span class="hl-type">string</span></a>, <span class="hl-variable-name">spacing</span>?: <a class="type" href="concepts.html#type-number"><span class="hl-type">number</span></a> },</span><span style="--indent: 0; --hang: 4">): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-script"><p>
+The outline of <code>string</code> in the XY plane.
+</p>
+
+<dl class="org-dl">
+<dt><code>string</code></dt><dd>the text</dd>
+<dt><code>opts</code></dt><dd><dl class="org-dl">
+<dt><code>size</code></dt><dd>about the height of a capital letter above the baseline; 10 by default</dd>
+<dt><code>font</code></dt><dd>a font file, relative to the script, or an installed font by its name and style, <code>"JetBrains Mono:style=Bold"</code>; Liberation Sans by default; <code>"libfive"</code> is libfive&rsquo;s own font, quicker to render but no exact field</dd>
+<dt><code>halign</code></dt><dd>the horizontal alignment, <code>"left"</code> (the default), <code>"center"</code> or <code>"right"</code></dd>
+<dt><code>valign</code></dt><dd>the vertical alignment, <code>"baseline"</code> (the default), <code>"top"</code>, <code>"center"</code> or <code>"bottom"</code></dd>
+<dt><code>spacing</code></dt><dd>a factor on the advance from one letter to the next; 1 by default</dd>
+</dl></dd>
+</dl>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact, its curves within a thousandth of <code>size</code>; with <code>"libfive"</code>, a bound.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>svg</code>, <code>engrave</code>.
+</p>
+</div>
+
+<div class="part quiet"><span>From OpenSCAD</span>
+<p>
+<code>text()</code> takes the same options, and sizes, spacing and alignment match OpenSCAD 2021.01&rsquo;s.
+</p>
+</div>
+
+<figure class="example wide"><figcaption><span>Example</span>
+<p>
+A label raised 0.6 from a plate.
+</p>
+</figcaption><div class="example-code">
+<div class="org-src-container">
+<pre class="src src-rhai"><span class="hl-keyword">let</span> <span class="hl-variable-name">label</span> <span class="hl-operator">=</span> <span class="hl-function-call">text</span><span class="hl-bracket">(</span><span class="hl-string">"M3"</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span>
+    <span class="hl-property-name">size</span><span class="hl-delimiter">:</span> <span class="hl-number">6</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">halign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-delimiter">,</span>
+    <span class="hl-property-name">valign</span><span class="hl-delimiter">:</span> <span class="hl-string">"center"</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">plate</span> <span class="hl-operator">=</span> <span class="hl-function-call">cuboid</span><span class="hl-bracket">([</span><span class="hl-number">30</span><span class="hl-delimiter">,</span> <span class="hl-number">12</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">anchor</span><span class="hl-delimiter">:</span> <span class="hl-string">"top"</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+<span class="hl-function-call">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">plate</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">label</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.6</span><span class="hl-bracket">]))</span>
+</pre>
+</div>
+</div><div class="example-pic">
+<img src="frames/fn-text-ace5d14f8c85ed33.png" width="480" height="360" loading="lazy" alt="A label raised 0.6 from a plate.">
+
+</div></figure></dd>
+
+<dt id="fn-svg" class="entry k-script sig"><span class="label"><span class="kind">script</span> · keycap<a class="permalink" href="#fn-svg" aria-label="Link to this entry">#</a></span><code class="sig"><span style="--indent: 0; --hang: 4"><span class="hl-function-name">svg</span>(<span class="hl-variable-name p">path</span><span class="p">: </span><a class="type" href="concepts.html#type-string"><span class="hl-type p">string</span></a>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span><span style="--indent: 0; --hang: 4"><span class="hl-function-name">svg</span>(<span class="hl-variable-name p">path</span><span class="p">: </span><a class="type" href="concepts.html#type-string"><span class="hl-type p">string</span></a>, <span class="hl-variable-name p">opts</span><span class="p">: #{ </span><span class="hl-variable-name p">center</span><span class="p">?: </span><a class="type" href="concepts.html#type-bool"><span class="hl-type p">bool</span></a><span class="p">, </span><span class="hl-variable-name p">id</span><span class="p">?: </span><a class="type" href="concepts.html#type-string"><span class="hl-type p">string</span></a><span class="p"> }</span>): <a class="type" href="concepts.html#type-Shape"><span class="hl-keycap-tree-type">Shape</span></a></span></code></dt><dd class="entry k-script"><p>
+The shapes of an SVG (Scalable Vector Graphics) file, in the XY plane.
+</p>
+
+<dl class="org-dl">
+<dt><code>path</code></dt><dd>the file, relative to the script</dd>
+<dt><code>opts</code></dt><dd><dl class="org-dl">
+<dt><code>center</code></dt><dd>put the centre of the shapes&rsquo; bounding box at the origin; false by default</dd>
+<dt><code>id</code></dt><dd>import only the element with this <code>id</code>, such as an Inkscape layer</dd>
+</dl></dd>
+</dl>
+
+<p>
+The document&rsquo;s bottom left corner goes to the origin.
+Its units become millimetres, at 96 pixels to the inch.
+Every closed subpath is filled, whatever its paint, by its path&rsquo;s <code>fill-rule</code>, even-odd for a path without a fill.
+An open subpath imports as its stroke.
+The preview reloads when the file changes.
+</p>
+
+<div class="part quiet"><span>Notes</span>
+<ul class="org-ul">
+<li>Field: exact, of the shapes&rsquo; union; curves within 0.01 mm.</li>
+</ul>
+</div>
+
+<div class="part"><span>See also</span>
+<p>
+<code>text</code>, <code>extrude</code>.
+</p>
+</div>
+
+<div class="part"><span>References</span>
+<ul class="org-ul">
+<li><a href="https://www.w3.org/TR/SVG2/painting.html#FillRuleProperty">The <code>fill-rule</code> property, SVG 2</a></li>
+</ul>
+</div>
+
+<div class="part quiet"><span>From OpenSCAD</span>
+<p>
+<code>import("file.svg")</code> reads the file the same way.
+</p>
+</div></dd>
+</dl>
+
+<p>
+Rhai&rsquo;s own functions (<code>print</code>, <code>type_of</code>, <code>to_float</code>, string and array methods) are in the <a href="https://rhai.rs/book/">Rhai book</a>.
+</p>
+
+
+<nav class="pager" aria-label="Previous and next"><a rel="prev" href="shapes-reference.html"><span>Previous</span> Shapes reference</a><a rel="up" href="index.html"><span>Up</span> Contents</a><a rel="next" href="prelude-reference.html"><span>Next</span> Prelude reference</a></nav>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

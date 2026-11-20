@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>vase-koch</title>
+<meta name="description" content="Vase on a Koch snowflake, widening and turning as it rises; ported from OpenSCAD, where the outline is 518 triangles, extruded in 500 slices." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">vase-koch</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/vases/koch-snowflake.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>vases/koch-snowflake.scad</code></a><a class="printables" href="https://www.printables.com/model/994219">Printables</a></p>
+
+<p>
+Vase on a Koch snowflake, widening and turning as it rises; ported from
+OpenSCAD, where the outline is 518 triangles, extruded in 500 slices.
+</p>
+
+<p>
+Each level of the snowflake puts a triangle a third the size on the
+middle of every edge of the level before.  The OpenSCAD design places
+them with nested loops over six directions; here the plane is folded
+into one of twelve mirror-image wedges at each level, so a level costs
+one triangle and one fold, whatever the count.
+</p>
+
+<p>
+The OpenSCAD design is a solid, to print in vase mode; here WALL hollows
+it, to print as it is.
+</p>
+
+<a href="frames/vase-koch-e90854178f0e815a.png"><img src="frames/vase-koch-e90854178f0e815a.png" width="800" height="600" fetchpriority="high" alt="vase-koch, shaded, from the front right"></a>
+
+<a href="frames/vase-koch-512fb9da6030cddd.png"><img src="frames/vase-koch-512fb9da6030cddd.png" width="800" height="600" loading="lazy" alt="vase-koch, shaded, from the back left"></a>
+
+<a href="frames/vase-koch-066445f7464e5559.png"><img src="frames/vase-koch-066445f7464e5559.png" width="800" height="600" loading="lazy" alt="vase-koch, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/vase-koch.keycap"><code>vase-koch.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Vase on a Koch snowflake, widening and turning as it rises; ported from</span>
+<span class="hl-comment">// OpenSCAD, where the outline is 518 triangles, extruded in 500 slices.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Each level of the snowflake puts a triangle a third the size on the</span>
+<span class="hl-comment">// middle of every edge of the level before.  The OpenSCAD design places</span>
+<span class="hl-comment">// them with nested loops over six directions; here the plane is folded</span>
+<span class="hl-comment">// into one of twelve mirror-image wedges at each level, so a level costs</span>
+<span class="hl-comment">// one triangle and one fold, whatever the count.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The OpenSCAD design is a solid, to print in vase mode; here WALL hollows</span>
+<span class="hl-comment">// it, to print as it is.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">RADIUS</span> <span class="hl-operator">=</span> <span class="hl-number">30.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// the snowflake's points, at the foot</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">100.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">WIDEN</span> <span class="hl-operator">=</span> <span class="hl-number">1.5</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// scale at the rim</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TURN</span> <span class="hl-operator">=</span> <span class="hl-number">60.0</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// degrees the outline turns, clockwise looking down</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">LEVELS</span> <span class="hl-operator">=</span> <span class="hl-number">3</span><span class="hl-delimiter">;</span>            <span class="hl-comment">// levels of triangles on the first star</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">WALL</span> <span class="hl-operator">=</span> <span class="hl-number">1.2</span><span class="hl-delimiter">;</span>            <span class="hl-comment">// 0 for a solid, to print in vase mode</span>
+
+<span class="hl-comment">// --- Snowflake ---</span>
+
+<span class="hl-doc">/// Six copies of `shape` around the origin, 60 degrees apart, for a shape</span>
+<span class="hl-doc">/// on +X that is symmetric about it.</span>
+<span class="hl-doc">///</span>
+<span class="hl-doc">/// repeat_polar(6) without its trigonometry: mirrors across both axes and</span>
+<span class="hl-doc">/// the lines at 60 and 30 degrees fold the plane into the wedge from 0 to</span>
+<span class="hl-doc">/// 30 degrees.  The copies must stay in their wedges, as for repeat_polar.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">six</span><span class="hl-bracket">(</span><span class="hl-variable-name">shape</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">c</span> <span class="hl-operator">=</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">px</span> <span class="hl-operator">=</span> <span class="hl-builtin">abs</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">py</span> <span class="hl-operator">=</span> <span class="hl-builtin">abs</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">d</span> <span class="hl-operator">=</span> <span class="hl-builtin">min</span><span class="hl-bracket">(</span><span class="hl-variable-use">c</span> <span class="hl-operator">*</span> <span class="hl-variable-use">px</span> <span class="hl-operator">-</span> <span class="hl-number">0.5</span> <span class="hl-operator">*</span> <span class="hl-variable-use">py</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">px</span> <span class="hl-operator">=</span> <span class="hl-variable-use">px</span> <span class="hl-operator">-</span> <span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-variable-use">c</span> <span class="hl-operator">*</span> <span class="hl-variable-use">d</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">py</span> <span class="hl-operator">=</span> <span class="hl-variable-use">py</span> <span class="hl-operator">+</span> <span class="hl-variable-use">d</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">d</span> <span class="hl-operator">=</span> <span class="hl-builtin">min</span><span class="hl-bracket">(</span><span class="hl-number">0.5</span> <span class="hl-operator">*</span> <span class="hl-variable-use">px</span> <span class="hl-operator">-</span> <span class="hl-variable-use">c</span> <span class="hl-operator">*</span> <span class="hl-variable-use">py</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">remap</span><span class="hl-bracket">(</span><span class="hl-variable-use">shape</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">px</span> <span class="hl-operator">-</span> <span class="hl-variable-use">d</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">py</span> <span class="hl-operator">+</span> <span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-variable-use">c</span> <span class="hl-operator">*</span> <span class="hl-variable-use">d</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">z</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-doc">/// Equilateral triangle of circumradius `r`, a corner on -X.</span>
+<span class="hl-doc">///</span>
+<span class="hl-doc">/// Exact; Inigo Quilez's, folded by a mirror where regular_polygon(3, r)</span>
+<span class="hl-doc">/// takes an angle.  On the outline, where the length is 0 and has no</span>
+<span class="hl-doc">/// gradient for the mesher, `or` takes the edge's line, -qy, instead.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">triangle</span><span class="hl-bracket">(</span><span class="hl-variable-name">r</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">k</span> <span class="hl-operator">=</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">h</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-variable-use">k</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">px</span> <span class="hl-operator">=</span> <span class="hl-builtin">abs</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-variable-use">h</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">py</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span> <span class="hl-operator">-</span> <span class="hl-variable-use">x</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">d</span> <span class="hl-operator">=</span> <span class="hl-builtin">max</span><span class="hl-bracket">((</span><span class="hl-variable-use">px</span> <span class="hl-operator">+</span> <span class="hl-variable-use">k</span> <span class="hl-operator">*</span> <span class="hl-variable-use">py</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-number">0.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">qx</span> <span class="hl-operator">=</span> <span class="hl-variable-use">px</span> <span class="hl-operator">-</span> <span class="hl-variable-use">d</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">qy</span> <span class="hl-operator">=</span> <span class="hl-variable-use">py</span> <span class="hl-operator">-</span> <span class="hl-variable-use">k</span> <span class="hl-operator">*</span> <span class="hl-variable-use">d</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">or</span><span class="hl-bracket">(</span><span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">qx</span> <span class="hl-operator">-</span> <span class="hl-builtin">clamp</span><span class="hl-bracket">(</span><span class="hl-variable-use">qx</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-variable-use">h</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">qy</span><span class="hl-bracket">)</span> <span class="hl-operator">*</span> <span class="hl-builtin">compare</span><span class="hl-bracket">(</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">qy</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">qy</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-doc">/// The triangles of one level, `size` their circumradius, pointing back</span>
+<span class="hl-doc">/// at the origin, with the levels below on their edges.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">bumps</span><span class="hl-bracket">(</span><span class="hl-variable-name">size</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">levels</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">if</span> <span class="hl-variable-use">levels</span> <span class="hl-operator">==</span> <span class="hl-number">0</span> <span class="hl-bracket">{</span>
+        <span class="hl-function-call">triangle</span><span class="hl-bracket">(</span><span class="hl-variable-use">size</span><span class="hl-bracket">)</span>
+    <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+        <span class="hl-builtin">min</span><span class="hl-bracket">(</span><span class="hl-function-call">triangle</span><span class="hl-bracket">(</span><span class="hl-variable-use">size</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-function-call">six</span><span class="hl-bracket">(</span><span class="hl-function-call">bumps</span><span class="hl-bracket">(</span><span class="hl-variable-use">size</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">levels</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-variable-use">size</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])))</span>
+    <span class="hl-bracket">}</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The first star is two triangles, a hexagram; every point of it gets the</span>
+<span class="hl-comment">// next level's triangle two thirds of the way out.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">snowflake</span> <span class="hl-operator">=</span> <span class="hl-builtin">min</span><span class="hl-bracket">(</span>
+    <span class="hl-builtin">star</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-constant">RADIUS</span><span class="hl-delimiter">,</span> <span class="hl-constant">RADIUS</span> <span class="hl-operator">/</span> <span class="hl-builtin">sqrt</span><span class="hl-bracket">(</span><span class="hl-number">3.0</span><span class="hl-bracket">)])</span><span class="hl-delimiter">,</span>
+    <span class="hl-function-call">six</span><span class="hl-bracket">(</span><span class="hl-function-call">bumps</span><span class="hl-bracket">(</span><span class="hl-constant">RADIUS</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">LEVELS</span> <span class="hl-operator">-</span> <span class="hl-number">1</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">RADIUS</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-operator">/</span> <span class="hl-number">3.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Vase ---</span>
+
+<span class="hl-comment">// OpenSCAD's linear_extrude(scale = WIDEN, twist = TURN), whose twist turns</span>
+<span class="hl-comment">// clockwise.  The cylinder around it changes no value, but tells interval</span>
+<span class="hl-comment">// arithmetic where the vase ends, which a turning profile hides.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">vase</span> <span class="hl-operator">=</span> <span class="hl-builtin">loft</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-property-name">shape</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">snowflake</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">#{</span><span class="hl-property-name">z</span><span class="hl-delimiter">:</span> <span class="hl-constant">HEIGHT</span><span class="hl-delimiter">,</span> <span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-constant">WIDEN</span><span class="hl-delimiter">,</span> <span class="hl-property-name">angle</span><span class="hl-delimiter">:</span> <span class="hl-operator">-</span><span class="hl-constant">TURN</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">vase</span> <span class="hl-operator">=</span> <span class="hl-builtin">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">vase</span><span class="hl-delimiter">,</span> <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-constant">RADIUS</span> <span class="hl-operator">*</span> <span class="hl-constant">WIDEN</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">model</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-constant">WALL</span> <span class="hl-operator">&gt;</span> <span class="hl-number">0.0</span> <span class="hl-bracket">{</span>
+    <span class="hl-variable-use">vase</span><span class="hl-delimiter">.</span><span class="hl-function-call">shell</span><span class="hl-bracket">(</span><span class="hl-constant">WALL</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-constant">HEIGHT</span> <span class="hl-operator">-</span> <span class="hl-constant">WALL</span><span class="hl-bracket">))</span>
+<span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span>
+    <span class="hl-variable-use">vase</span>
+<span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">bounds</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">47</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">47</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">47</span><span class="hl-delimiter">,</span> <span class="hl-number">47</span><span class="hl-delimiter">,</span> <span class="hl-constant">HEIGHT</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">resolution</span><span class="hl-bracket">(</span><span class="hl-number">5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">model</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

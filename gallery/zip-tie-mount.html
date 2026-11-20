@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>zip-tie-mount</title>
+<meta name="description" content="Zip-tie mount: a base that screws or sticks to a surface, with a bridge for a cable tie to pass under, to hold cables along a wall or a desk." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">zip-tie-mount</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://tangled.org/rei.gay/keycap">keycap</a></span></p>
+
+<p>
+Zip-tie mount: a base that screws or sticks to a surface, with a bridge
+for a cable tie to pass under, to hold cables along a wall or a desk.
+</p>
+
+<p>
+The tie runs across the base, under the bridge; the cables lie along
+it, over the bridge and the screws&rsquo; countersunk heads.  The ties&rsquo;
+widths are the usual metric ones; their thicknesses are the thickest of
+Wandu&rsquo;s table (wanducn.com, &ldquo;How Thick Is a Zip Tie&rdquo;), as makers differ.
+</p>
+
+<p>
+Prints on its base, without supports: the tunnel&rsquo;s roof is a 45-degree
+gable instead of a flat bridge.
+</p>
+
+<p>
+Unverified: the print without supports.
+</p>
+
+<a href="frames/zip-tie-mount-53f1774a008548b7.png"><img src="frames/zip-tie-mount-53f1774a008548b7.png" width="800" height="600" fetchpriority="high" alt="zip-tie-mount, shaded, from the front right"></a>
+
+<a href="frames/zip-tie-mount-78fc933b480352fd.png"><img src="frames/zip-tie-mount-78fc933b480352fd.png" width="800" height="600" loading="lazy" alt="zip-tie-mount, shaded, from the back left"></a>
+
+<a href="frames/zip-tie-mount-01ad834d1ac8ef43.png"><img src="frames/zip-tie-mount-01ad834d1ac8ef43.png" width="800" height="600" loading="lazy" alt="zip-tie-mount, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/zip-tie-mount.keycap"><code>zip-tie-mount.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Zip-tie mount: a base that screws or sticks to a surface, with a bridge</span>
+<span class="hl-comment">// for a cable tie to pass under, to hold cables along a wall or a desk.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The tie runs across the base, under the bridge; the cables lie along</span>
+<span class="hl-comment">// it, over the bridge and the screws' countersunk heads.  The ties'</span>
+<span class="hl-comment">// widths are the usual metric ones; their thicknesses are the thickest of</span>
+<span class="hl-comment">// Wandu's table (wanducn.com, "How Thick Is a Zip Tie"), as makers differ.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Prints on its base, without supports: the tunnel's roof is a 45-degree</span>
+<span class="hl-comment">// gable instead of a flat bridge.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Unverified: the print without supports.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">TIES</span> <span class="hl-operator">=</span> <span class="hl-bracket">#{</span>
+    <span class="hl-string">"2.5"</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">2.5</span><span class="hl-delimiter">,</span> <span class="hl-number">1.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>      <span class="hl-comment">// width and thickness</span>
+    <span class="hl-string">"3.6"</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">3.6</span><span class="hl-delimiter">,</span> <span class="hl-number">1.2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-string">"4.8"</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">4.8</span><span class="hl-delimiter">,</span> <span class="hl-number">1.4</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TIE</span> <span class="hl-operator">=</span> <span class="hl-string">"3.6"</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">CLEARANCE</span> <span class="hl-operator">=</span> <span class="hl-number">0.4</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// round the tie, on each side</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">MOUNT</span> <span class="hl-operator">=</span> <span class="hl-string">"screw"</span><span class="hl-delimiter">;</span>      <span class="hl-comment">// "screw" (two countersunk M3) or "adhesive" (a flat base for foam tape)</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BASE</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">30.0</span><span class="hl-delimiter">,</span> <span class="hl-number">16.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>  <span class="hl-comment">// along the cables, and across them</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BASE_T</span> <span class="hl-operator">=</span> <span class="hl-number">3.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// takes an M3 countersunk head</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ROOF</span> <span class="hl-operator">=</span> <span class="hl-number">1.6</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// above the gable's peak</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">WALL</span> <span class="hl-operator">=</span> <span class="hl-number">2.4</span><span class="hl-delimiter">;</span>           <span class="hl-comment">// either side of the tunnel</span>
+
+<span class="hl-comment">// --- Base ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">base</span> <span class="hl-operator">=</span> <span class="hl-builtin">rect</span><span class="hl-bracket">(</span><span class="hl-constant">BASE</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">3</span><span class="hl-bracket">})</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">BASE_T</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-property-name">chamfer</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0.4</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]})</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Bridge ---</span>
+
+<span class="hl-comment">// The tunnel's section, across Y: a rectangle as wide and as tall as the</span>
+<span class="hl-comment">// tie and its clearance, under a gable whose sides rise at 45 degrees, so</span>
+<span class="hl-comment">// that each layer of the roof rests on the one below.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">tie</span> <span class="hl-operator">=</span> <span class="hl-constant">TIES</span><span class="hl-bracket">[</span><span class="hl-constant">TIE</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">w</span> <span class="hl-operator">=</span> <span class="hl-variable-use">tie</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">CLEARANCE</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">h</span> <span class="hl-operator">=</span> <span class="hl-variable-use">tie</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">CLEARANCE</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">section</span> <span class="hl-operator">=</span> <span class="hl-builtin">polygon</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-variable-use">w</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">w</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">w</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span> <span class="hl-operator">+</span> <span class="hl-variable-use">w</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-variable-use">w</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">tunnel</span> <span class="hl-operator">=</span> <span class="hl-variable-use">section</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">(</span><span class="hl-constant">BASE</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">+</span> <span class="hl-number">2</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_x</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">BASE_T</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The block the tunnel goes through, a little shorter than the base is</span>
+<span class="hl-comment">// wide, so that the fillet runs round its ends too.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">top</span> <span class="hl-operator">=</span> <span class="hl-constant">BASE_T</span> <span class="hl-operator">+</span> <span class="hl-variable-use">h</span> <span class="hl-operator">+</span> <span class="hl-variable-use">w</span> <span class="hl-operator">/</span> <span class="hl-number">2</span> <span class="hl-operator">+</span> <span class="hl-constant">ROOF</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">block</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-variable-use">w</span> <span class="hl-operator">+</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">WALL</span><span class="hl-delimiter">,</span> <span class="hl-constant">BASE</span><span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">top</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-number">1</span><span class="hl-bracket">})</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">top</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Screws ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">cutters</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-variable-use">tunnel</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">if</span> <span class="hl-constant">MOUNT</span> <span class="hl-operator">==</span> <span class="hl-string">"screw"</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">spread</span> <span class="hl-operator">=</span> <span class="hl-constant">BASE</span><span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-bracket">]</span> <span class="hl-operator">-</span> <span class="hl-number">9</span><span class="hl-delimiter">;</span>
+    <span class="hl-variable-use">cutters</span><span class="hl-delimiter">.</span><span class="hl-function-call">push</span><span class="hl-bracket">(</span>
+        <span class="hl-builtin">screw_hole</span><span class="hl-bracket">(</span><span class="hl-string">"M3"</span><span class="hl-delimiter">,</span> <span class="hl-constant">BASE_T</span> <span class="hl-operator">+</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">head</span><span class="hl-delimiter">:</span> <span class="hl-string">"countersunk"</span><span class="hl-bracket">})</span>
+            <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">BASE_T</span><span class="hl-bracket">])</span>
+            <span class="hl-delimiter">.</span><span class="hl-function-call">linear_array</span><span class="hl-bracket">([</span><span class="hl-variable-use">spread</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span>
+    <span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Mount ---</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-builtin">union_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">base</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">block</span><span class="hl-delimiter">,</span> <span class="hl-number">1.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">cutters</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">z</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

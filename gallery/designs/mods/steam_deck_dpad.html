@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>steam_deck_dpad</title>
+<meta name="description" content="Replacement Steam Deck d-pad: a cross in a circle, rounded on top, with a rim and a support underneath, and four slanted buttons that sit in it on the console's domes." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../style.449e415602.css">
+<link rel="preload" href="../../../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../../../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../../../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../../../tutorial/index.html">Tutorial</a><a href="../../../manual/index.html">Manual</a><a href="../../../gallery/index.html" aria-current="page">Gallery</a><a href="../../../install.html">Install</a><a href="../../../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">steam_deck_dpad</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/mods/steam_deck_dpad.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>mods/steam_deck_dpad.scad</code></a><a class="printables" href="https://www.printables.com/model/1426078">Printables</a></p>
+
+<p class="idiom-why"><a class="idiom" href="../../../gallery/index.html#idioms">mixed</a> <code>steam_deck_dpad.keycap</code>: the buttons' outline is a pentagon of points, shrunk by points::miter_offset</p>
+<p class="idiom-why"><a class="idiom" href="../../../gallery/index.html#idioms">sdf-native</a> <code>steam_deck_dpad_sdf.keycap</code>: the buttons' outline is the planes that bound it</p>
+
+<p>
+Replacement Steam Deck d-pad: a cross in a circle, rounded on top, with
+a rim and a support underneath, and four slanted buttons that sit in it
+on the console&rsquo;s domes.
+</p>
+
+<p>
+The Steam Deck is Valve&rsquo;s; this part is not made or endorsed by Valve.
+</p>
+
+<p>
+Ported from src/mods/steam_deck_dpad.scad.  Differences:
+</p>
+<ul class="org-ul">
+<li>Minkowski sums with a hemisphere are rims rounded on top only, or an
+offset cut at the base; the cross&rsquo;s and the buttons&rsquo; corners, opened
+with offset(-r) before them in the original, are rounded where their
+straight sides meet the circle by intersection_round, an elliptic arc
+rather than a circular one off a right angle.</li>
+<li>The support&rsquo;s cut-out, a projection of the buttons&rsquo; cutters in the
+original, is their profiles.</li>
+<li>Circles are round: the original&rsquo;s are 96-gons, the hemispheres 24-gons.</li>
+</ul>
+
+<ul class="org-ul checked">
+<li>Compared with the original: within 0.20 mm, at the rim&rsquo;s corners.</li>
+</ul>
+
+<a href="frames/steam_deck_dpad-53b1cfcac37cef79.png"><img src="frames/steam_deck_dpad-53b1cfcac37cef79.png" width="800" height="600" fetchpriority="high" alt="steam_deck_dpad, shaded, from the front right"></a>
+
+<a href="frames/steam_deck_dpad-c22460f3241c6a72.png"><img src="frames/steam_deck_dpad-c22460f3241c6a72.png" width="800" height="600" loading="lazy" alt="steam_deck_dpad, shaded, from the back left"></a>
+
+<a href="frames/steam_deck_dpad-441894b23d0ed95f.png"><img src="frames/steam_deck_dpad-441894b23d0ed95f.png" width="800" height="600" loading="lazy" alt="steam_deck_dpad, its distance field on a slice across Y"></a>
+<section id="outline-container-rewritten-with-fields" class="outline-2">
+<h2 id="rewritten-with-fields"><a href="#rewritten-with-fields">Rewritten with fields</a></h2>
+<div class="outline-text-2" id="text-rewritten-with-fields">
+<p>
+Replacement Steam Deck d-pad, steam_deck_dpad.keycap with its buttons&rsquo;
+outline drawn as fields: the pentagon&rsquo;s sides are planes as distances,
+where steam_deck_dpad.keycap shrinks a pentagon of points.
+</p>
+
+<div class="pair">
+<figure>
+<a href="frames/steam_deck_dpad-53b1cfcac37cef79.png"><img src="frames/steam_deck_dpad-53b1cfcac37cef79.png" width="800" height="600" loading="lazy" alt="steam_deck_dpad.keycap"></a>
+
+<figcaption><code>steam_deck_dpad.keycap</code> <span class="idiom">mixed</span></figcaption></figure>
+<figure>
+<a href="frames/steam_deck_dpad_sdf-3b8a732ccb853e1d.png"><img src="frames/steam_deck_dpad_sdf-3b8a732ccb853e1d.png" width="800" height="600" loading="lazy" alt="steam_deck_dpad_sdf.keycap"></a>
+
+<figcaption><code>steam_deck_dpad_sdf.keycap</code> <span class="idiom">sdf-native</span></figcaption></figure>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&#xa0;</th>
+<th scope="col" class="org-right"><code>steam_deck_dpad.keycap</code></th>
+<th scope="col" class="org-right"><code>steam_deck_dpad_sdf.keycap</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Nodes</td>
+<td class="org-right">662</td>
+<td class="org-right">460</td>
+</tr>
+
+<tr>
+<td class="org-left">Shaded render, CPU-s</td>
+<td class="org-right">2.1</td>
+<td class="org-right">1.9</td>
+</tr>
+
+<tr>
+<td class="org-left">Export at 10 cells per mm, CPU-s</td>
+<td class="org-right">63</td>
+<td class="org-right">59</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>Max deviation: 0.24 mm at the buttons&rsquo; corners that turn by 45 degrees</li>
+<li>Trade-off: the port&rsquo;s pentagon is convex, which keycap already draws as cheaply as planes, so the rewrite saves a tenth of the render and a twentieth of the export, and gives up the circular rounds at two of each button&rsquo;s corners.</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../../../designs/mods/steam_deck_dpad.keycap"><code>steam_deck_dpad.keycap</code></a></li>
+<li><a href="../../../designs/mods/steam_deck_dpad_sdf.keycap"><code>steam_deck_dpad_sdf.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+</div>
+<div id="outline-container-steam-deck-dpad-keycap" class="outline-3">
+<h3 id="steam-deck-dpad-keycap"><a href="#steam-deck-dpad-keycap"><code>steam_deck_dpad.keycap</code></a></h3>
+<div class="outline-text-3" id="text-steam-deck-dpad-keycap">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// Replacement Steam Deck d-pad: a cross in a circle, rounded on top, with</span>
+<span class="hl-comment">// a rim and a support underneath, and four slanted buttons that sit in it</span>
+<span class="hl-comment">// on the console's domes.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The Steam Deck is Valve's; this part is not made or endorsed by Valve.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from src/mods/steam_deck_dpad.scad.  Differences:</span>
+<span class="hl-comment">// - Minkowski sums with a hemisphere are rims rounded on top only, or an</span>
+<span class="hl-comment">//   offset cut at the base; the cross's and the buttons' corners, opened</span>
+<span class="hl-comment">//   with offset(-r) before them in the original, are rounded where their</span>
+<span class="hl-comment">//   straight sides meet the circle by intersection_round, an elliptic arc</span>
+<span class="hl-comment">//   rather than a circular one off a right angle.</span>
+<span class="hl-comment">// - The support's cut-out, a projection of the buttons' cutters in the</span>
+<span class="hl-comment">//   original, is their profiles.</span>
+<span class="hl-comment">// - Circles are round: the original's are 96-gons, the hemispheres 24-gons.</span>
+
+<span class="hl-comment">// idiom mixed: the buttons' outline is a pentagon of points, shrunk by points::miter_offset</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/points"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">points</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_WIDTH</span> <span class="hl-operator">=</span> <span class="hl-number">8.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">=</span> <span class="hl-number">23.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">4.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_RIM_WIDTH</span> <span class="hl-operator">=</span> <span class="hl-number">1.2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_RIM_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">0.8</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_RIM_LEFT_REDUCTION</span> <span class="hl-operator">=</span> <span class="hl-number">4.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">6.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_GAP</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_SLANT</span> <span class="hl-operator">=</span> <span class="hl-number">7.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_RIM_WIDTH</span> <span class="hl-operator">=</span> <span class="hl-number">0.6</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_RIM_HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_TOLERANCE</span> <span class="hl-operator">=</span> <span class="hl-number">0.2</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DOME_DISTANCE</span> <span class="hl-operator">=</span> <span class="hl-number">16.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DOME_RELAXED_HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">2.8</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DOME_RADIUS1</span> <span class="hl-operator">=</span> <span class="hl-number">3.75</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DOME_RADIUS2</span> <span class="hl-operator">=</span> <span class="hl-number">2.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PIN_HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">1.3</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PIN_RADIUS</span> <span class="hl-operator">=</span> <span class="hl-number">2.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">E</span> <span class="hl-operator">=</span> <span class="hl-number">0.01</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Profiles ---</span>
+
+<span class="hl-comment">// A button's outline, on +X: a bar from the circle in to a point, with a</span>
+<span class="hl-comment">// diamond's tip, `grow` wider on each side and twice that shorter, as the</span>
+<span class="hl-comment">// rim's is.  The bar and the diamond make one convex pentagon.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button_points</span><span class="hl-bracket">(</span><span class="hl-variable-name">grow</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bx</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_GAP</span> <span class="hl-operator">*</span> <span class="hl-constant">SQRT_2</span> <span class="hl-operator">-</span> <span class="hl-variable-use">grow</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">by</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_WIDTH</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span> <span class="hl-operator">+</span> <span class="hl-variable-use">grow</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">left</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_DISTANCE</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-variable-use">bx</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">right</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_DISTANCE</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">+</span> <span class="hl-variable-use">bx</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-bracket">[[</span><span class="hl-variable-use">left</span> <span class="hl-operator">-</span> <span class="hl-variable-use">by</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">left</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">by</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">right</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">by</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">right</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">by</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">left</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">by</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">]]</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The pentagon cut by the circle, shrunk by `shrink`, its corners rounded</span>
+<span class="hl-comment">// by `r`.  With `r` 0 the corners stay sharp, but where the sides meet</span>
+<span class="hl-comment">// square their field is the exact distance, which an offset rounds as a</span>
+<span class="hl-comment">// Minkowski sum does.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button_outline</span><span class="hl-bracket">(</span><span class="hl-variable-name">grow</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">shrink</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">r</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">corners</span> <span class="hl-operator">=</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-function-call">miter_offset</span><span class="hl-bracket">(</span><span class="hl-function-call">button_points</span><span class="hl-bracket">(</span><span class="hl-variable-use">grow</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">shrink</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">pentagon</span> <span class="hl-operator">=</span> <span class="hl-keyword">if</span> <span class="hl-variable-use">r</span> <span class="hl-operator">==</span> <span class="hl-number">0.0</span> <span class="hl-bracket">{</span> <span class="hl-builtin">polygon</span><span class="hl-bracket">(</span><span class="hl-variable-use">corners</span><span class="hl-bracket">)</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-builtin">rounded_polygon</span><span class="hl-bracket">(</span><span class="hl-variable-use">corners</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-bracket">)</span> <span class="hl-bracket">}</span><span class="hl-delimiter">;</span>
+    <span class="hl-variable-use">pentagon</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection_round</span><span class="hl-bracket">(</span><span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">-</span> <span class="hl-variable-use">shrink</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The button's outline without its rim, opened by the rounding.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button_opened</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">button_outline</span><span class="hl-bracket">(</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_ROUNDING</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button_rim_profile</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">button_outline</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_RIM_WIDTH</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_ROUNDING</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The cross in the circle, as two convex bars cut by the circle, each with</span>
+<span class="hl-comment">// its corners opened by `r`.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">body_outline</span><span class="hl-bracket">(</span><span class="hl-variable-name">r</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">c</span> <span class="hl-operator">=</span> <span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-comment">// Longer than the circle, so that it alone makes the ends.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">long</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bars</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_WIDTH</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">long</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-variable-use">long</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_WIDTH</span><span class="hl-bracket">])]</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">bars</span><span class="hl-delimiter">.</span><span class="hl-function-call">map</span><span class="hl-bracket">(|</span><span class="hl-variable-name">bar</span><span class="hl-bracket">|</span> <span class="hl-variable-use">bar</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">c</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-bracket">)))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The rim round the cross, cut straight on the left.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">rim_profile</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">left</span> <span class="hl-operator">=</span> <span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_RIM_LEFT_REDUCTION</span><span class="hl-delimiter">;</span>
+    <span class="hl-function-call">body_outline</span><span class="hl-bracket">(</span><span class="hl-number">0.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_RIM_WIDTH</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">left</span> <span class="hl-operator">-</span> <span class="hl-variable-use">x</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Buttons ---</span>
+
+<span class="hl-comment">// A button: its outline, shrunk by the tolerance and the rounding, under</span>
+<span class="hl-comment">// a slanted top, grown back by the rounding all round but below; and its</span>
+<span class="hl-comment">// rim at the foot.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_ROUNDING</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">h</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_HEIGHT</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">inner</span> <span class="hl-operator">=</span> <span class="hl-function-call">button_outline</span><span class="hl-bracket">(</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_TOLERANCE</span> <span class="hl-operator">+</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">slant</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_WIDTH</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_y</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_SLANT</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-comment">// A radius of 0 rounds nothing, and leaves the exact distance to the</span>
+    <span class="hl-comment">// edge where the walls meet the top, which the offset rounds; the two</span>
+    <span class="hl-comment">// tops meet nearly flat, where max is close to exact.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">top</span> <span class="hl-operator">=</span> <span class="hl-builtin">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-variable-use">h</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">slant</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">base</span> <span class="hl-operator">=</span> <span class="hl-variable-use">inner</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">top</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-variable-use">s</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">z</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">rim</span> <span class="hl-operator">=</span> <span class="hl-function-call">button_rim_profile</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_TOLERANCE</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_RIM_HEIGHT</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">base</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">rim</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// What a button takes out of the d-pad: its opened outline right through,</span>
+<span class="hl-comment">// and its rim's outline from below up past the rim.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button_cutter</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+        <span class="hl-function-call">button_opened</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">(</span><span class="hl-number">100</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-function-call">button_rim_profile</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">100</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_RIM_HEIGHT</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_TOLERANCE</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- D-pad ---</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">dpad</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">body</span> <span class="hl-operator">=</span> <span class="hl-function-call">body_outline</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_THICKNESS</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span><span class="hl-bracket">]})</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">rim</span> <span class="hl-operator">=</span> <span class="hl-function-call">rim_profile</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_RIM_THICKNESS</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">support</span> <span class="hl-operator">=</span> <span class="hl-function-call">rim_profile</span><span class="hl-bracket">()</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">button_opened</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-function-call">button_rim_profile</span><span class="hl-bracket">())</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_polar</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RELAXED_HEIGHT</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">floor</span> <span class="hl-operator">=</span> <span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RELAXED_HEIGHT</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">pin</span> <span class="hl-operator">=</span> <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PIN_RADIUS</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">floor</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">floor</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PIN_HEIGHT</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">dome</span> <span class="hl-operator">=</span> <span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RADIUS1</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RADIUS2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">floor</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">floor</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RADIUS1</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RADIUS2</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_DISTANCE</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">body</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">rim</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">support</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">button_cutter</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">dome</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_polar</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">pin</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Assembly ---</span>
+
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">dpad</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-number">0.533</span><span class="hl-delimiter">,</span> <span class="hl-number">0.533</span><span class="hl-delimiter">,</span> <span class="hl-number">0.733</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">button</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_polar</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.733</span><span class="hl-delimiter">,</span> <span class="hl-number">0.4</span><span class="hl-delimiter">,</span> <span class="hl-number">0.4</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-steam-deck-dpad-sdf-keycap" class="outline-3">
+<h3 id="steam-deck-dpad-sdf-keycap"><a href="#steam-deck-dpad-sdf-keycap"><code>steam_deck_dpad_sdf.keycap</code></a></h3>
+<div class="outline-text-3" id="text-steam-deck-dpad-sdf-keycap">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// Replacement Steam Deck d-pad, steam_deck_dpad.keycap with its buttons'</span>
+<span class="hl-comment">// outline drawn as fields: the pentagon's sides are planes as distances,</span>
+<span class="hl-comment">// where steam_deck_dpad.keycap shrinks a pentagon of points.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// The Steam Deck is Valve's; this part is not made or endorsed by Valve.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Differences from steam_deck_dpad.keycap:</span>
+<span class="hl-comment">// - Shrinking the buttons moves every side in, keeping the corners sharp,</span>
+<span class="hl-comment">//   as points::miter_offset does; intersection_round then rounds them, its</span>
+<span class="hl-comment">//   round at the two corners that turn by 45 degrees hg_sdf's, up to</span>
+<span class="hl-comment">//   0.24 mm inside the circular one.</span>
+
+<span class="hl-comment">// idiom sdf-native: the buttons' outline is the planes that bound it</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_WIDTH</span> <span class="hl-operator">=</span> <span class="hl-number">8.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">=</span> <span class="hl-number">23.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">4.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_RIM_WIDTH</span> <span class="hl-operator">=</span> <span class="hl-number">1.2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_RIM_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">0.8</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_RIM_LEFT_REDUCTION</span> <span class="hl-operator">=</span> <span class="hl-number">4.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">6.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_GAP</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_SLANT</span> <span class="hl-operator">=</span> <span class="hl-number">7.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_RIM_WIDTH</span> <span class="hl-operator">=</span> <span class="hl-number">0.6</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_RIM_HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BUTTON_TOLERANCE</span> <span class="hl-operator">=</span> <span class="hl-number">0.2</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">DOME_DISTANCE</span> <span class="hl-operator">=</span> <span class="hl-number">16.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DOME_RELAXED_HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">2.8</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DOME_RADIUS1</span> <span class="hl-operator">=</span> <span class="hl-number">3.75</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">DOME_RADIUS2</span> <span class="hl-operator">=</span> <span class="hl-number">2.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">PIN_HEIGHT</span> <span class="hl-operator">=</span> <span class="hl-number">1.3</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PIN_RADIUS</span> <span class="hl-operator">=</span> <span class="hl-number">2.5</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">E</span> <span class="hl-operator">=</span> <span class="hl-number">0.01</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Profiles ---</span>
+
+<span class="hl-comment">// A button's outline, on +X: a bar from the circle in to a point, with a</span>
+<span class="hl-comment">// diamond's tip, `grow` wider on each side and twice that shorter, as the</span>
+<span class="hl-comment">// rim's is; cut by the circle, every side moved in by `shrink`, the</span>
+<span class="hl-comment">// corners rounded by `r`.  With `r` 0 the corners stay sharp, but where</span>
+<span class="hl-comment">// the sides meet square their field is the exact distance, which an</span>
+<span class="hl-comment">// offset rounds as a Minkowski sum does.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button_outline</span><span class="hl-bracket">(</span><span class="hl-variable-name">grow</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">shrink</span><span class="hl-delimiter">,</span> <span class="hl-variable-name">r</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bx</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_GAP</span> <span class="hl-operator">*</span> <span class="hl-constant">SQRT_2</span> <span class="hl-operator">-</span> <span class="hl-variable-use">grow</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">half</span> <span class="hl-operator">=</span> <span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_WIDTH</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">+</span> <span class="hl-variable-use">grow</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">right</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_DISTANCE</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">+</span> <span class="hl-variable-use">bx</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">tip</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_DISTANCE</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-variable-use">bx</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-variable-use">half</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">sides</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span>
+        <span class="hl-builtin">abs</span><span class="hl-bracket">(</span><span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-variable-use">half</span><span class="hl-delimiter">,</span>
+        <span class="hl-variable-use">x</span> <span class="hl-operator">-</span> <span class="hl-variable-use">right</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">(</span><span class="hl-variable-use">tip</span> <span class="hl-operator">-</span> <span class="hl-variable-use">x</span> <span class="hl-operator">+</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-constant">SQRT_2</span><span class="hl-delimiter">,</span>
+        <span class="hl-bracket">(</span><span class="hl-variable-use">tip</span> <span class="hl-operator">-</span> <span class="hl-variable-use">x</span> <span class="hl-operator">-</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">/</span> <span class="hl-constant">SQRT_2</span><span class="hl-delimiter">,</span>
+        <span class="hl-builtin">hypot</span><span class="hl-bracket">(</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">y</span><span class="hl-bracket">)</span> <span class="hl-operator">-</span> <span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">intersection_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">sides</span><span class="hl-delimiter">.</span><span class="hl-function-call">map</span><span class="hl-bracket">(|</span><span class="hl-variable-name">side</span><span class="hl-bracket">|</span> <span class="hl-variable-use">side</span> <span class="hl-operator">+</span> <span class="hl-variable-use">shrink</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The button's outline without its rim, opened by the rounding.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button_opened</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">button_outline</span><span class="hl-bracket">(</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_ROUNDING</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button_rim_profile</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">button_outline</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_RIM_WIDTH</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_ROUNDING</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The cross in the circle, as two convex bars cut by the circle, each with</span>
+<span class="hl-comment">// its corners opened by `r`.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">body_outline</span><span class="hl-bracket">(</span><span class="hl-variable-name">r</span><span class="hl-bracket">)</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">c</span> <span class="hl-operator">=</span> <span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-comment">// Longer than the circle, so that it alone makes the ends.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">long</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bars</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_WIDTH</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">long</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-variable-use">long</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_WIDTH</span><span class="hl-bracket">])]</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">bars</span><span class="hl-delimiter">.</span><span class="hl-function-call">map</span><span class="hl-bracket">(|</span><span class="hl-variable-name">bar</span><span class="hl-bracket">|</span> <span class="hl-variable-use">bar</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">c</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span><span class="hl-bracket">)))</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The rim round the cross, cut straight on the left.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">rim_profile</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">left</span> <span class="hl-operator">=</span> <span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_RIM_LEFT_REDUCTION</span><span class="hl-delimiter">;</span>
+    <span class="hl-function-call">body_outline</span><span class="hl-bracket">(</span><span class="hl-number">0.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_RIM_WIDTH</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">left</span> <span class="hl-operator">-</span> <span class="hl-variable-use">x</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Buttons ---</span>
+
+<span class="hl-comment">// A button: its outline, shrunk by the tolerance and the rounding, under</span>
+<span class="hl-comment">// a slanted top, grown back by the rounding all round but below; and its</span>
+<span class="hl-comment">// rim at the foot.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">s</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_ROUNDING</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">h</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_HEIGHT</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">inner</span> <span class="hl-operator">=</span> <span class="hl-function-call">button_outline</span><span class="hl-bracket">(</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_TOLERANCE</span> <span class="hl-operator">+</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-number">0.0</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">slant</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_WIDTH</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_y</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_SLANT</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_DIAMETER</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span> <span class="hl-operator">-</span> <span class="hl-variable-use">s</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">h</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-comment">// A radius of 0 rounds nothing, and leaves the exact distance to the</span>
+    <span class="hl-comment">// edge where the walls meet the top, which the offset rounds; the two</span>
+    <span class="hl-comment">// tops meet nearly flat, where max is close to exact.</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">top</span> <span class="hl-operator">=</span> <span class="hl-builtin">max</span><span class="hl-bracket">(</span><span class="hl-variable-use">z</span> <span class="hl-operator">-</span> <span class="hl-variable-use">h</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">slant</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">base</span> <span class="hl-operator">=</span> <span class="hl-variable-use">inner</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection_round</span><span class="hl-bracket">(</span><span class="hl-variable-use">top</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-variable-use">s</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">z</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">rim</span> <span class="hl-operator">=</span> <span class="hl-function-call">button_rim_profile</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_TOLERANCE</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_RIM_HEIGHT</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">base</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">rim</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// What a button takes out of the d-pad: its opened outline right through,</span>
+<span class="hl-comment">// and its rim's outline from below up past the rim.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">button_cutter</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+        <span class="hl-function-call">button_opened</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">(</span><span class="hl-number">100</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+        <span class="hl-function-call">button_rim_profile</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">100</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_RIM_HEIGHT</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BUTTON_TOLERANCE</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- D-pad ---</span>
+
+<span class="hl-keyword">fn</span> <span class="hl-function-name">dpad</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">body</span> <span class="hl-operator">=</span> <span class="hl-function-call">body_outline</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_THICKNESS</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">round</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_ROUNDING</span><span class="hl-bracket">]})</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">rim</span> <span class="hl-operator">=</span> <span class="hl-function-call">rim_profile</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DPAD_RIM_THICKNESS</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">support</span> <span class="hl-operator">=</span> <span class="hl-function-call">rim_profile</span><span class="hl-bracket">()</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">button_opened</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-function-call">button_rim_profile</span><span class="hl-bracket">())</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_polar</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RELAXED_HEIGHT</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">floor</span> <span class="hl-operator">=</span> <span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RELAXED_HEIGHT</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">pin</span> <span class="hl-operator">=</span> <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PIN_RADIUS</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">floor</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">floor</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">PIN_HEIGHT</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">dome</span> <span class="hl-operator">=</span> <span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RADIUS1</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RADIUS2</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">floor</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">floor</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RADIUS1</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_RADIUS2</span><span class="hl-bracket">])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">DOME_DISTANCE</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">body</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">rim</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">support</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">button_cutter</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">E</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">dome</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_polar</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">))</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">pin</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Assembly ---</span>
+
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">dpad</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-number">0.533</span><span class="hl-delimiter">,</span> <span class="hl-number">0.533</span><span class="hl-delimiter">,</span> <span class="hl-number">0.733</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-builtin">draw_rgb</span><span class="hl-bracket">(</span><span class="hl-function-call">button</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_polar</span><span class="hl-bracket">(</span><span class="hl-number">4</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-number">0.733</span><span class="hl-delimiter">,</span> <span class="hl-number">0.4</span><span class="hl-delimiter">,</span> <span class="hl-number">0.4</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

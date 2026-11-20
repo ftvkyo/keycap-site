@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>hex-bowl</title>
+<meta name="description" content="Hex bowl: a shallow hexagonal bowl with rounded edges, its floor and walls pierced by a honeycomb of hexagonal holes." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">hex-bowl</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/organisation/hexbowl.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>organisation/hexbowl.scad</code></a></p>
+
+<p>
+Hex bowl: a shallow hexagonal bowl with rounded edges, its floor and
+walls pierced by a honeycomb of hexagonal holes.
+</p>
+
+<p>
+Ported from <code>src/organisation/hexbowl.scad</code>.  The hollow is
+revolved round, where the original&rsquo;s has 60 facets, and the rounding is
+a true sphere&rsquo;s, where its minkowski uses one of 48.
+</p>
+
+<p>
+Compared with the original: within 0.11 mm, at the hollow&rsquo;s facets.
+</p>
+
+<a href="frames/hex-bowl-534045ae68a2447f.png"><img src="frames/hex-bowl-534045ae68a2447f.png" width="800" height="600" fetchpriority="high" alt="hex-bowl, shaded, from the front right"></a>
+
+<a href="frames/hex-bowl-ffac474dbfb8d648.png"><img src="frames/hex-bowl-ffac474dbfb8d648.png" width="800" height="600" loading="lazy" alt="hex-bowl, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/hex-bowl.keycap"><code>hex-bowl.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Hex bowl: a shallow hexagonal bowl with rounded edges, its floor and</span>
+<span class="hl-comment">// walls pierced by a honeycomb of hexagonal holes.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/organisation/hexbowl.scad`.  The hollow is</span>
+<span class="hl-comment">// revolved round, where the original's has 60 facets, and the rounding is</span>
+<span class="hl-comment">// a true sphere's, where its minkowski uses one of 48.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.11 mm, at the hollow's facets.</span>
+
+<span class="hl-keyword">import</span> <span class="hl-string">"keycap/points"</span> <span class="hl-keyword">as</span> <span class="hl-variable-use">points</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">R</span> <span class="hl-operator">=</span> <span class="hl-number">70.0</span><span class="hl-delimiter">;</span>             <span class="hl-comment">// circumradius of the hexagon</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">H</span> <span class="hl-operator">=</span> <span class="hl-number">20.0</span><span class="hl-delimiter">;</span>             <span class="hl-comment">// height</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">FLOOR</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>          <span class="hl-comment">// floor thickness at the centre</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">HOLES</span> <span class="hl-operator">=</span> <span class="hl-constant">true</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">PITCH</span> <span class="hl-operator">=</span> <span class="hl-number">10.0</span><span class="hl-delimiter">;</span>         <span class="hl-comment">// between neighbouring holes' centres</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HOLE_R</span> <span class="hl-operator">=</span> <span class="hl-number">5.25</span><span class="hl-delimiter">;</span>        <span class="hl-comment">// hole circumradius, centre to corner</span>
+
+<span class="hl-comment">// --- Bowl ---</span>
+
+<span class="hl-comment">// A hexagonal prism with every edge rounded, cut flat at z = 0.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">base</span> <span class="hl-operator">=</span> <span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-constant">R</span> <span class="hl-operator">-</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-constant">H</span> <span class="hl-operator">-</span> <span class="hl-constant">ROUNDING</span><span class="hl-bracket">])</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-constant">ROUNDING</span><span class="hl-bracket">)</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-variable-use">z</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// The hollow: a cubic B&#233;zier from the floor's centre to the rim, revolved.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> <span class="hl-operator">=</span> <span class="hl-type">points</span><span class="hl-delimiter">::</span><span class="hl-function-call">bezier</span><span class="hl-bracket">([[</span><span class="hl-number">0.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">FLOOR</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-constant">R</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">FLOOR</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-constant">R</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-constant">H</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-constant">R</span><span class="hl-delimiter">,</span> <span class="hl-constant">H</span><span class="hl-bracket">]]</span><span class="hl-delimiter">,</span> <span class="hl-number">24</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-comment">// The profile reaches past the axis: with its edge on the axis, the</span>
+<span class="hl-comment">// hollow's field would be 0 all along it, and cutting it would leave a fin</span>
+<span class="hl-comment">// of no thickness standing in the middle.</span>
+<span class="hl-variable-use">profile</span> <span class="hl-operator">+=</span> <span class="hl-bracket">[[</span><span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-constant">R</span><span class="hl-delimiter">,</span> <span class="hl-constant">H</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-constant">R</span><span class="hl-delimiter">,</span> <span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-constant">H</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">1.0</span><span class="hl-delimiter">,</span> <span class="hl-number">2.0</span> <span class="hl-operator">*</span> <span class="hl-constant">H</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">1.0</span><span class="hl-delimiter">,</span> <span class="hl-constant">FLOOR</span><span class="hl-bracket">]]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">hollow</span> <span class="hl-operator">=</span> <span class="hl-builtin">polygon</span><span class="hl-bracket">(</span><span class="hl-variable-use">profile</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">revolve</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">bowl</span> <span class="hl-operator">=</span> <span class="hl-variable-use">base</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">hollow</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Holes ---</span>
+
+<span class="hl-comment">// A hole on a hexagonal lattice, repeated at the cost of one.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">holes</span> <span class="hl-operator">=</span> <span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-constant">HOLE_R</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">30</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">hex_grid</span><span class="hl-bracket">(</span><span class="hl-constant">PITCH</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-keyword">if</span> <span class="hl-constant">HOLES</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">bowl</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">holes</span><span class="hl-bracket">)</span> <span class="hl-bracket">}</span> <span class="hl-keyword">else</span> <span class="hl-bracket">{</span> <span class="hl-variable-use">bowl</span> <span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

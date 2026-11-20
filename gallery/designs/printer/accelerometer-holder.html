@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>accelerometer-holder</title>
+<meta name="description" content="Accelerometer holder for a printer bed: a clip that hooks over both edges of the bed, with heat-set inserts for the sensor board." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../style.449e415602.css">
+<link rel="preload" href="../../../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../../../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../../../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../../../tutorial/index.html">Tutorial</a><a href="../../../manual/index.html">Manual</a><a href="../../../gallery/index.html" aria-current="page">Gallery</a><a href="../../../install.html">Install</a><a href="../../../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">accelerometer-holder</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/printer/accelerometer-holder.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code class="long">printer/accelerometer-holder.scad</code></a></p>
+
+<p class="idiom-why"><a class="idiom" href="../../../gallery/index.html#idioms">sdf-native</a> the clip is an outline of the original's numbers, rounded and extruded</p>
+
+<p>
+Accelerometer holder for a printer bed: a clip that hooks over both edges
+of the bed, with heat-set inserts for the sensor board.
+</p>
+
+<p>
+Ported from src/printer/accelerometer-holder.scad.  The clip&rsquo;s
+cross-section is a polygon with its convex corners rounded (OpenSCAD&rsquo;s
+offset(1) offset(-1)), extruded and turned into place.
+</p>
+
+<ul class="org-ul checked">
+<li>Compared with the original: no.</li>
+</ul>
+
+<a href="frames/accelerometer-holder-6cbe2ec1470c72cc.png"><img src="frames/accelerometer-holder-6cbe2ec1470c72cc.png" width="800" height="600" fetchpriority="high" alt="accelerometer-holder, shaded, from the front right"></a>
+
+<a href="frames/accelerometer-holder-391b5a00ab6f44bb.png"><img src="frames/accelerometer-holder-391b5a00ab6f44bb.png" width="800" height="600" loading="lazy" alt="accelerometer-holder, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../../../designs/printer/accelerometer-holder.keycap"><code>accelerometer-holder.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// Accelerometer holder for a printer bed: a clip that hooks over both edges</span>
+<span class="hl-comment">// of the bed, with heat-set inserts for the sensor board.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from src/printer/accelerometer-holder.scad.  The clip's</span>
+<span class="hl-comment">// cross-section is a polygon with its convex corners rounded (OpenSCAD's</span>
+<span class="hl-comment">// offset(1) offset(-1)), extruded and turned into place.</span>
+
+<span class="hl-comment">// idiom sdf-native: the clip is an outline of the original's numbers, rounded and extruded</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">BED_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">235.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BED_THICKNESS</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HOLES_DX</span> <span class="hl-operator">=</span> <span class="hl-number">32.0</span><span class="hl-delimiter">;</span>     <span class="hl-comment">// spacing of the sensor board's mounting holes</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">T</span> <span class="hl-operator">=</span> <span class="hl-number">5.0</span><span class="hl-delimiter">;</span>             <span class="hl-comment">// wall thickness</span>
+
+<span class="hl-comment">// --- Clip ---</span>
+
+<span class="hl-comment">// Cross-section in the XY plane: the top bar along X, hooks at both ends</span>
+<span class="hl-comment">// reaching around the bed's edges (Y runs downwards into the bed).  Drawn</span>
+<span class="hl-comment">// as its +X half, the bar reaching past the axis, and mirrored.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">l</span> <span class="hl-operator">=</span> <span class="hl-constant">BED_LENGTH</span> <span class="hl-operator">/</span> <span class="hl-number">2</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">profile</span> <span class="hl-operator">=</span> <span class="hl-builtin">rounded_polygon</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">l</span> <span class="hl-operator">+</span> <span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">l</span> <span class="hl-operator">+</span> <span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">T</span> <span class="hl-operator">-</span> <span class="hl-constant">BED_THICKNESS</span> <span class="hl-operator">-</span> <span class="hl-constant">T</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">l</span> <span class="hl-operator">-</span> <span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">T</span> <span class="hl-operator">-</span> <span class="hl-constant">BED_THICKNESS</span> <span class="hl-operator">-</span> <span class="hl-constant">T</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">l</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">T</span> <span class="hl-operator">-</span> <span class="hl-constant">BED_THICKNESS</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-variable-use">l</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">T</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">T</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">concave</span><span class="hl-delimiter">:</span> <span class="hl-number">0</span><span class="hl-bracket">})</span><span class="hl-delimiter">.</span><span class="hl-function-call">symmetric_x</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// OpenSCAD's rotate([-90, 0, 90]): the profile's X becomes Y, its Y becomes</span>
+<span class="hl-comment">// -Z and the extrusion runs along X, so the bar lies on z = 0 to 5.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">clip</span> <span class="hl-operator">=</span> <span class="hl-variable-use">profile</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">(</span><span class="hl-constant">HOLES_DX</span> <span class="hl-operator">+</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_xyz</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-number">90</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">90</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Cuts ---</span>
+
+<span class="hl-comment">// M2 inserts pressed in from the bottom face, 3 mm deep, with the screw's</span>
+<span class="hl-comment">// hole through the rest.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">mount</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+    <span class="hl-builtin">insert_hole</span><span class="hl-bracket">(</span><span class="hl-string">"M2"</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">reflect_z</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span> <span class="hl-operator">*</span> <span class="hl-constant">T</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">mounts</span> <span class="hl-operator">=</span> <span class="hl-variable-use">mount</span><span class="hl-delimiter">.</span><span class="hl-function-call">linear_array</span><span class="hl-bracket">([</span><span class="hl-constant">HOLES_DX</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-number">2</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">center</span><span class="hl-delimiter">:</span> <span class="hl-constant">true</span><span class="hl-bracket">})</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// A window through the bar between the mounts.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">window</span> <span class="hl-operator">=</span> <span class="hl-builtin">cuboid</span><span class="hl-bracket">([</span><span class="hl-constant">HOLES_DX</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-constant">BED_LENGTH</span> <span class="hl-operator">-</span> <span class="hl-number">2</span> <span class="hl-operator">*</span> <span class="hl-constant">T</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span> <span class="hl-operator">*</span> <span class="hl-constant">T</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">clip</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-variable-use">mounts</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">window</span><span class="hl-bracket">)))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>singer720_hook_drive_gear</title>
+<meta name="description" content="Replacement hook drive gear for a Singer 720 sewing machine: a ring of 20 outer teeth on a revolved body, and a 27-tooth spline in its bore." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../style.449e415602.css">
+<link rel="preload" href="../../../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../../../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../../../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../../../tutorial/index.html">Tutorial</a><a href="../../../manual/index.html">Manual</a><a href="../../../gallery/index.html" aria-current="page">Gallery</a><a href="../../../install.html">Install</a><a href="../../../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">singer720_hook_drive_gear</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/mods/singer720_hook_drive_gear.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code class="long">mods/singer720_hook_drive_gear.scad</code></a></p>
+
+<p class="idiom-why"><a class="idiom" href="../../../gallery/index.html#idioms">sdf-native</a> the tooth gaps are planes through their corners, the spline a star</p>
+
+<p>
+Replacement hook drive gear for a Singer 720 sewing machine: a ring of 20
+outer teeth on a revolved body, and a 27-tooth spline in its bore.
+</p>
+
+<p>
+Ported from src/mods/singer720_hook_drive_gear.scad.  Differences:
+</p>
+<ul class="org-ul">
+<li>Each outer tooth gap is the original&rsquo;s hexahedron as the intersection
+of its faces&rsquo; planes.</li>
+<li>Round parts are round, where the original has 180 facets (0.002 mm in
+between corners).</li>
+</ul>
+
+<ul class="org-ul checked">
+<li>Compared with the original: within 0.0044 mm.</li>
+</ul>
+
+<a href="frames/singer720_hook_drive_gear-822b71f71ebefe40.png"><img src="frames/singer720_hook_drive_gear-822b71f71ebefe40.png" width="800" height="600" fetchpriority="high" alt="singer720_hook_drive_gear, shaded, from the front right"></a>
+
+<a href="frames/singer720_hook_drive_gear-0dbf54d52b6f61ba.png"><img src="frames/singer720_hook_drive_gear-0dbf54d52b6f61ba.png" width="800" height="600" loading="lazy" alt="singer720_hook_drive_gear, shaded, from the back left"></a>
+
+<a href="frames/singer720_hook_drive_gear-a37f281b5ef290ba.png"><img src="frames/singer720_hook_drive_gear-a37f281b5ef290ba.png" width="800" height="600" loading="lazy" alt="singer720_hook_drive_gear, its distance field on a slice across Y"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../../../designs/mods/singer720_hook_drive_gear.keycap"><code>singer720_hook_drive_gear.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// Replacement hook drive gear for a Singer 720 sewing machine: a ring of 20</span>
+<span class="hl-comment">// outer teeth on a revolved body, and a 27-tooth spline in its bore.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from src/mods/singer720_hook_drive_gear.scad.  Differences:</span>
+<span class="hl-comment">// - Each outer tooth gap is the original's hexahedron as the intersection</span>
+<span class="hl-comment">//   of its faces' planes.</span>
+<span class="hl-comment">// - Round parts are round, where the original has 180 facets (0.002 mm in</span>
+<span class="hl-comment">//   between corners).</span>
+
+<span class="hl-comment">// idiom sdf-native: the tooth gaps are planes through their corners, the spline a star</span>
+
+<span class="hl-comment">// --- Body ---</span>
+
+<span class="hl-comment">// The cross-section of the gear's ring, revolved.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">body</span> <span class="hl-operator">=</span> <span class="hl-builtin">polygon</span><span class="hl-bracket">([</span>
+    <span class="hl-bracket">[</span><span class="hl-number">13.75</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">13.75</span><span class="hl-delimiter">,</span> <span class="hl-number">3.25</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">8.25</span><span class="hl-delimiter">,</span> <span class="hl-number">7</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">6.75</span><span class="hl-delimiter">,</span> <span class="hl-number">7</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">6.75</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">8.33</span><span class="hl-delimiter">,</span> <span class="hl-number">2.5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+    <span class="hl-bracket">[</span><span class="hl-number">8.33</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">revolve</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Outer teeth ---</span>
+
+<span class="hl-comment">// The gap between two teeth: a hexahedron, from a wide end at the rim's</span>
+<span class="hl-comment">// foot to a narrow one at the top of the bore.  OpenSCAD lists a face's</span>
+<span class="hl-comment">// corners clockwise seen from outside, and plane_through takes them</span>
+<span class="hl-comment">// anticlockwise, so each face's corners go in reversed.  The two slanted</span>
+<span class="hl-comment">// sides are not flat, a corner 0.064 off the plane of the other three;</span>
+<span class="hl-comment">// OpenSCAD splits each into two triangles, along D-H and C-E, that meet</span>
+<span class="hl-comment">// at an outward fold, so each side is two planes.</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">A</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">18.4</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">2.25</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">B</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">18.4</span><span class="hl-delimiter">,</span> <span class="hl-number">2.25</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">C</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">14.5</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">D</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">14.5</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">E</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">8.25</span><span class="hl-delimiter">,</span> <span class="hl-number">0.8</span><span class="hl-delimiter">,</span> <span class="hl-number">7.1</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">F</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">7</span><span class="hl-delimiter">,</span> <span class="hl-number">0.33</span><span class="hl-delimiter">,</span> <span class="hl-number">7.1</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">G</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">7</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">0.33</span><span class="hl-delimiter">,</span> <span class="hl-number">7.1</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">H</span> <span class="hl-operator">=</span> <span class="hl-bracket">[</span><span class="hl-number">8.25</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">0.8</span><span class="hl-delimiter">,</span> <span class="hl-number">7.1</span><span class="hl-bracket">]</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">gap</span> <span class="hl-operator">=</span> <span class="hl-builtin">intersection</span><span class="hl-bracket">([</span>
+    <span class="hl-builtin">plane_through</span><span class="hl-bracket">(</span><span class="hl-constant">A</span><span class="hl-delimiter">,</span> <span class="hl-constant">C</span><span class="hl-delimiter">,</span> <span class="hl-constant">B</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">plane_through</span><span class="hl-bracket">(</span><span class="hl-constant">D</span><span class="hl-delimiter">,</span> <span class="hl-constant">F</span><span class="hl-delimiter">,</span> <span class="hl-constant">C</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">plane_through</span><span class="hl-bracket">(</span><span class="hl-constant">G</span><span class="hl-delimiter">,</span> <span class="hl-constant">E</span><span class="hl-delimiter">,</span> <span class="hl-constant">F</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">plane_through</span><span class="hl-bracket">(</span><span class="hl-constant">H</span><span class="hl-delimiter">,</span> <span class="hl-constant">B</span><span class="hl-delimiter">,</span> <span class="hl-constant">E</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">plane_through</span><span class="hl-bracket">(</span><span class="hl-constant">A</span><span class="hl-delimiter">,</span> <span class="hl-constant">H</span><span class="hl-delimiter">,</span> <span class="hl-constant">D</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">plane_through</span><span class="hl-bracket">(</span><span class="hl-constant">D</span><span class="hl-delimiter">,</span> <span class="hl-constant">H</span><span class="hl-delimiter">,</span> <span class="hl-constant">G</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">plane_through</span><span class="hl-bracket">(</span><span class="hl-constant">C</span><span class="hl-delimiter">,</span> <span class="hl-constant">E</span><span class="hl-delimiter">,</span> <span class="hl-constant">B</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">plane_through</span><span class="hl-bracket">(</span><span class="hl-constant">C</span><span class="hl-delimiter">,</span> <span class="hl-constant">F</span><span class="hl-delimiter">,</span> <span class="hl-constant">E</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Spline ---</span>
+
+<span class="hl-comment">// 27 teeth inside the bore, a point on +Y, their outline cut by a cone</span>
+<span class="hl-comment">// that narrows from the bore's foot up to the shoulder.</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">spline</span> <span class="hl-operator">=</span> <span class="hl-builtin">star</span><span class="hl-bracket">(</span><span class="hl-number">27</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">9.5</span><span class="hl-delimiter">,</span> <span class="hl-number">8.5</span><span class="hl-bracket">])</span><span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">90</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">extrude</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">3</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">taper</span> <span class="hl-operator">=</span> <span class="hl-builtin">polygon</span><span class="hl-bracket">([[</span><span class="hl-operator">-</span><span class="hl-number">9.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">9.5</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">9.5</span><span class="hl-delimiter">,</span> <span class="hl-number">1.5</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">6.75</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">6.75</span><span class="hl-delimiter">,</span> <span class="hl-number">4</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-number">9.5</span><span class="hl-delimiter">,</span> <span class="hl-number">1.5</span><span class="hl-bracket">]])</span><span class="hl-delimiter">.</span><span class="hl-function-call">revolve</span><span class="hl-bracket">()</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">gear</span> <span class="hl-operator">=</span> <span class="hl-variable-use">body</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">gap</span><span class="hl-delimiter">.</span><span class="hl-function-call">repeat_polar</span><span class="hl-bracket">(</span><span class="hl-number">20</span><span class="hl-bracket">))</span>
+    <span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">spline</span><span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-variable-use">taper</span><span class="hl-bracket">)</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-number">0.1</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">gear</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>

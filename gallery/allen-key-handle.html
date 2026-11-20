@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>allen-key-handle</title>
+<meta name="description" content="T-handle for a bent Allen key: a hexagonal bar whose halves curve into the stem, a screw through the bar and one through a loop in the stem." />
+<meta name="generator" content="Org Mode" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.449e415602.css">
+<link rel="preload" href="../fonts/MapleMonoNL-Regular.824786595b.woff2" as="font" type="font/woff2" crossorigin>
+<script src="../copy.5942f269fe.js" defer></script>
+</head>
+<body>
+<div id="preamble" class="status">
+<a class="skip" href="#content">Skip to the content</a><header><nav><a href="../index.html" class="logo" aria-label="keycap IDE">keycap<span class="ide">IDE</span></a><a href="../tutorial/index.html">Tutorial</a><a href="../manual/index.html">Manual</a><a href="../gallery/index.html" aria-current="page">Gallery</a><a href="../install.html">Install</a><a href="../about.html">About</a></nav></header>
+</div>
+<main id="content" class="content">
+<header>
+<h1 class="title">allen-key-handle</h1>
+<div class="review-draft"><p>Drafted with AI, not yet reviewed</p></div>
+</header><p class="credits"><span>by <a href="https://ftvkyo.me">Rei</a></span><a class="port" href="https://github.com/ftvkyo/openscad/blob/main/src/mods/allen_key_handle.scad"><svg viewBox="0 0 16 16" role="img"><title>Ported from OpenSCAD</title><rect x="1.5" y="1.5" width="6" height="6" rx="0.5"/><circle cx="11.5" cy="11.5" r="3"/><path d="M8.5 4.5h3v3.5M9.75 6.75l1.75 1.75 1.75-1.75"/></svg><code>mods/allen_key_handle.scad</code></a></p>
+
+<p>
+T-handle for a bent Allen key: a hexagonal bar whose halves curve into
+the stem, a screw through the bar and one through a loop in the stem.
+</p>
+
+<p>
+Ported from <code>src/mods/allen_key_handle.scad</code>.  Differences:
+</p>
+<ul class="org-ul">
+<li>The bar, its curves into the stem and the stem are one sweep, tapered
+tips included, mirrored about the stem; the original extrudes and
+revolves each piece.</li>
+<li>Circles are round: the original&rsquo;s key and screws are 36-gons, the bends
+96-gons and the handle&rsquo;s rounding 24-gons (under 0.01 mm).</li>
+<li>The key itself, a reference drawing in the original, is not drawn.</li>
+</ul>
+
+<p>
+Compared with the original: within 0.016 mm.
+</p>
+
+<a href="frames/allen-key-handle-01012cad1eb22aca.png"><img src="frames/allen-key-handle-01012cad1eb22aca.png" width="800" height="600" fetchpriority="high" alt="allen-key-handle, shaded, from the front right"></a>
+
+<a href="frames/allen-key-handle-456f4420150517c9.png"><img src="frames/allen-key-handle-456f4420150517c9.png" width="800" height="600" loading="lazy" alt="allen-key-handle, shaded, from the back left"></a>
+<section id="outline-container-files" class="outline-2">
+<h2 id="files"><a href="#files">Files</a></h2>
+<div class="outline-text-2" id="text-files">
+<ul class="org-ul">
+<li><a href="../examples/allen-key-handle.keycap"><code>allen-key-handle.keycap</code></a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-source" class="outline-2">
+<h2 id="source"><a href="#source">Source</a></h2>
+<div class="outline-text-2" id="text-source">
+<div class="org-src-container">
+<pre class="src src-keycap"><span class="hl-comment">// SPDX-License-Identifier: 0BSD</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// T-handle for a bent Allen key: a hexagonal bar whose halves curve into</span>
+<span class="hl-comment">// the stem, a screw through the bar and one through a loop in the stem.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Ported from `src/mods/allen_key_handle.scad`.  Differences:</span>
+<span class="hl-comment">// - The bar, its curves into the stem and the stem are one sweep, tapered</span>
+<span class="hl-comment">//   tips included, mirrored about the stem; the original extrudes and</span>
+<span class="hl-comment">//   revolves each piece.</span>
+<span class="hl-comment">// - Circles are round: the original's key and screws are 36-gons, the bends</span>
+<span class="hl-comment">//   96-gons and the handle's rounding 24-gons (under 0.01 mm).</span>
+<span class="hl-comment">// - The key itself, a reference drawing in the original, is not drawn.</span>
+<span class="hl-comment">//</span>
+<span class="hl-comment">// Compared with the original: within 0.016 mm.</span>
+
+<span class="hl-comment">// --- Parameters ---</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">KEY_R</span> <span class="hl-operator">=</span> <span class="hl-number">2.25</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">KEY_BEND_R</span> <span class="hl-operator">=</span> <span class="hl-number">7.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">KEY_X</span> <span class="hl-operator">=</span> <span class="hl-number">70.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">KEY_Y</span> <span class="hl-operator">=</span> <span class="hl-number">20.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">KEY_GAP</span> <span class="hl-operator">=</span> <span class="hl-number">0.1</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">HANDLE_R</span> <span class="hl-operator">=</span> <span class="hl-number">4.5</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">HANDLE_ROUNDING</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">BAR</span> <span class="hl-operator">=</span> <span class="hl-number">40.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">STEM</span> <span class="hl-operator">=</span> <span class="hl-number">60.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">TIP_SCALE</span> <span class="hl-operator">=</span> <span class="hl-number">0.8</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREW_R</span> <span class="hl-operator">=</span> <span class="hl-number">1.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREW_LENGTH</span> <span class="hl-operator">=</span> <span class="hl-number">6.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREW_CAP</span> <span class="hl-operator">=</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">SCREW_CAP_R</span> <span class="hl-operator">=</span> <span class="hl-number">1.75</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">const</span> <span class="hl-constant">LOOP_FACTOR</span> <span class="hl-operator">=</span> <span class="hl-number">1.75</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">const</span> <span class="hl-constant">LOOP_AT</span> <span class="hl-operator">=</span> <span class="hl-number">30.0</span><span class="hl-delimiter">;</span>
+
+<span class="hl-comment">// --- Profiles ---</span>
+
+<span class="hl-comment">// The handle's section: a hexagon with a vertex up, rounded.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">handle_profile</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-builtin">regular_polygon</span><span class="hl-bracket">(</span><span class="hl-number">6</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_R</span> <span class="hl-operator">-</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_ROUNDING</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">30</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">offset</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_ROUNDING</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The key's hole: its round section, widened by a diamond and a flat wedge</span>
+<span class="hl-comment">// that let the printed hole close round the key.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">key_hole_profile</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">KEY_R</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">KEY_GAP</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">f</span> <span class="hl-operator">=</span> <span class="hl-number">1.515</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">diamond</span> <span class="hl-operator">=</span> <span class="hl-builtin">rect</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">2.0</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-number">45</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-constant">SQRT_2</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">2.2</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">a</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-variable-use">f</span> <span class="hl-operator">*</span> <span class="hl-constant">FRAC_1_SQRT_2</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">b</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">4.0</span> <span class="hl-operator">*</span> <span class="hl-constant">FRAC_1_SQRT_2</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">wedge</span> <span class="hl-operator">=</span> <span class="hl-builtin">polygon</span><span class="hl-bracket">([[</span><span class="hl-variable-use">a</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">b</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-operator">-</span><span class="hl-variable-use">a</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-variable-use">b</span><span class="hl-bracket">]])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">intersection</span><span class="hl-bracket">(</span><span class="hl-builtin">rect</span><span class="hl-bracket">([</span><span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-number">4.0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-variable-use">f</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">circle</span><span class="hl-bracket">(</span><span class="hl-variable-use">r</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">diamond</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">wedge</span><span class="hl-bracket">)</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Handle ---</span>
+
+<span class="hl-comment">// Half the handle, from the +Y bar's tip, down the bar, round the curve and</span>
+<span class="hl-comment">// along the stem to its tip; the tips taper to TIP_SCALE.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">handle_half</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">bend</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">KEY_BEND_R</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">path</span> <span class="hl-operator">=</span> <span class="hl-bracket">[#{</span><span class="hl-property-name">line</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BAR</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span> <span class="hl-operator">-</span> <span class="hl-variable-use">bend</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">arc</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">bend</span><span class="hl-delimiter">,</span> <span class="hl-property-name">turn</span><span class="hl-delimiter">:</span> <span class="hl-number">90</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">line</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">STEM</span> <span class="hl-operator">-</span> <span class="hl-variable-use">bend</span><span class="hl-bracket">}]</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">tip</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_R</span> <span class="hl-operator">/</span> <span class="hl-builtin">sweep_length</span><span class="hl-bracket">(</span><span class="hl-variable-use">path</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">taper</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">TIP_SCALE</span><span class="hl-delimiter">;</span>
+    <span class="hl-function-call">handle_profile</span><span class="hl-bracket">()</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">sweep</span><span class="hl-bracket">(</span><span class="hl-variable-use">path</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">scale</span><span class="hl-delimiter">:</span> <span class="hl-bracket">[[</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">taper</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">tip</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">1</span> <span class="hl-operator">-</span> <span class="hl-variable-use">tip</span><span class="hl-delimiter">,</span> <span class="hl-number">1</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-number">1</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">taper</span><span class="hl-bracket">]]})</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">BAR</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The screw loop: the stem bulges round the screw in four arcs of 45</span>
+<span class="hl-comment">// degrees, from the stem and back.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">screw_loop</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">HANDLE_R</span> <span class="hl-operator">*</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">LOOP_FACTOR</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">x</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-constant">SQRT_2</span><span class="hl-delimiter">;</span>
+    <span class="hl-function-call">handle_profile</span><span class="hl-bracket">()</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">sweep</span><span class="hl-bracket">([#{</span><span class="hl-property-name">arc</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-property-name">turn</span><span class="hl-delimiter">:</span> <span class="hl-number">45</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">arc</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-property-name">turn</span><span class="hl-delimiter">:</span> <span class="hl-operator">-</span><span class="hl-number">45</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">arc</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-property-name">turn</span><span class="hl-delimiter">:</span> <span class="hl-operator">-</span><span class="hl-number">45</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">arc</span><span class="hl-delimiter">:</span> <span class="hl-variable-use">r</span><span class="hl-delimiter">,</span> <span class="hl-property-name">turn</span><span class="hl-delimiter">:</span> <span class="hl-number">45</span><span class="hl-bracket">}])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-operator">-</span><span class="hl-variable-use">x</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Cutters ---</span>
+
+<span class="hl-comment">// A screw's hole, centred on z = 0: the shank, countersunk at both ends.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">screw_hole</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">half</span> <span class="hl-operator">=</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_LENGTH</span> <span class="hl-operator">/</span> <span class="hl-number">2.0</span><span class="hl-delimiter">;</span>
+    <span class="hl-keyword">let</span> <span class="hl-variable-name">cap</span> <span class="hl-operator">=</span> <span class="hl-builtin">cone</span><span class="hl-bracket">([</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_CAP_R</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_CAP_R</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_CAP</span><span class="hl-bracket">]</span><span class="hl-delimiter">,</span> <span class="hl-bracket">[</span><span class="hl-variable-use">half</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">half</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_CAP</span><span class="hl-bracket">])</span><span class="hl-delimiter">;</span>
+    <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-builtin">cylinder</span><span class="hl-bracket">(</span><span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_R</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_LENGTH</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">SCREW_CAP</span><span class="hl-bracket">)</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">cap</span><span class="hl-delimiter">.</span><span class="hl-function-call">symmetric_z</span><span class="hl-bracket">())</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// The key's hole, along the key: down the bar, round its bend, along the</span>
+<span class="hl-comment">// stem.</span>
+<span class="hl-keyword">fn</span> <span class="hl-function-name">key_hole</span><span class="hl-bracket">()</span> <span class="hl-bracket">{</span>
+    <span class="hl-function-call">key_hole_profile</span><span class="hl-bracket">()</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">sweep</span><span class="hl-bracket">([#{</span><span class="hl-property-name">line</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">KEY_Y</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">arc</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">KEY_BEND_R</span><span class="hl-delimiter">,</span> <span class="hl-property-name">turn</span><span class="hl-delimiter">:</span> <span class="hl-number">90</span><span class="hl-bracket">}</span><span class="hl-delimiter">,</span> <span class="hl-bracket">#{</span><span class="hl-property-name">line</span><span class="hl-delimiter">:</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">KEY_X</span><span class="hl-bracket">}])</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">rotate_z</span><span class="hl-bracket">(</span><span class="hl-operator">-</span><span class="hl-number">90</span><span class="hl-bracket">)</span>
+        <span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">KEY_BEND_R</span> <span class="hl-operator">+</span> <span class="hl-builtin">global</span><span class="hl-delimiter">::</span><span class="hl-constant">KEY_Y</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span>
+<span class="hl-bracket">}</span>
+
+<span class="hl-comment">// --- Assembly ---</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">r</span> <span class="hl-operator">=</span> <span class="hl-constant">HANDLE_R</span> <span class="hl-operator">*</span> <span class="hl-constant">LOOP_FACTOR</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">loop_y</span> <span class="hl-operator">=</span> <span class="hl-variable-use">r</span> <span class="hl-operator">*</span> <span class="hl-constant">SQRT_2</span> <span class="hl-operator">*</span> <span class="hl-builtin">tand</span><span class="hl-bracket">(</span><span class="hl-number">22.5</span><span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-keyword">let</span> <span class="hl-variable-name">handle</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span><span class="hl-function-call">handle_half</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">symmetric_y</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span> <span class="hl-function-call">screw_loop</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">LOOP_AT</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">]))</span><span class="hl-delimiter">;</span>
+<span class="hl-keyword">let</span> <span class="hl-variable-name">cutters</span> <span class="hl-operator">=</span> <span class="hl-builtin">union</span><span class="hl-bracket">(</span>
+    <span class="hl-function-call">key_hole</span><span class="hl-bracket">()</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">screw_hole</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-number">0</span><span class="hl-delimiter">,</span> <span class="hl-operator">-</span><span class="hl-constant">BAR</span> <span class="hl-operator">/</span> <span class="hl-number">4.0</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+    <span class="hl-builtin">screw_hole</span><span class="hl-bracket">()</span><span class="hl-delimiter">.</span><span class="hl-function-call">move</span><span class="hl-bracket">([</span><span class="hl-constant">LOOP_AT</span><span class="hl-delimiter">,</span> <span class="hl-variable-use">loop_y</span><span class="hl-delimiter">,</span> <span class="hl-number">0</span><span class="hl-bracket">])</span><span class="hl-delimiter">,</span>
+<span class="hl-bracket">)</span><span class="hl-delimiter">;</span>
+
+<span class="hl-builtin">draw</span><span class="hl-bracket">(</span><span class="hl-variable-use">handle</span><span class="hl-delimiter">.</span><span class="hl-function-call">difference</span><span class="hl-bracket">(</span><span class="hl-variable-use">cutters</span><span class="hl-bracket">))</span><span class="hl-delimiter">;</span>
+</pre>
+</div>
+</div>
+</section>
+</main>
+<div id="postamble" class="status">
+<footer><p>keycap is free software: its Emacs package and manual are GPL-3.0-or-later, its server and prelude MPL-2.0 and its examples 0BSD. This site's text and Rei's designs are CC BY-SA 4.0, the tutorial's code 0BSD and the site's own code GPL-3.0-or-later.</p><p>Written in Org, published by Emacs; one small script, to copy code, and no trackers.</p></footer>
+</div>
+</body>
+</html>
