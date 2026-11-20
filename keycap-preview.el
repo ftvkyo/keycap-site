@@ -545,9 +545,10 @@ process filter; the file of the frame shown before goes."
   nil)
 
 (defun keycap--preview-probe ()
-  "Read the model at `keycap--preview-probe-next', if any.
+  "Read the model at `keycap--preview-probe-next', if any and no render runs.
 The next reading waits for this one and `keycap-preview-probe-interval'."
   (if-let* ((pixel keycap--preview-probe-next)
+            ((not keycap--preview-rendering))
             ((buffer-live-p keycap--preview-source)))
       (let ((preview (current-buffer))
             (frame keycap--preview-frame))
