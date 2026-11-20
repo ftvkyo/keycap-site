@@ -1,8 +1,3 @@
-/result
-/result-cache
-/.frame-cache
-/.keycap-server
-/result-print
 /public
 # Written by publish.el from keycap's examples and keycap-designs.
 /content/gallery/

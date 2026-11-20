@@ -32,3 +32,11 @@ costs *ARGS: server-build
 # Load random programs, valid or each with a mistake, and shrink what misbehaves to a repro.
 fuzz *ARGS: server-build
     nix-shell -A serverShell default.nix --run 'python3 server/fuzz fuzz {{ ARGS }}'
+
+# Build the site into ./result-site.
+site:
+    nix-build -A site -o result-site
+
+# Publish the site into site/public with the checkouts beside this one, and serve it.
+site-preview *ARGS:
+    site/tools/preview.sh {{ ARGS }}

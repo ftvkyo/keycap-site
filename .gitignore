@@ -3,3 +3,11 @@
 
 # The Orca plugin's bytecode, when run in place.
 /orca/__pycache__
+
+# The site, built by `just site`, and what the pages workflow keeps.
+/result-site
+/result-cache
+/.frame-cache
+/.keycap-server
+/site/.frame-cache
+/site/.keycap-server
