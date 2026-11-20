@@ -8,9 +8,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "744a6c328f1ef72f89afa52bd7c6db9d2a7bcadf",
+      "revision": "20946fb85b8330561ece113f532b2909ae02bd56",
       "url": null,
-      "hash": "sha256-gVEFcHJ+mQ57c/kRQoOWb0JJP9iSZkhZbzy/8ydK0t4="
+      "hash": "sha256-a8FkvRTw3hwEOTNivj9QyNwvZLHkvRnGs4eV/IlGEq4="
     },
     "keycap-designs": {
       "type": "Git",
